@@ -4,7 +4,8 @@
 #include <memory>
 
 
-int main(int argc, char* argv[])
+
+int main(int argc, char** argv)
 {
     std::unique_ptr<ZeronEngine::Application> app = std::make_unique<ZeronEngine::Application>();
 

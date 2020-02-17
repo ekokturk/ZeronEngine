@@ -6,18 +6,23 @@ add_subdirectory(ThirdParty)
 # ========== ZERON ENGINE =========
 set(ENGINE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 set(ENGINE_THIRDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty")
+set_output_directory("")
 
 set(
     ENGINE_SOURCE_FILES
 	"${ENGINE_SOURCE_DIR}/Core/Private/main.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Application.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Application.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Core.h"
 )
 
 source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source" FILES ${ENGINE_SOURCE_FILES})
 
-add_executable(ZeronEngine ${ENGINE_SOURCE_FILES})
-# add_library( ZeronEngine ${ENGINE_SOURCE_FILES})
+add_library( 
+	ZeronEngine
+	SHARED
+		${ENGINE_SOURCE_FILES}
+)
 
 set_target_properties(ZeronEngine PROPERTIES FOLDER "ZeronEngine")
 

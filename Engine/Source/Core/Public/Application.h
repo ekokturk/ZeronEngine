@@ -1,11 +1,12 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
+#include "Core.h"
+
 #pragma once
 
 namespace ZeronEngine
 {
-
-	class Application
+	class ZRN_API Application
 	{
 	private:
 
