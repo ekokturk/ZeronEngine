@@ -1,1 +1,1 @@
-cmake -B ./Solution 
+cmake -B ./Solution -DCMAKE_TOOLCHAIN_FILE=Tools/CMake/toolchain/Windows64.cmake
