@@ -1,5 +1,9 @@
 # Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
+# ========== ENGINE DEPENDENCIES =========
+add_subdirectory(ThirdParty)
+
+# ========== ZERON ENGINE =========
 set(ENGINE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 
 set(
@@ -13,6 +17,8 @@ source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source" FILES ${ENGINE_SOURCE_FI
 
 add_executable(ZeronEngine ${ENGINE_SOURCE_FILES})
 # add_library( ZeronEngine ${ENGINE_SOURCE_FILES})
+
+set_target_properties(ZeronEngine PROPERTIES FOLDER "ZeronEngine")
 
 target_include_directories(ZeronEngine 
     PUBLIC 
