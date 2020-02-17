@@ -2,15 +2,19 @@
 
 #pragma once
 
-class Application
+namespace ZeronEngine
 {
-private:
 
-public:
-    Application();
-    virtual ~Application();
-    
-    virtual void Run();
-    virtual void Destroy();
-};
+	class Application
+	{
+	private:
 
+	public:
+		Application();
+		virtual ~Application();
+
+		virtual void Run();
+		virtual void Destroy();
+	};
+
+}

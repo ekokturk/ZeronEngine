@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[])
 {
-    std::unique_ptr<Application> app = std::make_unique<Application>();
+    std::unique_ptr<ZeronEngine::Application> app = std::make_unique<ZeronEngine::Application>();
 
     app->Run();
 }
