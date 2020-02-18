@@ -6,11 +6,16 @@ set_output_directory("")
 
 # =========== TARGET ===========
 
-add_executable(
-    Sandbox 
-    "Source/main.cpp"
+set(
+    SANDBOX_SOURCE_FILES
+    "Source/Sandbox.h"
+    "Source/Sandbox.cpp"
 )
 
+add_executable(
+    Sandbox 
+    ${SANDBOX_SOURCE_FILES}
+)
 
 set_target_properties(
     Sandbox 
@@ -19,3 +24,5 @@ set_target_properties(
 )
 
 target_link_libraries(Sandbox ZeronEngine)
+
+source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SANDBOX_SOURCE_FILES})
