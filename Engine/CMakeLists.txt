@@ -10,13 +10,12 @@ set_output_directory("")
 
 set(
     ENGINE_SOURCE_FILES
-	"${ENGINE_SOURCE_DIR}/Core/Public/EntryPoint.h"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Application.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Application.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Core.h"
 )
 
-source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source" FILES ${ENGINE_SOURCE_FILES})
+source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${ENGINE_SOURCE_FILES})
 
 add_library( 
 	ZeronEngine

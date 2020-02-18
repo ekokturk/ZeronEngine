@@ -1,8 +1,8 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 #pragma once
 
-#include "EntryPoint.h"
 #include <iostream>
+#include "Application.h"
 
 
 class Sandbox : public ZeronEngine::Application
@@ -14,4 +14,4 @@ public:
 	void Run() { std::cout << "Test"; };
 };
 
-CREATE_ZERON_APP(Sandbox) 
+GENERATE_ZERON_APPLICATION(Sandbox)

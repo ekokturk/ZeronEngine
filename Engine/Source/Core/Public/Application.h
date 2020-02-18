@@ -3,14 +3,19 @@
 #pragma once
 
 #include "Core.h"
-#include <string>
-#include <iostream>
 
-// Create derieved Zeron application
-#define CREATE_ZERON_APP(AppClass)\
+// Create derived Zeron application
+#define GENERATE_ZERON_APPLICATION(AppClass)\
 		ZeronEngine::Application* ZeronEngine::CreateApplication()\
 		{\
-		return new AppClass();\
+			return new AppClass();\
+		}\
+		\
+		int main(int argc, char** argv)\
+		{\
+			ZeronEngine::CreateApplication();\
+			AppClass::GetInstance()->Run();\
+			AppClass::GetInstance()->Destroy();\
 		}\
 
 namespace ZeronEngine
@@ -18,13 +23,15 @@ namespace ZeronEngine
 	class ZRN_API Application
 	{
 	private:
-		static Application * m_Instance;
+		static Application * s_Instance;
 	public:
-		Application(){};
+		Application();
+
+		static Application * GetInstance();
 		
 		virtual ~Application(){}
 		virtual void Run() {}
-
+		void Destroy();
 	};
 
 	Application * CreateApplication();
