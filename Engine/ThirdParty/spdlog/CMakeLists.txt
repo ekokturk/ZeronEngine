@@ -95,5 +95,6 @@ target_include_directories(
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
+target_compile_definitions(spdlog PUBLIC SPDLOG_COMPILED_LIB)
 
 set_target_properties(spdlog PROPERTIES FOLDER ${spdlog_FOLDER})
