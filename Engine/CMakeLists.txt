@@ -31,6 +31,7 @@ target_include_directories(ZeronEngine
 	PRIVATE
 		"${ENGINE_THIRDPARTY_DIR}/GLFW/include"
 		"${ENGINE_THIRDPARTY_DIR}/GLAD/include"
+		"${ENGINE_THIRDPARTY_DIR}/spdlog/include"
 )
 
 target_link_libraries(

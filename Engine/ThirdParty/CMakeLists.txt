@@ -4,3 +4,4 @@ set_output_directory("")
 
 add_subdirectory(GLFW)
 add_subdirectory(GLAD)
+add_subdirectory(spdlog)
