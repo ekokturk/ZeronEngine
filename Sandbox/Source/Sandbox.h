@@ -8,10 +8,6 @@
 class Sandbox : public ZeronEngine::Application
 {
 public:
-	Sandbox(){}
-	~Sandbox() {}
-
-	void Run() { std::cout << "Test"; };
+	void Run() { ZERON_LOG("Sandbox Running!") };
 };
 
-GENERATE_ZERON_APPLICATION(Sandbox)

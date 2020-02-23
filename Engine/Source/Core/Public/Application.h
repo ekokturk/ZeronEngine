@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Core.h"
+#include "Logger.h"
 
 // Create derived Zeron application
 #define GENERATE_ZERON_APPLICATION(AppClass)\
@@ -13,6 +14,7 @@
 		\
 		int main(int argc, char** argv)\
 		{\
+			{ZeronEngine::Logger::Init();}\
 			ZeronEngine::CreateApplication();\
 			AppClass::GetInstance()->Run();\
 			AppClass::GetInstance()->Destroy();\
@@ -20,7 +22,7 @@
 
 namespace ZeronEngine
 {
-	class ZRN_API Application
+	class Application
 	{
 	private:
 		static Application * s_Instance;

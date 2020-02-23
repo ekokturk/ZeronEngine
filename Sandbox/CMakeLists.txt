@@ -23,6 +23,6 @@ set_target_properties(
         FOLDER ${SANDBOX_FOLDER}
 )
 
-target_link_libraries(Sandbox ZeronEngine)
+target_link_libraries(Sandbox ZeronEngine )
 
 source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SANDBOX_SOURCE_FILES})

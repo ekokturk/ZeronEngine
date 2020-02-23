@@ -32,7 +32,11 @@ def update_cmake(filePath, updateString, beginPattern, endPattern):
 
 engine_rel_path = './../../'
 source_path = os.path.dirname(os.path.realpath(__file__)) + engine_rel_path + 'Source'
+# Update engine source files
 source_files = get_files_as_string(source_path, (".cpp", ".h"), "${ENGINE_SOURCE_DIR}")
 update_cmake( engine_rel_path + 'CMakeLists.txt',source_files, "#ENGINE_SOURCE_BEGIN", "#ENGINE_SOURCE_END")
+# Update engine include directories
+include_dirs = get_directories_as_string(source_path, "Public", "${ENGINE_SOURCE_DIR}")
+update_cmake( engine_rel_path + 'CMakeLists.txt', include_dirs, "#ENGINE_INCLUDE_BEGIN", "#ENGINE_INCLUDE_END")
 
 

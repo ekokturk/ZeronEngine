@@ -9,6 +9,15 @@ namespace ZeronEngine
 	
 	Application::Application()
 	{
+		// If the application instance already created destroy copies
+		if (s_Instance != nullptr)
+		{
+			
+			delete this;
+			return;
+		}
+		
+		// Initialize app instance
 		s_Instance = this;
 	}
 

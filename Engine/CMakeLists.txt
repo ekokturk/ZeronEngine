@@ -10,9 +10,16 @@ set_output_directory("")
 
 set(
     ENGINE_SOURCE_FILES
+	#ENGINE_SOURCE_BEGIN
 	"${ENGINE_SOURCE_DIR}/Core/Private/Application.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Logger.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Window.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Application.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Core.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Logger.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Window.h"
+	"${ENGINE_SOURCE_DIR}/Utils/Public/Color.h"
+	#ENGINE_SOURCE_END
 )
 
 source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${ENGINE_SOURCE_FILES})
@@ -27,14 +34,21 @@ set_target_properties(ZeronEngine PROPERTIES FOLDER "ZeronEngine")
 
 target_include_directories(ZeronEngine 
     PUBLIC 
-		"${ENGINE_SOURCE_DIR}/Core/Public"
+		"${ENGINE_SOURCE_DIR}"
+		#ENGINE_INCLUDE_BEGIN
+	"${ENGINE_SOURCE_DIR}/Core/Public"
+	"${ENGINE_SOURCE_DIR}/Utils/Public"
+	#ENGINE_INCLUDE_END
+
 	PRIVATE
 		"${ENGINE_THIRDPARTY_DIR}/GLFW/include"
 		"${ENGINE_THIRDPARTY_DIR}/GLAD/include"
-		"${ENGINE_THIRDPARTY_DIR}/spdlog/include"
 )
 
 target_link_libraries(
 	ZeronEngine 
-		glfw glad
+			glfw 
+			glad 
+			fmt::fmt-header-only
+			
 )
