@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Core.h"
+#include "Events/IEventHandler.h"
 #include "Logger.h"
 
 // Create derived Zeron application
@@ -22,7 +23,7 @@
 
 namespace ZeronEngine
 {
-	class Application
+	class Application: public IEventHandler
 	{
 	private:
 		static Application * s_Instance;
@@ -34,6 +35,8 @@ namespace ZeronEngine
 		virtual ~Application(){}
 		virtual void Run() {}
 		void Destroy();
+		
+		void OnEvent(const Event& e);
 	};
 
 	Application * CreateApplication();

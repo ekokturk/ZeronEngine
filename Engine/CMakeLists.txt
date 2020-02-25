@@ -14,10 +14,15 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Private/Application.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Logger.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Window.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Events/Event.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventDispatcher.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Application.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Core.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Logger.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Events/Event.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventDispatcher.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Events/IEventHandler.h"
 	"${ENGINE_SOURCE_DIR}/Utils/Public/Color.h"
 	#ENGINE_SOURCE_END
 )
