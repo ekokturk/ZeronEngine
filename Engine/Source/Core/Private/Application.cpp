@@ -21,17 +21,29 @@ namespace ZeronEngine
 		// Initialize app instance
 		s_Instance = this;
 
-		std::unique_ptr<EventDispatcher> eventDispatcher = std::make_unique<EventDispatcher>();
-		eventDispatcher->Register(this);
+		m_EventDispatcher = std::make_unique<EventDispatcher>();
+		m_EventDispatcher->Register(this);
 
-		Event event;
-		event.m_Type = EEventType::AppStart;
-		eventDispatcher->Dispatch(event);
+
 	}
 
 	Application* Application::GetInstance()
 	{
 		return s_Instance;
+	}
+
+	Application::~Application()
+	{
+		Event event;
+		event.m_Type = EEventType::AppStop;
+		m_EventDispatcher->Dispatch(event);
+	}
+
+	void Application::Run()
+	{
+		Event event;
+		event.m_Type = EEventType::AppStop;
+		m_EventDispatcher->Dispatch(event);
 	}
 
 	void Application::Destroy()
@@ -50,6 +62,9 @@ namespace ZeronEngine
 		{
 		case EEventType::AppStart:
 			ZERON_LOG("App Started")
+			break;
+		case EEventType::AppStop:
+			ZERON_LOG("AppStopped");
 			break;
 			
 		default:

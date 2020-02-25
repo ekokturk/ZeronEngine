@@ -8,6 +8,5 @@
 class Sandbox : public ZeronEngine::Application
 {
 public:
-	void Run() { ZERON_LOG("Sandbox Running!") };
 };
 

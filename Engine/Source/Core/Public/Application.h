@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Core.h"
+#include "Events/EventDispatcher.h"
 #include "Events/IEventHandler.h"
 #include "Logger.h"
 
@@ -27,13 +28,14 @@ namespace ZeronEngine
 	{
 	private:
 		static Application * s_Instance;
+		std::unique_ptr<EventDispatcher> m_EventDispatcher;
 	public:
 		Application();
 
 		static Application * GetInstance();
 		
-		virtual ~Application(){}
-		virtual void Run() {}
+		virtual ~Application();
+		void Run();
 		void Destroy();
 		
 		void OnEvent(const Event& e);
