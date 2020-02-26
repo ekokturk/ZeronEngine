@@ -3,6 +3,8 @@
 #include "../Public/Application.h"
 #include "Events/Event.h"
 #include "Events/EventDispatcher.h"
+#include "Input.h"
+#include "Window.h"
 
 namespace ZeronEngine
 {
@@ -13,8 +15,18 @@ namespace ZeronEngine
 		assert(s_Instance == nullptr);
 
 		s_Instance = this;
+
 		m_EventDispatcher = std::make_unique<EventDispatcher>();
+		m_Window = std::make_unique<Window>();
+		m_Input = std::make_unique<Input>();
+
+		// Register Event listeners
 		m_EventDispatcher->Register(this);
+
+		// Set event callbacks
+		std::function<void(Event&)> eventCallback = [this](Event& e) { m_EventDispatcher->Dispatch(e); };
+		m_Input->SetEventCallback(eventCallback);
+		m_Window->SetEventCallback(eventCallback);
 	}
 
 	Application* Application::GetInstance()
@@ -22,43 +34,60 @@ namespace ZeronEngine
 		return s_Instance;
 	}
 
-	Application::~Application()
+	void Application::DestroyInstance()
 	{
-		Event event;
-		event.m_Type = EEventType::AppStop;
-		m_EventDispatcher->Dispatch(event);
-	}
-
-	void Application::Run()
-	{
-		Event event;
-		event.m_Type = EEventType::AppStop;
-		m_EventDispatcher->Dispatch(event);
-	}
-
-	void Application::Exit()
-	{
-		if(s_Instance != nullptr)
+		ZERON_LOG_INFO("Application instance destroyed.")
+		if (s_Instance != nullptr)
 		{
+			s_Instance->Exit();
 			delete s_Instance;
 			s_Instance = nullptr;
 		}
 	}
 
+	Application::~Application() {}
 
+	void Application::Run()
+	{
+		Init();
+		m_IsRunning = true;
+		while (m_IsRunning)
+		{
+			Update();
+		}
+	}
+
+	void Application::Init()
+	{
+		m_Window->Init();
+
+		OnInit();
+	}
+
+	void Application::Update()
+	{
+		m_Window->Update();
+
+		OnUpdate();
+	}
+
+	void Application::Exit()
+	{
+		m_IsRunning = false;
+		m_Window->Destroy();
+	}
+	
 	void Application::OnEvent(const Event& e)
 	{
 		switch (e.m_Type)
 		{
-		case EEventType::AppStart:
-			ZERON_LOG("App Started")
+		case EventType::WindowClosed:
+			ZERON_LOG("Window Closed");
 			break;
-		case EEventType::AppStop:
-			ZERON_LOG("AppStopped");
-			break;
-			
 		default:
 			break;
 		}
 	}
 }
+
+

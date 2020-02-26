@@ -4,19 +4,18 @@
 
 namespace ZeronEngine
 {
-	enum class EEventType
+	enum class EventType
 	{
-		AppStart,
-		AppStop
+		WindowClosed
 	};
 
 	
 	class Event
 	{
 	private:
-		
+	
 		
 	public:
-		EEventType m_Type;
+		EventType m_Type;
 	};
 }
