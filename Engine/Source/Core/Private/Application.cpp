@@ -10,21 +10,11 @@ namespace ZeronEngine
 	
 	Application::Application()
 	{
-		// If the application instance already created destroy copies
-		if (s_Instance != nullptr)
-		{
-			
-			delete this;
-			return;
-		}
-		
-		// Initialize app instance
-		s_Instance = this;
+		assert(s_Instance == nullptr);
 
+		s_Instance = this;
 		m_EventDispatcher = std::make_unique<EventDispatcher>();
 		m_EventDispatcher->Register(this);
-
-
 	}
 
 	Application* Application::GetInstance()
@@ -46,7 +36,7 @@ namespace ZeronEngine
 		m_EventDispatcher->Dispatch(event);
 	}
 
-	void Application::Destroy()
+	void Application::Exit()
 	{
 		if(s_Instance != nullptr)
 		{

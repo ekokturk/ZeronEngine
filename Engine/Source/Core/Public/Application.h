@@ -9,17 +9,12 @@
 
 // Create derived Zeron application
 #define GENERATE_ZERON_APPLICATION(AppClass)\
-		ZeronEngine::Application* ZeronEngine::CreateApplication()\
-		{\
-			return new AppClass();\
-		}\
-		\
 		int main(int argc, char** argv)\
 		{\
 			{ZeronEngine::Logger::Init();}\
-			ZeronEngine::CreateApplication();\
+			ZeronEngine::Application::Create<AppClass>();\
 			AppClass::GetInstance()->Run();\
-			AppClass::GetInstance()->Destroy();\
+			AppClass::Exit();\
 		}\
 
 namespace ZeronEngine
@@ -29,17 +24,23 @@ namespace ZeronEngine
 	private:
 		static Application * s_Instance;
 		std::unique_ptr<EventDispatcher> m_EventDispatcher;
+		
 	public:
 		Application();
+		virtual ~Application();
+
+		template<class T> 
+		static Application* Create()
+		{
+			return new T;
+		}
 
 		static Application * GetInstance();
 		
-		virtual ~Application();
 		void Run();
-		void Destroy();
+		static void Exit();
 		
 		void OnEvent(const Event& e);
 	};
 
-	Application * CreateApplication();
 }
