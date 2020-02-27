@@ -7,8 +7,11 @@ namespace ZeronEngine
 	
 	class IEventHandler
 	{
+
 	public:
 		virtual void OnEvent(const Event& e) = 0;
+	protected:
+		virtual ~IEventHandler() {}
 	};
 
 }
