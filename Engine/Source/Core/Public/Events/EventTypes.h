@@ -13,9 +13,20 @@ namespace ZeronEngine
 			WindowClosed(){};
 		};
 
-		struct Message
+		// Custom event type to take in string as an event type
+		struct Custom
 		{
-			std::string Data;
+			std::string TypeName;
+			unsigned int TypeID;
+
+			// TODO Add option to pass along data with event Custom(string, ...)
+
+			Custom(std::string typeName)
+				:TypeName(typeName),
+				 TypeID(0) // TODO Create string id for events
+			{
+			}
+			
 		};
 
 	}

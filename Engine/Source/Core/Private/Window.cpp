@@ -28,6 +28,9 @@ namespace ZeronEngine
 	{
 		EventType::WindowClosed data;
 		m_EventCallback(Event(data));
+
+		EventType::Custom data2("Test");
+		m_EventCallback(Event(data2));
 	}
 
 	void Window::SetEventCallback(std::function<void(Event&)>& callback)

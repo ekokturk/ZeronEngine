@@ -8,7 +8,7 @@ namespace ZeronEngine
 {
 	// Event Type variant
 	using EventData = std::variant<
-		EventType::Message,
+		EventType::Custom,
 		EventType::WindowClosed
 	>;
 
@@ -16,12 +16,15 @@ namespace ZeronEngine
 	class Event
 	{
 	private:
-		
-	public:
 		EventData m_Data;
+
+	public:
 		Event(EventData data);
-		~Event();;
+		~Event();
 
-
+		// Get reference to event data, returning in conditional statement will check for event type
+		template<typename T>
+		auto GetDataRef() const { return std::get_if<T>(&m_Data); }
+		
 	};
 }

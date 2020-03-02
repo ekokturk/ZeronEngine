@@ -77,23 +77,19 @@ namespace ZeronEngine
 		m_IsRunning = false;
 		m_Window->Destroy();
 	}
-	template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
-	template<class... Ts> overload(Ts...)->overload<Ts...>;
 	
 	void Application::OnEvent(const Event& e)
 	{
-		//if( auto pval = std::get_if<EventType::WindowClosed>(&e.m_Data))
-		//{
-		//	ZERON_LOG("Window Closed")
-		//}
-		//
-		//
-
-		std::visit([&e](auto a)
+		using namespace EventType;
+		
+		if( e.GetDataRef<WindowClosed>())
 		{
 			ZERON_LOG("Window Closed")
-		}, e.m_Data);
-
+		}
+		else if( const auto data = e.GetDataRef<Custom>())
+		{
+			ZERON_LOG("Custom Event: {}", (*data).TypeName)
+		}
 	}
 }
 

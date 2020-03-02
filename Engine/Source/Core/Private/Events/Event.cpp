@@ -3,8 +3,8 @@
 #include "Events/Event.h"
 
 ZeronEngine::Event::Event(EventData data)
+	:m_Data(data)
 {
-	m_Data = data;
 }
 
 ZeronEngine::Event::~Event()
