@@ -88,7 +88,11 @@ namespace ZeronEngine
 		}
 		else if( const auto data = e.GetDataRef<Custom>())
 		{
-			ZERON_LOG("Custom Event: {}", (*data).TypeName)
+			//if(Custom::GetTypeID("Test") == data->GetID())
+			//{
+			//	ZERON_LOG("Custom Event: {}", Custom::GetTypeID("Test"))
+			//}
+			HANDLE_CUSTOM_EVENT(data, "Test", ZERON_LOG("Custom Event: {}", Custom::GetTypeID("Test")));
 		}
 	}
 }
