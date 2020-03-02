@@ -1,21 +1,27 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 #pragma once
 #include <functional>
+#include <variant>
+#include "EventTypes.h"
 
 namespace ZeronEngine
 {
-	enum class EventType
-	{
-		WindowClosed
-	};
+	// Event Type variant
+	using EventData = std::variant<
+		EventType::Message,
+		EventType::WindowClosed
+	>;
 
-	
+	// Event object
 	class Event
 	{
 	private:
-	
 		
 	public:
-		EventType m_Type;
+		EventData m_Data;
+		Event(EventData data);
+		~Event();;
+
+
 	};
 }

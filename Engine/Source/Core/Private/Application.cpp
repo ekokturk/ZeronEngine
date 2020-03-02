@@ -5,6 +5,7 @@
 #include "Events/EventDispatcher.h"
 #include "Input.h"
 #include "Window.h"
+#include <variant>
 
 namespace ZeronEngine
 {
@@ -50,7 +51,7 @@ namespace ZeronEngine
 	void Application::Run()
 	{
 		Init();
-		m_IsRunning = true;
+		m_IsRunning = false;
 		while (m_IsRunning)
 		{
 			Update();
@@ -76,17 +77,23 @@ namespace ZeronEngine
 		m_IsRunning = false;
 		m_Window->Destroy();
 	}
+	template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+	template<class... Ts> overload(Ts...)->overload<Ts...>;
 	
 	void Application::OnEvent(const Event& e)
 	{
-		switch (e.m_Type)
+		//if( auto pval = std::get_if<EventType::WindowClosed>(&e.m_Data))
+		//{
+		//	ZERON_LOG("Window Closed")
+		//}
+		//
+		//
+
+		std::visit([&e](auto a)
 		{
-		case EventType::WindowClosed:
-			ZERON_LOG("Window Closed");
-			break;
-		default:
-			break;
-		}
+			ZERON_LOG("Window Closed")
+		}, e.m_Data);
+
 	}
 }
 

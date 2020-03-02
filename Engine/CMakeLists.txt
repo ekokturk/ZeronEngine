@@ -24,6 +24,7 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/Event.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventDispatcher.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/IEventHandler.h"
 	"${ENGINE_SOURCE_DIR}/Utils/Public/Color.h"
 	#ENGINE_SOURCE_END

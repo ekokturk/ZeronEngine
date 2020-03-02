@@ -6,6 +6,9 @@
 namespace ZeronEngine
 {
 	Window::Window()
+		:m_Height(0),
+		m_Width(0),
+		m_Name("Zeron Engine")
 	{
 	}
 
@@ -23,9 +26,8 @@ namespace ZeronEngine
 
 	void Window::Destroy()
 	{
-		Event e;
-		e.m_Type = EventType::WindowClosed;
-		m_EventCallback(e);
+		EventType::WindowClosed data;
+		m_EventCallback(Event(data));
 	}
 
 	void Window::SetEventCallback(std::function<void(Event&)>& callback)
