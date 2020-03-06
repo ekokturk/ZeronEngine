@@ -17,6 +17,7 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Private/Window.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/Event.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventDispatcher.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Application.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Core.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Input.h"

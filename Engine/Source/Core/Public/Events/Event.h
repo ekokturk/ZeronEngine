@@ -8,8 +8,15 @@ namespace ZeronEngine
 {
 	// Event Type variant
 	using EventData = std::variant<
-		EventType::Custom,
-		EventType::WindowClosed
+		EventType::WindowResize,
+		EventType::WindowClosed,
+		EventType::KeyPressed,
+		EventType::KeyReleased,
+		EventType::MousePressed,
+		EventType::MouseReleased,
+		EventType::MouseMoved,
+		EventType::MouseScrolled,
+		EventType::Custom
 	>;
 
 	// Event object

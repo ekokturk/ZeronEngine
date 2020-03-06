@@ -11,7 +11,7 @@ namespace ZeronEngine
 		 m_Format("[{t:%Y-%m-%d | %H:%M:%S}]{p} {m}\n")
 	{
 		m_LogFile.open("Log.txt", std::ofstream::out | std::ofstream::trunc);
-		AddLogPrefix((ELogType::Info), " - [Info] -");
+		AddLogPrefix((ELogType::Info), " - [INFO] -");
 		AddLogPrefix(ELogType::Warning, " - [WARNING] -");
 		AddLogPrefix(ELogType::Error, " - [ERROR] -");
 		AddLogPrefix(ELogType::Fatal, " - [FATAL] -");

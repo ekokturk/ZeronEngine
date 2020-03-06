@@ -6,7 +6,6 @@
 namespace ZeronEngine
 {
 	class IEventHandler;
-
 	
 	class EventDispatcher
 	{
@@ -16,7 +15,6 @@ namespace ZeronEngine
 		
 	public:
 		void Register(IEventHandler* eventHandler);
-
 		void Dispatch(Event& event);
 	};
 

@@ -2,41 +2,75 @@
 
 #pragma once
 #include <string>
+#include <unordered_map>
 
 namespace ZeronEngine
 {
 	namespace EventType
 	{
-
+		/// ================ WINDOW EVENTS ===================
+		
+		struct WindowResize
+		{
+			
+		};
+		
 		struct WindowClosed
 		{
-			WindowClosed(){};
+			
 		};
+
+		/// ================ KEY EVENTS ===================
+		/// 
+		struct KeyPressed
+		{
+			
+		};
+
+		struct KeyReleased
+		{
+			
+		};
+
+		/// ================ MOUSE EVENTS ===================
+
+		struct MousePressed
+		{
+			
+		};
+
+		struct MouseReleased
+		{
+			
+		};
+
+		struct MouseMoved
+		{
+
+		};
+
+		struct MouseScrolled
+		{
+			
+		};
+		
+		/// ================ CUSTOM EVENT ===================
+		// TODO Add option to pass along data with event Custom(string, ...)
 
 		// Custom event type to take in string as an event type
 		class Custom
 		{
-			static std::unordered_map<std::string, unsigned int> s_TypeMap;
+			static std::unordered_map<std::string, size_t> s_TypeMap;
 			std::string m_TypeName;
 
-			// TODO Add option to pass along data with event Custom(string, ...)
-
 		public:
-			Custom(std::string typeName)
-				:m_TypeName(typeName)
-			{
-				if(s_TypeMap.find(m_TypeName) == s_TypeMap.end())
-				{
-					s_TypeMap.insert(std::make_pair<const char *, unsigned int>(typeName.c_str(), 3));
-				}
-			}
-
-			std::string GetName() const { return m_TypeName;  }
-
-			unsigned int GetID() const { return s_TypeMap[m_TypeName]; }
-
-			static unsigned int GetTypeID(std::string typeName) { return s_TypeMap[typeName]; }
+			Custom(std::string typeName);
+			inline std::string GetName() const { return m_TypeName;  }
+			inline size_t GetID() const { return s_TypeMap[m_TypeName]; }
+			static size_t GetTypeID(std::string typeName) { return s_TypeMap[typeName]; }
 		};
+
+		inline std::unordered_map<std::string, size_t> ZeronEngine::EventType::Custom::s_TypeMap;
 
 #define HANDLE_CUSTOM_EVENT(DataPtr, CustomEventName, Function)\
 				if(ZeronEngine::EventType::Custom::GetTypeID((CustomEventName)) == (DataPtr)->GetID())\

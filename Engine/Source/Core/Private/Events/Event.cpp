@@ -3,8 +3,6 @@
 #include "Events/Event.h"
 #include "Events/EventTypes.h"
 
-std::unordered_map<std::string, unsigned int> ZeronEngine::EventType::Custom::s_TypeMap;
-
 ZeronEngine::Event::Event(EventData data)
 	:m_Data(data)
 {
