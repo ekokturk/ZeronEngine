@@ -1,83 +1,80 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #pragma once
-#include <string>
-#include <unordered_map>
+#include "Events/Event.h" 
+#include "Window/WindowContext.h"
 
 namespace ZeronEngine
 {
-	namespace EventType
+	namespace Events
 	{
 		/// ================ WINDOW EVENTS ===================
-		
-		struct WindowResize
+
+		/* Specific Window is resized */
+		DECLARE_EVENT_TYPE(Window_Resize)
 		{
-			
-		};
-		
-		struct WindowClosed
-		{
-			
+			Window_Resize() : sizeX(0) {}
+			const int sizeX;
 		};
 
+		
+		/* Specific window is closed */
+		DECLARE_EVENT_TYPE(Window_Closed)
+		{
+			Window_Closed(WindowContextHandle context):ContextHandle(context){}
+
+			const WindowContextHandle ContextHandle;
+		};
+
+		/* All windows are are closed */
+		DECLARE_EVENT_TYPE(Window_All_Closed) { };
+		
 		/// ================ KEY EVENTS ===================
-		/// 
+/// 
 		struct KeyPressed
 		{
-			
+
 		};
 
 		struct KeyReleased
 		{
-			
+
 		};
 
 		/// ================ MOUSE EVENTS ===================
 
+		DECLARE_EVENT_TYPE(Mouse_Moved)
+		{
+			Mouse_Moved(float posX, float posY):PosX(posX), PosY(posY){}
+			
+			const float PosX;
+			const float PosY;
+		};
+		
 		struct MousePressed
 		{
-			
+
 		};
 
 		struct MouseReleased
 		{
-			
-		};
-
-		struct MouseMoved
-		{
 
 		};
+
+
 
 		struct MouseScrolled
 		{
-			
+
 		};
-		
-		/// ================ CUSTOM EVENT ===================
-		// TODO Add option to pass along data with event Custom(string, ...)
-
-		// Custom event type to take in string as an event type
-		class Custom
-		{
-			static std::unordered_map<std::string, size_t> s_TypeMap;
-			std::string m_TypeName;
-
-		public:
-			Custom(std::string typeName);
-			inline std::string GetName() const { return m_TypeName;  }
-			inline size_t GetID() const { return s_TypeMap[m_TypeName]; }
-			static size_t GetTypeID(std::string typeName) { return s_TypeMap[typeName]; }
-		};
-
-		inline std::unordered_map<std::string, size_t> ZeronEngine::EventType::Custom::s_TypeMap;
-
-#define HANDLE_CUSTOM_EVENT(DataPtr, CustomEventName, Function)\
-				if(ZeronEngine::EventType::Custom::GetTypeID((CustomEventName)) == (DataPtr)->GetID())\
-				{\
-					Function;\
-				}\
 
 	}
+		
+		
+
+		
+
+
+		
 }
 

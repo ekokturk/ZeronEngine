@@ -3,36 +3,28 @@
 #pragma once
 
 #include "Core.h"
-#include "Events/IEventHandler.h"
 #include "Logger.h"
 
 // Create derived Zeron application
 #define GENERATE_ZERON_APPLICATION(AppClass)\
 		int main(int argc, char** argv)\
 		{\
-			{ZeronEngine::Logger::Init();}\
+			ZeronEngine::Logger::Init();\
 			ZeronEngine::Application::Create<AppClass>();\
-			AppClass::GetInstance()->Run();\
-			AppClass::DestroyInstance();\
+			AppClass::Run();\
+			AppClass::Destroy();\
 		}\
 
 namespace ZeronEngine
 {
 	class EventDispatcher;
-	class Window;
 	class Input;
+	class WindowModule;
 	
-	class Application: public IEventHandler
+	class Application
 	{
-	private:
-		static Application * s_Instance;
-		std::unique_ptr<EventDispatcher> m_EventDispatcher;
-		std::unique_ptr<Window> m_Window;
-		std::unique_ptr<Input> m_Input;
 
-		bool m_IsRunning;
 	public:
-		Application();
 		virtual ~Application();
 
 		template<class T> 
@@ -42,21 +34,39 @@ namespace ZeronEngine
 			return new T;
 		}
 
-		static Application * GetInstance();
-		static void DestroyInstance();
+		static Application * Get();
+		static void Destroy();
 
-		void OnEvent(const Event& e);
 		
-		void Run();
+		static void Run();
 		void Exit();
 		
 	protected:
-		virtual void OnInit(){};
-		virtual void OnUpdate(){};
+		Application();
+		
+		/* Initialization for child classes*/
+		virtual void OnInit();
+
+		/* Update for child classes*/
+		virtual void OnUpdate();
 		
 	private:
 		void Init();
 		void Update();
+
+	public:
+		EventDispatcher& GetEventDispatcher() { return *m_EventDispatcher; }
+
+		
+	private:
+		
+		static Application* s_Instance;
+		std::unique_ptr<EventDispatcher> m_EventDispatcher;
+		std::unique_ptr<WindowModule> m_WindowModule;
+		std::unique_ptr<Input> m_Input;
+
+		bool m_IsRunning;
+
 	};
 
 }

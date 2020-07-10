@@ -11,22 +11,27 @@ set_output_directory("")
 set(
     ENGINE_SOURCE_FILES
 	#ENGINE_SOURCE_BEGIN
+	"${ENGINE_SOURCE_DIR}/ZeronEngine.cpp"
+	"${ENGINE_SOURCE_DIR}/ZeronEngine.h"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Application.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Input.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Logger.cpp"
-	"${ENGINE_SOURCE_DIR}/Core/Private/Window.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/Event.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventDispatcher.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowContext.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowContextGLFW.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowModule.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Application.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Core.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Input.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Logger.h"
-	"${ENGINE_SOURCE_DIR}/Core/Public/Window.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/Event.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventDispatcher.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes.h"
-	"${ENGINE_SOURCE_DIR}/Core/Public/Events/IEventHandler.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowContext.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowContextGLFW.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowModule.h"
 	"${ENGINE_SOURCE_DIR}/Utils/Public/Color.h"
 	#ENGINE_SOURCE_END
 )
@@ -46,6 +51,7 @@ target_include_directories(ZeronEngine
 		"${ENGINE_SOURCE_DIR}"
 		#ENGINE_INCLUDE_BEGIN
 	"${ENGINE_SOURCE_DIR}/Core/Public"
+	"${ENGINE_SOURCE_DIR}/Renderer/Public"
 	"${ENGINE_SOURCE_DIR}/Utils/Public"
 	#ENGINE_INCLUDE_END
 
@@ -53,6 +59,24 @@ target_include_directories(ZeronEngine
 		"${ENGINE_THIRDPARTY_DIR}/GLFW/include"
 		"${ENGINE_THIRDPARTY_DIR}/GLAD/include"
 )
+
+target_precompile_headers(
+	ZeronEngine
+  		PUBLIC
+			<string>
+			<unordered_map>
+			<queue>
+			<any>
+			<variant>
+
+			<iostream>
+			<fstream>
+
+			<functional>
+			<memory>
+)
+
+
 
 target_link_libraries(
 	ZeronEngine 

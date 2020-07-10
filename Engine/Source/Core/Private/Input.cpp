@@ -2,11 +2,23 @@
 
 #include "../Public/Input.h"
 
+
+
+#include "Application.h"
+#include "Logger.h"
+#include "Events/EventDispatcher.h"
+#include "Events/EventTypes.h"
+
 namespace ZeronEngine
 {
-	void Input::SetEventCallback(std::function<void(Event&)>& callback)
+	void Input::RegisterEvents(EventDispatcher& Dispatcher)
 	{
-		m_EventCallback = callback;
-	}
+		//auto eventCallback = [=](Events::Window_Closed& e)
+		//{
+		//	//ZERON_LOG_ERROR("PosX:{} Pos:{}", e.PosX, e.PosY)
+		//		//e.Consume();
+		//};
 
+		//Dispatcher.Register<Events::Window_Closed>(this, eventCallback);
+	}
 }

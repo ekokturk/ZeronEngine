@@ -34,7 +34,7 @@ namespace ZeronEngine
 		return s_Instance.get();
 	}
 
-	void Logger::AddLogPrefix(ELogType id, const std::string prefix)
+	void Logger::AddLogPrefix(ELogType id, const std::string& prefix)
 	{
 		if(m_TypePrefixes.find(id) == m_TypePrefixes.end())
 		{

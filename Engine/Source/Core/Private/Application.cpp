@@ -1,11 +1,12 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
-#include "../Public/Application.h"
-#include "Events/Event.h"
+#include "ZeronEngine.h"
+
+#include "Application.h"
+#include "Events/EventTypes.h"
 #include "Events/EventDispatcher.h"
 #include "Input.h"
-#include "Window.h"
-#include <variant>
+#include "Window/WindowModule.h"
 
 namespace ZeronEngine
 {
@@ -18,28 +19,25 @@ namespace ZeronEngine
 
 		s_Instance = this;
 
+		// Event dispatcher for the application
 		m_EventDispatcher = std::make_unique<EventDispatcher>();
-		m_Window = std::make_unique<Window>();
+		
+		m_WindowModule = std::make_unique<WindowModule>();
 		m_Input = std::make_unique<Input>();
 
-		// Register Event listeners
-		m_EventDispatcher->Register(this);
-
-		// Set event callbacks
-		std::function<void(Event&)> eventCallback = [this](Event& e) { m_EventDispatcher->Dispatch(e); };
-		m_Input->SetEventCallback(eventCallback);
-		m_Window->SetEventCallback(eventCallback);
 	}
+	
+	Application::~Application() {}
 
-	Application* Application::GetInstance()
+	Application* Application::Get()
 	{
 		return s_Instance;
 	}
 
-	void Application::DestroyInstance()
+	void Application::Destroy()
 	{
 		ZERON_LOG_INFO("Application instance destroyed.")
-		if (s_Instance != nullptr)
+		if (s_Instance)
 		{
 			s_Instance->Exit();
 			delete s_Instance;
@@ -47,51 +45,58 @@ namespace ZeronEngine
 		}
 	}
 
-	Application::~Application() {}
 
 	void Application::Run()
 	{
-		Init();
-		m_IsRunning = false;
-		while (m_IsRunning)
+		assert(s_Instance != nullptr);
+		
+		s_Instance->Init();
+		s_Instance->m_IsRunning = true;
+		while (s_Instance->m_IsRunning)
 		{
-			Update();
+			s_Instance->Update();
 		}
 	}
 
 	void Application::Init()
 	{
-		m_Window->Init();
+		m_EventDispatcher->Register<Events::Window_All_Closed>(this, [=](const Events::Window_All_Closed& e)
+		{
+			Exit();
+		});
 
+		
+		m_WindowModule->RegisterEvents(*m_EventDispatcher);
+		m_WindowModule->Init();
+		m_Input->RegisterEvents(*m_EventDispatcher);
+		
 		OnInit();
 	}
 
+	void Application::OnInit(){}
+
+	
 	void Application::Update()
 	{
-		m_Window->Update();
+		m_WindowModule->Update();
 
 		OnUpdate();
 	}
+	
+	void Application::OnUpdate() {}
 
 	void Application::Exit()
 	{
-		m_IsRunning = false;
-		m_Window->Destroy();
-	}
-	
-	void Application::OnEvent(const Event& e)
-	{
-		using namespace EventType;
-		
-		if( e.GetDataRef<WindowClosed>())
+		if(m_IsRunning)
 		{
-			ZERON_LOG("Window Closed")
-		}
-		else if( const auto data = e.GetDataRef<Custom>())
-		{
-			HANDLE_CUSTOM_EVENT(data, "Test", ZERON_LOG("Custom Event: {}", Custom::GetTypeID("Test")));
+			m_IsRunning = false;
+			m_WindowModule->Destroy();
 		}
 	}
+
+
+
+
 }
 
 

@@ -15,7 +15,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
-
 include("${CMAKE_CURRENT_SOURCE_DIR}/Tools/CMake/Macros.cmake")
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -28,5 +27,4 @@ add_subdirectory(Engine)
 add_subdirectory(Sandbox)
 # Set Sandbox as Visual Studio Startup Project
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
-
 

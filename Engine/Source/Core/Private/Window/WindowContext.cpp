@@ -1,0 +1,44 @@
+// Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+
+#include "Window/WindowContext.h"
+
+namespace ZeronEngine
+{
+	WindowProps::WindowProps(const ZeronEngine::EventDispatcher* dispatcher)
+		:Name("Zeron Engine"),
+		Width(800),
+		Height(600),
+		EventDispatcher(dispatcher)
+	{
+	}
+
+	WindowProps::WindowProps(std::string& name, int width, int height, const ZeronEngine::EventDispatcher* dispatcher)
+		:Name(name),
+		Width(width),
+		Height(height),
+		EventDispatcher(dispatcher)
+	{
+	}
+	
+	WindowContext::WindowContext(const WindowProps& windowProps)
+		:m_WindowProps(windowProps)
+	{
+	}
+
+	WindowContext::WindowContext(WindowProps&& windowProps)
+		:m_WindowProps(std::move(windowProps))
+	{
+		
+	}
+
+
+	//WindowContextHandle WindowContext::MakeWindowContextHandle() const
+	//{
+	//	//return WindowContextHandle();
+	//}
+
+	WindowContext::~WindowContext()
+	{
+	}
+
+}

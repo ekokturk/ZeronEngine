@@ -1,9 +1,6 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 #pragma once
 
-#include <string>
-#include <memory>
-#include <fstream>
 #include "Color.h"
 
 // FMT library for string formating
@@ -81,7 +78,7 @@ namespace ZeronEngine
 			fmt::print(m_LogFile, format, args...);
 		}
 
-		void AddLogPrefix(ELogType id, std::string prefix);
+		void AddLogPrefix(ELogType id, const std::string& prefix);
 
 	private:
 		/// Format log string with timestamp and message
