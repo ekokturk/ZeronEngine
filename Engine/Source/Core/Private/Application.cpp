@@ -3,10 +3,11 @@
 #include "ZeronEngine.h"
 
 #include "Application.h"
-#include "Events/EventTypes.h"
+#include "Events/EventTypes/EventTypes.h"
 #include "Events/EventDispatcher.h"
-#include "Input.h"
+#include "Input/InputModule.h"
 #include "Window/WindowModule.h"
+
 
 namespace ZeronEngine
 {
@@ -23,7 +24,7 @@ namespace ZeronEngine
 		m_EventDispatcher = std::make_unique<EventDispatcher>();
 		
 		m_WindowModule = std::make_unique<WindowModule>();
-		m_Input = std::make_unique<Input>();
+		m_InputModule = std::make_unique<InputModule>();
 
 	}
 	
@@ -60,7 +61,7 @@ namespace ZeronEngine
 
 	void Application::Init()
 	{
-		m_EventDispatcher->Register<Events::Window_All_Closed>(this, [=](const Events::Window_All_Closed& e)
+		m_EventDispatcher->Register<Events::Window::CloseAll>(this, [=](const Events::Window::CloseAll& e)
 		{
 			Exit();
 		});
@@ -68,7 +69,7 @@ namespace ZeronEngine
 		
 		m_WindowModule->RegisterEvents(*m_EventDispatcher);
 		m_WindowModule->Init();
-		m_Input->RegisterEvents(*m_EventDispatcher);
+		m_InputModule->RegisterEvents(*m_EventDispatcher);
 		
 		OnInit();
 	}

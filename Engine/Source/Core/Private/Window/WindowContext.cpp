@@ -2,6 +2,8 @@
 
 #include "Window/WindowContext.h"
 
+
+
 namespace ZeronEngine
 {
 	WindowProps::WindowProps(const ZeronEngine::EventDispatcher* dispatcher)
@@ -30,12 +32,6 @@ namespace ZeronEngine
 	{
 		
 	}
-
-
-	//WindowContextHandle WindowContext::MakeWindowContextHandle() const
-	//{
-	//	//return WindowContextHandle();
-	//}
 
 	WindowContext::~WindowContext()
 	{

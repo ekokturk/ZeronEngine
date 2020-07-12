@@ -23,7 +23,7 @@ namespace ZeronEngine
 			// Initial configurations for the context that will be used by all windows
 			if(T::ConfigureContext())
 			{
-				// Set event dispatcher as module dispatcher if one does not exist
+				// Set event dispatcher as module dispatcher if it is not explicitly defined
 				windowProps.EventDispatcher = m_EventDispatcher && !windowProps.EventDispatcher ?
 					m_EventDispatcher : windowProps.EventDispatcher;
 
@@ -34,7 +34,7 @@ namespace ZeronEngine
 					windowContext->RegisterEvents();
 					WindowContextHandle handle(*windowContext);
 					m_WindowContextContainer[handle] = std::move(windowContext);
-					
+					return handle;
 				}
 			}
 
@@ -48,13 +48,15 @@ namespace ZeronEngine
 		/* Register to dispatcher and cache it as reference*/
 		void RegisterEvents(const EventDispatcher& Dispatcher);
 
+		WindowContext* GetWindow(const WindowContextHandle& Handle) const;
+		
 		/* Schedule a window for removal if it exists*/
 		bool RemoveWindow(const WindowContextHandle& contextHandle);
 		
 		/* Return the count of windows managed by this module */
 		int GetWindowCount() const { return static_cast<int>(m_WindowContextContainer.size()); }
 
-		private:
+	private:
 
 		// list of windows that are spawned by the container
 		std::unordered_map<WindowContextHandle, std::unique_ptr<WindowContext>> m_WindowContextContainer;

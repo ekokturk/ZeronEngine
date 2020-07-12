@@ -6,10 +6,15 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
-#include "Application.h"
 #include "Events/EventDispatcher.h"
-#include "Events/EventTypes.h"
+#include "Events/EventTypes/EventTypes.h"
+
+//#define DEBUG_WINDOW_CONTEXT 
+#ifdef DEBUG_WINDOW_CONTEXT 
+#define DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS 
+#define DEBUG_WINDOW_CONTEXT_KEY_EVENTS 
+#define DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS 
+#endif
 
 namespace ZeronEngine
 {
@@ -33,6 +38,13 @@ namespace ZeronEngine
 			ZERON_LOG_ERROR("GLFW failed to initialized!")
 			return false;
 		}
+
+		// Set error message callback for GLFW
+		glfwSetErrorCallback([](int errorCode, const char* errorMessage)
+		{
+			ZERON_LOG_ERROR("GLFW Error {}: {}", errorCode, errorMessage)
+		});
+		
 		return true;
 	}
 
@@ -58,10 +70,15 @@ namespace ZeronEngine
 
 		s_WindowCount++;
 		glfwSetWindowUserPointer(m_WindowHandle, this);
+
+		ZERON_LOG_INFO("Window '{}' is created.", GetName());
 	}
 
 	WindowContextGLFW::~WindowContextGLFW()
 	{
+		#ifdef DEBUG_WINDOW_CONTEXT
+			ZERON_LOG("Window Context GLFW : Window context is destroyed...", m_WindowProps.Name)
+		#endif
 		glfwDestroyWindow(m_WindowHandle);
 		m_WindowProps.EventDispatcher->Remove(this);
 		s_WindowCount--;
@@ -82,28 +99,202 @@ namespace ZeronEngine
 
 	void WindowContextGLFW::Destroy()
 	{
-		ZERON_LOG("Window '{}' is destroyed...", m_WindowProps.Name)
 		WindowContextGLFW::~WindowContextGLFW();
 	}
 
+	void WindowContextGLFW::SetVisible()
+	{
+		glfwShowWindow(m_WindowHandle);
+	}
+
+	void WindowContextGLFW::SetHidden()
+	{
+		glfwHideWindow(m_WindowHandle);
+	}
+	
+	void WindowContextGLFW::SetName(const std::string& name)
+	{
+		m_WindowProps.Name = name;
+		glfwSetWindowTitle(m_WindowHandle, m_WindowProps.Name.c_str());
+	}
+
+	void WindowContextGLFW::SetAspectRatio(int numerator, int denominator)
+	{
+		ZERON_LOG_INFO("Window '{}' aspect ratio changed to {}:{}", GetName(), numerator, denominator);
+		glfwSetWindowAspectRatio(m_WindowHandle, numerator, denominator);
+	}
+
+	void WindowContextGLFW::SetSize(int width, int height)
+	{
+		ZERON_LOG_INFO("Window '{}' resized to {}px-{}px", GetName(), width, height);
+		glfwSetWindowSize(m_WindowHandle, width, height);
+	}
+
+	void WindowContextGLFW::SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight)
+	{
+		glfwSetWindowSizeLimits(m_WindowHandle, minWidth, minHeight, maxWidth, maxHeight);
+	}
+
+	void WindowContextGLFW::SetMinimized()
+	{
+		glfwIconifyWindow(m_WindowHandle);
+	}
+
+	void WindowContextGLFW::SetMaximized()
+	{
+		glfwMaximizeWindow(m_WindowHandle);
+	}
+
+	void WindowContextGLFW::SetRestored()
+	{
+		glfwRestoreWindow(m_WindowHandle);
+	}
+
+	void WindowContextGLFW::SetFocused()
+	{
+		glfwFocusWindow(m_WindowHandle);
+	}
+
+	void WindowContextGLFW::SetAttention()
+	{
+		glfwRequestWindowAttention(m_WindowHandle);
+	}
+
+	WindowContextHandle WindowContextGLFW::GetWindowContextHandle() const
+	{
+		return WindowContextHandle(*this);
+	}
+	
 
 	void WindowContextGLFW::RegisterEvents()
 	{
+		// TODO glfwSetCharCallback
 
-		//// Mouse moved
-		//glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, double posX, double posY)
-		//{
-		//	auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
-		//	Events::Mouse_Moved e(static_cast<float>(posX), static_cast<float>(posY));
-		//	window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse_Moved>(e);
-		//});
+		// -----------------------------
+		// ------ MOUSE EVENTS --------
+		// -----------------------------
 
-		// Window Closed
+		// MOUSE ENTER/EXIT
+		glfwSetCursorEnterCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int isEntered)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			if(isEntered == GLFW_TRUE){
+				const Events::Mouse::Enter e(window->GetWindowContextHandle());
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Enter>(e);
+				#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
+					ZERON_LOG_INFO("Window Context GLFW : Mouse cursor entered window '{}'", window->GetName())
+				#endif
+			}else{
+				const Events::Mouse::Exit e(window->GetWindowContextHandle());
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Exit>(e);
+				#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
+					ZERON_LOG_INFO("Window Context GLFW : Mouse cursor exited window '{}'", window->GetName())
+				#endif
+			}
+		});
+		
+		// MOUSE MOVED
+		glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, double posX, double posY)
+		{
+
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			const Events::Mouse::Move e(static_cast<float>(posX), static_cast<float>(posY));
+			window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Move>(e);
+			#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
+				ZERON_LOG_INFO("Window Context GLFW : Mouse moved X:{} | Y:{}", e.PosX, e.PosY)
+			#endif
+		});
+
+		// MOUSE BUTTON PRESSED
+		glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int buttonIndex, int actionType, int modifierMask)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+
+		});
+
+		// MOUSE SCROLLED
+		glfwSetScrollCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, double offsetX, double offsetY)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			const Events::Mouse::Scroll e(static_cast<float>(offsetX), static_cast<float>(offsetY));
+			window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Scroll>(e);
+			#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
+				ZERON_LOG_INFO("Window Context GLFW : Mouse Scrolled {} {}", e.OffsetX, e.OffsetY)
+			#endif
+		});
+
+		
+		// -----------------------------
+		// ------ WINDOW EVENTS --------
+		// -----------------------------
+
+		// WINDOW RESIZE
+		glfwSetWindowSizeCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int width, int height)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			window->m_WindowProps.Height = height;
+			window->m_WindowProps.Width = width;
+			const Events::Window::Resize e(width,height);
+			window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Resize>(e);
+			#ifdef DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
+				ZERON_LOG_INFO("Window Context GLFW : Window '{}' resized to {}px-{}px", window->GetName(), width, width);
+			#endif
+		});
+		
+		// WINDOW CLOSED
 		glfwSetWindowCloseCallback(m_WindowHandle, [](GLFWwindow* windowGLFW)
 		{
 			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
-			const Events::Window_Closed e(window);
-			window->m_WindowProps.EventDispatcher->Dispatch<Events::Window_Closed>(e);
+			const Events::Window::Close e(window->GetWindowContextHandle());
+			window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Close>(e);
+			#ifdef DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
+				ZERON_LOG_INFO("Window Context GLFW : Window '{}' closed", window->GetName());
+			#endif
+		});
+
+		// WINDOW FOCUSED/UNFOCUSED
+		glfwSetWindowFocusCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int isFocused)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			if(isFocused == GLFW_TRUE){
+				const Events::Window::Focus e;
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Focus>(e);
+				#ifdef DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
+					ZERON_LOG_INFO("Window Context GLFW : Window '{}' focused", window->GetName());
+				#endif
+			}else{
+				const Events::Window::Unfocus e;
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Unfocus>(e);
+				#ifdef DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
+					ZERON_LOG_INFO("Window Context GLFW : Window '{}' unfocused", window->GetName());
+				#endif
+			}
+		});
+
+		// WINDOW MINIMIZED/RESTORED
+		glfwSetWindowIconifyCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int isMinimized)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			if(isMinimized == GLFW_TRUE){
+				const Events::Window::Minimize e;
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Minimize>(e);
+			}else{
+				const Events::Window::Restore e;
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Restore>(e);
+			}
+		});
+
+		// WINDOW MAXIMIZED/RESTORED
+		glfwSetWindowMaximizeCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int isMaximized)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			if (isMaximized == GLFW_TRUE) {
+				const Events::Window::Maximize e;
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Maximize>(e);
+			}else {
+				const Events::Window::Restore e;
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Restore>(e);
+			}
 		});
 		
 	}

@@ -27,31 +27,35 @@ namespace ZeronEngine
 		const EventDispatcher* EventDispatcher;
 	};
 
+	/*
+	 * Handle for accessing window contexes
+	 */
+	// TODO: Integer as handle rather than pointer?
 	struct WindowContextHandle
 	{
-		WindowContextHandle() : WindowRef(nullptr) {}
-		WindowContextHandle(WindowContext& windowContext) : WindowRef(&windowContext) {}
-		WindowContextHandle(WindowContext* windowContext) : WindowRef(windowContext) {}
+		WindowContextHandle() : WindowContext(nullptr) {}
+		WindowContextHandle(const WindowContext& windowContext) : WindowContext(&windowContext) {}
 
 		bool IsValid() const
 		{
-			return WindowRef != nullptr;
+			return WindowContext != nullptr;
 		}
 
 		bool operator==(const WindowContextHandle& Other) const
 		{
-			return Other.WindowRef == WindowRef && WindowRef;
+			return Other.WindowContext == WindowContext && WindowContext;
 		}
 		
-		WindowContext* WindowRef;
+		const WindowContext* WindowContext;
 
 	};
-	
+
+
 	
 	class WindowContext 
 	{
 	public:
-
+	
 		/*
 		 * Initialize context for the window that will be created
 		 * Library method calls and initializations for all windows of context type can be done here
@@ -61,9 +65,41 @@ namespace ZeronEngine
 
 		virtual void Update() = 0;
 		virtual void Destroy() = 0;
+
+		// Register window events that will be dispatched
 		virtual void RegisterEvents() = 0;
 
-		//WindowContextHandle MakeWindowContextHandle() const;
+		// Make window visible if it was hidden
+		virtual void SetVisible() = 0;
+		// Make window hidden if it was visible
+		virtual void SetHidden() = 0;
+
+		// Minimize window 
+		virtual void SetMinimized() = 0;
+		// Maximize window 
+		virtual void SetMaximized() = 0;
+		// Restore window to prior state (ex. from maximized/minimized) 
+		virtual void SetRestored() = 0;
+
+		// Make window current focus
+		virtual void SetFocused() = 0;
+
+		// Request attention to the window
+		virtual void SetAttention() = 0;
+		
+		// Restore window name 
+		virtual void SetName(const std::string& name) = 0;
+		// Set size of the window in terms of pixels
+		virtual void SetSize(int width, int height) = 0;
+		// Set size limits of the window
+		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) = 0;
+		// Restore window aspect ratio (ex: 16:9 -> numerator:16, denominator:9
+		virtual void SetAspectRatio(int numerator, int denominator) = 0;
+
+
+
+		
+		virtual WindowContextHandle GetWindowContextHandle() const = 0;
 		
 		int GetWidth() const { return m_WindowProps.Width; }
 		int GetHeight() const { return m_WindowProps.Height; }
@@ -81,22 +117,20 @@ namespace ZeronEngine
 		WindowProps m_WindowProps;
 	};
 
-	/*
-	* Handle for window context accessors
-	*/
-
-
 }
 
 
 namespace std
 {
+	/*
+	 * Custom hashing for window context handle
+	 */
 	template <>
 	struct hash<ZeronEngine::WindowContextHandle>
 	{
 		size_t operator()(const ZeronEngine::WindowContextHandle& k) const
 		{
-			return hash<ZeronEngine::WindowContext*>()(k.WindowRef);
+			return hash<const ZeronEngine::WindowContext*>()(k.WindowContext);
 		}
 	};
 }

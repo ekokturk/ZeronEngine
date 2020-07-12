@@ -5,7 +5,7 @@
 
 #include "Application.h"
 #include "Events/EventDispatcher.h"
-#include "Events/EventTypes.h"
+#include "Events/EventTypes/EventTypes.h"
 #include "Window/WindowContextGLFW.h"
 
 namespace ZeronEngine
@@ -22,9 +22,14 @@ namespace ZeronEngine
 	void WindowModule::Init()
 	{
 		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
+		auto a = CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
+		const_cast<WindowContext*>(a.WindowContext)->SetFocused();
+		//const_cast<WindowContext*>(a.WindowContext)->SetAttention();
+	}
+
+	void WindowModule::Destroy()
+	{
+
 	}
 
 	void WindowModule::Update()
@@ -40,23 +45,29 @@ namespace ZeronEngine
 		while(m_WindowRemoveContainer.empty() == false)
 		{
 			// Remove window
-			ZERON_LOG_INFO("Window '{}' is closed...", m_WindowRemoveContainer.front().WindowRef->GetName())
+			ZERON_LOG_INFO("Window '{}' is closed...", m_WindowRemoveContainer.front().WindowContext->GetName())
 			m_WindowContextContainer.erase(m_WindowRemoveContainer.front());
 			m_WindowRemoveContainer.pop();
 
 			// Send all windows closed event
 			if (m_WindowContextContainer.empty())
 			{
-				m_EventDispatcher->Dispatch<Events::Window_All_Closed>(Events::Window_All_Closed());
+				m_EventDispatcher->Dispatch<Events::Window::CloseAll>(Events::Window::CloseAll());
 			}
 		}
 	}
 
-	void WindowModule::Destroy()
-	{
-		
-	}
 
+	WindowContext* WindowModule::GetWindow(const WindowContextHandle& Handle) const
+	{
+		if (m_WindowContextContainer.count(Handle) > 0)
+		{
+			return m_WindowContextContainer.at(Handle).get();
+		}
+
+		return nullptr;
+	}
+	
 	bool WindowModule::RemoveWindow(const WindowContextHandle& contextHandle)
 	{
 		if (m_WindowContextContainer.count(contextHandle))
@@ -67,18 +78,17 @@ namespace ZeronEngine
 
 		return false;
 	}
-	
+
+
 	void WindowModule::RegisterEvents(const EventDispatcher& Dispatcher)
 	{
 		m_EventDispatcher = &Dispatcher;
-		
-		Dispatcher.Register<Events::Window_Closed>(this, [=](const Events::Window_Closed& e)
+
+		// WINDOW CLOSED
+		Dispatcher.Register<Events::Window::Close>(this, [=](const Events::Window::Close& e)
 		{
 			e.Consume();
 			RemoveWindow(e.ContextHandle); // Schedule to remove
 		});
 	}
-
-
-
 }

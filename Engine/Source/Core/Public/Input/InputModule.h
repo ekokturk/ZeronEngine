@@ -6,10 +6,15 @@ namespace ZeronEngine
 {
 	class EventDispatcher;
 	
-	class Input 
+	class InputModule
 	{
+		
 	public:
-		void RegisterEvents(EventDispatcher& Dispatcher);
+		void RegisterEvents(const EventDispatcher& Dispatcher);
+
+
+
+		
 	private:
 
 	public:

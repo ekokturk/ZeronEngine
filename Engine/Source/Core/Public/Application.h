@@ -18,7 +18,7 @@
 namespace ZeronEngine
 {
 	class EventDispatcher;
-	class Input;
+	class InputModule;
 	class WindowModule;
 	
 	class Application
@@ -63,7 +63,7 @@ namespace ZeronEngine
 		static Application* s_Instance;
 		std::unique_ptr<EventDispatcher> m_EventDispatcher;
 		std::unique_ptr<WindowModule> m_WindowModule;
-		std::unique_ptr<Input> m_Input;
+		std::unique_ptr<InputModule> m_InputModule;
 
 		bool m_IsRunning;
 
