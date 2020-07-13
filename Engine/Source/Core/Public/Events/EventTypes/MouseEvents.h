@@ -2,33 +2,38 @@
 
 #pragma once
 #include "Events/Event.h"
+#include "Input/InputTypes/InputTypes.h"
 #include "Window/WindowContext.h"
 
 namespace ZeronEngine { namespace Events{
 
     namespace Mouse
     {
+
 		/*
-		 * Mouse moved on window event
-		 * PosX: Window postion of the mouse in x axis
-		 * PosY: Window postion of the mouse in y axis
-		 */
-		DECLARE_EVENT_TYPE(Move)
+		* Mouse pressed on the window
+		* button: Mouse button id from MouseCode enum
+		* modifiers: Modifiers keys that are pressed with this event
+		* handle: Context handle for window context that mouse exited
+		*/
+		DECLARE_BASE_EVENT_TYPE(Press)
 		{
-			Move(float posX, float posY):PosX(posX), PosY(posY){}
+			Press(const MouseCode&  button, const ModifierKeys& modifiers, const WindowContextHandle& handle = WindowContextHandle())
+				: Button(button), Modifiers(modifiers), ContextHandle(handle) {}
 			
-			const float PosX;
-			const float PosY;
+			const MouseCode Button;
+			const ModifierKeys Modifiers;
+			const WindowContextHandle ContextHandle;
+
 		};
 
-		/*
-		* Mouse entered window event
-		* ContextHandle: Handle for window context that mouse entered
-		*/
-		DECLARE_EVENT_TYPE(Enter)
+		DECLARE_BASE_EVENT_TYPE(Release)
 		{
-			Enter(WindowContextHandle handle) : ContextHandle(handle) {}
+			Release(const MouseCode& button, const ModifierKeys& modifiers, const WindowContextHandle& handle = WindowContextHandle())
+				: Button(button), ContextHandle(handle) {}
 
+			const MouseCode Button;
+			const ModifierKeys Modifiers;
 			const WindowContextHandle ContextHandle;
 		};
 
@@ -36,29 +41,7 @@ namespace ZeronEngine { namespace Events{
 		* Mouse exited window event
 		* ContextHandle: Handle for window context that mouse exited
 		*/
-		DECLARE_EVENT_TYPE(Exit)
-		{
-			Exit(WindowContextHandle handle) : ContextHandle(handle) {}
-
-			const WindowContextHandle ContextHandle;
-		};
-		
-		struct Press
-		{
-
-		};
-
-		struct Release
-		{
-
-		};
-
-
-		/*
-		* Mouse exited window event
-		* ContextHandle: Handle for window context that mouse exited
-		*/
-		DECLARE_EVENT_TYPE(Scroll)
+		DECLARE_BASE_EVENT_TYPE(Scroll)
 		{
 			Scroll(float offsetX, float offsetY):
 				OffsetX(offsetX), OffsetY(offsetY) {}
@@ -68,7 +51,40 @@ namespace ZeronEngine { namespace Events{
 			const float OffsetY;
 		};
 
+		/*
+		 * Mouse moved on window event
+		 * PosX: Window position of the mouse in x axis
+		 * PosY: Window position of the mouse in y axis
+		 */
+		DECLARE_BASE_EVENT_TYPE(Move)
+		{
+			Move(float posX, float posY) :PosX(posX), PosY(posY) {}
 
+			const float PosX;
+			const float PosY;
+		};
+
+		/*
+		* Mouse entered window event
+		* ContextHandle: Handle for window context that mouse entered
+		*/
+		DECLARE_BASE_EVENT_TYPE(Enter)
+		{
+			Enter(const WindowContextHandle & handle) : ContextHandle(handle) {}
+
+			const WindowContextHandle ContextHandle;
+		};
+
+		/*
+		* Mouse exited window event
+		* ContextHandle: Handle for window context that mouse exited
+		*/
+		DECLARE_BASE_EVENT_TYPE(Exit)
+		{
+			Exit(const WindowContextHandle & handle) : ContextHandle(handle) {}
+
+			const WindowContextHandle ContextHandle;
+		};
     }
     
 }}

@@ -15,6 +15,9 @@ set(
 	"${ENGINE_SOURCE_DIR}/ZeronEngine.h"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Application.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Logger.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/CoreTypes/Color.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/CoreTypes/Vector2.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/CoreTypes/Vector3.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/Event.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventDispatcher.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes/EventTypes.cpp"
@@ -32,6 +35,10 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Public/Core.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/IModule.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Logger.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/CoreTypes/Color.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/CoreTypes/CoreTypes.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/CoreTypes/Vector2.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/CoreTypes/Vector3.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/Event.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventDispatcher.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes/EventTypes.h"
@@ -45,7 +52,6 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowContext.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowContextGLFW.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowModule.h"
-	"${ENGINE_SOURCE_DIR}/Utils/Public/Color.h"
 	#ENGINE_SOURCE_END
 )
 
@@ -65,7 +71,6 @@ target_include_directories(ZeronEngine
 		#ENGINE_INCLUDE_BEGIN
 	"${ENGINE_SOURCE_DIR}/Core/Public"
 	"${ENGINE_SOURCE_DIR}/Renderer/Public"
-	"${ENGINE_SOURCE_DIR}/Utils/Public"
 	#ENGINE_INCLUDE_END
 
 	PRIVATE

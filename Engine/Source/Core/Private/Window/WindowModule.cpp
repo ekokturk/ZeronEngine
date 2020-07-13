@@ -22,8 +22,7 @@ namespace ZeronEngine
 	void WindowModule::Init()
 	{
 		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-		auto a = CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-		const_cast<WindowContext*>(a.WindowContext)->SetFocused();
+		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
 		//const_cast<WindowContext*>(a.WindowContext)->SetAttention();
 	}
 

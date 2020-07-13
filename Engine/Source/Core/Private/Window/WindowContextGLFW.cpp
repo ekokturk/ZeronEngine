@@ -11,9 +11,9 @@
 
 //#define DEBUG_WINDOW_CONTEXT 
 #ifdef DEBUG_WINDOW_CONTEXT 
-#define DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS 
-#define DEBUG_WINDOW_CONTEXT_KEY_EVENTS 
-#define DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS 
+	#define DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS 
+	//#define DEBUG_WINDOW_CONTEXT_KEY_EVENTS 
+	#define DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS 
 #endif
 
 namespace ZeronEngine
@@ -70,7 +70,7 @@ namespace ZeronEngine
 
 		s_WindowCount++;
 		glfwSetWindowUserPointer(m_WindowHandle, this);
-
+		
 		ZERON_LOG_INFO("Window '{}' is created.", GetName());
 	}
 
@@ -135,6 +135,14 @@ namespace ZeronEngine
 		glfwSetWindowSizeLimits(m_WindowHandle, minWidth, minHeight, maxWidth, maxHeight);
 	}
 
+	void WindowContextGLFW::SetMousePosition(const Vector2& mousePosition)
+	{
+		m_WindowProps.MousePosition.X = mousePosition.X;
+		m_WindowProps.MousePosition.Y = mousePosition.Y;
+		
+		glfwSetCursorPos(m_WindowHandle, m_WindowProps.MousePosition.X, m_WindowProps.MousePosition.Y);
+	}
+
 	void WindowContextGLFW::SetMinimized()
 	{
 		glfwIconifyWindow(m_WindowHandle);
@@ -170,10 +178,29 @@ namespace ZeronEngine
 	{
 		// TODO glfwSetCharCallback
 
-		// -----------------------------
-		// ------ MOUSE EVENTS --------
-		// -----------------------------
+		// -----------------------------------------------------------------
+		// ------------------------ MOUSE EVENTS ---------------------------
+		// -----------------------------------------------------------------
 
+		// MOUSE BUTTON PRESSED
+		glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int buttonIndex, int actionType, int modifiers)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			const MouseCode mouseCode = static_cast<MouseCode>(buttonIndex);
+			const ModifierKeys modifierKeys = ModifierKeys(modifiers);
+			if (actionType == GLFW_PRESS)
+			{
+				const Events::Mouse::Press e(mouseCode, modifierKeys, window->GetWindowContextHandle());
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Press>(e);
+			}
+			else if (actionType == GLFW_RELEASE)
+			{
+				const Events::Mouse::Release e(mouseCode, modifierKeys, window->GetWindowContextHandle());
+				window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Release>(e);
+			}
+		});
+	
+		
 		// MOUSE ENTER/EXIT
 		glfwSetCursorEnterCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int isEntered)
 		{
@@ -196,20 +223,14 @@ namespace ZeronEngine
 		// MOUSE MOVED
 		glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, double posX, double posY)
 		{
-
 			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			window->m_WindowProps.MousePosition.X = static_cast<float>(posX);
+			window->m_WindowProps.MousePosition.Y = static_cast<float>(posY);
 			const Events::Mouse::Move e(static_cast<float>(posX), static_cast<float>(posY));
 			window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Move>(e);
 			#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
-				ZERON_LOG_INFO("Window Context GLFW : Mouse moved X:{} | Y:{}", e.PosX, e.PosY)
+				ZERON_LOG_INFO("Window Context GLFW : Mouse moved X:{} | Y:{}", posX, posY)
 			#endif
-		});
-
-		// MOUSE BUTTON PRESSED
-		glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int buttonIndex, int actionType, int modifierMask)
-		{
-			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
-
 		});
 
 		// MOUSE SCROLLED
@@ -219,14 +240,38 @@ namespace ZeronEngine
 			const Events::Mouse::Scroll e(static_cast<float>(offsetX), static_cast<float>(offsetY));
 			window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Scroll>(e);
 			#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
-				ZERON_LOG_INFO("Window Context GLFW : Mouse Scrolled {} {}", e.OffsetX, e.OffsetY)
+				ZERON_LOG_INFO("Window Context GLFW : Mouse Scrolled {} {}", offsetX, offsetY)
 			#endif
 		});
 
+		// -----------------------------------------------------------------
+		// --------------------------- KEY EVENTS --------------------------
+		// -----------------------------------------------------------------
 		
-		// -----------------------------
-		// ------ WINDOW EVENTS --------
-		// -----------------------------
+		glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int keyIndex, int scanCode, int actionType, int modifierMask)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			if(actionType == GLFW_PRESS)
+			{
+				
+			}
+			else if(actionType == GLFW_RELEASE)
+			{
+				
+			}
+			else if(actionType == GLFW_REPEAT)
+			{
+				
+			}
+		});
+
+		// -----------------------------------------------------------------
+		// ----------------------- GAMEPAD EVENTS --------------------------
+		// -----------------------------------------------------------------
+		
+		// -----------------------------------------------------------------
+		// ------------------------ WINDOW EVENTS --------------------------
+		// -----------------------------------------------------------------
 
 		// WINDOW RESIZE
 		glfwSetWindowSizeCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int width, int height)

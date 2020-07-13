@@ -5,6 +5,13 @@
 
 namespace ZeronEngine
 {
+	/*
+	 * TODO: Bind/Unbind Event
+	 * TODO: GLFW input type conversion
+	 */
+	
+
+	
 	class InputGLFW : public Input
 	{
 

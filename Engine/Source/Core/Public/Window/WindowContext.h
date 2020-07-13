@@ -1,7 +1,7 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #pragma once
-
+#include "CoreTypes/CoreTypes.h"
 
 /*
  * Window abstract class 
@@ -25,6 +25,7 @@ namespace ZeronEngine
 		int Width;
 		int Height;
 		const EventDispatcher* EventDispatcher;
+		Vector2 MousePosition;
 	};
 
 	/*
@@ -49,7 +50,6 @@ namespace ZeronEngine
 		const WindowContext* WindowContext;
 
 	};
-
 
 	
 	class WindowContext 
@@ -95,15 +95,15 @@ namespace ZeronEngine
 		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) = 0;
 		// Restore window aspect ratio (ex: 16:9 -> numerator:16, denominator:9
 		virtual void SetAspectRatio(int numerator, int denominator) = 0;
-
-
-
+		// Set position of the mouse cursor in window
+		virtual void SetMousePosition(const Vector2& mousePosition) = 0;
 		
 		virtual WindowContextHandle GetWindowContextHandle() const = 0;
 		
-		int GetWidth() const { return m_WindowProps.Width; }
-		int GetHeight() const { return m_WindowProps.Height; }
-		const std::string& GetName() const { return m_WindowProps.Name; }
+		int GetWidth() const				{ return m_WindowProps.Width; }
+		int GetHeight() const				{ return m_WindowProps.Height; }
+		const std::string& GetName() const	{ return m_WindowProps.Name; }
+		Vector2 GetMousePosition() const	{ return m_WindowProps.MousePosition; }
 
 	public:
 		virtual ~WindowContext();

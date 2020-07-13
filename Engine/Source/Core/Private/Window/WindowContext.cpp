@@ -33,6 +33,7 @@ namespace ZeronEngine
 		
 	}
 
+
 	WindowContext::~WindowContext()
 	{
 	}

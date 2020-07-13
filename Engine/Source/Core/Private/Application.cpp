@@ -22,7 +22,8 @@ namespace ZeronEngine
 
 		// Event dispatcher for the application
 		m_EventDispatcher = std::make_unique<EventDispatcher>();
-		
+
+		// Modules
 		m_WindowModule = std::make_unique<WindowModule>();
 		m_InputModule = std::make_unique<InputModule>();
 
@@ -66,16 +67,18 @@ namespace ZeronEngine
 			Exit();
 		});
 
-		
+		// Register modules to event dispatcher
 		m_WindowModule->RegisterEvents(*m_EventDispatcher);
-		m_WindowModule->Init();
 		m_InputModule->RegisterEvents(*m_EventDispatcher);
-		
+
+		// Initialize modules
+		m_WindowModule->Init();
+
+		// To be used on custom applications
 		OnInit();
 	}
 
 	void Application::OnInit(){}
-
 	
 	void Application::Update()
 	{

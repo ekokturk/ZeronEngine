@@ -1,9 +1,11 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 #pragma once
 
-// Simplified event derivative declaration from base class
-#define DECLARE_EVENT_TYPE(EventClass)\
+#define DECLARE_BASE_EVENT_TYPE(EventClass)\
 	struct EventClass : EventBase<EventClass>\
+
+#define DECLARE_EVENT_TYPE(EventClass, EventParentClass)\
+	struct EventClass : EventParentClass\
 
 namespace ZeronEngine
 {

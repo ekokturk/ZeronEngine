@@ -9,16 +9,19 @@ namespace ZeronEngine { namespace Events{
     namespace Window
     {
 		/* Specified window  is resized */
-		DECLARE_EVENT_TYPE(Resize)
+		DECLARE_BASE_EVENT_TYPE(Resize)
 		{
-			Resize(int width, int height) : Width(width), Height(height) {}
+			Resize(int width, int height, WindowContextHandle&& ContextHandle = WindowContextHandle())
+			: Width(width), Height(height), ContextHandle(ContextHandle){}
+			
 			const int Width;
 			const int Height;
+			const WindowContextHandle ContextHandle;
 		};
 
 		
 		/* Specified window  is closed */
-		DECLARE_EVENT_TYPE(Close)
+		DECLARE_BASE_EVENT_TYPE(Close)
 		{
 			Close(WindowContextHandle handle):ContextHandle(handle){}
 
@@ -26,22 +29,28 @@ namespace ZeronEngine { namespace Events{
 		};
 
 		/* All windows are are closed */
-		DECLARE_EVENT_TYPE(CloseAll) { };
+		DECLARE_BASE_EVENT_TYPE(CloseAll) { };
 
     	/* Specified window got focused */
-		DECLARE_EVENT_TYPE(Focus) { };
+		DECLARE_BASE_EVENT_TYPE(Focus)
+		{
+			Focus(WindowContextHandle&& contextHandle = WindowContextHandle())
+				:ContextHandle(contextHandle){}
+			
+			const WindowContextHandle ContextHandle;
+		};
 
 		/* Specified window got unfocused */
-		DECLARE_EVENT_TYPE(Unfocus) { };
+		DECLARE_BASE_EVENT_TYPE(Unfocus) { };
 
 		/* Specified window got minimized */
-		DECLARE_EVENT_TYPE(Minimize) { };
+		DECLARE_BASE_EVENT_TYPE(Minimize) { };
 
 		/* Specified window got maximized */
-		DECLARE_EVENT_TYPE(Maximize) { };
+		DECLARE_BASE_EVENT_TYPE(Maximize) { };
 
 		/* Specified window got restored from minimized or maximized */
-		DECLARE_EVENT_TYPE(Restore) { };
+		DECLARE_BASE_EVENT_TYPE(Restore) { };
 
     }
     

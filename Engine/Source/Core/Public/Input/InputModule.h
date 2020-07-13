@@ -2,22 +2,42 @@
 
 #pragma once
 
+#include "Input/Input.h"
+
 namespace ZeronEngine
 {
-	class EventDispatcher;
 	
-	class InputModule
+	class EventDispatcher;
+	class Input;
+
+	/*
+	 * TODO: Input Mapping
+	 * TODO: Static Input Bind Unbind
+	 */
+	
+	class InputModule 
 	{
 		
 	public:
 		void RegisterEvents(const EventDispatcher& Dispatcher);
 
-
+		void Init();
+		void Update();
+		void Destroy();
 
 		
 	private:
 
-	public:
+		template<typename T>
+		void SetupInputClass()
+		{
+			m_InputClass = std::unique_ptr<Input>(new T);
+		}
+
+	private:
+
+		std::unique_ptr<Input> m_InputClass;
+
 		
 	};
 }

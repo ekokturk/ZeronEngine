@@ -1,7 +1,7 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 #pragma once
 
-#include "Color.h"
+#include "CoreTypes/Color.h"
 
 // FMT library for string formating
 // Disable fmt library warning
@@ -31,6 +31,8 @@ namespace ZeronEngine
 		Fatal,		
 	};
 
+
+	// TODO Async/Threaded file logger
 	class Logger
 	{
 	private:
