@@ -9,11 +9,55 @@
 
 namespace ZeronEngine
 {
-	class EventDispatcher;
-	class WindowContext;
+	class  EventDispatcher;
+	class  WindowContext;
+	class  WindowModule;
 
 	/*
+	 * Handle for accessing window context more dynamically
+	 * It takes in reference to the creator of the window (WindowModule) and id of the created window
+	 * It can return a reference to the window context itself if it is valid
+	 */
+	struct WindowContextHandle
+	{
+		WindowContextHandle() : m_HandleID(0), m_WindowCreator(nullptr) {}
+		WindowContextHandle(int handleID, const WindowModule* windowCreator) : m_HandleID(handleID), m_WindowCreator(windowCreator) {}
+		WindowContextHandle(const WindowContextHandle& otherHandle) = default;
+		WindowContextHandle(WindowContextHandle&& otherHandle) = default;
+		
+		bool IsValid() const;
+
+		WindowContext* Get() const;
+
+		WindowContextHandle& operator=(const WindowContextHandle& other)
+		{
+			m_HandleID = other.m_HandleID;
+			m_WindowCreator = other.m_WindowCreator;
+			return *this;
+		}
+		
+		bool operator==(const WindowContextHandle& Other) const
+		{
+			return Other.m_HandleID == m_HandleID && Other.m_WindowCreator == m_WindowCreator;
+		}
+
+		bool operator!=(const WindowContextHandle& Other) const
+		{
+			return (Other.m_HandleID == m_HandleID && Other.m_WindowCreator == m_WindowCreator) == false;
+		}
+
+		int GetHandleID() const { return m_HandleID; }
+
+	private:
+		int m_HandleID;
+		const WindowModule* m_WindowCreator;
+
+		friend class WindowModule;
+	};
+	
+	/*
 	 * Properties for window context creation
+	 * They are required for window context initialization and they are updated on change
 	 */
 	
 	struct WindowProps
@@ -26,31 +70,8 @@ namespace ZeronEngine
 		int Height;
 		const EventDispatcher* EventDispatcher;
 		Vector2 MousePosition;
+		WindowContextHandle ContextHandle;
 	};
-
-	/*
-	 * Handle for accessing window contexes
-	 */
-	// TODO: Integer as handle rather than pointer?
-	struct WindowContextHandle
-	{
-		WindowContextHandle() : WindowContext(nullptr) {}
-		WindowContextHandle(const WindowContext& windowContext) : WindowContext(&windowContext) {}
-
-		bool IsValid() const
-		{
-			return WindowContext != nullptr;
-		}
-
-		bool operator==(const WindowContextHandle& Other) const
-		{
-			return Other.WindowContext == WindowContext && WindowContext;
-		}
-		
-		const WindowContext* WindowContext;
-
-	};
-
 	
 	class WindowContext 
 	{
@@ -98,12 +119,12 @@ namespace ZeronEngine
 		// Set position of the mouse cursor in window
 		virtual void SetMousePosition(const Vector2& mousePosition) = 0;
 		
-		virtual WindowContextHandle GetWindowContextHandle() const = 0;
 		
-		int GetWidth() const				{ return m_WindowProps.Width; }
-		int GetHeight() const				{ return m_WindowProps.Height; }
-		const std::string& GetName() const	{ return m_WindowProps.Name; }
-		Vector2 GetMousePosition() const	{ return m_WindowProps.MousePosition; }
+		int GetWidth() const									{ return m_WindowProps.Width; }
+		int GetHeight() const									{ return m_WindowProps.Height; }
+		const std::string& GetName() const						{ return m_WindowProps.Name; }
+		Vector2 GetMousePosition() const						{ return m_WindowProps.MousePosition; }
+		WindowContextHandle GetWindowContextHandle() const		{ return m_WindowProps.ContextHandle; }
 
 	public:
 		virtual ~WindowContext();
@@ -119,18 +140,3 @@ namespace ZeronEngine
 
 }
 
-
-namespace std
-{
-	/*
-	 * Custom hashing for window context handle
-	 */
-	template <>
-	struct hash<ZeronEngine::WindowContextHandle>
-	{
-		size_t operator()(const ZeronEngine::WindowContextHandle& k) const
-		{
-			return hash<const ZeronEngine::WindowContext*>()(k.WindowContext);
-		}
-	};
-}

@@ -51,9 +51,6 @@ namespace ZeronEngine
 		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
 		virtual void SetMousePosition(const Vector2& mousePosition) override;
 		
-		// TODO Return cached handle
-		virtual WindowContextHandle GetWindowContextHandle() const override;
-
 
 	private:
 		GLFWwindow* m_WindowHandle;

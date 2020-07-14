@@ -26,6 +26,8 @@ namespace ZeronEngine
 		void Destroy();
 
 		
+		
+		
 	private:
 
 		template<typename T>

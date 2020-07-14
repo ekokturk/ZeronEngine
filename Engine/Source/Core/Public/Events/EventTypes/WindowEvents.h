@@ -28,8 +28,8 @@ namespace ZeronEngine { namespace Events{
 			const WindowContextHandle ContextHandle;
 		};
 
-		/* All windows are are closed */
-		DECLARE_BASE_EVENT_TYPE(CloseAll) { };
+		/* Main window is closed */
+		DECLARE_BASE_EVENT_TYPE(MainClose) { };
 
     	/* Specified window got focused */
 		DECLARE_BASE_EVENT_TYPE(Focus)

@@ -8,6 +8,7 @@
 
 #include "Events/EventDispatcher.h"
 #include "Events/EventTypes/EventTypes.h"
+#include "Input/InputTypes/InputTypesGLFW.h"
 
 //#define DEBUG_WINDOW_CONTEXT 
 #ifdef DEBUG_WINDOW_CONTEXT 
@@ -127,6 +128,8 @@ namespace ZeronEngine
 	void WindowContextGLFW::SetSize(int width, int height)
 	{
 		ZERON_LOG_INFO("Window '{}' resized to {}px-{}px", GetName(), width, height);
+		m_WindowProps.Width = width;
+		m_WindowProps.Height = height;
 		glfwSetWindowSize(m_WindowHandle, width, height);
 	}
 
@@ -168,35 +171,33 @@ namespace ZeronEngine
 		glfwRequestWindowAttention(m_WindowHandle);
 	}
 
-	WindowContextHandle WindowContextGLFW::GetWindowContextHandle() const
-	{
-		return WindowContextHandle(*this);
-	}
-	
-
 	void WindowContextGLFW::RegisterEvents()
 	{
 		// TODO glfwSetCharCallback
 
-		// -----------------------------------------------------------------
-		// ------------------------ MOUSE EVENTS ---------------------------
-		// -----------------------------------------------------------------
+	// -----------------------------------------------------------------
+	// ------------------------ MOUSE EVENTS ---------------------------
+	// -----------------------------------------------------------------
 
 		// MOUSE BUTTON PRESSED
 		glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int buttonIndex, int actionType, int modifiers)
 		{
 			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
-			const MouseCode mouseCode = static_cast<MouseCode>(buttonIndex);
+			const MouseCode mouseCode = InputHelpers::GetMouseCodeFromGLFW(buttonIndex);
 			const ModifierKeys modifierKeys = ModifierKeys(modifiers);
-			if (actionType == GLFW_PRESS)
+			switch (actionType)
 			{
-				const Events::Mouse::Press e(mouseCode, modifierKeys, window->GetWindowContextHandle());
-				window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Press>(e);
-			}
-			else if (actionType == GLFW_RELEASE)
-			{
-				const Events::Mouse::Release e(mouseCode, modifierKeys, window->GetWindowContextHandle());
-				window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Release>(e);
+				case GLFW_PRESS:{
+					const Events::Mouse::Press e(mouseCode, modifierKeys, window->GetWindowContextHandle());
+					window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Press>(e);
+					break;
+				}
+				case GLFW_RELEASE:{
+					const Events::Mouse::Release e(mouseCode, modifierKeys, window->GetWindowContextHandle());
+					window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Release>(e);
+					break;
+				}
+				default:;
 			}
 		});
 	
@@ -244,30 +245,53 @@ namespace ZeronEngine
 			#endif
 		});
 
-		// -----------------------------------------------------------------
-		// --------------------------- KEY EVENTS --------------------------
-		// -----------------------------------------------------------------
+	// -----------------------------------------------------------------
+	// --------------------------- KEY EVENTS --------------------------
+	// -----------------------------------------------------------------
 		
 		glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int keyIndex, int scanCode, int actionType, int modifierMask)
 		{
 			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
-			if(actionType == GLFW_PRESS)
+			const ModifierKeys modifierKeys = ModifierKeys(modifierMask);
+			const KeyCode keyCode = KeyCode(InputHelpers::GetKeyCodeFromGLFW(keyIndex));
+			switch (actionType)
 			{
-				
-			}
-			else if(actionType == GLFW_RELEASE)
-			{
-				
-			}
-			else if(actionType == GLFW_REPEAT)
-			{
-				
+				case GLFW_PRESS:{
+					const Events::Key::Press e(keyCode, modifierKeys, window->GetWindowContextHandle());
+					window->m_WindowProps.EventDispatcher->Dispatch<Events::Key::Press>(e);
+					break;
+				}
+				case GLFW_RELEASE:{
+					const Events::Key::Release e(keyCode, modifierKeys, window->GetWindowContextHandle());
+					window->m_WindowProps.EventDispatcher->Dispatch<Events::Key::Release>(e);
+					break;
+				}
+				case GLFW_REPEAT:{
+					const Events::Key::Repeat e(keyCode, modifierKeys, window->GetWindowContextHandle());
+					window->m_WindowProps.EventDispatcher->Dispatch<Events::Key::Repeat>(e);
+					break;
+				}
+				default:;
 			}
 		});
 
+		glfwSetCharModsCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, unsigned int codepoint, int modifierMask)
+		{
+			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			const ModifierKeys modifierKeys = ModifierKeys(modifierMask);
+			Events::Key::Character e(codepoint, modifierKeys, window->GetWindowContextHandle());
+			window->m_WindowProps.EventDispatcher->Dispatch<Events::Key::Character>(e);
+		});
+
+
+
+		
 		// -----------------------------------------------------------------
 		// ----------------------- GAMEPAD EVENTS --------------------------
 		// -----------------------------------------------------------------
+
+		//glfwSetJoystickCallback()
+
 		
 		// -----------------------------------------------------------------
 		// ------------------------ WINDOW EVENTS --------------------------

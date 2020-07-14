@@ -26,16 +26,17 @@ namespace ZeronEngine
 				// Set event dispatcher as module dispatcher if it is not explicitly defined
 				windowProps.EventDispatcher = m_EventDispatcher && !windowProps.EventDispatcher ?
 					m_EventDispatcher : windowProps.EventDispatcher;
-
+				// Create window handle
+				WindowContextHandle handle(m_WindowCounter, this);
+				windowProps.ContextHandle = handle;
+				// Update window counter
+				m_WindowCounter++;
+				
 				// Create and initialize window context and contain the reference
 				auto windowContext = std::unique_ptr<WindowContext>(new T(std::move(windowProps)));
-				if(windowContext)
-				{
-					windowContext->RegisterEvents();
-					WindowContextHandle handle(*windowContext);
-					m_WindowContextContainer[handle] = std::move(windowContext);
-					return handle;
-				}
+				windowContext->RegisterEvents();
+				m_WindowContextContainer[handle.GetHandleID()] = std::move(windowContext);
+				return handle;
 			}
 
 			return WindowContextHandle();
@@ -48,25 +49,35 @@ namespace ZeronEngine
 		/* Register to dispatcher and cache it as reference*/
 		void RegisterEvents(const EventDispatcher& Dispatcher);
 
-		WindowContext* GetWindow(const WindowContextHandle& Handle) const;
+		bool HasWindow(const WindowContextHandle& Handle) const;
+
+		// Get window pointer with window id
+		WindowContext* GetWindow(int windowID) const;
+		
+		// Get window pointer with window handle
+		WindowContext* GetWindow(const WindowContextHandle& handle) const;
+
+		/* Return the count of windows managed by this module */
+		int GetWindowCount() const { return static_cast<int>(m_WindowContextContainer.size()); }
 		
 		/* Schedule a window for removal if it exists*/
 		bool RemoveWindow(const WindowContextHandle& contextHandle);
-		
-		/* Return the count of windows managed by this module */
-		int GetWindowCount() const { return static_cast<int>(m_WindowContextContainer.size()); }
 
 	private:
-
 		// list of windows that are spawned by the container
-		std::unordered_map<WindowContextHandle, std::unique_ptr<WindowContext>> m_WindowContextContainer;
+		std::unordered_map<int, std::unique_ptr<WindowContext>> m_WindowContextContainer;
 
-		// list of windows that are scheduled to be removed
-		std::queue<WindowContextHandle> m_WindowRemoveContainer;
+		// list of window ids that are scheduled to be removed
+		std::queue<int> m_WindowRemoveContainer;
 		
 		// Dispatcher reference that is module bound to
 		const EventDispatcher* m_EventDispatcher;
 
+		// Handle to the main window that will be created by the module
+		WindowContextHandle m_MainWindowHandle;
+
+		// Window counter for giving windows unique IDs
+		int m_WindowCounter;
 	};
 
 }

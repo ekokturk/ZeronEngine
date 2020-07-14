@@ -4,22 +4,23 @@
 
 namespace ZeronEngine
 {
-	// =============================================================
-	// --------------------------- MOUSE ---------------------------
-	// =============================================================
+	// =======================================================================================
+	// ---------------------------------------- MOUSE ----------------------------------------
+	// =======================================================================================
 
 	struct MouseCode
 	{
 		enum Type : uint8_t
 		{
-			LeftButton = 0,
-			RightButton = 1,
-			MiddleButton = 2,
-			Button3 = 3,
-			Button4 = 4,
-			Button5 = 5,
-			Button6 = 6,
-			Button7 = 7
+			Unknown = 0,
+			LeftButton = 1,
+			RightButton = 2,
+			MiddleButton = 3,
+			Button3 = 4,
+			Button4 = 5,
+			Button5 = 6,
+			Button6 = 7,
+			Button7 = 8
 		};
 
 		MouseCode(Type button) : m_Type(button) {}
@@ -28,21 +29,9 @@ namespace ZeronEngine
 		operator Type() const { return m_Type; }
 		operator const int() const { return static_cast<int>(m_Type); }
 
-		std::string ToString() const
-		{
-			switch (m_Type)
-			{
-				case LeftButton:	return std::string("Mouse Button Left");
-				case RightButton:	return std::string("Mouse Button Right");
-				case MiddleButton:	return std::string("Mouse Button Middle");
-				case Button3:		return std::string("Mouse Button 3");
-				case Button4:		return std::string("Mouse Button 4");
-				case Button5:		return std::string("Mouse Button 5");
-				case Button6:		return std::string("Mouse Button 6");
-				case Button7:		return std::string("Mouse Button 7");
-				default:			return std::string("Invalid Mouse Button");
-			}
-		}
+		// Get string name of the mouse code
+		std::string ToString() const;
+
 
 	private:
 		Type m_Type;
@@ -56,17 +45,58 @@ namespace ZeronEngine
 		Released
 	};
 
-	// =============================================================
-	// ------------------------ KEYBOARD ---------------------------
-	// =============================================================
+	// =======================================================================================
+	// ------------------------------------- KEYBOARD ----------------------------------------
+	// =======================================================================================
 
 	struct KeyCode
 	{
+		/* Keycode Types */
 		enum Type : uint16_t
 		{
+			Unknown		= 0,
+			
+			N0, N1, N2, N3, N4, N5, N6, N7, N8, N9,
+			
+			A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+			
+			Escape, Enter, Tab, Backspace, Insert, Delete,
 
+			LeftShift,  LeftControl,  LeftAlt,  LeftSuper,
+			RightShift, RightControl, RightAlt, RightSuper,
+			
+			Right, Left, Down, Up,
+			
+			PageUp, PageDown, Home, End, CapsLock, ScrollLock, NumLock, PrintScreen, Pause,
+			
+			F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9,  F10, F11, F12, F13, F14,
+			F15, F16, F17, F18, F19, F20, F21, F22, F23, F24, F25,
+
+			KP0, KP1, KP2, KP3, KP4, KP5, KP6, KP7, KP8, KP9,
+			KPDecimal, KPDivide, KPMultiply, KPSubtract, KPAdd, KPEnter, KPEqual,
+			
+			Space,				/*   */
+			Apostrophe,			/* ' */
+			Comma,				/* , */
+			Minus,				/* - */
+			Period,				/* . */
+			Slash,				/* / */
+			Semicolon,			/* ; */
+			Equal,				/* = */
+			LeftBracket,		/* [ */
+			RightBracket,		/* \ */
+			Backslash,			/* ] */
+			GraveAccent,		/* ` */
+
+			Menu
 		};
-		
+
+		KeyCode(Type type) : m_Type(type) {}
+
+		std::string ToString() const;
+
+	private:
+		Type m_Type;
 	};
 
 
@@ -78,9 +108,15 @@ namespace ZeronEngine
 		Repeat
 	};
 
-	// =============================================================
-	// ----------------------- MODIFIER KEYS -----------------------
-	// =============================================================
+	// =======================================================================================
+	// -------------------------------------- GAMEPAD ----------------------------------------
+	// =======================================================================================
+
+
+	
+	// =======================================================================================
+	// ------------------------------------ MODIFIER KEYS ------------------------------------
+	// =======================================================================================
 
 	/*
 	 * Modifier Keys that are active during mouse and key events
@@ -148,14 +184,7 @@ namespace ZeronEngine
 		}
 
 		// TODO String conversion for modifier keys
-		std::string ToString() const
-		{
-			if(m_Type == None){
-				return "'No Modifier Keys'";
-			}
-
-			return "";
-		}
+		std::string ToString() const;
 		
 	private:
 		// Modifier mask

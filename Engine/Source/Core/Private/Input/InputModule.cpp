@@ -35,6 +35,25 @@ namespace ZeronEngine
 		{
 			ZERON_LOG("{} Released", e.Button.ToString())
 		});
+
+		Dispatcher.Register<Events::Key::Press>(this, [](const Events::Key::Press& e)
+		{
+			ZERON_LOG("{} Pressed", e.Key.ToString())
+		});
+
+		Dispatcher.Register<Events::Key::Release>(this, [](const Events::Key::Release& e)
+		{
+			ZERON_LOG("{} Released", e.Key.ToString())
+		});
+		Dispatcher.Register<Events::Key::Repeat>(this, [](const Events::Key::Repeat& e)
+		{
+			ZERON_LOG("{} Repeat", e.Key.ToString())
+		});
+		Dispatcher.Register<Events::Key::Character>(this, [](const Events::Key::Character& e)
+		{
+			ZERON_LOG("\u{} Pressed", "\u"+e.UTF8)
+		});
+
 	}
 
 

@@ -6,6 +6,7 @@
 #include "Events/EventTypes/EventTypes.h"
 #include "Events/EventDispatcher.h"
 #include "Input/InputModule.h"
+#include "Window/WindowContextGLFW.h"
 #include "Window/WindowModule.h"
 
 
@@ -62,7 +63,7 @@ namespace ZeronEngine
 
 	void Application::Init()
 	{
-		m_EventDispatcher->Register<Events::Window::CloseAll>(this, [=](const Events::Window::CloseAll& e)
+		m_EventDispatcher->Register<Events::Window::MainClose>(this, [=](const Events::Window::MainClose& e)
 		{
 			Exit();
 		});

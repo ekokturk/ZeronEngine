@@ -56,7 +56,6 @@ namespace ZeronEngine
 
 	public:
 		EventDispatcher& GetEventDispatcher() { return *m_EventDispatcher; }
-
 		
 	private:
 		

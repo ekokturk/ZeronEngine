@@ -1,9 +1,6 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #include "Window/WindowModule.h"
-
-
-#include "Application.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EventTypes/EventTypes.h"
 #include "Window/WindowContextGLFW.h"
@@ -11,7 +8,8 @@
 namespace ZeronEngine
 {
 	WindowModule::WindowModule()
-		:m_EventDispatcher(nullptr)
+		:m_EventDispatcher(nullptr),
+		m_WindowCounter(0)
 	{
 	}
 
@@ -21,9 +19,10 @@ namespace ZeronEngine
 
 	void WindowModule::Init()
 	{
+		// Create main window
+		m_MainWindowHandle = CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
+		
 		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-		//const_cast<WindowContext*>(a.WindowContext)->SetAttention();
 	}
 
 	void WindowModule::Destroy()
@@ -43,35 +42,49 @@ namespace ZeronEngine
 		// Delete windows that are scheduled to be removed
 		while(m_WindowRemoveContainer.empty() == false)
 		{
-			// Remove window
-			ZERON_LOG_INFO("Window '{}' is closed...", m_WindowRemoveContainer.front().WindowContext->GetName())
+			// Dispatch event for main window closure
+			if(m_MainWindowHandle.GetHandleID() == m_WindowRemoveContainer.front())
+			{
+				m_EventDispatcher->Dispatch<Events::Window::MainClose>(Events::Window::MainClose());
+			}
 			m_WindowContextContainer.erase(m_WindowRemoveContainer.front());
 			m_WindowRemoveContainer.pop();
 
 			// Send all windows closed event
-			if (m_WindowContextContainer.empty())
-			{
-				m_EventDispatcher->Dispatch<Events::Window::CloseAll>(Events::Window::CloseAll());
-			}
+			//if (m_WindowContextContainer.empty()){	}
 		}
 	}
-
-
-	WindowContext* WindowModule::GetWindow(const WindowContextHandle& Handle) const
+	
+	bool WindowModule::HasWindow(const WindowContextHandle& handle) const
 	{
-		if (m_WindowContextContainer.count(Handle) > 0)
+		return handle.m_WindowCreator == this && m_WindowContextContainer.count(handle.GetHandleID()) > 0;
+	}
+
+	WindowContext* WindowModule::GetWindow(int windowID) const
+	{
+		if(m_WindowContextContainer.count(windowID) > 0)
 		{
-			return m_WindowContextContainer.at(Handle).get();
+			return m_WindowContextContainer.at(windowID).get();
+		}
+
+		return nullptr;
+	}
+
+	WindowContext* WindowModule::GetWindow(const WindowContextHandle& handle) const
+	{
+		if (HasWindow(handle))
+		{
+			return m_WindowContextContainer.at(handle.GetHandleID()).get();
 		}
 
 		return nullptr;
 	}
 	
-	bool WindowModule::RemoveWindow(const WindowContextHandle& contextHandle)
+	bool WindowModule::RemoveWindow(const WindowContextHandle& handle)
 	{
-		if (m_WindowContextContainer.count(contextHandle))
+		if (HasWindow(handle))
 		{
-			m_WindowRemoveContainer.push(contextHandle);
+			m_WindowRemoveContainer.push(handle.GetHandleID());
 			return true;
 		}
 
@@ -90,4 +103,6 @@ namespace ZeronEngine
 			RemoveWindow(e.ContextHandle); // Schedule to remove
 		});
 	}
+
+
 }
