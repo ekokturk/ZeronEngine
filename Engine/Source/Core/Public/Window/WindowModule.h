@@ -2,12 +2,14 @@
 
 #pragma once
 
-#include "Window/WindowContext.h"
+#include "Logger.h"
+#include "Window/Window.h"
 
 namespace ZeronEngine
 {
 	/*
 	 * Window module creates and manages window contexes of specified type
+	 * Main window will have the index of 0
 	 */
 	class WindowModule
 	{
@@ -16,31 +18,37 @@ namespace ZeronEngine
 		~WindowModule();
 		
 		/*
-		 * Create a window context with the defined parameters
+		 * Create a Window with the defined parameters
 		 */
 		template<typename T>
-		WindowContextHandle CreateWindowContext(WindowProps&& windowProps)
+		WindowHandle CreateNewWindow(WindowProps&& windowProps)
 		{
+			if (m_WindowCounter > 0) {
+				ZERON_LOG_WARNING("Window creation failed! Multi-Window creation is not yet supported.")
+				return WindowHandle();
+			}
+			
 			// Initial configurations for the context that will be used by all windows
 			if(T::ConfigureContext())
 			{
 				// Set event dispatcher as module dispatcher if it is not explicitly defined
-				windowProps.EventDispatcher = m_EventDispatcher && !windowProps.EventDispatcher ?
-					m_EventDispatcher : windowProps.EventDispatcher;
+				windowProps.EventDispatcher = m_EventDispatcher;
 				// Create window handle
-				WindowContextHandle handle(m_WindowCounter, this);
+				WindowHandle handle(m_WindowCounter, this);
 				windowProps.ContextHandle = handle;
 				// Update window counter
-				m_WindowCounter++;
 				
-				// Create and initialize window context and contain the reference
-				auto windowContext = std::unique_ptr<WindowContext>(new T(std::move(windowProps)));
-				windowContext->RegisterEvents();
-				m_WindowContextContainer[handle.GetHandleID()] = std::move(windowContext);
+				// Create and initialize Window and contain the reference
+				auto window = std::unique_ptr<Window>(new T(std::move(windowProps)));
+				window->RegisterEvents();
+
+				m_WindowContainer[handle.GetHandleID()] = std::move(window);
+
+				m_WindowCounter++;	// Increment window 
 				return handle;
 			}
 
-			return WindowContextHandle();
+			return WindowHandle();
 		}
 
 		void Init();
@@ -50,28 +58,28 @@ namespace ZeronEngine
 		/* Register to dispatcher and cache it as reference*/
 		void RegisterEvents(const EventDispatcher& Dispatcher);
 
-		bool HasWindow(const WindowContextHandle& Handle) const;
+		bool HasWindow(const WindowHandle& Handle) const;
 
 		// Get window pointer with window id
-		WindowContext* GetMainWindow() const;
+		Window* GetMainWindow() const;
 		
 		// Get window pointer with window id
-		WindowContext* GetWindow(int windowID) const;
+		Window* GetWindow(int windowID) const;
 		
 		// Get window pointer with window handle
-		WindowContext* GetWindow(const WindowContextHandle& handle) const;
+		Window* GetWindow(const WindowHandle& handle) const;
 
 		/* Return the count of windows managed by this module */
-		int GetWindowCount() const { return static_cast<int>(m_WindowContextContainer.size()); }
+		int GetWindowCount() const { return static_cast<int>(m_WindowContainer.size()); }
 		
 		/* Schedule a window for removal if it exists*/
-		bool RemoveWindow(const WindowContextHandle& contextHandle);
+		bool RemoveWindow(const WindowHandle& contextHandle);
 
 		bool RemoveAll();
 
 	private:
 		// list of windows that are spawned by the module with unique ids
-		std::unordered_map<int, std::unique_ptr<WindowContext>> m_WindowContextContainer;
+		std::unordered_map<int, std::unique_ptr<Window>> m_WindowContainer;
 
 		// list of window ids that are scheduled to be removed
 		std::queue<int> m_WindowRemoveContainer;
@@ -79,10 +87,7 @@ namespace ZeronEngine
 		// Dispatcher reference that is module bound to
 		const EventDispatcher* m_EventDispatcher;
 
-		// Handle to the main window that will be created by the module
-		WindowContextHandle m_MainWindowHandle;
-
-		// Window counter for giving windows unique IDs
+		// Window counter for giving windows unique IDs (Main window 0)
 		int m_WindowCounter;
 	};
 

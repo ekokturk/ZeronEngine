@@ -3,7 +3,7 @@
 #pragma once
 #include "Events/Event.h"
 #include "Input/InputTypes.h"
-#include "Window/WindowContext.h"
+#include "Window/Window.h"
 
 namespace ZeronEngine { namespace Events{
 
@@ -14,32 +14,32 @@ namespace ZeronEngine { namespace Events{
 		* Mouse pressed on the window
 		* button: Mouse button id from MouseCode enum
 		* modifiers: Modifiers keys that are pressed with this event
-		* handle: Context handle for window context that mouse exited
+		* handle: Context handle for Window that mouse exited
 		*/
 		DECLARE_BASE_EVENT_TYPE(Press)
 		{
-			Press(const MouseCode&  button, const ModifierKeys& modifiers, const WindowContextHandle& handle = WindowContextHandle())
+			Press(const MouseCode&  button, const ModifierKeys& modifiers, const WindowHandle& handle = WindowHandle())
 				: Button(button), Modifiers(modifiers), ContextHandle(handle) {}
 			
 			const MouseCode Button;
 			const ModifierKeys Modifiers;
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 
 		};
 
 		DECLARE_BASE_EVENT_TYPE(Release)
 		{
-			Release(const MouseCode& button, const ModifierKeys& modifiers, const WindowContextHandle& handle = WindowContextHandle())
+			Release(const MouseCode& button, const ModifierKeys& modifiers, const WindowHandle& handle = WindowHandle())
 				: Button(button), ContextHandle(handle) {}
 
 			const MouseCode Button;
 			const ModifierKeys Modifiers;
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 		/*
 		* Mouse exited window event
-		* ContextHandle: Handle for window context that mouse exited
+		* ContextHandle: Handle for Window that mouse exited
 		*/
 		DECLARE_BASE_EVENT_TYPE(Scroll)
 		{
@@ -66,24 +66,24 @@ namespace ZeronEngine { namespace Events{
 
 		/*
 		* Mouse entered window event
-		* ContextHandle: Handle for window context that mouse entered
+		* ContextHandle: Handle for Window that mouse entered
 		*/
 		DECLARE_BASE_EVENT_TYPE(Enter)
 		{
-			Enter(const WindowContextHandle & handle) : ContextHandle(handle) {}
+			Enter(const WindowHandle & handle) : ContextHandle(handle) {}
 
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 		/*
 		* Mouse exited window event
-		* ContextHandle: Handle for window context that mouse exited
+		* ContextHandle: Handle for Window that mouse exited
 		*/
 		DECLARE_BASE_EVENT_TYPE(Exit)
 		{
-			Exit(const WindowContextHandle & handle) : ContextHandle(handle) {}
+			Exit(const WindowHandle & handle) : ContextHandle(handle) {}
 
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
     }
     

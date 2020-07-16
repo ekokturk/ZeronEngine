@@ -3,7 +3,7 @@
 #pragma once
 #include "Events/Event.h" 
 #include "Input/InputTypes.h"
-#include "Window/WindowContext.h"
+#include "Window/Window.h"
 
 
 namespace ZeronEngine { namespace Events{
@@ -14,43 +14,43 @@ namespace ZeronEngine { namespace Events{
 
 		DECLARE_BASE_EVENT_TYPE(Press)
 		{
-			Press(const KeyCode & key, const ModifierKeys & modifiers, const WindowContextHandle & handle = WindowContextHandle())
+			Press(const KeyCode & key, const ModifierKeys & modifiers, const WindowHandle & handle = WindowHandle())
 				: Key(key), Modifiers(modifiers), ContextHandle(handle) {}
 
 			const KeyCode Key;
 			const ModifierKeys Modifiers;
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 		DECLARE_BASE_EVENT_TYPE(Release)
 		{
-			Release(const KeyCode & key, const ModifierKeys & modifiers, const WindowContextHandle & handle = WindowContextHandle())
+			Release(const KeyCode & key, const ModifierKeys & modifiers, const WindowHandle & handle = WindowHandle())
 				: Key(key), Modifiers(modifiers), ContextHandle(handle) {}
 
 			const KeyCode Key;
 			const ModifierKeys Modifiers;
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 		DECLARE_BASE_EVENT_TYPE(Repeat)
 		{
-			Repeat(const KeyCode & key, const ModifierKeys & modifiers, const WindowContextHandle & handle = WindowContextHandle())
+			Repeat(const KeyCode & key, const ModifierKeys & modifiers, const WindowHandle & handle = WindowHandle())
 				: Key(key), Modifiers(modifiers), ContextHandle(handle) {}
 
 			const KeyCode Key;
 			const ModifierKeys Modifiers;
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 
 		DECLARE_BASE_EVENT_TYPE(Character)
 		{
-			Character(unsigned int utf8, const ModifierKeys & modifiers, const WindowContextHandle & handle = WindowContextHandle())
+			Character(unsigned int utf8, const ModifierKeys & modifiers, const WindowHandle & handle = WindowHandle())
 				: UTF8(utf8), Modifiers(modifiers), ContextHandle(handle) {}
 
 			const unsigned int UTF8;
 			const ModifierKeys Modifiers;
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
     }

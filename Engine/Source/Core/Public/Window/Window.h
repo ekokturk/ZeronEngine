@@ -2,7 +2,7 @@
 
 #pragma once
 #include "CoreTypes/CoreTypes.h"
-#include "Window/WindowContextHandle.h"
+#include "Window/WindowHandle.h"
 
 /*
  * Window abstract class 
@@ -11,12 +11,12 @@
 namespace ZeronEngine
 {
 	class  EventDispatcher;
-	class  WindowContext;
+	class  Window;
 	class  WindowModule;
 	
 	/*
-	 * Properties for window context creation
-	 * They are required for window context initialization and they are updated on change
+	 * Properties for Window creation
+	 * They are required for Window initialization and they are updated on change
 	 */
 	
 	struct WindowProps
@@ -30,14 +30,14 @@ namespace ZeronEngine
 		bool IsFullScreen;
 		int RefreshRate;
 		Vector2 MousePosition;
-		WindowContextHandle ContextHandle;
+		WindowHandle ContextHandle;
 		const EventDispatcher* EventDispatcher;
 
 		int WidthPrev;
 		int HeightPrev;
 	};
 	
-	class WindowContext 
+	class Window 
 	{
 	public:
 	
@@ -92,15 +92,15 @@ namespace ZeronEngine
 		Vector2 GetMousePosition() const						{ return m_WindowProps.MousePosition; }
 		bool IsFullScreen() const								{ return m_WindowProps.IsFullScreen; }
 
-		WindowContextHandle GetWindowContextHandle() const		{ return m_WindowProps.ContextHandle; }
+		WindowHandle GetWindowHandle() const		{ return m_WindowProps.ContextHandle; }
 
 
 	public:
-		virtual ~WindowContext();
+		virtual ~Window();
 		
 	protected:
-		WindowContext(const WindowProps& windowProps);
-		WindowContext(WindowProps&& windowProps);
+		Window(const WindowProps& windowProps);
+		Window(WindowProps&& windowProps);
 
 		
 	protected:

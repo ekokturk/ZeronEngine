@@ -6,7 +6,7 @@
 #include "Events/EventTypes/EventTypes.h"
 #include "Events/EventDispatcher.h"
 #include "Input/InputModule.h"
-#include "Window/WindowContextGLFW.h"
+#include "Window/WindowGLFW.h"
 #include "Window/WindowModule.h"
 
 
@@ -68,6 +68,7 @@ namespace ZeronEngine
 			Exit();
 		});
 
+		// TODO get this from file
 		std::shared_ptr<InputMapping> mapping = std::make_shared<InputMapping>();
 		
 		// Register modules to event dispatcher

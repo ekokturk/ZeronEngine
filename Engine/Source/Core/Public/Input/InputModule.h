@@ -5,7 +5,7 @@
 #include "InputMapping.h"
 #include "Mouse.h"
 #include "CoreTypes/Vector2.h"
-#include "Window/WindowContextHandle.h"
+#include "Window/WindowHandle.h"
 
 
 namespace ZeronEngine
@@ -43,8 +43,8 @@ namespace ZeronEngine
 		std::unique_ptr<Mouse> m_Mouse;
 
 
-		// Window contexts for input reference
-		WindowContextHandle m_FocusedWindow;
-		WindowContextHandle m_HoveredWindow;
+		// Windows for input reference
+		WindowHandle m_FocusedWindow;
+		WindowHandle m_HoveredWindow;
 	};
 }

@@ -1,6 +1,6 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
-#include "Window/WindowContext.h"
+#include "Window/Window.h"
 #include "Window/WindowModule.h"
 
 
@@ -32,19 +32,19 @@ namespace ZeronEngine
 
 
 
-	WindowContext::WindowContext(const WindowProps& windowProps)
+	Window::Window(const WindowProps& windowProps)
 		:m_WindowProps(windowProps)
 	{
 	}
 
-	WindowContext::WindowContext(WindowProps&& windowProps)
+	Window::Window(WindowProps&& windowProps)
 		:m_WindowProps(std::move(windowProps))
 	{
 		
 	}
 
 
-	WindowContext::~WindowContext()
+	Window::~Window()
 	{
 	}
 

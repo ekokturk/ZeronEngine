@@ -1,7 +1,7 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #pragma once
-#include "WindowContext.h"
+#include "Window.h"
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -14,15 +14,15 @@ namespace ZeronEngine
 	 * Window wrapper for GLFW library
 	 */
 
-	class WindowContextGLFW : public WindowContext
+	class WindowGLFW : public Window
 	{
 	public:
 
 		/* Initialize window dependencies if not initialized yet */
 		static bool ConfigureContext();
 		
-		WindowContextGLFW(WindowProps&& windowProps);
-		~WindowContextGLFW();
+		WindowGLFW(WindowProps&& windowProps);
+		~WindowGLFW();
 
 		virtual void Update() override;
 		virtual void Destroy() override;
@@ -49,9 +49,9 @@ namespace ZeronEngine
 		GLFWmonitor* GetCurrentMonitor() const;
 		
 	private:
-		GLFWwindow* m_WindowHandle;
-		GLFWmonitor* m_MonitorHandle;
-		GLFWcursor* m_CursorHandle;
+		GLFWwindow* m_WindowGLFW;
+		GLFWmonitor* m_MonitorGLFW;
+		GLFWcursor* m_CursorGLFW;
 		static int s_WindowCount;
 	};
 

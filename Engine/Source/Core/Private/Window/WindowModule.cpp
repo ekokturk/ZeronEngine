@@ -3,7 +3,7 @@
 #include "Window/WindowModule.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EventTypes/EventTypes.h"
-#include "Window/WindowContextGLFW.h"
+#include "Window/WindowGLFW.h"
 
 namespace ZeronEngine
 {
@@ -20,9 +20,7 @@ namespace ZeronEngine
 	void WindowModule::Init()
 	{
 		// Create main window
-		m_MainWindowHandle = CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-
-		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
+		CreateNewWindow<WindowGLFW>(WindowProps(m_EventDispatcher));
 	}
 
 	void WindowModule::Destroy()
@@ -32,8 +30,10 @@ namespace ZeronEngine
 
 	void WindowModule::Update()
 	{
+
+		
 		// Update all windows
-		for(const auto& window : m_WindowContextContainer )
+		for(const auto& window : m_WindowContainer )
 		{
 			// Update every window that is managed by this module
 			window.second->Update();
@@ -43,49 +43,54 @@ namespace ZeronEngine
 		while(m_WindowRemoveContainer.empty() == false)
 		{
 			// Dispatch event for main window closure
-			if(m_MainWindowHandle.GetHandleID() == m_WindowRemoveContainer.front())
-			{
-				m_EventDispatcher->Dispatch<Events::Window::MainClose>(Events::Window::MainClose());
-			}
-			m_WindowContextContainer.erase(m_WindowRemoveContainer.front());
-			m_WindowRemoveContainer.pop();
+			if(m_WindowRemoveContainer.front() == 0){
 
-			// Send all windows closed event
-			//if (m_WindowContextContainer.empty()){	}
+				m_WindowContainer.clear();
+				m_EventDispatcher->Dispatch<Events::Window::MainClose>(Events::Window::MainClose());
+
+				// Clear remove queue
+				std::queue<int> empty;
+				std::swap(m_WindowRemoveContainer, empty);
+				return;
+				
+			}
+			
+			m_WindowContainer.erase(m_WindowRemoveContainer.front());
+			m_WindowRemoveContainer.pop();
 		}
 	}
 	
-	bool WindowModule::HasWindow(const WindowContextHandle& handle) const
+	bool WindowModule::HasWindow(const WindowHandle& handle) const
 	{
-		return handle.m_WindowCreator == this && m_WindowContextContainer.count(handle.GetHandleID()) > 0;
+		return handle.m_WindowCreator == this && m_WindowContainer.count(handle.GetHandleID()) > 0;
 	}
 
-	WindowContext* WindowModule::GetMainWindow() const
+	Window* WindowModule::GetMainWindow() const
 	{
 		return nullptr;
 	}
 
-	WindowContext* WindowModule::GetWindow(int windowID) const
+	Window* WindowModule::GetWindow(int windowID) const
 	{
-		if(m_WindowContextContainer.count(windowID) > 0)
+		if(m_WindowContainer.count(windowID) > 0)
 		{
-			return m_WindowContextContainer.at(windowID).get();
+			return m_WindowContainer.at(windowID).get();
 		}
 
 		return nullptr;
 	}
 
-	WindowContext* WindowModule::GetWindow(const WindowContextHandle& handle) const
+	Window* WindowModule::GetWindow(const WindowHandle& handle) const
 	{
 		if (HasWindow(handle))
 		{
-			return m_WindowContextContainer.at(handle.GetHandleID()).get();
+			return m_WindowContainer.at(handle.GetHandleID()).get();
 		}
 
 		return nullptr;
 	}
 	
-	bool WindowModule::RemoveWindow(const WindowContextHandle& handle)
+	bool WindowModule::RemoveWindow(const WindowHandle& handle)
 	{
 		if (HasWindow(handle))
 		{
@@ -99,6 +104,8 @@ namespace ZeronEngine
 	bool WindowModule::RemoveAll()
 	{
 		
+
+		
 		return false;
 	}
 
@@ -111,11 +118,6 @@ namespace ZeronEngine
 		Dispatcher.Register<Events::Window::Close>(this, [=](const Events::Window::Close& e)
 		{
 			e.Consume();
-			if(e.ContextHandle == m_MainWindowHandle)
-			{
-				RemoveAll();
-				return;
-			}
 			RemoveWindow(e.ContextHandle); // Schedule to remove
 		});
 	}

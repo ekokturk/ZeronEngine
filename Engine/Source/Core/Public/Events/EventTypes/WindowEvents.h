@@ -2,7 +2,7 @@
 
 #pragma once
 #include "Events/Event.h" 
-#include "Window/WindowContext.h"
+#include "Window/Window.h"
 
 namespace ZeronEngine { namespace Events{
    
@@ -11,21 +11,21 @@ namespace ZeronEngine { namespace Events{
 		/* Specified window  is resized */
 		DECLARE_BASE_EVENT_TYPE(Resize)
 		{
-			Resize(int width, int height, WindowContextHandle&& ContextHandle = WindowContextHandle())
+			Resize(int width, int height, WindowHandle&& ContextHandle = WindowHandle())
 			: Width(width), Height(height), ContextHandle(ContextHandle){}
 			
 			const int Width;
 			const int Height;
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 		
 		/* Specified window  is closed */
 		DECLARE_BASE_EVENT_TYPE(Close)
 		{
-			Close(WindowContextHandle handle):ContextHandle(handle){}
+			Close(WindowHandle handle):ContextHandle(handle){}
 
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 		/* Main window is closed */
@@ -34,19 +34,19 @@ namespace ZeronEngine { namespace Events{
     	/* Specified window got focused */
 		DECLARE_BASE_EVENT_TYPE(Focus)
 		{
-			Focus(WindowContextHandle&& contextHandle = WindowContextHandle())
+			Focus(WindowHandle&& contextHandle = WindowHandle())
 				:ContextHandle(contextHandle){}
 			
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 		/* Specified window got unfocused */
 		DECLARE_BASE_EVENT_TYPE(Unfocus)
 		{
-			Unfocus(WindowContextHandle && contextHandle = WindowContextHandle())
+			Unfocus(WindowHandle && contextHandle = WindowHandle())
 				:ContextHandle(contextHandle) {}
 
-			const WindowContextHandle ContextHandle;
+			const WindowHandle ContextHandle;
 		};
 
 		/* Specified window got minimized */

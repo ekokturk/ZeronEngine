@@ -74,7 +74,7 @@ namespace ZeronEngine
 		});
 		Dispatcher.Register<Events::Window::Unfocus>(this, [=](const Events::Window::Unfocus& e)
 		{
-			m_FocusedWindow = WindowContextHandle();
+			m_FocusedWindow = WindowHandle();
 		});
 
 		Dispatcher.Register<Events::Mouse::Enter>(this, [=](const Events::Mouse::Enter& e)
@@ -83,7 +83,7 @@ namespace ZeronEngine
 		});
 		Dispatcher.Register<Events::Mouse::Exit>(this, [=](const Events::Mouse::Exit& e)
 		{
-			m_HoveredWindow = WindowContextHandle();
+			m_HoveredWindow = WindowHandle();
 		});
 		
 

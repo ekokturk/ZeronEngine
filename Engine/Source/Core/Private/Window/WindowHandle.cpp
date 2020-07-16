@@ -1,16 +1,16 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
-#include "Window/WindowContextHandle.h"
+#include "Window/WindowHandle.h"
 #include "Window/WindowModule.h"
 
 namespace ZeronEngine{
 
-	bool WindowContextHandle::IsValid() const
+	bool WindowHandle::IsValid() const
 	{
 		return m_WindowCreator && m_WindowCreator->HasWindow(*this);
 	}
 
-	WindowContext* WindowContextHandle::Get() const
+	Window* WindowHandle::Get() const
 	{
 		if(IsValid())
 		{
