@@ -2,6 +2,7 @@
 
 #pragma once
 #include "CoreTypes/CoreTypes.h"
+#include "Window/WindowContextHandle.h"
 
 /*
  * Window abstract class 
@@ -12,48 +13,6 @@ namespace ZeronEngine
 	class  EventDispatcher;
 	class  WindowContext;
 	class  WindowModule;
-
-	/*
-	 * Handle for accessing window context more dynamically
-	 * It takes in reference to the creator of the window (WindowModule) and id of the created window
-	 * It can return a reference to the window context itself if it is valid
-	 */
-	struct WindowContextHandle
-	{
-		WindowContextHandle() : m_HandleID(0), m_WindowCreator(nullptr) {}
-		WindowContextHandle(int handleID, const WindowModule* windowCreator) : m_HandleID(handleID), m_WindowCreator(windowCreator) {}
-		WindowContextHandle(const WindowContextHandle& otherHandle) = default;
-		WindowContextHandle(WindowContextHandle&& otherHandle) = default;
-		
-		bool IsValid() const;
-
-		WindowContext* Get() const;
-
-		WindowContextHandle& operator=(const WindowContextHandle& other)
-		{
-			m_HandleID = other.m_HandleID;
-			m_WindowCreator = other.m_WindowCreator;
-			return *this;
-		}
-		
-		bool operator==(const WindowContextHandle& Other) const
-		{
-			return Other.m_HandleID == m_HandleID && Other.m_WindowCreator == m_WindowCreator;
-		}
-
-		bool operator!=(const WindowContextHandle& Other) const
-		{
-			return (Other.m_HandleID == m_HandleID && Other.m_WindowCreator == m_WindowCreator) == false;
-		}
-
-		int GetHandleID() const { return m_HandleID; }
-
-	private:
-		int m_HandleID;
-		const WindowModule* m_WindowCreator;
-
-		friend class WindowModule;
-	};
 	
 	/*
 	 * Properties for window context creation
@@ -68,9 +27,14 @@ namespace ZeronEngine
 		std::string Name;
 		int Width;
 		int Height;
-		const EventDispatcher* EventDispatcher;
+		bool IsFullScreen;
+		int RefreshRate;
 		Vector2 MousePosition;
 		WindowContextHandle ContextHandle;
+		const EventDispatcher* EventDispatcher;
+
+		int WidthPrev;
+		int HeightPrev;
 	};
 	
 	class WindowContext 
@@ -118,13 +82,18 @@ namespace ZeronEngine
 		virtual void SetAspectRatio(int numerator, int denominator) = 0;
 		// Set position of the mouse cursor in window
 		virtual void SetMousePosition(const Vector2& mousePosition) = 0;
-		
+
+		virtual void SetFullScreen(bool isFullScreen) = 0;
+
 		
 		int GetWidth() const									{ return m_WindowProps.Width; }
 		int GetHeight() const									{ return m_WindowProps.Height; }
 		const std::string& GetName() const						{ return m_WindowProps.Name; }
 		Vector2 GetMousePosition() const						{ return m_WindowProps.MousePosition; }
+		bool IsFullScreen() const								{ return m_WindowProps.IsFullScreen; }
+
 		WindowContextHandle GetWindowContextHandle() const		{ return m_WindowProps.ContextHandle; }
+
 
 	public:
 		virtual ~WindowContext();

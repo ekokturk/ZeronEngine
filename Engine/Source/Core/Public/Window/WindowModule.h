@@ -1,4 +1,5 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+
 #pragma once
 
 #include "Window/WindowContext.h"
@@ -52,6 +53,9 @@ namespace ZeronEngine
 		bool HasWindow(const WindowContextHandle& Handle) const;
 
 		// Get window pointer with window id
+		WindowContext* GetMainWindow() const;
+		
+		// Get window pointer with window id
 		WindowContext* GetWindow(int windowID) const;
 		
 		// Get window pointer with window handle
@@ -63,8 +67,10 @@ namespace ZeronEngine
 		/* Schedule a window for removal if it exists*/
 		bool RemoveWindow(const WindowContextHandle& contextHandle);
 
+		bool RemoveAll();
+
 	private:
-		// list of windows that are spawned by the container
+		// list of windows that are spawned by the module with unique ids
 		std::unordered_map<int, std::unique_ptr<WindowContext>> m_WindowContextContainer;
 
 		// list of window ids that are scheduled to be removed

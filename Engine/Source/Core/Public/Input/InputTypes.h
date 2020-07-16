@@ -23,12 +23,20 @@ namespace ZeronEngine
 			Button7 = 8
 		};
 
+		MouseCode() : m_Type(Unknown) {}
 		MouseCode(Type button) : m_Type(button) {}
 		MouseCode(int button) : m_Type(static_cast<Type>(button)) {}
 
 		operator Type() const { return m_Type; }
 		operator const int() const { return static_cast<int>(m_Type); }
+		operator const bool() const { return m_Type != Unknown; }
 
+		MouseCode& operator =(const MouseCode& other)
+		{
+			m_Type = other.m_Type;
+			return *this;
+		}
+		
 		// Get string name of the mouse code
 		std::string ToString() const;
 
@@ -38,7 +46,7 @@ namespace ZeronEngine
 	};
 
 
-	enum class MouseAction : uint8_t
+	enum class MouseInputState : uint8_t
 	{
 		None = 0,
 		Pressed,
@@ -92,7 +100,9 @@ namespace ZeronEngine
 		};
 
 		KeyCode(Type type) : m_Type(type) {}
-
+		
+		operator Type() const { return m_Type; }
+		
 		std::string ToString() const;
 
 	private:
@@ -100,7 +110,7 @@ namespace ZeronEngine
 	};
 
 
-	enum class KeyAction : uint8_t
+	enum class KeyInputState : uint8_t
 	{
 		None = 0,
 		Pressed,

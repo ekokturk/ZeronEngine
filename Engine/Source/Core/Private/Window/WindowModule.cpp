@@ -21,7 +21,7 @@ namespace ZeronEngine
 	{
 		// Create main window
 		m_MainWindowHandle = CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
-		
+
 		CreateWindowContext<WindowContextGLFW>(WindowProps(m_EventDispatcher));
 	}
 
@@ -38,7 +38,7 @@ namespace ZeronEngine
 			// Update every window that is managed by this module
 			window.second->Update();
 		}
-
+		
 		// Delete windows that are scheduled to be removed
 		while(m_WindowRemoveContainer.empty() == false)
 		{
@@ -58,6 +58,11 @@ namespace ZeronEngine
 	bool WindowModule::HasWindow(const WindowContextHandle& handle) const
 	{
 		return handle.m_WindowCreator == this && m_WindowContextContainer.count(handle.GetHandleID()) > 0;
+	}
+
+	WindowContext* WindowModule::GetMainWindow() const
+	{
+		return nullptr;
 	}
 
 	WindowContext* WindowModule::GetWindow(int windowID) const
@@ -91,6 +96,12 @@ namespace ZeronEngine
 		return false;
 	}
 
+	bool WindowModule::RemoveAll()
+	{
+		
+		return false;
+	}
+
 
 	void WindowModule::RegisterEvents(const EventDispatcher& Dispatcher)
 	{
@@ -100,6 +111,11 @@ namespace ZeronEngine
 		Dispatcher.Register<Events::Window::Close>(this, [=](const Events::Window::Close& e)
 		{
 			e.Consume();
+			if(e.ContextHandle == m_MainWindowHandle)
+			{
+				RemoveAll();
+				return;
+			}
 			RemoveWindow(e.ContextHandle); // Schedule to remove
 		});
 	}

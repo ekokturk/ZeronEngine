@@ -1,14 +1,23 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #pragma once
-#include "Input/InputTypes/InputTypes.h"
+#include "Input/InputTypes.h"
 
 namespace ZeronEngine
 {
 
-	class Input
+	class InputDevice
 	{
+	public:
+		InputDevice()
+		{
+			
+		}
+		~InputDevice(){}
 
+
+
+		
 		// bool IsKeyPressed
 		// Vec2 GetMousePostion
 		//

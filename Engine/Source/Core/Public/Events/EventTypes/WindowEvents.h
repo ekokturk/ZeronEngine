@@ -41,7 +41,13 @@ namespace ZeronEngine { namespace Events{
 		};
 
 		/* Specified window got unfocused */
-		DECLARE_BASE_EVENT_TYPE(Unfocus) { };
+		DECLARE_BASE_EVENT_TYPE(Unfocus)
+		{
+			Unfocus(WindowContextHandle && contextHandle = WindowContextHandle())
+				:ContextHandle(contextHandle) {}
+
+			const WindowContextHandle ContextHandle;
+		};
 
 		/* Specified window got minimized */
 		DECLARE_BASE_EVENT_TYPE(Minimize) { };

@@ -2,7 +2,7 @@
 
 #pragma once
 #include "Events/Event.h"
-#include "Input/InputTypes/InputTypes.h"
+#include "Input/InputTypes.h"
 #include "Window/WindowContext.h"
 
 namespace ZeronEngine { namespace Events{

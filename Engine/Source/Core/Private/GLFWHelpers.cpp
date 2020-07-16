@@ -1,9 +1,9 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
-#include "Input/InputTypes/InputTypesGLFW.h"
+#include "Input/InputTypes.h"
 #include "GLFW/glfw3.h"
 
-namespace ZeronEngine{ namespace InputHelpers
+namespace ZeronEngine{ namespace GLFWHelpers
 {
 	
 	MouseCode GetMouseCodeFromGLFW(int MouseCodeGLFW)

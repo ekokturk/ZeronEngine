@@ -4,6 +4,8 @@
 #include "WindowContext.h"
 
 struct GLFWwindow;
+struct GLFWmonitor;
+struct GLFWcursor;
 class EventDispatcher;
 
 namespace ZeronEngine
@@ -16,15 +18,6 @@ namespace ZeronEngine
 	{
 	public:
 
-		// TODO
-		// SetInputMode
-		//virtual void SetIcon() = 0;
-		//virtual void SetPosition() = 0;
-		// virtual Vec2 GetPosition() = 0;
-		// GetFramebufferSize
-		// GetContentScale
-		// https://www.glfw.org/docs/3.3/group__input.html#ga571e45a030ae4061f746ed56cb76aede
-		
 		/* Initialize window dependencies if not initialized yet */
 		static bool ConfigureContext();
 		
@@ -51,9 +44,14 @@ namespace ZeronEngine
 		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
 		virtual void SetMousePosition(const Vector2& mousePosition) override;
 		
+		virtual void SetFullScreen(bool isFullScreen) override;
 
+		GLFWmonitor* GetCurrentMonitor() const;
+		
 	private:
 		GLFWwindow* m_WindowHandle;
+		GLFWmonitor* m_MonitorHandle;
+		GLFWcursor* m_CursorHandle;
 		static int s_WindowCount;
 	};
 

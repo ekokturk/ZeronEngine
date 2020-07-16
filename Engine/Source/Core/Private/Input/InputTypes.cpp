@@ -1,6 +1,6 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
-#include "Input/InputTypes/InputTypes.h"
+#include "Input/InputTypes.h"
 
 std::string ZeronEngine::MouseCode::ToString() const
 {

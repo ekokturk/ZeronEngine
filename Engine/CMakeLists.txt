@@ -14,6 +14,7 @@ set(
 	"${ENGINE_SOURCE_DIR}/ZeronEngine.cpp"
 	"${ENGINE_SOURCE_DIR}/ZeronEngine.h"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Application.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/GLFWHelpers.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Logger.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/CoreTypes/Color.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/CoreTypes/Vector2.cpp"
@@ -24,16 +25,18 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes/KeyEvents.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes/MouseEvents.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes/WindowEvents.cpp"
-	"${ENGINE_SOURCE_DIR}/Core/Private/Input/Input.cpp"
-	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputGLFW.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputDevice.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputMapping.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputModule.cpp"
-	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputTypes/InputTypes.cpp"
-	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputTypes/InputTypesGLFW.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputTypes.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Input/Mouse.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowContext.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowContextGLFW.cpp"
+	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowContextHandle.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowModule.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Application.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Core.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/GLFWHelpers.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/IModule.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Logger.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/CoreTypes/Color.h"
@@ -46,13 +49,14 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes/KeyEvents.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes/MouseEvents.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes/WindowEvents.h"
-	"${ENGINE_SOURCE_DIR}/Core/Public/Input/Input.h"
-	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputGLFW.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputDevice.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputMapping.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputModule.h"
-	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputTypes/InputTypes.h"
-	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputTypes/InputTypesGLFW.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputTypes.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Input/Mouse.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowContext.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowContextGLFW.h"
+	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowContextHandle.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowModule.h"
 	#ENGINE_SOURCE_END
 )
@@ -84,6 +88,7 @@ target_precompile_headers(
 	ZeronEngine
   		PUBLIC
 			<string>
+			<map>
 			<unordered_map>
 			<queue>
 			<any>

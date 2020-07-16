@@ -6,14 +6,15 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+
+#include "GLFWHelpers.h"
 #include "Events/EventDispatcher.h"
 #include "Events/EventTypes/EventTypes.h"
-#include "Input/InputTypes/InputTypesGLFW.h"
 
-//#define DEBUG_WINDOW_CONTEXT 
+#define DEBUG_WINDOW_CONTEXT 
 #ifdef DEBUG_WINDOW_CONTEXT 
-	#define DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS 
-	//#define DEBUG_WINDOW_CONTEXT_KEY_EVENTS 
+	//#define DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS 
+	#define DEBUG_WINDOW_CONTEXT_KEY_EVENTS 
 	#define DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS 
 #endif
 
@@ -53,8 +54,18 @@ namespace ZeronEngine
 		: WindowContext(std::move(windowProps)),
 		m_WindowHandle(nullptr)
 	{
+		// Initialize window creation from window properties
+		m_MonitorHandle = m_WindowProps.IsFullScreen ? GetCurrentMonitor() : nullptr;
+		const GLFWvidmode* videoMode = m_WindowProps.IsFullScreen ? glfwGetVideoMode(m_MonitorHandle) : nullptr;
+		const int initWidth = m_WindowProps.IsFullScreen ? videoMode->width : m_WindowProps.Width;
+		const int initHeight = m_WindowProps.IsFullScreen ? videoMode->height : m_WindowProps.Height;
+		const int initRefreshRate = m_WindowProps.IsFullScreen ? videoMode->refreshRate : m_WindowProps.Width;
+
+		// Set refresh rate
+		glfwWindowHint(GLFW_REFRESH_RATE, initRefreshRate);
+
 		// Create Window
-		m_WindowHandle = glfwCreateWindow(m_WindowProps.Width, m_WindowProps.Height, m_WindowProps.Name.c_str(), nullptr, nullptr);
+		m_WindowHandle = glfwCreateWindow(initWidth, initHeight, m_WindowProps.Name.c_str(), m_MonitorHandle, nullptr);
 		if (m_WindowHandle == nullptr)
 		{
 			ZERON_LOG_ERROR("GLFW failed to create window context '{}'!", m_WindowProps.Name)
@@ -62,6 +73,7 @@ namespace ZeronEngine
 			return;
 		}
 		glfwMakeContextCurrent(m_WindowHandle);
+		
 		// Initialize glad
 		if (gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) == false)
 		{
@@ -73,6 +85,8 @@ namespace ZeronEngine
 		glfwSetWindowUserPointer(m_WindowHandle, this);
 		
 		ZERON_LOG_INFO("Window '{}' is created.", GetName());
+
+
 	}
 
 	WindowContextGLFW::~WindowContextGLFW()
@@ -93,6 +107,8 @@ namespace ZeronEngine
 	{
 		if(!glfwWindowShouldClose(m_WindowHandle))
 		{
+			glClear()
+			
 			glfwSwapBuffers(m_WindowHandle);
 			glfwPollEvents();
 		}
@@ -146,6 +162,35 @@ namespace ZeronEngine
 		glfwSetCursorPos(m_WindowHandle, m_WindowProps.MousePosition.X, m_WindowProps.MousePosition.Y);
 	}
 
+	void WindowContextGLFW::SetFullScreen(bool isFullScreen)
+	{
+		m_WindowProps.IsFullScreen = isFullScreen;
+
+		if(isFullScreen)
+		{
+			m_MonitorHandle = GetCurrentMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(m_MonitorHandle);
+			glfwSetWindowMonitor(m_WindowHandle, m_MonitorHandle, 0, 0, mode->width, mode->height, mode->refreshRate);
+		}
+		else
+		{
+			m_MonitorHandle = GetCurrentMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(m_MonitorHandle);
+			glfwSetWindowMonitor(m_WindowHandle, nullptr, 0, 0, m_WindowProps.WidthPrev, m_WindowProps.HeightPrev, mode->refreshRate);
+		}
+	}
+
+	GLFWmonitor* WindowContextGLFW::GetCurrentMonitor() const
+	{
+		// If window is already created, find the monitor of that window lives in
+		if(m_MonitorHandle != nullptr)
+		{
+			
+		}
+		
+		return glfwGetPrimaryMonitor();
+	}
+
 	void WindowContextGLFW::SetMinimized()
 	{
 		glfwIconifyWindow(m_WindowHandle);
@@ -183,7 +228,7 @@ namespace ZeronEngine
 		glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int buttonIndex, int actionType, int modifiers)
 		{
 			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
-			const MouseCode mouseCode = InputHelpers::GetMouseCodeFromGLFW(buttonIndex);
+			const MouseCode mouseCode = GLFWHelpers::GetMouseCodeFromGLFW(buttonIndex);
 			const ModifierKeys modifierKeys = ModifierKeys(modifiers);
 			switch (actionType)
 			{
@@ -209,13 +254,13 @@ namespace ZeronEngine
 			if(isEntered == GLFW_TRUE){
 				const Events::Mouse::Enter e(window->GetWindowContextHandle());
 				window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Enter>(e);
-				#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
+				#if defined DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS || defined DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
 					ZERON_LOG_INFO("Window Context GLFW : Mouse cursor entered window '{}'", window->GetName())
 				#endif
 			}else{
 				const Events::Mouse::Exit e(window->GetWindowContextHandle());
 				window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Exit>(e);
-				#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
+				#if defined DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS || defined DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS 
 					ZERON_LOG_INFO("Window Context GLFW : Mouse cursor exited window '{}'", window->GetName())
 				#endif
 			}
@@ -253,7 +298,7 @@ namespace ZeronEngine
 		{
 			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
 			const ModifierKeys modifierKeys = ModifierKeys(modifierMask);
-			const KeyCode keyCode = KeyCode(InputHelpers::GetKeyCodeFromGLFW(keyIndex));
+			const KeyCode keyCode = KeyCode(GLFWHelpers::GetKeyCodeFromGLFW(keyIndex));
 			switch (actionType)
 			{
 				case GLFW_PRESS:{
@@ -301,6 +346,8 @@ namespace ZeronEngine
 		glfwSetWindowSizeCallback(m_WindowHandle, [](GLFWwindow* windowGLFW, int width, int height)
 		{
 			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			window->m_WindowProps.HeightPrev = window->m_WindowProps.Height;
+			window->m_WindowProps.WidthPrev = window->m_WindowProps.Width;
 			window->m_WindowProps.Height = height;
 			window->m_WindowProps.Width = width;
 			const Events::Window::Resize e(width,height);
@@ -326,13 +373,13 @@ namespace ZeronEngine
 		{
 			auto* window = static_cast<WindowContextGLFW*>(glfwGetWindowUserPointer(windowGLFW));
 			if(isFocused == GLFW_TRUE){
-				const Events::Window::Focus e;
+				const Events::Window::Focus e(window->GetWindowContextHandle());
 				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Focus>(e);
 				#ifdef DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
 					ZERON_LOG_INFO("Window Context GLFW : Window '{}' focused", window->GetName());
 				#endif
 			}else{
-				const Events::Window::Unfocus e;
+				const Events::Window::Unfocus e(window->GetWindowContextHandle());
 				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Unfocus>(e);
 				#ifdef DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
 					ZERON_LOG_INFO("Window Context GLFW : Window '{}' unfocused", window->GetName());

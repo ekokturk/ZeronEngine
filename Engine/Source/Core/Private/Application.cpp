@@ -68,27 +68,30 @@ namespace ZeronEngine
 			Exit();
 		});
 
+		std::shared_ptr<InputMapping> mapping = std::make_shared<InputMapping>();
+		
 		// Register modules to event dispatcher
-		m_WindowModule->RegisterEvents(*m_EventDispatcher);
 		m_InputModule->RegisterEvents(*m_EventDispatcher);
+		m_WindowModule->RegisterEvents(*m_EventDispatcher);
+		m_InputModule->SetInputMapping(mapping);
 
 		// Initialize modules
 		m_WindowModule->Init();
 
 		// To be used on custom applications
-		OnInit();
+		HandleInit();
 	}
 
-	void Application::OnInit(){}
+	void Application::HandleInit(){}
 	
 	void Application::Update()
 	{
 		m_WindowModule->Update();
 
-		OnUpdate();
+		HandleUpdate();
 	}
 	
-	void Application::OnUpdate() {}
+	void Application::HandleUpdate() {}
 
 	void Application::Exit()
 	{

@@ -45,10 +45,10 @@ namespace ZeronEngine
 		Application();
 		
 		/* Initialization for child classes*/
-		virtual void OnInit();
+		virtual void HandleInit();
 
 		/* Update for child classes*/
-		virtual void OnUpdate();
+		virtual void HandleUpdate();
 		
 	private:
 		void Init();
