@@ -2,13 +2,13 @@
 
 #include "Input/InputMapping.h"
 
+#include "Logger.h"
+
 namespace ZeronEngine
 {
 	InputMapping::InputMapping()
 		:m_InputMapFilePath("")
 	{
-		// TODO Remove after testing
-		m_MouseMapping["TestInput"] = MouseCode::LeftButton;
 	}
 
 	InputMapping::InputMapping(const std::string& filePath)
@@ -23,22 +23,6 @@ namespace ZeronEngine
 	}
 
 
-	MouseCode InputMapping::GetMouseCode(const std::string& inputName) const
-	{
-		if(m_MouseMapping.count(inputName) > 0)
-		{
-			return m_MouseMapping.at(inputName);
-		}
-
-		return MouseCode::Unknown;
-	}
-
-	KeyCode InputMapping::GetKeyCode(const std::string& inputName) const
-	{
-		
-		return KeyCode::Unknown;
-	}
-
 	void InputMapping::ImportFromFile(const std::string& filePath)
 	{
 		m_InputMapFilePath = filePath;
@@ -47,5 +31,29 @@ namespace ZeronEngine
 	void InputMapping::ExportToFile(const std::string& filePath)
 	{
 		
+	}
+
+	bool InputMapping::GetActionBinding(const std::string& bindingName, InputActionBinding& actionBinding) const
+	{
+		if(m_InputActionMap.count(bindingName) > 0)
+		{
+			actionBinding = m_InputActionMap.at(bindingName);
+		}
+
+		ZERON_LOG_WARNING("Action input binding '{}' is not found in input mapping.", bindingName)
+		
+		return false;
+	}
+
+	bool InputMapping::GetPollBinding(const std::string& bindingName, InputPollBinding& pollBinding) const
+	{
+		if (m_InputActionMap.count(bindingName) > 0)
+		{
+			pollBinding = m_InputPollMap.at(bindingName);
+		}
+
+		ZERON_LOG_WARNING("Poll input binding '{}' is not found in input mapping.", bindingName)
+
+			return false;
 	}
 }

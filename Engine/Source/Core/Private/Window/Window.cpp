@@ -11,10 +11,13 @@ namespace ZeronEngine
 		Width(800),
 		Height(600),
 		IsFullScreen(false),
+		IsMinimized(false),
 		RefreshRate(60),
 		EventDispatcher(dispatcher),
 		WidthPrev(Width),
-		HeightPrev(Height)
+		HeightPrev(Height),
+		ScreenPositionPrev(ScreenPosition),
+		MousePositionPrev(MousePosition)
 	{
 	}
 
@@ -23,10 +26,13 @@ namespace ZeronEngine
 		Width(width),
 		Height(height),
 		IsFullScreen(false),
+		IsMinimized(false),
 		RefreshRate(60),
 		EventDispatcher(dispatcher),
 		WidthPrev(Width),
-		HeightPrev(Height)
+		HeightPrev(Height),
+		ScreenPositionPrev(ScreenPosition),
+		MousePositionPrev(MousePosition)
 	{
 	}
 

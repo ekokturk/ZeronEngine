@@ -2,9 +2,11 @@
 
 #pragma once
 
+// Cmake will handle this
 #ifdef ZeronEngine_EXPORTS
 #define ZERON_API  __declspec(dllexport)
 #else
 #define ZERON_API  __declspec(dllimport)
 #endif
+
 

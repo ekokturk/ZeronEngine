@@ -11,8 +11,10 @@ namespace ZeronEngine
 {
 	InputModule::InputModule()
 	{
-		m_Mouse = std::make_unique<Mouse>();
-
+		// TODO Remove this after implementation
+		const auto key = std::make_pair(InputActionBinding(MouseCode(MouseCode::LeftButton), ModifierKeys()), InputState::Released);
+		auto callback = []() {ZERON_LOG_INFO("Worked"); };
+		m_ActionCallbacks[key].push_back(std::make_pair(this, callback));
 	}
 
 	InputModule::~InputModule()
@@ -26,35 +28,43 @@ namespace ZeronEngine
 		m_CurrentInputMapping = std::move(newInputMapping);
 	}
 
-	bool InputModule::BindInput(MouseCode mouseCode, MouseInputState inputState, const std::function<void()>& callback)
+	bool InputModule::BindActionInput(void* owner, const std::string& inputName, InputState inputState, const InputActionCallback& callback)
 	{
-		if(m_Mouse)
+		InputActionBinding actionBinding;
+		if(m_CurrentInputMapping->GetActionBinding(inputName,actionBinding) && owner)
 		{
-			m_Mouse->BindMouseInput(mouseCode, inputState, callback);
+			const auto key = std::make_pair<InputActionBinding, InputState>(std::move(actionBinding), std::move(inputState));
+			m_ActionCallbacks[key].push_back(callback);
 		}
-
-		ZERON_LOG_WARNING("Binding mouse input '{}' failed. Mouse device is not initialized!")
 		
 		return false;
 	}
 
-	bool InputModule::BindInput(const std::string& mouseEvent, MouseInputState inputState,
-		const std::function<void()>& callback)
+	bool InputModule::BindPollInput(const std::string& inputName, const InputPollCallback& callback)
 	{
-		// Get mouse code from input mapping
-		const MouseCode mouseCode = m_CurrentInputMapping->GetMouseCode(mouseEvent);
-		if(!mouseCode)
+		InputPollBinding pollBinding;
+		if (m_CurrentInputMapping->GetPollBinding(inputName, pollBinding))
 		{
-			ZERON_LOG_WARNING("Binding mouse input '{}' failed. Input name does not exist!", mouseEvent)
-			return false;
+			m_PollCallbacks[pollBinding].push_back(callback);
 		}
 		
-		return BindInput(mouseCode, inputState, callback);
+		return false;
+	}
+
+	bool InputModule::UnbindActionInput(const std::string& inputName)
+	{
+		return false;
+	}
+
+	bool InputModule::UnbindPollInput(const std::string& inputName)
+	{
+		return false;
 	}
 
 
 	void InputModule::Init()
 	{
+
 	}
 
 	void InputModule::Update()
@@ -89,25 +99,40 @@ namespace ZeronEngine
 
 		Dispatcher.Register<Events::Mouse::Press>(this, [=](const Events::Mouse::Press& e)
 		{
-			if(m_Mouse)
-			{
-				//m_Mouse->Broadcast(e.Button);
-				//if(e.Button == )
-				//{
-				//	e.ContextHandle.Get()->SetFullScreen(true);
-				//}
-			}
+
 		});
 
 
-
-		Dispatcher.Register<Events::Mouse::Release>(this, [](const Events::Mouse::Release& e)
+		Dispatcher.Register<Events::Mouse::Move>(this, [=](const Events::Mouse::Move& e)
 		{
+			//if (m_Mouse)
+			//{
+				ZERON_LOG("X{} Y{}", e.CurrentPos.X - e.PreviousPos.X, e.CurrentPos.Y - e.PreviousPos.Y)
+			//}
+		});
+
+
+		Dispatcher.Register<Events::Mouse::Release>(this, [=](const Events::Mouse::Release& e)
+		{
+			const auto actionPair = std::make_pair<InputActionBinding, InputState>
+				(InputActionBinding(InputType(e.Button), e.Modifiers), InputState::Released);
+
+			if (m_ActionCallbacks.count(actionPair))
+			{
+				m_ActionCallbacks[actionPair][0].second();
+			}
+			
 			ZERON_LOG("{} Released", e.Button.ToString())
 		});
 
 		Dispatcher.Register<Events::Key::Press>(this, [=](const Events::Key::Press& e)
 		{
+			// If we are listening for key, set key value for polled input
+
+			// If there is a press input action trigger it
+
+
+			
 			ZERON_LOG("{} Pressed", e.Key.ToString())
 			if(e.Key == KeyCode::Enter && e.Modifiers.HasKey(ModifierKeys::Alt))
 			{
@@ -118,14 +143,15 @@ namespace ZeronEngine
 			}
 		});
 
-		//Dispatcher.Register<Events::Key::Release>(this, [](const Events::Key::Release& e)
-		//{
-		//	ZERON_LOG("{} Released", e.Key.ToString())
-		//});
-		//Dispatcher.Register<Events::Key::Repeat>(this, [](const Events::Key::Repeat& e)
-		//{
-		//	ZERON_LOG("{} Repeat", e.Key.ToString())
-		//});
+		Dispatcher.Register<Events::Key::Release>(this, [](const Events::Key::Release& e)
+		{
+			// If we are listening for key, unset key value for polled input
+
+			// If there is a press input action trigger it
+
+			
+		});
+
 		//Dispatcher.Register<Events::Key::Character>(this, [](const Events::Key::Character& e)
 		//{
 		//	ZERON_LOG("\u{} Pressed", "\u"+e.UTF8)
@@ -142,4 +168,5 @@ namespace ZeronEngine
 
 		return Vector2();
 	}
+
 }

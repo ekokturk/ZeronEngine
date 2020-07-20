@@ -42,6 +42,7 @@ namespace ZeronEngine
 		virtual void SetAspectRatio(int numerator, int denominator) override;
 		virtual void SetSize(int width, int height) override;
 		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
+		virtual void SetScreenPosition(const Vector2& newPosition) override;
 		virtual void SetMousePosition(const Vector2& mousePosition) override;
 		
 		virtual void SetFullScreen(bool isFullScreen) override;

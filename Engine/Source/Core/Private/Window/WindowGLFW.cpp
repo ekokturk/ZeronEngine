@@ -86,7 +86,6 @@ namespace ZeronEngine
 		
 		ZERON_LOG_INFO("Window '{}' is created.", GetName());
 
-
 	}
 
 	WindowGLFW::~WindowGLFW()
@@ -152,6 +151,12 @@ namespace ZeronEngine
 		glfwSetWindowSizeLimits(m_WindowGLFW, minWidth, minHeight, maxWidth, maxHeight);
 	}
 
+	void WindowGLFW::SetScreenPosition(const Vector2& newPosition)
+	{
+		// This callback will set the member parameters that will be triggered by this method
+		glfwSetWindowPos(m_WindowGLFW, static_cast<int>(newPosition.X), static_cast<int>(newPosition.Y));
+	}
+
 	void WindowGLFW::SetMousePosition(const Vector2& mousePosition)
 	{
 		m_WindowProps.MousePosition.X = mousePosition.X;
@@ -164,17 +169,18 @@ namespace ZeronEngine
 	{
 		m_WindowProps.IsFullScreen = isFullScreen;
 
-		if(isFullScreen)
+		if(isFullScreen) // Full Screen
 		{
 			m_MonitorGLFW = GetCurrentMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(m_MonitorGLFW);
 			glfwSetWindowMonitor(m_WindowGLFW, m_MonitorGLFW, 0, 0, mode->width, mode->height, mode->refreshRate);
 		}
-		else
+		else // Windowed
 		{
 			m_MonitorGLFW = GetCurrentMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(m_MonitorGLFW);
-			glfwSetWindowMonitor(m_WindowGLFW, nullptr, 0, 0, m_WindowProps.WidthPrev, m_WindowProps.HeightPrev, mode->refreshRate);
+			glfwSetWindowMonitor(m_WindowGLFW, nullptr, m_WindowProps.ScreenPositionPrev.X, 
+				m_WindowProps.ScreenPositionPrev.Y, m_WindowProps.WidthPrev, m_WindowProps.HeightPrev, mode->refreshRate);
 		}
 	}
 
@@ -216,7 +222,6 @@ namespace ZeronEngine
 
 	void WindowGLFW::RegisterEvents()
 	{
-		// TODO glfwSetCharCallback
 
 	// -----------------------------------------------------------------
 	// ------------------------ MOUSE EVENTS ---------------------------
@@ -268,9 +273,8 @@ namespace ZeronEngine
 		glfwSetCursorPosCallback(m_WindowGLFW, [](GLFWwindow* windowGLFW, double posX, double posY)
 		{
 			auto* window = static_cast<WindowGLFW*>(glfwGetWindowUserPointer(windowGLFW));
-			window->m_WindowProps.MousePosition.X = static_cast<float>(posX);
-			window->m_WindowProps.MousePosition.Y = static_cast<float>(posY);
-			const Events::Mouse::Move e(static_cast<float>(posX), static_cast<float>(posY));
+			window->m_WindowProps.SetMousePosition(Vector2(static_cast<float>(posX), static_cast<float>(posY)));
+			const Events::Mouse::Move e(window->m_WindowProps.MousePosition, window->m_WindowProps.MousePositionPrev);
 			window->m_WindowProps.EventDispatcher->Dispatch<Events::Mouse::Move>(e);
 			#ifdef DEBUG_WINDOW_CONTEXT_MOUSE_EVENTS
 				ZERON_LOG_INFO("Window GLFW : Mouse moved X:{} | Y:{}", posX, posY)
@@ -309,11 +313,6 @@ namespace ZeronEngine
 					window->m_WindowProps.EventDispatcher->Dispatch<Events::Key::Release>(e);
 					break;
 				}
-				case GLFW_REPEAT:{
-					const Events::Key::Repeat e(keyCode, modifierKeys, window->GetWindowHandle());
-					window->m_WindowProps.EventDispatcher->Dispatch<Events::Key::Repeat>(e);
-					break;
-				}
 				default:;
 			}
 		});
@@ -326,8 +325,7 @@ namespace ZeronEngine
 			window->m_WindowProps.EventDispatcher->Dispatch<Events::Key::Character>(e);
 		});
 
-
-
+		
 		
 		// -----------------------------------------------------------------
 		// ----------------------- GAMEPAD EVENTS --------------------------
@@ -344,10 +342,7 @@ namespace ZeronEngine
 		glfwSetWindowSizeCallback(m_WindowGLFW, [](GLFWwindow* windowGLFW, int width, int height)
 		{
 			auto* window = static_cast<WindowGLFW*>(glfwGetWindowUserPointer(windowGLFW));
-			window->m_WindowProps.HeightPrev = window->m_WindowProps.Height;
-			window->m_WindowProps.WidthPrev = window->m_WindowProps.Width;
-			window->m_WindowProps.Height = height;
-			window->m_WindowProps.Width = width;
+			window->m_WindowProps.SetSize(width, height);
 			const Events::Window::Resize e(width,height);
 			window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Resize>(e);
 			#ifdef DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
@@ -409,6 +404,14 @@ namespace ZeronEngine
 				const Events::Window::Restore e;
 				window->m_WindowProps.EventDispatcher->Dispatch<Events::Window::Restore>(e);
 			}
+		});
+
+		glfwSetWindowPosCallback(m_WindowGLFW, [](GLFWwindow* windowGLFW, int posX, int posY)
+		{
+			auto* window = static_cast<WindowGLFW*>(glfwGetWindowUserPointer(windowGLFW));
+			#ifdef DEBUG_WINDOW_CONTEXT_WINDOW_EVENTS
+				ZERON_LOG_INFO("Window GLFW : Window position changed -> X:'{}' Y:{}", posX, posY);
+			#endif
 		});
 		
 	}

@@ -58,10 +58,10 @@ namespace ZeronEngine { namespace Events{
 		 */
 		DECLARE_BASE_EVENT_TYPE(Move)
 		{
-			Move(float posX, float posY) :PosX(posX), PosY(posY) {}
+			Move(Vector2 currentPos, Vector2 previousPos) :CurrentPos(currentPos), PreviousPos(previousPos) {}
 
-			const float PosX;
-			const float PosY;
+			const Vector2 CurrentPos;
+			const Vector2 PreviousPos;
 		};
 
 		/*

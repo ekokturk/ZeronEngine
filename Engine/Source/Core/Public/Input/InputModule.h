@@ -10,6 +10,17 @@
 
 namespace ZeronEngine
 {
+	struct pairhash {
+		template <typename T, typename U>
+		std::size_t operator()(const std::pair<T, U>& x) const
+		{
+			return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+		}
+	};
+	
+	using InputActionCallback = std::pair<void*, std::function<void()>>;
+	using InputPollCallback = std::pair<void*, std::function<void(float)>>;
+	
 	class EventDispatcher;
 
 	class InputModule 
@@ -23,15 +34,19 @@ namespace ZeronEngine
 		void Update();
 		void Destroy();
 
-		// Set input mapping 
+		// Set input mapping to be used for input bindings
 		void SetInputMapping(std::shared_ptr<InputMapping> newInputMapping);
 
 
-		// MOUSE INPUTS
+		// TODO use object pointer as a handle
 
-		bool BindInput(MouseCode mouseCode, MouseInputState inputState, const std::function<void()>& callback);
+		bool BindActionInput(void* owner, const std::string& inputName, InputState inputState, const InputActionCallback& callback);
 
-		bool BindInput(const std::string& mouseEvent, MouseInputState inputState, const std::function<void()>& callback);
+		bool BindPollInput(const std::string& inputName, const InputPollCallback& callback);
+
+		bool UnbindActionInput(const std::string& inputName);
+
+		bool UnbindPollInput(const std::string& inputName);
 
 		void RegisterEvents(const EventDispatcher& Dispatcher);
 
@@ -39,12 +54,21 @@ namespace ZeronEngine
 		
 	private:
 
+
+
+		std::unordered_map<std::pair<InputActionBinding, InputState>, std::vector<InputActionCallback>, pairhash> m_ActionCallbacks;
+		std::unordered_map < InputPollBinding, std::vector<InputPollCallback>> m_PollCallbacks;
+		
+
+		// Input mapping that is used to check for assigned 
 		std::shared_ptr<InputMapping> m_CurrentInputMapping;
-		std::unique_ptr<Mouse> m_Mouse;
 
-
-		// Windows for input reference
+		
+		// Window that is currently focused
 		WindowHandle m_FocusedWindow;
+		// Window that mouse is hovered on
 		WindowHandle m_HoveredWindow;
 	};
+
+
 }

@@ -27,14 +27,42 @@ namespace ZeronEngine
 		std::string Name;
 		int Width;
 		int Height;
+		Vector2 ScreenPosition;
 		bool IsFullScreen;
+		bool IsMinimized;
 		int RefreshRate;
 		Vector2 MousePosition;
 		WindowHandle ContextHandle;
 		const EventDispatcher* EventDispatcher;
 
+		// State of previous properties
 		int WidthPrev;
 		int HeightPrev;
+		Vector2 ScreenPositionPrev;
+		Vector2 MousePositionPrev;
+
+		// Set current and previous window size
+		void SetSize(int newWidth, int newHeight)
+		{
+			WidthPrev = Width;
+			HeightPrev = Height;
+			Width = newWidth;
+			Height = newHeight;
+		}
+
+		// Set current and previous window position
+		void SetScreenPosition(const Vector2& newScreenPosition)
+		{
+			ScreenPositionPrev = ScreenPosition;
+			ScreenPosition = newScreenPosition;
+		}
+
+		// Set current and previous mouse position
+		void SetMousePosition(const Vector2& newPosition)
+		{
+			MousePositionPrev = MousePosition;
+			MousePosition = newPosition;
+		}
 	};
 	
 	class Window 
@@ -80,6 +108,8 @@ namespace ZeronEngine
 		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) = 0;
 		// Restore window aspect ratio (ex: 16:9 -> numerator:16, denominator:9
 		virtual void SetAspectRatio(int numerator, int denominator) = 0;
+		// Set screen position of the window
+		virtual void SetScreenPosition(const Vector2& newPosition) = 0;
 		// Set position of the mouse cursor in window
 		virtual void SetMousePosition(const Vector2& mousePosition) = 0;
 
@@ -91,10 +121,13 @@ namespace ZeronEngine
 		const std::string& GetName() const						{ return m_WindowProps.Name; }
 		Vector2 GetMousePosition() const						{ return m_WindowProps.MousePosition; }
 		bool IsFullScreen() const								{ return m_WindowProps.IsFullScreen; }
+		bool IsMinimized() const								{ return m_WindowProps.IsMinimized; }
+		
+		WindowHandle GetWindowHandle() const					{ return m_WindowProps.ContextHandle; }
 
-		WindowHandle GetWindowHandle() const		{ return m_WindowProps.ContextHandle; }
 
 
+		
 	public:
 		virtual ~Window();
 		

@@ -12,19 +12,22 @@ namespace ZeronEngine
 		InputMapping(const std::string& filePath);
 		~InputMapping();
 
-		MouseCode	GetMouseCode(const std::string& inputName) const;
-		KeyCode		GetKeyCode(const std::string& inputName) const;
-
 		// Import input mappings from file (Overwrite existing)
 		void ImportFromFile(const std::string& filePath);
 
 		// Export input mappings to file
 		void ExportToFile(const std::string& filePath);
-		
+
+
+		bool GetActionBinding(const std::string& bindingName, InputActionBinding& actionBinding) const;
+
+		bool GetPollBinding(const std::string& bindingName, InputPollBinding& pollBinding) const;
+
 	private:
-		std::unordered_map<std::string, MouseCode>	m_MouseMapping;
-		std::unordered_map<std::string, KeyCode>	m_KeyMapping;
+		std::unordered_map<std::string, InputActionBinding>	m_InputActionMap;
+		std::unordered_map<std::string, InputPollBinding>	m_InputPollMap;
 
 		std::string m_InputMapFilePath;
 	};
 }
+

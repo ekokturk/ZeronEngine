@@ -8,34 +8,40 @@ namespace ZeronEngine
 	// ---------------------------------------- MOUSE ----------------------------------------
 	// =======================================================================================
 
+	
 	struct MouseCode
 	{
 		enum Type : uint8_t
 		{
-			Unknown = 0,
-			LeftButton = 1,
-			RightButton = 2,
-			MiddleButton = 3,
-			Button3 = 4,
-			Button4 = 5,
-			Button5 = 6,
-			Button6 = 7,
-			Button7 = 8
+			Unknown	= 0,
+			LeftButton,
+			RightButton,
+			MiddleButton,
+			Button3,
+			Button4,
+			Button5,
+			Button6,
+			Button7,
+			AxisX,
+			AxisY,
+			AxisScroll
 		};
 
 		MouseCode() : m_Type(Unknown) {}
 		MouseCode(Type button) : m_Type(button) {}
 		MouseCode(int button) : m_Type(static_cast<Type>(button)) {}
+		MouseCode(const MouseCode& other) = default;
 
 		operator Type() const { return m_Type; }
 		operator const int() const { return static_cast<int>(m_Type); }
 		operator const bool() const { return m_Type != Unknown; }
+		bool operator ==(const MouseCode& other) const { return m_Type == other.m_Type; }
+		bool operator !=(const MouseCode& other) const { return m_Type != other.m_Type; }
+		bool operator ==(const Type& other) const { return m_Type == other; }
+		bool operator !=(const Type& other) const { return m_Type != other; }
 
-		MouseCode& operator =(const MouseCode& other)
-		{
-			m_Type = other.m_Type;
-			return *this;
-		}
+		
+		MouseCode& operator =(const MouseCode& other) = default;
 		
 		// Get string name of the mouse code
 		std::string ToString() const;
@@ -45,14 +51,7 @@ namespace ZeronEngine
 		Type m_Type;
 	};
 
-
-	enum class MouseInputState : uint8_t
-	{
-		None = 0,
-		Pressed,
-		Released
-	};
-
+	
 	// =======================================================================================
 	// ------------------------------------- KEYBOARD ----------------------------------------
 	// =======================================================================================
@@ -99,9 +98,20 @@ namespace ZeronEngine
 			Menu
 		};
 
+		KeyCode() : m_Type(Type::Unknown){}
 		KeyCode(Type type) : m_Type(type) {}
+		KeyCode(int button) : m_Type(static_cast<Type>(button)) {}
+		KeyCode(const KeyCode& other) = default;
 		
 		operator Type() const { return m_Type; }
+		operator const int() const { return static_cast<int>(m_Type); }
+		operator const bool() const { return m_Type != Unknown; }
+		bool operator ==(const KeyCode& other) const { return m_Type == other.m_Type; }
+		bool operator !=(const KeyCode& other) const { return m_Type != other.m_Type; }
+		bool operator ==(const Type& other) const { return m_Type == other; }
+		bool operator !=(const Type& other) const { return m_Type != other; }
+		
+		KeyCode& operator =(const KeyCode& other) = default;
 		
 		std::string ToString() const;
 
@@ -110,13 +120,7 @@ namespace ZeronEngine
 	};
 
 
-	enum class KeyInputState : uint8_t
-	{
-		None = 0,
-		Pressed,
-		Released,
-		Repeat
-	};
+
 
 	// =======================================================================================
 	// -------------------------------------- GAMEPAD ----------------------------------------
@@ -125,9 +129,19 @@ namespace ZeronEngine
 
 	
 	// =======================================================================================
-	// ------------------------------------ MODIFIER KEYS ------------------------------------
+	// ------------------------------------ OTHER --------------------------------------------
 	// =======================================================================================
 
+	/*
+	 * State of the input 
+	 */
+	enum class InputState : uint8_t
+	{
+		None = 0,
+		Released,
+		Pressed,
+	};
+	
 	/*
 	 * Modifier Keys that are active during mouse and key events
 	 */
@@ -151,8 +165,8 @@ namespace ZeronEngine
 		
 		operator Type() const						{ return m_Type; }
 		operator const int() const					{ return static_cast<int>(m_Type); }
-		bool operator ==(ModifierKeys other) const  { return m_Type == other.m_Type; }
-		bool operator !=(ModifierKeys other) const	{ return m_Type != other.m_Type; }
+		bool operator ==(const ModifierKeys& other) const  { return m_Type == other.m_Type; }
+		bool operator !=(const ModifierKeys& other) const	{ return m_Type != other.m_Type; }
 		
 		ModifierKeys operator |(const ModifierKeys& other) const
 		{
@@ -211,4 +225,106 @@ namespace ZeronEngine
 	{
 		return ModifierKeys(static_cast<ModifierKeys::Type>(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs)));
 	}
+
+
+	// =======================================================================================
+	// --------------------------------------- BINDINGS --------------------------------------
+	// =======================================================================================
+
+	// Type safe variable for all input types
+	using InputType = std::variant < MouseCode, KeyCode >;
+	
+	struct InputActionBinding
+	{
+		InputActionBinding():Code(InputType()){}
+		InputActionBinding(InputType inputCode, const ModifierKeys& modifiers)
+			:Code(std::move(inputCode)), Modifiers(modifiers){}
+		InputActionBinding(const InputActionBinding& other) = default;
+
+		constexpr bool operator ==(const InputActionBinding& other) const
+		{
+			return Code == other.Code && Modifiers == other.Modifiers;
+		}
+		
+		InputActionBinding& operator =(const InputActionBinding& other) = default;
+		
+		InputType Code;
+		ModifierKeys Modifiers;
+	};
+
+	struct InputPollBinding
+	{
+		InputPollBinding() :Code(InputType()),Scale(1.f) {}
+		InputPollBinding(InputType inputCode, const ModifierKeys& modifiers)
+			:Code(std::move(inputCode)), Modifiers(modifiers), Scale(1.f) {}
+		InputPollBinding(const InputPollBinding& other) = default;
+
+		
+		InputPollBinding& operator =(const InputPollBinding& other) = default;
+
+		constexpr bool operator ==(const InputPollBinding& other) const
+		{
+			return Code == other.Code && Modifiers == other.Modifiers && Scale == other.Scale;
+		}
+
+		InputType Code;
+		ModifierKeys Modifiers;
+		float Scale;
+	};
+
+	// Type safe variable for all input binding
+	using InputBinding = std::variant<InputActionBinding, InputPollBinding>;
+
+}
+
+// Custom hashing for Input types so they can be used as keys
+namespace std
+{
+	template <>
+	struct hash<ZeronEngine::KeyCode>
+	{
+		std::size_t operator()(const ZeronEngine::KeyCode& k) const
+		{
+			return std::hash<ZeronEngine::KeyCode::Type>()(k);
+		}
+	};
+
+	template <>
+	struct hash<ZeronEngine::MouseCode>
+	{
+		std::size_t operator()(const ZeronEngine::MouseCode& k) const
+		{
+			return std::hash<ZeronEngine::MouseCode::Type>()(k);
+		}
+	};
+
+
+	template <>
+	struct hash<ZeronEngine::ModifierKeys>
+	{
+		std::size_t operator()(const ZeronEngine::ModifierKeys& k) const
+		{
+			return std::hash<int>()(k);
+		}
+	};
+
+	template <>
+	struct hash<ZeronEngine::InputActionBinding>
+	{
+		std::size_t operator()(const ZeronEngine::InputActionBinding& k) const
+		{
+			return std::hash<ZeronEngine::InputType >()(k.Code) ^
+			hash<ZeronEngine::ModifierKeys>()(k.Modifiers);
+		}
+	};
+
+	template <>
+	struct hash<ZeronEngine::InputPollBinding>
+	{
+		std::size_t operator()(const ZeronEngine::InputPollBinding& k) const
+		{
+			return std::hash<ZeronEngine::InputType >()(k.Code) ^
+						hash<ZeronEngine::ModifierKeys>()(k.Modifiers);
+		}
+	};
 }

@@ -15,7 +15,7 @@ namespace ZeronEngine
 		~Mouse();
 
 
-		void BindMouseInput(MouseCode mouseCode, MouseInputState inputState, std::function<void()> callback)
+		void BindMouseInput(MouseCode mouseCode, InputState inputState, std::function<void()> callback)
 		{
 		}
 		
@@ -26,7 +26,7 @@ namespace ZeronEngine
 
 		//Vector2 GetMousePosition() const {};
 		//Vector2 GetMouseScreenPosition() const {};
-		//MouseInputState GetMouseButtonState(MouseCode button) const{};
+		//InputState GetMouseButtonState(MouseCode button) const{};
 
 	private:
 

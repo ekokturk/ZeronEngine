@@ -23,7 +23,7 @@ namespace ZeronEngine
 		//
 		//
 
-		//void BindMouseEvent(MouseCode, MouseInputState);
+		//void BindMouseEvent(MouseCode, InputState);
 		//void UnbindMouseEvent()
 	};
 

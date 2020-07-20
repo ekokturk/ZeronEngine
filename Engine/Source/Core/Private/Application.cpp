@@ -78,6 +78,7 @@ namespace ZeronEngine
 
 		// Initialize modules
 		m_WindowModule->Init();
+		m_InputModule->Init();
 
 		// To be used on custom applications
 		HandleInit();

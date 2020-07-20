@@ -32,16 +32,6 @@ namespace ZeronEngine { namespace Events{
 			const WindowHandle ContextHandle;
 		};
 
-		DECLARE_BASE_EVENT_TYPE(Repeat)
-		{
-			Repeat(const KeyCode & key, const ModifierKeys & modifiers, const WindowHandle & handle = WindowHandle())
-				: Key(key), Modifiers(modifiers), ContextHandle(handle) {}
-
-			const KeyCode Key;
-			const ModifierKeys Modifiers;
-			const WindowHandle ContextHandle;
-		};
-
 
 		DECLARE_BASE_EVENT_TYPE(Character)
 		{
