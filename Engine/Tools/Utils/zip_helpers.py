@@ -48,7 +48,7 @@ def extract_from_zip(zipfile, filter):
                 excludes = dir["EXCLUDES"]
             if file.startswith(zip_path):
                 filename = os.path.basename(file)   # file name in zip 
-                dirname = os.path.dirname(file)     # path name of the file
+                dirname = os.path.dirname(file)+"/"     # path name of the file
                 # check file name is valid (not exluded or directory)
                 if not filename or filename in excludes:
                     continue
@@ -56,9 +56,9 @@ def extract_from_zip(zipfile, filter):
                 # create target path with relative zip path of the file (exlude searched directory)
                 target_dir = f"{path}/{target_path}" 
                 if filename in zip_path:
-                    target_dir += zip_path.replace(dirname+"/"+filename,"")
+                    target_dir += zip_path.replace(dirname + filename,"")
                 else:
-                    target_dir += zip_path.replace(dirname,"")
+                    target_dir += dirname.replace(zip_path,"")
                 os.makedirs(os.path.dirname(target_dir+"/"), exist_ok=True)
                 target = open(os.path.join(target_dir, filename), "wb")
                 with source, target:

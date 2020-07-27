@@ -1,5 +1,6 @@
 import sys, os
-sys.path.insert(0, os.path.abspath(os.path.dirname(sys.argv[0])+"/../../Tools/Utils"))
+print(os.path.abspath(sys.argv[0]))
+sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.abspath(sys.argv[0]))+"/../../Tools/Utils"))
 from zip_helpers import *
 
 NAME = "FMT - Formatting Library"
