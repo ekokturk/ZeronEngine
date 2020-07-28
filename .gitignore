@@ -2,7 +2,6 @@
 Solution/
 Engine/ThirdParty/*/*
 !Engine/ThirdParty/*/install.py
-!Engine/ThirdParty/*/CMakeLists.txt
 
 # VS Code
 .vscode
