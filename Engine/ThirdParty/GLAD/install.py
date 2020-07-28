@@ -29,3 +29,18 @@ os.chdir(INSTALL_DIRECTORY)
 shutil.rmtree(f"{INSTALL_DIRECTORY}/glad-master")
 print(f"Generation complete...\n")
 
+# Content of the cmake file to be generated
+with open(f"{INSTALL_DIRECTORY}/CMakeLists.txt", "w") as f:
+    f.write( 
+'''# Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+
+set(GLAD_FOLDER "ZeronEngine/ThirdParty/GLAD")
+
+add_library( glad "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c")
+
+target_include_directories(glad PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+set_target_properties(glad PROPERTIES FOLDER ${GLAD_FOLDER})
+'''
+    )
+

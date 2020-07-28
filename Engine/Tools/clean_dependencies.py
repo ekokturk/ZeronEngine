@@ -10,7 +10,7 @@ print("\n======================================================\n")
 print("Cleaning up ZERON ENGINE third party dependencies...")
 for f in fileList:
     #
-    if f.endswith("install.py") or f.endswith("CMakeLists.txt"):
+    if f.endswith("install.py"):
         continue
     if os.path.isdir(f):
         shutil.rmtree(f)
