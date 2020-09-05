@@ -110,3 +110,9 @@ target_link_libraries(
 			fmt::fmt-header-only
 			
 )
+
+
+add_custom_command(TARGET ZeronEngine
+                   PRE_BUILD
+                   COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/UpdateSourceFiles.bat"
+                   COMMENT "Prebuild Command")

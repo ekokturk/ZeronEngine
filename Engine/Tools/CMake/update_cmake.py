@@ -1,4 +1,4 @@
-import os, re
+import os, re, sys
 
 def get_files_as_string(path, fileExtensions, pathPrefix =""):
     file_paths = ""
@@ -29,9 +29,8 @@ def update_cmake(filePath, updateString, beginPattern, endPattern):
     with open(filePath, "w") as file:
         file.write(edited_file)
         
-
-engine_rel_path = './../../'
-source_path = os.path.dirname(os.path.realpath(__file__)) + engine_rel_path + 'Source'
+engine_rel_path = os.path.dirname(os.path.realpath(sys.argv[0])) + '/./../../'
+source_path = engine_rel_path + 'Source'
 # Update engine source files
 source_files = get_files_as_string(source_path, (".cpp", ".h"), "${ENGINE_SOURCE_DIR}")
 update_cmake( engine_rel_path + 'CMakeLists.txt',source_files, "#ENGINE_SOURCE_BEGIN", "#ENGINE_SOURCE_END")

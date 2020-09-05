@@ -1,2 +1,1 @@
-cd Tools\CMake\
-py update_cmake.py
+py -3 %~dp0Tools/CMake/update_cmake.py
