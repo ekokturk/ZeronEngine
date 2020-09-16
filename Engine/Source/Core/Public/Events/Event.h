@@ -1,11 +1,14 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 #pragma once
+#include "Hash.h"
 
 #define DECLARE_BASE_EVENT_TYPE(EventClass)\
 	struct EventClass : EventBase<EventClass>\
 
 #define DECLARE_EVENT_TYPE(EventClass, EventParentClass)\
 	struct EventClass : EventParentClass\
+
+
 
 namespace ZeronEngine
 {
@@ -22,10 +25,11 @@ namespace ZeronEngine
 			// TODO: make this only template name (typeid is ugly)
 			// unique identifier name for event
 			constexpr static std::string GetName() { return typeid(ClassName).name(); }
+			constexpr static size_t GetID() { return Hash<const char*>(typeid(ClassName).name()); }
 
 			bool operator==(const EventBase& other) const
 			{
-				return (other.GetName() == GetName());
+				return (other.GetID() == GetID());
 			}
 
 			// Check if event is already consumed

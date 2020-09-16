@@ -13,7 +13,7 @@ namespace ZeronEngine
 		 * Map that contains callbacks of event handlers that are associated with events
 		 * Key is expected to be class name of the event
 		 */
-		mutable std::unordered_map<std::string, std::vector<std::pair<void*, std::any>>> m_EventMap;
+		mutable std::unordered_map<size_t, std::vector<std::pair<void*, std::any>>> m_EventMap;
 		
 	public:
 		/*
@@ -22,7 +22,7 @@ namespace ZeronEngine
 		template<typename E>
 		void Register(void* handle, std::function<void(const E&)> callback) const
 		{
-			m_EventMap[E::GetName()].push_back(std::make_pair(handle, callback));
+			m_EventMap[E::GetID()].push_back(std::make_pair(handle, callback));
 		}
 
 		/*
@@ -33,10 +33,10 @@ namespace ZeronEngine
 		template<typename E>
 		void Dispatch(const E& e) const
 		{
-			if(m_EventMap.count(e.GetName()) == 0){
+			if(m_EventMap.count(e.GetID()) == 0){
 				return;
 			}
-			for (const std::pair<void*, std::any>& value : m_EventMap.at(e.GetName()))
+			for (const std::pair<void*, std::any>& value : m_EventMap.at(e.GetID()))
 			{
 				if(value.first == nullptr ||  e.IsConsumed() == true){
 					return;
@@ -75,11 +75,11 @@ namespace ZeronEngine
 		template<typename E>
 		void Remove(void* eventHandler) const
 		{
-			if (m_EventMap.count(E::GetName()) == 0) {
+			if (m_EventMap.count(E::GetID()) == 0) {
 				return;
 			}
 			
-			auto& eventContainer = m_EventMap.at(E::GetName());
+			auto& eventContainer = m_EventMap.at(E::GetID());
 			auto it = eventContainer.begin();
 			while (it != eventContainer.end())
 			{

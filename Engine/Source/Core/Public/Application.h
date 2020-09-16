@@ -55,7 +55,7 @@ namespace ZeronEngine
 		void Update();
 
 	public:
-		EventDispatcher& GetEventDispatcher() { return *m_EventDispatcher; }
+		EventDispatcher& GetEventDispatcher() const { return *m_EventDispatcher; }
 		
 	private:
 		
