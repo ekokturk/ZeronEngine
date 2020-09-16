@@ -58,6 +58,10 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowGLFW.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowHandle.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowModule.h"
+	"${ENGINE_SOURCE_DIR}/Utils/Private/JSON/JSON.cpp"
+	"${ENGINE_SOURCE_DIR}/Utils/Private/JSON/JSONType.cpp"
+	"${ENGINE_SOURCE_DIR}/Utils/Public/JSON/JSON.h"
+	"${ENGINE_SOURCE_DIR}/Utils/Public/JSON/JSONType.h"
 	#ENGINE_SOURCE_END
 )
 
@@ -77,6 +81,7 @@ target_include_directories(ZeronEngine
 		#ENGINE_INCLUDE_BEGIN
 	"${ENGINE_SOURCE_DIR}/Core/Public"
 	"${ENGINE_SOURCE_DIR}/Renderer/Public"
+	"${ENGINE_SOURCE_DIR}/Utils/Public"
 	#ENGINE_INCLUDE_END
 
 	PRIVATE
