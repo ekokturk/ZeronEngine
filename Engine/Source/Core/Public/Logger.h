@@ -10,7 +10,6 @@
 #include "fmt/color.h"
 #include "fmt/chrono.h"
 #include "fmt/printf.h"
-#include <map>
 
 #define ZERON_LOG(...)							ZeronEngine::Logger::GetInstance()->Log(__VA_ARGS__);
 #define ZERON_LOG_INFO(...)						ZeronEngine::Logger::GetInstance()->Log(ELogType::Info,		EColor::Gray, __VA_ARGS__);

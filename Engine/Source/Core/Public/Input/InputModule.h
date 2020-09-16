@@ -3,7 +3,6 @@
 #pragma once
 
 #include "InputMapping.h"
-#include "Mouse.h"
 #include "CoreTypes/Vector2.h"
 #include "Window/WindowHandle.h"
 

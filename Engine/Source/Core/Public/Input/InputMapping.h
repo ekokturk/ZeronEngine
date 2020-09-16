@@ -9,14 +9,16 @@ namespace ZeronEngine
 	{
 	public:
 		InputMapping();
+		InputMapping(const InputMapping& mapping) = default;
+		InputMapping(InputMapping&& mapping) = default;
 		InputMapping(const std::string& filePath);
-		~InputMapping();
+		~InputMapping() = default;
 
 		// Import input mappings from file (Overwrite existing)
-		void ImportFromFile(const std::string& filePath);
+		bool ImportFromFile(const std::string& filePath);
 
 		// Export input mappings to file
-		void ExportToFile(const std::string& filePath);
+		bool ExportToFile(const std::string& filePath);
 
 
 		bool GetActionBinding(const std::string& bindingName, InputActionBinding& actionBinding) const;
@@ -24,6 +26,8 @@ namespace ZeronEngine
 		bool GetPollBinding(const std::string& bindingName, InputPollBinding& pollBinding) const;
 
 	private:
+
+		// TODO Hash Key
 		std::unordered_map<std::string, InputActionBinding>	m_InputActionMap;
 		std::unordered_map<std::string, InputPollBinding>	m_InputPollMap;
 

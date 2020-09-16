@@ -1,0 +1,28 @@
+{
+    "InputActionMapping":
+    {
+        "Name":[
+            {
+                "InputType":"MouseCode",
+                "InputName":"LeftButton",
+                "Modifiers":["Shift","Control"]
+            },
+            {
+                "InputType":"KeyCode",
+                "InputName":"LeftButton",
+                "Modifiers":["Control"]
+            }
+        ]
+    },
+    "InputPollMapping":
+    {
+        "Name":[
+            {
+                "InputType":"MouseAxis",
+                "InputName":"X",
+                "Modifiers":["Shift","Control"],
+                "Scale": -1
+            }
+        ]
+    }
+}

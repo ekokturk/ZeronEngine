@@ -3,6 +3,7 @@
 #include "ZeronEngine.h"
 
 #include "Application.h"
+
 #include "Events/EventTypes/EventTypes.h"
 #include "Events/EventDispatcher.h"
 #include "Input/InputModule.h"
@@ -17,7 +18,7 @@ namespace ZeronEngine
 	Application::Application()
 		:m_IsRunning(false)
 	{
-		assert(s_Instance == nullptr);
+		//assert(s_Instance == nullptr);
 
 		s_Instance = this;
 
@@ -51,7 +52,7 @@ namespace ZeronEngine
 
 	void Application::Run()
 	{
-		assert(s_Instance != nullptr);
+		//assert(s_Instance != nullptr);
 		
 		s_Instance->Init();
 		s_Instance->m_IsRunning = true;
@@ -67,10 +68,9 @@ namespace ZeronEngine
 		{
 			Exit();
 		});
-
 		// TODO get this from file
-		std::shared_ptr<InputMapping> mapping = std::make_shared<InputMapping>();
-		
+		std::shared_ptr<InputMapping> mapping = std::make_shared<InputMapping>("Config/Input.json");
+
 		// Register modules to event dispatcher
 		m_InputModule->RegisterEvents(*m_EventDispatcher);
 		m_WindowModule->RegisterEvents(*m_EventDispatcher);

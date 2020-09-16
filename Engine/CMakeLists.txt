@@ -26,11 +26,9 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes/KeyEvents.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes/MouseEvents.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Events/EventTypes/WindowEvents.cpp"
-	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputDevice.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputMapping.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputModule.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Input/InputTypes.cpp"
-	"${ENGINE_SOURCE_DIR}/Core/Private/Input/Mouse.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Window/Window.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowGLFW.cpp"
 	"${ENGINE_SOURCE_DIR}/Core/Private/Window/WindowHandle.cpp"
@@ -51,11 +49,9 @@ set(
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes/KeyEvents.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes/MouseEvents.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Events/EventTypes/WindowEvents.h"
-	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputDevice.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputMapping.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputModule.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Input/InputTypes.h"
-	"${ENGINE_SOURCE_DIR}/Core/Public/Input/Mouse.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/Window.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowGLFW.h"
 	"${ENGINE_SOURCE_DIR}/Core/Public/Window/WindowHandle.h"
@@ -107,6 +103,8 @@ target_precompile_headers(
 
 			<functional>
 			<memory>
+
+			<filesystem>
 )
 
 
@@ -123,4 +121,9 @@ target_link_libraries(
 add_custom_command(TARGET ZeronEngine
                    PRE_BUILD
                    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/UpdateSourceFiles.bat"
-                   COMMENT "Prebuild Command")
+                   COMMENT "Updating Engine Source files for CMake")
+
+add_custom_command( TARGET ZeronEngine  PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/Config/
+    $<TARGET_FILE_DIR:ZeronEngine>/Config)

@@ -6,6 +6,7 @@
 
 class Sandbox : public ZeronEngine::Application
 {
-public:
+protected:
+	virtual void HandleInit() override;
 };
 

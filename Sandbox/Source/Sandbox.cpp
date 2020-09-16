@@ -3,3 +3,9 @@
 #include "Sandbox.h"
 
 GENERATE_ZERON_APPLICATION(Sandbox)
+
+void Sandbox::HandleInit()
+{
+	
+	
+}
