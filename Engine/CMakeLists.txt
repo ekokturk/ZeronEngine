@@ -76,6 +76,7 @@ add_library(
 )
 
 set_target_properties(ZeronEngine PROPERTIES FOLDER "ZeronEngine")
+set_property(TARGET ZeronEngine PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:ZeronEngine>)
 
 target_include_directories(ZeronEngine 
     PUBLIC 

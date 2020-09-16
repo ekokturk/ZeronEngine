@@ -27,3 +27,5 @@ target_link_libraries(Sandbox ZeronEngine )
 #target_precompile_headers(Sandbox REUSE_FROM ZeronEngine)
 
 source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SANDBOX_SOURCE_FILES})
+
+set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Sandbox>)
