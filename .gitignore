@@ -1,0 +1,10 @@
+## ===================== ZERON ENGINE =====================
+Solution/
+Engine/ThirdParty/*/*
+!Engine/ThirdParty/*/install.py
+
+# VS Code
+.vscode
+
+# Python
+__pycache__
