@@ -20,6 +20,7 @@ endif()
 if (TARGET SDL2)
     list(APPEND MODULE_LIBRARIES SDL2 SDL2main)
     target_compile_definitions(ZeronRenderer PUBLIC SDL_MAIN_HANDLED)
+    target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_SDL=1)
 endif()
 
 if(WIN32)

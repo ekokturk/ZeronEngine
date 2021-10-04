@@ -1,7 +1,7 @@
 # Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 # =========== VARIABLES ===========
-set_output_directory("")
+init_output_directory("")
 
 # =========== TARGET ===========
 

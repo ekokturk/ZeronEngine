@@ -1,5 +1,5 @@
 # Set output directory of the binary files to designated folders
-macro(set_output_directory path)
+macro(init_output_directory path)
     if(NOT DEFINED ${OUTPUT_DIRECTORY})
         set(OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Binaries")
     endif()

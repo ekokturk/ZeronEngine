@@ -8,8 +8,8 @@ set_property(GLOBAL PROPERTY ZERON_THIRDPARTY_DIR "${ZERON_THIRDPARTY_DIR}")
 add_subdirectory(${ZERON_THIRDPARTY_DIR})
 
 # ========== ZERON ENGINE =========
-
 set(ZERON_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+init_output_directory("")
 
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronCore")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronRenderer")
