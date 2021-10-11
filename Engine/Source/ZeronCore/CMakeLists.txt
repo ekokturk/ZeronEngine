@@ -10,8 +10,12 @@ target_include_directories(ZeronCore
 set(PCH_GENERIC 			
 	<string> <map> <unordered_map> <queue> <any> <variant>
 	<exception> <iostream> <sstream> <fstream> <functional>
-	<memory> <filesystem>
+	<memory> <filesystem> <algorithm> <cmath>
 )
+
+if(WIN32)
+    list(APPEND PCH_GENERIC <Windows.h>)
+endif()
 
 target_precompile_headers(ZeronCore	
     PUBLIC 
