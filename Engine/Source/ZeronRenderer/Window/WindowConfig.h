@@ -4,7 +4,13 @@
 
 namespace Zeron {
 
-	enum class WindowType : uint8_t
+	enum class FullScreenType : uint8_t
+	{
+		Borderless,		// Borderless Fullscreen Window
+		Monitor			// Display is adjusted to window
+	};
+
+	enum class WindowAPI : uint8_t
 	{
 		Null,
 		GLFW,

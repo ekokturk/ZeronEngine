@@ -4,7 +4,7 @@ from zip_helpers import *
 
 NAME = "SDL2"
 VERSION_MAJOR = 2
-VERSION_MINOR = 0.12
+VERSION_MINOR = 0.16
 URL = f"https://www.libsdl.org/release/SDL2-{VERSION_MAJOR}.{VERSION_MINOR}.zip"
 ZIP_FOLDER = f"SDL2-{VERSION_MAJOR}.{VERSION_MINOR}"
 DIRECTORIES = [

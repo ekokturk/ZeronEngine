@@ -2,13 +2,13 @@
 
 #pragma once
 #include "Window/WindowConfig.h"
+#include "Window/WindowEvents.h"
 
 namespace Zeron {
 
 	class Window {
 	public:
-		// This needs to be implemented to create a window for the specific platform
-		static std::unique_ptr<Window> CreateWindow(WindowType type, const WindowConfig& config);
+		static std::unique_ptr<Window> CreatePlatformWindow(WindowAPI type, const WindowConfig& config);
 
 		Window(const WindowConfig& config);
 		virtual ~Window() = default;
@@ -32,20 +32,48 @@ namespace Zeron {
 		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) = 0;
 		virtual void SetAspectRatio(int numerator, int denominator) = 0;
 		virtual void SetScreenPosition(int posX, int posY) = 0;
-		virtual void SetFullScreen(bool isFullScreen) = 0;
+		
+		virtual void SetClipCursor(bool shouldClip) = 0;
+
+		void SetFullScreen(bool isFullScreen);
+		void SetFullScreenType(FullScreenType fullScreenType);
 
 		virtual void* GetPlatformHandle() const = 0;
 
-		[[nodiscard]] const std::string& GetName() const	{ return mName; }
-		[[nodiscard]] unsigned int GetID() const			{ return mID; }
-		[[nodiscard]] int GetWidth() const					{ return mWidth; }
-		[[nodiscard]] int GetHeight() const					{ return mHeight; }
-		[[nodiscard]] bool IsFullScreen() const				{ return mIsFullScreen; }
-		[[nodiscard]] bool IsMinimized() const				{ return mIsMinimized; }
-		[[nodiscard]] WindowType GetWindowType() const		{ return mWindowType; }
+		std::unique_ptr<WindowEvent> GetNextEvent();
+
+		[[nodiscard]] const std::string& GetName() const		{ return mName; }
+		[[nodiscard]] unsigned int GetID() const				{ return mID; }
+		[[nodiscard]] int GetWidth() const						{ return mWidth; }
+		[[nodiscard]] int GetHeight() const						{ return mHeight; }
+		[[nodiscard]] bool IsFullScreen() const					{ return mIsFullScreen; }
+		[[nodiscard]] bool IsMinimized() const					{ return mIsMinimized; }
+		[[nodiscard]] bool IsMaximized() const					{ return mIsMaximized; }
+		[[nodiscard]] bool IsFocused() const					{ return mIsFocused; }
+		[[nodiscard]] bool IsHovered() const					{ return mIsHovered; }
+		[[nodiscard]] bool IsHidden() const						{ return mIsHidden; }
+		[[nodiscard]] WindowAPI GetWindowType() const			{ return mWindowType; }
+		[[nodiscard]] FullScreenType GetFullScreenType() const	{ return mFullScreenType; }
+
+		// TODO: Implement these with data structures
+		//[[nodiscard]] Vec2I GetCenter() const;
+		//[[nodiscard]] Rect GetRect() const;
 
 	protected:
+		void ClearEventQueue();
+		void OnSizeChanged(int width, int height);
+		void OnPositionChanged(int posX, int posY);
+		void OnHoverChanged(bool isHovered);
+		void OnFocusChanged(bool isFocused);
+		void OnVisibilityChanged(bool isHidden);
+		void OnRestored();
+		void OnMinimized();
+		void OnMaximized();
 
+		virtual void OnFullScreenChangedBorderless() = 0;
+		virtual void OnFullScreenChangedMonitor() = 0;
+	
+	protected:
 		std::string mName;
 		int mID;
 		
@@ -54,14 +82,22 @@ namespace Zeron {
 		int mWidthPrev;
 		int mHeightPrev;
 
-		int mScreenPosX;
-		int mScreenPosY;
-		int mScreenPrevPosX;
-		int mScreenPrevPosY;
+		int mPosX;
+		int mPosY;
+		int mPosPrevX;
+		int mPosPrevY;
 
+		// TODO: Distinguish between Borderless Window vs Full Screen
 		bool mIsFullScreen;
 		bool mIsMinimized;
-		WindowType mWindowType;
+		bool mIsMaximized;
+		bool mIsFocused;
+		bool mIsHovered;
+		bool mIsHidden;
+		WindowAPI mWindowType;
+		FullScreenType mFullScreenType;
+
+		std::queue<std::unique_ptr<WindowEvent>> mEventQueue;
 	};
 
 }

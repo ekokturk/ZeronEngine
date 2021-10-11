@@ -35,22 +35,33 @@ namespace Zeron {
 		virtual void SetSize(int width, int height) override;
 		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
 		virtual void SetScreenPosition(int posX, int posY) override;
-		
-		virtual void SetFullScreen(bool isFullScreen) override;
+
+		virtual void SetClipCursor(bool shouldClip) override;
 
 		virtual void* GetPlatformHandle() const override;
 		
-		GLFWmonitor* GetCurrentMonitor() const;
-	
+		// This is needed for input callbacks
+		void QueueEvent(std::unique_ptr<WindowEvent> e);
+		bool IsCursorClipped() const { return mIsCursorClipped; }
+
+		GLFWmonitor* FindCurrentMonitor() const;
+
 	private:
 		void RegisterEvents();
+		virtual void OnFullScreenChangedBorderless() override;
+		virtual void OnFullScreenChangedMonitor() override;
 
 		// Native GLFW window is set to point to WindowGLFW
 		static WindowGLFW* GetUserPointerGLFW(GLFWwindow* windowGLFW);
+
+		static KeyCode GetKeyCodeGLFW(int code);
+		static MouseCode GetMouseCodeGLFW(int code);
 		
 		GLFWwindow* mWindowGLFW;
 		GLFWmonitor* mMonitorGLFW;
 		GLFWcursor* mCursorGLFW;
+
+		bool mIsCursorClipped;
 
 		static int mWindowGLFWCount;
 	};
