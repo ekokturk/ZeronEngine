@@ -14,7 +14,7 @@ add_executable(
     ${SANDBOX_SOURCE_FILES}
 )
 
-target_link_libraries(Sandbox ZeronClient)
+target_link_libraries(Sandbox PUBLIC ZeronClient)
 #target_precompile_headers(Sandbox REUSE_FROM ZeronEngine)
 
 set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Sandbox>)
