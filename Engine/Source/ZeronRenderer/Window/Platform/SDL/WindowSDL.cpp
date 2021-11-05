@@ -11,42 +11,41 @@ namespace Zeron {
 
 	int WindowSDL::mWindowSDLCount = 0;
 
-	bool WindowSDL::InitSDL()
-	{
-	#if ZE_WINDOW_SDL
-		if (mWindowSDLCount > 0) {
-			// SDL is already initialized
-			return true;
-		}
-
-		if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-			return false;
-		}
-		SDL_version versionSDL;
-		SDL_GetVersion(&versionSDL);
-
-		// TODO: Initialize SDL2 Error Callback
-
-		return true;
-	#else
-		return false;
-	#endif
-
-	}
-
 	WindowSDL::WindowSDL(const WindowConfig& config)
 		: Window(config) 
 		, mWindowSDL(nullptr)
 	{
 		mWindowType = WindowAPI::SDL;
-
-		if (InitSDL() == false) {
-			// TODO: Assert
-			return;
+	}
+	
+	WindowSDL::~WindowSDL()
+	{
+	#if ZE_WINDOW_SDL
+		if(mWindowSDL) {
+			SDL_DestroyWindow(mWindowSDL);
+			mWindowSDLCount--;
+			ZE_ASSERT(mWindowSDLCount >= 0, "Invalid SDL window count!")
 		}
 
+		if(mWindowSDLCount == 0) {
+			SDL_Quit();
+		}
+	#endif
+	}
 
+	bool WindowSDL::Init()
+	{
 	#if ZE_WINDOW_SDL
+		if (mWindowSDLCount == 0) {
+			if (SDL_Init(SDL_INIT_VIDEO) != SDL_FALSE) {
+				ZE_FAIL("SDL was not initialized!");
+				return false;
+			}
+			SDL_version versionSDL;
+			SDL_GetVersion(&versionSDL);
+			ZE_LOGI("SDL v{}.{}.{} initialized...", versionSDL.major, versionSDL.minor, versionSDL.patch);
+		}
+
 		SDL_DisplayMode displayMode;
 		const int currentDisplay = GetCurrentDisplay();
 		SDL_GetCurrentDisplayMode(currentDisplay, &displayMode);
@@ -55,7 +54,7 @@ namespace Zeron {
 		const int initRefreshRate = displayMode.refresh_rate;
 		const SDL_WindowFlags initFlags = static_cast<SDL_WindowFlags>(
 			SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
-		);
+			);
 
 		// Create Window
 		mWindowSDL = SDL_CreateWindow(
@@ -67,28 +66,20 @@ namespace Zeron {
 			initFlags
 		);
 
-		if (mWindowSDL == nullptr) {
-			//	TODO: Assert;
-			return;
+		if (!mWindowSDL) {
+			ZE_FAIL("SDL window was not created!");
+			return false;
 		}
+
+		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
 		mWindowSDLCount++;
+		return true;
+	#else
+		ZE_FAIL("Current platform does not support SDL window!");
+		return false;
 	#endif
 
-	}
-	
-	WindowSDL::~WindowSDL()
-	{
-	#if ZE_WINDOW_SDL
-		if(mWindowSDL) {
-			SDL_DestroyWindow(mWindowSDL);
-			mWindowSDLCount--;
-		}
-
-		if(mWindowSDLCount == 0) {
-			SDL_Quit();
-		}
-	#endif
 	}
 
 	void WindowSDL::BeginFrame() {
@@ -125,7 +116,7 @@ namespace Zeron {
 	{
 	#if ZE_WINDOW_SDL
 		if(!mIsFullScreen) {
-			// TODO: Implement this or assert
+			ZE_FAIL("WindowSDL::SetAspectRatio Not implemented!");
 		}
 	#endif
 	}
@@ -258,6 +249,9 @@ namespace Zeron {
 					const KeyCode code = GetKeyCodeSDL(eventSDL.key.keysym.sym);
 					mEventQueue.emplace(std::make_unique<WindowEvent_KeyUp>(code));
 				}
+			} break;
+			case SDL_TEXTINPUT: {
+				mEventQueue.emplace(std::make_unique<WindowEvent_TextChar>(eventSDL.text.text[0]));
 			} break;
 			case SDL_MOUSEBUTTONDOWN: {
 					const MouseCode code = GetMouseCodeSDL(eventSDL.button.button);

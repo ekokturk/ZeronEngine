@@ -32,24 +32,22 @@ namespace Zeron {
 	std::unique_ptr<Window> Window::CreatePlatformWindow(WindowAPI type, const WindowConfig& config)
 	{
 		switch (type) {
+		#if ZE_WINDOW_GLFW
 			case WindowAPI::GLFW: {
-			#if ZE_WINDOW_GLFW
 				return std::make_unique<WindowGLFW>(config);
-			#endif
 			} break;
+		#endif
+		#if ZE_WINDOW_SDL
 			case WindowAPI::SDL: {
-			#if ZE_WINDOW_SDL
 				return std::make_unique<WindowSDL>(config);
-			#endif
 			} break;
+		#endif
+		#if ZE_WINDOW_WIN32
 			case WindowAPI::Win32: {
-			#if ZE_WINDOW_WIN32
 				return std::make_unique<WindowWin32>(config);
-			#endif
 			} break;
-			default:
-				// TODO: Assert here
-				break;
+		#endif
+			default: ZE_FAIL("Window API is not supported on this platform!");
 		}
 		return nullptr;
 	}
@@ -67,19 +65,14 @@ namespace Zeron {
 		case Zeron::FullScreenType::Borderless: {
 			OnFullScreenChangedBorderless();
 		} break;
-		case Zeron::FullScreenType::Monitor: {
-			OnFullScreenChangedMonitor();
-		} break;
-		default: // TODO: Assert
-			break;
+		case Zeron::FullScreenType::Monitor:
+		default: ZE_FAIL("Active FullScreenType is not supported!");
 		}
 		SetClipCursor(mIsFullScreen);
 	}
 
 	void Window::SetFullScreenType(FullScreenType fullScreenType)
 	{
-		// TODO: Assert here unsupported
-
 		if(fullScreenType == mFullScreenType) {
 			return;
 		}

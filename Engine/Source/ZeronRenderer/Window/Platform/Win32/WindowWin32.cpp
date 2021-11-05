@@ -19,12 +19,21 @@ namespace Zeron {
 		, mSizeMaxY(0)
 	{
 		mWindowType = WindowAPI::Win32;
+	}
+	
+	WindowWin32::~WindowWin32()
+	{
 	#if ZE_WINDOW_WIN32
+	#endif
+	}
 
+	bool WindowWin32::Init() 
+	{
+	#if ZE_WINDOW_WIN32
 		HINSTANCE hInstance = GetModuleHandle(NULL);
-
 		if (hInstance == NULL) {
-			// TODO: ASSERT and Error check
+			ZE_FAIL("Could not find HINSTANCE of Win32 process!");
+			return false;
 		}
 
 		WNDCLASS wnd = { 0 };
@@ -34,38 +43,40 @@ namespace Zeron {
 		wnd.lpszClassName = "Zeron Window";
 		wnd.hCursor = LoadCursor(NULL, IDC_ARROW);
 
+		SetLastError(0);
 		RegisterClass(&wnd);
-		bool error = GetLastError();
+		if (GetLastError() > 0) {
+			ZE_FAIL("Win32 window class wasn't registered!");
+			return false;
+		}
 
 		mHwnd = CreateWindowEx(
 			0,                              // Optional window styles.
 			"Zeron Window",                 // Window class
 			mName.c_str(),					// Window text
 			WS_OVERLAPPEDWINDOW,            // Window style
-			mPosX, 
-			mPosY, 
-			mWidth, 
+			mPosX,
+			mPosY,
+			mWidth,
 			mHeight,
-			NULL,           
-			NULL,       
-			hInstance,  
-			this        
+			NULL,
+			NULL,
+			hInstance,
+			this
 		);
 
-		ShowWindow(mHwnd, SW_SHOW);
-
-		if (mHwnd == NULL) {
-			// TODO: Assert
+		if(mHwnd == NULL) {
+			ZE_FAIL("Win32 window was not created!");
+			return false;
 		}
+		ShowWindow(mHwnd, SW_SHOW);
+		return true;
+	#else
+		ZE_FAIL("Current platform does not support Win32 window!");
+		return false;
 	#endif
 	}
-	
-	WindowWin32::~WindowWin32()
-	{
-	#if ZE_WINDOW_WIN32
 
-	#endif
-	}
 
 	void WindowWin32::BeginFrame() {
 		MSG msg = { 0 };
@@ -105,7 +116,7 @@ namespace Zeron {
 	{
 	#if ZE_WINDOW_WIN32
 		if (!mIsFullScreen) {
-			// TODO: Implement this or assert
+			ZE_FAIL("WindowWin32::SetAspectRatio Not implemented!");
 		}
 	#endif
 	}
@@ -234,8 +245,7 @@ namespace Zeron {
 			window = reinterpret_cast<WindowWin32*>(cs->lpCreateParams);
 			SetLastError(0);
 			if (SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window)) == 0) {
-				if (GetLastError() != 0) {
-					// TODO: Assert
+				if (GetLastError() != FALSE) {
 					return FALSE;
 				}
 			}

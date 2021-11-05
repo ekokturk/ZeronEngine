@@ -2,13 +2,22 @@
 
 #include "Window/Window.h"
 
+#include "Core/Types/Color.h"
+
 int main(int argc, char** argv) {
 
 	using namespace Zeron;
 	std::vector<std::unique_ptr<Window>> windows;
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL",800,600,0)));
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW",800,600,0)));
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32",800,600,0)));
+	//windows.push_back(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL",800,600,0)));
+	//windows.push_back(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW",800,600,0)));
+	//windows.push_back(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32",800,600,0)));
+
+	for (auto& window : windows) {
+		window->Init();
+	}
+
+	Color color = Color::Red;
+	ZE_LOG("{:x}", color.HexRGB());
 
 	bool isRunning = true;
 	while (isRunning) {
@@ -24,7 +33,7 @@ int main(int argc, char** argv) {
 				}
 				if (e->GetID() == WindowEventID::KeyDown) {
 					WindowEvent_KeyDown& procEvnt = static_cast<WindowEvent_KeyDown&>(*e);
-					std::cout << procEvnt.GetEventName() << " " << procEvnt.mCode.ToString() << std::endl;
+					std::cout << window->GetName() << " " << procEvnt.GetEventName() << " " << procEvnt.mCode.ToString() << std::endl;
 					if (procEvnt.mCode == KeyCode::F) {
 						window->SetFullScreen(!window->IsFullScreen());
 					}
@@ -43,13 +52,18 @@ int main(int argc, char** argv) {
 						window->SetFullScreenType(FullScreenType::Monitor);
 					}
 				}
+				if (e->GetID() == WindowEventID::KeyUp) {
+					WindowEvent_KeyUp& procEvnt = static_cast<WindowEvent_KeyUp&>(*e);
+					std::cout << window->GetName() << " " << procEvnt.GetEventName() << " " << procEvnt.mCode.ToString() << std::endl;
+				}
 				if (e->GetID() == WindowEventID::MouseButtonDown) {
 					WindowEvent_MouseDown& procEvnt = static_cast<WindowEvent_MouseDown&>(*e);
-					std::cout << procEvnt.GetEventName() << " " << procEvnt.mCode.ToString() << std::endl;
+					std::cout << window->GetName() << procEvnt.GetEventName() << " " << procEvnt.mCode.ToString() << std::endl;
 				}
 				else if (e->GetID() == WindowEventID::TextChar) {
 					WindowEvent_TextChar& procEvnt = static_cast<WindowEvent_TextChar&>(*e);
-					std::cout << procEvnt.GetEventName() << " " << procEvnt.mCharacter << std::endl;
+					ZE_LOG("{}", procEvnt.mCharacter);
+					//std::cout << procEvnt.GetEventName() << " " << procEvnt.mCharacter << std::endl;
 				}
 				else if (e->GetID() == WindowEventID::MouseEnter) {
 					WindowEvent_MouseEnter& procEvnt = static_cast<WindowEvent_MouseEnter&>(*e);

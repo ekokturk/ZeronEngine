@@ -16,10 +16,10 @@ namespace Zeron {
 		WindowWin32(const WindowConfig& config);
 		~WindowWin32();
 
-		/* Initialize window dependenclies if not initialized yet */
+		virtual bool Init() override;
 
-		void BeginFrame() override;
-		void EndFrame() override;
+		virtual void BeginFrame() override;
+		virtual void EndFrame() override;
 
 		virtual void SetVisible() override;
 		virtual void SetHidden() override;

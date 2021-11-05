@@ -9,30 +9,6 @@
 namespace Zeron {
 
 	int WindowGLFW::mWindowGLFWCount = 0;
-	
-	bool WindowGLFW::InitGLFW()
-	{
-	#if ZE_WINDOW_GLFW
-		if(mWindowGLFWCount > 0) {
-			return true;
-		}
-
-		if (glfwInit() == false) {
-			// TODO: Assert
-			return false;
-		}
-
-		int vMajor, vMinor, vPatch;
-		glfwGetVersion(&vMajor, &vMinor, &vPatch);
-
-		// Set error message callback for GLFW
-		glfwSetErrorCallback([](int errorCode, const char* errorMessage) {
-		});
-		return true;
-	#else
-		return false;
-	#endif
-	}
 
 	WindowGLFW::WindowGLFW(const WindowConfig& config)
 		: Window(config)
@@ -42,39 +18,6 @@ namespace Zeron {
 		, mIsCursorClipped(false)
 	{
 		mWindowType = WindowAPI::GLFW;
-
-		if(InitGLFW() == false) {
-			return;
-		}
-	#if ZE_WINDOW_GLFW
-		// Initialize window creation from window properties
-
-		// const int initRefreshRate = videoMode ? videoMode->refreshRate : mRefreshRate;
-		//glfwWindowHint(GLFW_REFRESH_RATE, initRefreshRate);
-
-		// Create Window
-		mWindowGLFW = glfwCreateWindow(
-			mWidth,
-			mHeight,
-			mName.c_str(), 
-			mMonitorGLFW,
-			nullptr
-		);
-		
-		if (mWindowGLFW == nullptr) {
-			return;
-		}
-
-		mWindowGLFWCount++;
-		glfwSetWindowUserPointer(mWindowGLFW, this);
-
-		// We need to initialize cached postion
-		int posX = 0, posY = 0;
-		glfwGetWindowPos(mWindowGLFW, &posX, &posY);
-		OnPositionChanged(posX, posY);
-
-		RegisterEvents();
-	#endif
 	}
 
 	WindowGLFW::~WindowGLFW()
@@ -83,11 +26,61 @@ namespace Zeron {
 		if(mWindowGLFW) {
 			glfwDestroyWindow(mWindowGLFW);
 			mWindowGLFWCount--;
+			ZE_ASSERT(mWindowGLFWCount >= 0, "Invalid SDL window count!")
 		}
 
 		if(mWindowGLFWCount == 0) {
 			glfwTerminate();
 		}
+	#endif
+	}
+
+	bool WindowGLFW::Init()
+	{
+	#if ZE_WINDOW_GLFW
+		if (mWindowGLFWCount == 0) {
+			if (glfwInit() == GLFW_FALSE) {
+				ZE_FAIL("GLFW was not initialized!");
+				return false;
+			}
+			int vMajor, vMinor, vPatch;
+			glfwGetVersion(&vMajor, &vMinor, &vPatch);
+			ZE_LOGI("GLFW v{}.{}.{} initialized...", vMajor, vMinor, vPatch);
+		}
+
+		glfwSetErrorCallback([](int errorCode, const char* errorMessage) {
+			ZE_LOGE("GLFW ERROR {}: {}", errorCode, errorMessage);
+		});
+
+		// const int initRefreshRate = videoMode ? videoMode->refreshRate : mRefreshRate;
+		//glfwWindowHint(GLFW_REFRESH_RATE, initRefreshRate);
+
+		mWindowGLFW = glfwCreateWindow(
+			mWidth,
+			mHeight,
+			mName.c_str(),
+			mMonitorGLFW,
+			nullptr
+		);
+
+		if (!mWindowGLFW) {
+			ZE_FAIL("GLFW window was not created!");
+			return false;
+		}
+
+		glfwSetWindowUserPointer(mWindowGLFW, this);
+
+		// We need to initialize cached postion
+		int posX = 0, posY = 0;
+		glfwGetWindowPos(mWindowGLFW, &posX, &posY);
+		OnPositionChanged(posX, posY);
+
+		RegisterEvents();
+		
+		mWindowGLFWCount++;
+		return true;
+	#else
+		return false;
 	#endif
 	}
 
@@ -98,7 +91,7 @@ namespace Zeron {
 			return;
 		}
 		if (mIsCursorClipped) {
-			// TODO: This is not ideal, find a better way
+			// OPTIMIZE: This is not ideal, find a better way
 			double mouseX, mouseY;
 			glfwGetCursorPos(mWindowGLFW, &mouseX, &mouseY);
 			double newMouseX = std::clamp<double>(mouseX, mPosX, mPosX + mWidth);
@@ -449,7 +442,7 @@ namespace Zeron {
 	WindowGLFW* WindowGLFW::GetUserPointerGLFW(GLFWwindow* windowGLFW)
 	{
 	#if ZE_WINDOW_GLFW
-		// TODO: We would want to assert here
+		ZE_ASSERT(windowGLFW, "GLFW Window user point is not set!");
 		return static_cast<WindowGLFW*>(glfwGetWindowUserPointer(windowGLFW));
 	#else 
 		return nullptr;

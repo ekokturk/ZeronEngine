@@ -12,8 +12,10 @@ namespace Zeron {
 		WindowSDL(const WindowConfig& config);
 		~WindowSDL();
 
-		void BeginFrame() override;
-		void EndFrame() override;
+		virtual bool Init() override;
+
+		virtual void BeginFrame() override;
+		virtual void EndFrame() override;
 
 		virtual void SetVisible() override;
 		virtual void SetHidden() override;
@@ -39,9 +41,6 @@ namespace Zeron {
 		int GetCurrentDisplay() const;
 
 	private:
-		/* Initialize window dependenclies if not initialized yet */
-		bool InitSDL();
-
 		void ProcessEvents();
 		void ProcessWindowEvents(const SDL_Event& e);
 

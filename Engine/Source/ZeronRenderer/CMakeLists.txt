@@ -1,9 +1,14 @@
 # Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
+# ============ THIRD PARTY ==============
+add_zeron_module_dependency(GLFW)
+add_zeron_module_dependency(GLAD)
+add_zeron_module_dependency(SDL2)
+
 # ============ MODULE CREATE ============
 add_zeron_module(ZeronRenderer ${CMAKE_CURRENT_SOURCE_DIR})
 
-# ============ DEPENDENCIES ============
+# ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBRARIES "")
 set(MODULE_INCLUDES "")
 

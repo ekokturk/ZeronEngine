@@ -13,6 +13,8 @@ namespace Zeron {
 		Window(const WindowConfig& config);
 		virtual ~Window() = default;
 
+		virtual bool Init() = 0;
+
 		virtual void BeginFrame() = 0;
 		virtual void EndFrame() = 0;
 
@@ -87,7 +89,6 @@ namespace Zeron {
 		int mPosPrevX;
 		int mPosPrevY;
 
-		// TODO: Distinguish between Borderless Window vs Full Screen
 		bool mIsFullScreen;
 		bool mIsMinimized;
 		bool mIsMaximized;

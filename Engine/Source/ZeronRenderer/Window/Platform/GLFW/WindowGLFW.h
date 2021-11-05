@@ -12,10 +12,10 @@ namespace Zeron {
 	
 	class WindowGLFW final : public Window {
 	public:
-		static bool InitGLFW();
-		
 		WindowGLFW(const WindowConfig& windowProps);
 		~WindowGLFW();
+
+		virtual bool Init() override;
 
 		virtual void BeginFrame() override;
 		virtual void EndFrame() override;
