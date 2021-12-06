@@ -3,6 +3,7 @@
 #include "Window/Window.h"
 
 #include "Core/Types/Color.h"
+#include "Core/Math/Vec3.h"
 
 int main(int argc, char** argv) {
 
@@ -10,14 +11,17 @@ int main(int argc, char** argv) {
 	std::vector<std::unique_ptr<Window>> windows;
 	//windows.push_back(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL",800,600,0)));
 	//windows.push_back(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW",800,600,0)));
-	//windows.push_back(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32",800,600,0)));
+	windows.push_back(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32",800,600,0)));
 
 	for (auto& window : windows) {
 		window->Init();
 	}
+	
+	Vec3 Test{ 3, 5, 6 };
+	Test+=1;
 
-	Color color = Color::Red;
-	ZE_LOG("{:x}", color.HexRGB());
+	std::cout << Test;
+	//ZE_LOG("{}", Test);
 
 	bool isRunning = true;
 	while (isRunning) {
