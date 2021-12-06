@@ -2,6 +2,7 @@
 
 # ============ THIRD PARTY ==============
 add_zeron_module_dependency(fmt)
+add_zeron_module_dependency(glm)
 
 # ============ MODULE CREATE ============
 add_zeron_module(ZeronCore ${CMAKE_CURRENT_SOURCE_DIR})
@@ -16,12 +17,9 @@ set(PCH_GENERIC
 )
 
 set(PCH_CORE
-	# "${CMAKE_CURRENT_SOURCE_DIR}/Core/Logger.h"
-	"Core/Core.h"
-	"Core/Logger.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Core/Core.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Core/Math/Math.h"
 )
-
-message(WARNING ${PCH_CORE})
 
 if(WIN32)
     list(APPEND PCH_GENERIC <Windows.h>)
@@ -36,6 +34,7 @@ target_include_directories(ZeronCore
 target_link_libraries(ZeronCore
 	PUBLIC 
 		fmt::fmt-header-only
+		glm-header-only
 )
 
 target_precompile_headers(ZeronCore	

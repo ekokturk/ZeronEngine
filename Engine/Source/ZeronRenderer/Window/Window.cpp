@@ -52,7 +52,12 @@ namespace Zeron {
 		return nullptr;
 	}
 	
-	void Window::ClearEventQueue() 
+	Vec2i Window::GetCenter() const 
+	{
+		return { mWidth / 2, mHeight / 2 };
+	}
+
+	void Window::ClearEventQueue()
 	{
 		std::queue<std::unique_ptr<WindowEvent>> empty;
 		std::swap(mEventQueue, empty);

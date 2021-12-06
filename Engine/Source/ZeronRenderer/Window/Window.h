@@ -1,6 +1,7 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #pragma once
+#include "Core/Math/Math.h"
 #include "Window/WindowConfig.h"
 #include "Window/WindowEvents.h"
 
@@ -57,9 +58,7 @@ namespace Zeron {
 		[[nodiscard]] WindowAPI GetWindowType() const			{ return mWindowType; }
 		[[nodiscard]] FullScreenType GetFullScreenType() const	{ return mFullScreenType; }
 
-		// TODO: Implement these with data structures
-		//[[nodiscard]] Vec2I GetCenter() const;
-		//[[nodiscard]] Rect GetRect() const;
+		[[nodiscard]] Vec2i GetCenter() const;
 
 	protected:
 		void ClearEventQueue();
