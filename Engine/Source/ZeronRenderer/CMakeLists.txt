@@ -42,7 +42,8 @@ target_include_directories(ZeronRenderer
 )
 
 target_link_libraries(ZeronRenderer
-    PRIVATE
+    PUBLIC
         ZeronCore
+    PRIVATE
         ${MODULE_LIBRARIES}
 )

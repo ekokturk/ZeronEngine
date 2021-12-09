@@ -49,8 +49,8 @@ namespace Zeron {
 		SDL_DisplayMode displayMode;
 		const int currentDisplay = GetCurrentDisplay();
 		SDL_GetCurrentDisplayMode(currentDisplay, &displayMode);
-		const int initWidth = mIsFullScreen ? displayMode.w : mWidth;
-		const int initHeight = mIsFullScreen ? displayMode.h : mHeight;
+		const int initWidth = mIsFullScreen ? displayMode.w : mSize.X;
+		const int initHeight = mIsFullScreen ? displayMode.h : mSize.Y;
 		const int initRefreshRate = displayMode.refresh_rate;
 		const SDL_WindowFlags initFlags = static_cast<SDL_WindowFlags>(
 			SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
@@ -73,6 +73,9 @@ namespace Zeron {
 
 		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
+		SDL_GetWindowPosition(mWindowSDL, &mPos.X, &mPos.Y);
+		mPosPrev = mPos;
+		
 		mWindowSDLCount++;
 		return true;
 	#else
@@ -115,7 +118,7 @@ namespace Zeron {
 	void WindowSDL::SetAspectRatio(int numerator, int denominator)
 	{
 	#if ZE_WINDOW_SDL
-		if(!mIsFullScreen) {
+		if(!IsFullScreen()) {
 			ZE_FAIL("WindowSDL::SetAspectRatio Not implemented!");
 		}
 	#endif
@@ -124,7 +127,9 @@ namespace Zeron {
 	void WindowSDL::SetSize(int width, int height)
 	{
 	#if ZE_WINDOW_SDL
-		SDL_SetWindowSize(mWindowSDL, width, height);
+		if (!IsFullScreen()) {
+			SDL_SetWindowSize(mWindowSDL, width, height);
+		}
 	#endif
 	}
 
@@ -139,13 +144,20 @@ namespace Zeron {
 	void WindowSDL::SetScreenPosition(int posX, int posY)
 	{
 	#if ZE_WINDOW_SDL
-		SDL_SetWindowPosition(mWindowSDL, posX, posY);
+		if (!IsFullScreen()) {
+			// There is no event triggered for SDL_SetWindowPosition
+			// So we update the cached position here
+			OnPositionChanged(posX, posY);
+			SDL_SetWindowPosition(mWindowSDL, mPos.X, mPos.Y);
+		}
 	#endif
 	}
 
 	void WindowSDL::SetClipCursor(bool shouldClip)
 	{
+#if ZE_WINDOW_SDL
 		SDL_SetWindowGrab(mWindowSDL, mIsFullScreen ? SDL_TRUE : SDL_FALSE);
+#endif
 	}
 
 	void WindowSDL::OnFullScreenChangedBorderless()

@@ -47,8 +47,12 @@ namespace Zeron {
 
 		[[nodiscard]] const std::string& GetName() const		{ return mName; }
 		[[nodiscard]] unsigned int GetID() const				{ return mID; }
-		[[nodiscard]] int GetWidth() const						{ return mWidth; }
-		[[nodiscard]] int GetHeight() const						{ return mHeight; }
+		[[nodiscard]] int GetWidth() const						{ return mSize.X; }
+		[[nodiscard]] int GetHeight() const						{ return mSize.Y; }
+		[[nodiscard]] const Vec2i& GetSize() const				{ return mSize; }
+		[[nodiscard]] const Vec2i& GetSizePrev() const			{ return mSizePrev; }
+		[[nodiscard]] const Vec2i& GetPos() const				{ return mPos; }
+		[[nodiscard]] const Vec2i& GetPosPrev() const			{ return mPosPrev; }
 		[[nodiscard]] bool IsFullScreen() const					{ return mIsFullScreen; }
 		[[nodiscard]] bool IsMinimized() const					{ return mIsMinimized; }
 		[[nodiscard]] bool IsMaximized() const					{ return mIsMaximized; }
@@ -56,7 +60,7 @@ namespace Zeron {
 		[[nodiscard]] bool IsHovered() const					{ return mIsHovered; }
 		[[nodiscard]] bool IsHidden() const						{ return mIsHidden; }
 		[[nodiscard]] WindowAPI GetWindowType() const			{ return mWindowType; }
-		[[nodiscard]] FullScreenType GetFullScreenType() const	{ return mFullScreenType; }
+		[[nodiscard]] FullScreenType GetFullScreenType() const  { return mFullScreenType; }
 
 		[[nodiscard]] Vec2i GetCenter() const;
 
@@ -77,17 +81,10 @@ namespace Zeron {
 	protected:
 		std::string mName;
 		int mID;
-		
-		int mWidth;
-		int mHeight;
-		int mWidthPrev;
-		int mHeightPrev;
-
-		int mPosX;
-		int mPosY;
-		int mPosPrevX;
-		int mPosPrevY;
-
+		Vec2i mSize;
+		Vec2i mSizePrev;
+		Vec2i mPos;
+		Vec2i mPosPrev;
 		bool mIsFullScreen;
 		bool mIsMinimized;
 		bool mIsMaximized;

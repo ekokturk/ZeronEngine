@@ -4,16 +4,25 @@
 
 namespace Zeron
 {
-	Logger::Logger(std::string_view logFilePath, bool shouldTimestamp)
+	Logger::Logger(bool shouldTimestamp)
 		: mShouldTimestamp(shouldTimestamp)
 	{
+	}
+
+	bool Logger::InitLogFile(std::string_view logFilePath)
+	{
+		if(mLogFile.is_open()) {
+			return false;
+		}
+		
 		if (std::filesystem::exists(logFilePath)) {
 			if (!std::filesystem::remove(logFilePath)) {
 				FlushToConsole("ERROR: Couldn't modify log file!", Color::Red);
-				return;
+				return false;
 			}
 		}
 		mLogFile.open(logFilePath, std::ofstream::out | std::ofstream::ios_base::app);
+		return true;
 	}
 
 	std::string Logger::GetTimeStamp() const 
@@ -26,11 +35,13 @@ namespace Zeron
 
 	void Logger::FlushToFile(const std::string& message)
 	{
-		mLogFile << message;
-		mLogFile.flush();
+		if (mLogFile.is_open()) {
+			mLogFile << message;
+			mLogFile.flush();
+		}
 	}
 
-	void Logger::FlushToConsole(const std::string& message, Color color)
+	void Logger::FlushToConsole(const std::string& message, Color color) const
 	{
 		fmt::print(fmt::fg(static_cast<fmt::color>(color.HexRGB())), message.c_str());
 	}
