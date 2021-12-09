@@ -11,14 +11,10 @@ namespace Zeron {
 	Window::Window(const WindowConfig& config)
 		: mName(config.mName)
 		, mID(config.mID)
-		, mWidth(config.mWidth)
-		, mHeight(config.mHeight)
-		, mWidthPrev(mWidth)
-		, mHeightPrev(mHeight)
-		, mPosX(0)
-		, mPosY(0)
-		, mPosPrevX(mPosX)
-		, mPosPrevY(mPosY)
+		, mSize{ config.mWidth, config.mHeight }
+		, mSizePrev(mSize)
+		, mPos {0,0}
+		, mPosPrev{mPos.X, mPos.Y}
 		, mIsFullScreen(config.mIsFullScreen)
 		, mIsMinimized(false)
 		, mIsMaximized(false)
@@ -51,10 +47,10 @@ namespace Zeron {
 		}
 		return nullptr;
 	}
-	
+
 	Vec2i Window::GetCenter() const 
 	{
-		return { mWidth / 2, mHeight / 2 };
+		return { mSize.X / 2, mSize.Y / 2 };
 	}
 
 	void Window::ClearEventQueue()
@@ -104,10 +100,8 @@ namespace Zeron {
 
 	void Window::OnPositionChanged(int posX, int posY)
 	{
-		mPosPrevX = mPosX;
-		mPosPrevY = mPosY;
-		mPosX = posX;
-		mPosY = posY;
+		mPosPrev = mPos;
+		mPos = { posX, posY };
 	}
 
 	void Window::OnHoverChanged(bool isHovered)
@@ -145,10 +139,8 @@ namespace Zeron {
 
 	void Window::OnSizeChanged(int width, int height)
 	{
-		mWidthPrev = mWidth;
-		mHeightPrev = mHeight;
-		mWidth = width;
-		mHeight = height;
+		mSizePrev = mSize;
+		mSize = { width, height };
 	}
 }
 

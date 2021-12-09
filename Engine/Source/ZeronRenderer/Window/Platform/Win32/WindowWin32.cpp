@@ -55,10 +55,10 @@ namespace Zeron {
 			"Zeron Window",                 // Window class
 			mName.c_str(),					// Window text
 			WS_OVERLAPPEDWINDOW,            // Window style
-			mPosX,
-			mPosY,
-			mWidth,
-			mHeight,
+			mPos.X,
+			mPos.Y,
+			mSize.X,
+			mSize.Y,
 			NULL,
 			NULL,
 			hInstance,
@@ -115,7 +115,7 @@ namespace Zeron {
 	void WindowWin32::SetAspectRatio(int numerator, int denominator)
 	{
 	#if ZE_WINDOW_WIN32
-		if (!mIsFullScreen) {
+		if (!IsFullScreen()) {
 			ZE_FAIL("WindowWin32::SetAspectRatio Not implemented!");
 		}
 	#endif
@@ -124,7 +124,9 @@ namespace Zeron {
 	void WindowWin32::SetSize(int width, int height)
 	{
 	#if ZE_WINDOW_WIN32
-		SetWindowPos(mHwnd, HWND_TOP, mPosX, mPosY, width, height, SWP_NOMOVE | SWP_NOOWNERZORDER);
+		if (!IsFullScreen()) {
+			SetWindowPos(mHwnd, HWND_TOP, mPos.X, mPos.Y, width, height, SWP_NOMOVE | SWP_NOOWNERZORDER);
+		}
 	#endif
 	}
 
@@ -136,7 +138,7 @@ namespace Zeron {
 			mSizeMaxX = maxWidth;
 			mSizeMinY = minHeight;
 			mSizeMaxY = maxHeight;
-			SetSize(mWidth, mHeight);
+			SetSize(mSize.X, mSize.Y);
 		}
 	#endif
 	}
@@ -144,7 +146,9 @@ namespace Zeron {
 	void WindowWin32::SetScreenPosition(int posX, int posY)
 	{
 	#if ZE_WINDOW_WIN32
-		SetWindowPos(mHwnd, HWND_TOP, posX, posY, mWidth, mHeight, SWP_NOSIZE | SWP_NOOWNERZORDER);
+		if(!IsFullScreen()) {
+			SetWindowPos(mHwnd, HWND_TOP, posX, posY, mSize.X, mSize.Y, SWP_NOSIZE | SWP_NOOWNERZORDER);
+		}
 	#endif
 	}
 
@@ -176,7 +180,7 @@ namespace Zeron {
 		}
 		else {
 			SetWindowLongPtr(mHwnd, GWL_STYLE, WS_VISIBLE | WS_OVERLAPPEDWINDOW);
-			SetWindowPos(mHwnd, NULL, mPosPrevX, mPosPrevY, mWidthPrev, mHeightPrev, SWP_FRAMECHANGED);
+			SetWindowPos(mHwnd, NULL, mPosPrev.X, mPosPrev.Y, mSizePrev.X, mSizePrev.Y, SWP_FRAMECHANGED);
 		}
 	#endif
 	}
@@ -409,6 +413,9 @@ namespace Zeron {
 							mEventQueue.emplace(std::make_unique<WindowEvent_WindowMaximized>());
 						}
 					}
+					else {
+						OnRestored();
+					}
 					OnSizeChanged(dataPtr->cx, dataPtr->cy);
 					mEventQueue.emplace(std::make_unique<WindowEvent_WindowResized>(dataPtr->cx, dataPtr->cy));
 				}
@@ -428,23 +435,23 @@ namespace Zeron {
 					mmi->ptMinTrackSize.y = mSizeMinY;
 					mmi->ptMaxTrackSize.x = mSizeMaxX;
 					mmi->ptMaxTrackSize.y = mSizeMaxY;
-					int newWidth = mWidth;
-					int newHeight = mHeight;
-					if (mWidth > mSizeMaxX) {
+					int newWidth = mSize.X;
+					int newHeight = mSize.Y;
+					if (mSize.X > mSizeMaxX) {
 						newWidth = mSizeMaxX;
 					}
-					else if(mWidth < mSizeMinX) {
+					else if(mSize.X < mSizeMinX) {
 						newWidth = mSizeMinX;
 					}
-					if (mHeight > mSizeMaxY) {
+					if (mSize.Y > mSizeMaxY) {
 						newHeight = mSizeMaxY;
 					}
-					else if (mHeight < mSizeMinY) {
+					else if (mSize.Y < mSizeMinY) {
 						newHeight = mSizeMinY;
 					}
 
-					if(newWidth != mWidth || newHeight != mHeight) {
-						OnSizeChanged(mWidth, mHeight);
+					if(newWidth != mSize.X || newHeight != mSize.Y) {
+						OnSizeChanged(mSize.X, mSize.Y);
 					}
 					return 0;
 				}

@@ -56,8 +56,8 @@ namespace Zeron {
 		//glfwWindowHint(GLFW_REFRESH_RATE, initRefreshRate);
 
 		mWindowGLFW = glfwCreateWindow(
-			mWidth,
-			mHeight,
+			mSize.X,
+			mSize.Y,
 			mName.c_str(),
 			mMonitorGLFW,
 			nullptr
@@ -71,9 +71,8 @@ namespace Zeron {
 		glfwSetWindowUserPointer(mWindowGLFW, this);
 
 		// We need to initialize cached postion
-		int posX = 0, posY = 0;
-		glfwGetWindowPos(mWindowGLFW, &posX, &posY);
-		OnPositionChanged(posX, posY);
+		glfwGetWindowPos(mWindowGLFW, &mPos.X, &mPos.Y);
+		mPosPrev = mPos;
 
 		RegisterEvents();
 		
@@ -94,9 +93,9 @@ namespace Zeron {
 			// OPTIMIZE: This is not ideal, find a better way
 			double mouseX, mouseY;
 			glfwGetCursorPos(mWindowGLFW, &mouseX, &mouseY);
-			double newMouseX = std::clamp<double>(mouseX, mPosX, mPosX + mWidth);
-			double newMouseY = std::clamp<double>(mouseY, mPosY, mPosY + mHeight);
-			if (newMouseX != mouseX || newMouseY != mouseY) {
+			const int newMouseX = std::clamp<int>(static_cast<int>(mouseX), mPos.X, mPos.X + mSize.X);
+			const int newMouseY = std::clamp<int>(static_cast<int>(mouseY), mPos.Y, mPos.Y + mSize.Y);
+			if (newMouseX != static_cast<int>(mouseX) || newMouseY != static_cast<int>(mouseY)) {
 				glfwSetCursorPos(mWindowGLFW, newMouseX, newMouseY);
 			}
 		}
@@ -116,6 +115,7 @@ namespace Zeron {
 	{
 	#if ZE_WINDOW_GLFW
 		glfwShowWindow(mWindowGLFW);
+		mIsHidden = false;
 	#endif
 	}
 
@@ -123,6 +123,7 @@ namespace Zeron {
 	{
 	#if ZE_WINDOW_GLFW
 		glfwHideWindow(mWindowGLFW);
+		mIsHidden = true;
 	#endif
 	}
 	
@@ -137,7 +138,7 @@ namespace Zeron {
 	void WindowGLFW::SetAspectRatio(int numerator, int denominator)
 	{
 	#if ZE_WINDOW_GLFW
-		if (!mIsFullScreen) {
+		if (!IsFullScreen()) {
 			glfwSetWindowAspectRatio(mWindowGLFW, numerator, denominator);
 		}
 	#endif
@@ -146,7 +147,9 @@ namespace Zeron {
 	void WindowGLFW::SetSize(int width, int height)
 	{
 	#if ZE_WINDOW_GLFW
-		glfwSetWindowSize(mWindowGLFW, width, height);
+		if (!IsFullScreen()) {
+			glfwSetWindowSize(mWindowGLFW, width, height);
+		}
 	#endif
 	}
 
@@ -160,8 +163,9 @@ namespace Zeron {
 	void WindowGLFW::SetScreenPosition(int posX, int posY)
 	{
 	#if ZE_WINDOW_GLFW
-		// This callback will set the member parameters that will be triggered by this method
-		glfwSetWindowPos(mWindowGLFW, mPosX, mPosY);
+		if (!IsFullScreen()) {
+			glfwSetWindowPos(mWindowGLFW, posX, posY);
+		}
 	#endif
 	}
 
@@ -191,7 +195,7 @@ namespace Zeron {
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_FALSE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, TRUE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_TRUE);
-			glfwSetWindowMonitor(mWindowGLFW, nullptr, mPosPrevX, mPosPrevY, mWidthPrev, mHeightPrev, mode->refreshRate);
+			glfwSetWindowMonitor(mWindowGLFW, nullptr, mPosPrev.X, mPosPrev.Y, mSizePrev.X, mSizePrev.Y, mode->refreshRate);
 		}
 	#endif
 	}
@@ -205,13 +209,13 @@ namespace Zeron {
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_FALSE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, FALSE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_TRUE);
-			glfwSetWindowMonitor(mWindowGLFW, monitor, 0, 0, mWidth, mHeight, mode->refreshRate);
+			glfwSetWindowMonitor(mWindowGLFW, monitor, 0, 0, mSize.X, mSize.Y, mode->refreshRate);
 		}
 		else {
 			GLFWmonitor* monitor = FindCurrentMonitor();
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_TRUE);
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-			glfwSetWindowMonitor(mWindowGLFW, nullptr, mPosPrevX, mPosPrevY, mWidthPrev, mHeightPrev, mode->refreshRate);
+			glfwSetWindowMonitor(mWindowGLFW, nullptr, mPosPrev.X, mPosPrev.Y, mSizePrev.X, mSizePrev.Y, mode->refreshRate);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_FALSE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, TRUE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_TRUE);
@@ -282,10 +286,10 @@ namespace Zeron {
 			const int height = mode->height;
 
 			// Get the monitor with the largest intersection area
-			const int aX = std::max<int>(xPos, mPosX);
-			const int aY = std::max<int>(yPos, mPosY);
-			const int bX = std::min<int>(xPos + width, mPosX + mWidth);
-			const int bY = std::min<int>(yPos + height, mPosY + mHeight);
+			const int aX = std::max<int>(xPos, mPos.X);
+			const int aY = std::max<int>(yPos, mPos.Y);
+			const int bX = std::min<int>(xPos + width, mPos.X + mSize.X);
+			const int bY = std::min<int>(yPos + height, mPos.Y + mSize.Y);
 			if (aX > bX || aY > bY) {
 				continue;
 			}

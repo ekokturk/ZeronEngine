@@ -13,3 +13,8 @@ init_output_directory("")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronCore")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronRenderer")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronClient")
+
+option(BUILD_ZERON_TEST "Build Zeron Engine unit tests" ON)
+if(BUILD_ZERON_TEST)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/Tests")
+endif()

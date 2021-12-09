@@ -22,8 +22,11 @@ namespace Zeron {
 
 	class Logger {
 	public:
-		Logger(std::string_view logFilePath, bool shouldTimestamp);
+		Logger(bool shouldTimestamp);
+		virtual ~Logger() = default;
 
+		bool InitLogFile(std::string_view logFilePath);
+		
 		template<typename... Args>
 		void Log(LogSink logSink, Color color, const char* message, Args... args)
 		{
@@ -53,16 +56,16 @@ namespace Zeron {
 			return message;
 		}
 
-		std::string GetTimeStamp() const;
+		[[nodiscard]] std::string GetTimeStamp() const;
 		void FlushToFile(const std::string& message);
-		void FlushToConsole(const std::string& message, Color color);
+		void FlushToConsole(const std::string& message, Color color) const;
 
 		std::ofstream mLogFile;
 		bool mShouldTimestamp;
 	};
 
 	static Logger& ZELogger() {
-		static Logger logger("log.txt", true);
+		static Logger logger(true);
 		return logger;
 	}
 }
