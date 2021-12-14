@@ -1,6 +1,7 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #include "Window/Window.h"
+#include "Graphics/API/D3D/11/GraphicsD3D11.h"
 
 #include "Core/Types/Color.h"
 #include "Core/Math/Vec3.h"
@@ -16,12 +17,10 @@ int main(int argc, char** argv) {
 	for (auto& window : windows) {
 		window->Init();
 	}
-	
-	Vec3 Test{ 3, 5, 6 };
-	Test+=1;
 
-	std::cout << Test;
-	//ZE_LOG("{}", Test);
+	auto gfx = std::make_unique<GraphicsD3D11>();
+	gfx->Init();
+	
 
 	bool isRunning = true;
 	while (isRunning) {

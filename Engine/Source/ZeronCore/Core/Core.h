@@ -28,6 +28,6 @@
 #define ZE_FAIL(...) \
 	ZE_LOGE_LINEINFO("FAILURE!", __VA_ARGS__); \
 	ZE_DEBUG_BREAK(); \
-	std::abort();
+	std::abort()
 
 
