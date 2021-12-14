@@ -79,11 +79,13 @@ namespace Zeron {
 
 
 	void WindowWin32::BeginFrame() {
+	#if ZE_WINDOW_WIN32
 		MSG msg = { 0 };
 		while (PeekMessage(&msg, mHwnd, NULL, NULL, PM_REMOVE) == TRUE) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+	#endif
 	}
 
 	void WindowWin32::EndFrame() {
@@ -154,6 +156,7 @@ namespace Zeron {
 
 	void WindowWin32::SetClipCursor(bool shouldClip)
 	{
+	#if ZE_WINDOW_WIN32
 		if (shouldClip) {
 			RECT rectPtr = { 0 };
 			GetWindowRect(mHwnd, &rectPtr);
@@ -162,6 +165,7 @@ namespace Zeron {
 		else {
 			ClipCursor(nullptr);
 		}
+	#endif
 	}
 
 	void WindowWin32::OnFullScreenChangedBorderless()
