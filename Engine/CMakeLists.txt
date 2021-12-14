@@ -10,6 +10,8 @@ set_property(GLOBAL PROPERTY ZERON_THIRDPARTY_DIR "${ZERON_THIRDPARTY_DIR}")
 set(ZERON_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 init_output_directory("")
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DZE_DEBUG=1")
+
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronCore")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronRenderer")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronClient")

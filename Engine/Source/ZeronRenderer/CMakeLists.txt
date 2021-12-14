@@ -30,7 +30,9 @@ endif()
 
 if(WIN32)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_WIN32=1)
-    target_compile_definitions(ZeronRenderer PUBLIC ZE_GRAPHICS_D3D11=1)
+
+    target_compile_definitions(ZeronRenderer PUBLIC ZE_GRAPHICS_D3D=1)
+    list(APPEND MODULE_LIBRARIES dxgi)
     list(APPEND MODULE_LIBRARIES d3d11)
 endif()
 
