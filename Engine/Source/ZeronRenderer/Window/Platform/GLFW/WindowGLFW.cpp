@@ -2,8 +2,13 @@
 
 #include "WindowGLFW.h"
 
+#if ZE_PLATFORM_WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#endif
+
 #if ZE_WINDOW_GLFW
 #include <GLFW/glfw3.h>
+#include "GLFW/glfw3native.h"
 #endif
 
 namespace Zeron {
@@ -26,7 +31,7 @@ namespace Zeron {
 		if(mWindowGLFW) {
 			glfwDestroyWindow(mWindowGLFW);
 			mWindowGLFWCount--;
-			ZE_ASSERT(mWindowGLFWCount >= 0, "Invalid SDL window count!")
+			ZE_ASSERT(mWindowGLFWCount >= 0, "Invalid SDL window count!");
 		}
 
 		if(mWindowGLFWCount == 0) {
@@ -223,10 +228,19 @@ namespace Zeron {
 	#endif
 	}
 
-	void* WindowGLFW::GetPlatformHandle()  const
+	void* WindowGLFW::GetAPIHandle() const
 	{
 	#if ZE_WINDOW_GLFW
 		return mWindowGLFW;
+	#else
+		return nullptr;
+	#endif
+	}
+	
+	void* WindowGLFW::GetPlatformHandle()  const
+	{
+	#if ZE_PLATFORM_WIN32
+		return glfwGetWin32Window(mWindowGLFW);
 	#else
 		return nullptr;
 	#endif

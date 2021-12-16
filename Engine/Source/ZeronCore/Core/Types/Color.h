@@ -39,19 +39,23 @@ namespace Zeron {
 			return *this;
 		}
 
-		uint8_t R() const			{ return mRed;   }
-		uint8_t G() const			{ return mGreen; }
-		uint8_t B() const			{ return mBlue;  }
-		float	A() const			{ return mAlpha; }
-		
-		uint32_t HexRGB() const		{ return HexFromRGB(mRed, mGreen, mBlue); }
-		uint32_t HexRGBA() const	{ return HexFromRGBA(mRed, mGreen, mBlue, mAlpha); }
-		uint32_t HexARGB() const	{ return HexFromARGB(mRed, mGreen, mBlue, mAlpha); }
+		[[nodiscard]] uint8_t R() const			{ return mRed;   }
+		[[nodiscard]] uint8_t G() const			{ return mGreen; }
+		[[nodiscard]] uint8_t B() const			{ return mBlue;  }
+		[[nodiscard]] float	A() const			{ return mAlpha; }
 
-		std::string HexString() const;		
-		std::string HexRGBString() const;
-		std::string HexRGBAString() const;
-		std::string HexARGBString() const;
+		[[nodiscard]] float	normR() const { return static_cast<float>(mRed)	  / 255; }
+		[[nodiscard]] float	normG() const { return static_cast<float>(mGreen) / 255; }
+		[[nodiscard]] float	normB() const { return static_cast<float>(mBlue)  / 255; }
+		
+		[[nodiscard]] uint32_t HexRGB() const	{ return HexFromRGB(mRed, mGreen, mBlue); }
+		[[nodiscard]] uint32_t HexRGBA() const	{ return HexFromRGBA(mRed, mGreen, mBlue, mAlpha); }
+		[[nodiscard]] uint32_t HexARGB() const	{ return HexFromARGB(mRed, mGreen, mBlue, mAlpha); }
+
+		[[nodiscard]] std::string HexString() const;
+		[[nodiscard]] std::string HexRGBString() const;
+		[[nodiscard]] std::string HexRGBAString() const;
+		[[nodiscard]] std::string HexARGBString() const;
 
 
 		static uint32_t HexFromRGB(uint8_t r, uint8_t g, uint8_t b) {

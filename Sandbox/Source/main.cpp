@@ -10,17 +10,16 @@ int main(int argc, char** argv) {
 
 	using namespace Zeron;
 	std::vector<std::unique_ptr<Window>> windows;
-	//windows.push_back(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL",800,600,0)));
-	//windows.push_back(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW",800,600,0)));
+	windows.push_back(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL",800,600,0)));
+	windows.push_back(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW",800,600,0)));
 	windows.push_back(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32",800,600,0)));
-
-	for (auto& window : windows) {
-		window->Init();
-	}
 
 	auto gfx = std::make_unique<GraphicsD3D11>();
 	gfx->Init();
-	
+	for (auto& window : windows) {
+		window->Init();
+		gfx->CreateGraphicsContext(window.get());
+	}
 
 	bool isRunning = true;
 	while (isRunning) {
@@ -80,7 +79,7 @@ int main(int argc, char** argv) {
 			window->EndFrame();
 		}
 
-
+		gfx->RenderFrame();
 	}
 
 	return 0;

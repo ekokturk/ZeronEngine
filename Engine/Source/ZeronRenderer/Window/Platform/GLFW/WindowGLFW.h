@@ -38,6 +38,7 @@ namespace Zeron {
 
 		virtual void SetClipCursor(bool shouldClip) override;
 
+		virtual void* GetAPIHandle() const override;
 		virtual void* GetPlatformHandle() const override;
 		
 		// This is needed for input callbacks

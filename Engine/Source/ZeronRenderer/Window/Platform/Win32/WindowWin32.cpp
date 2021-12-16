@@ -195,6 +195,12 @@ namespace Zeron {
 	#endif
 	}
 
+	void* WindowWin32::GetAPIHandle() const
+	{
+		return GetPlatformHandle();
+	}
+
+
 	void* WindowWin32::GetPlatformHandle() const
 	{
 	#if ZE_WINDOW_WIN32
