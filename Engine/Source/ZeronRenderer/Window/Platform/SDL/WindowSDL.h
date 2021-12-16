@@ -36,6 +36,7 @@ namespace Zeron {
 
 		virtual void SetClipCursor(bool shouldClip) override;
 
+		virtual void* GetAPIHandle() const override;
 		virtual void* GetPlatformHandle() const override;
 		
 		int GetCurrentDisplay() const;

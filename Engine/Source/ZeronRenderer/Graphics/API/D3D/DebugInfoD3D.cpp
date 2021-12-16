@@ -63,14 +63,19 @@ namespace Zeron {
 	{
 	}
 
-	std::string DebugInfoD3D::GetInfo(HRESULT result) const
+	std::string DebugInfoD3D::GetErrorMessage() const
+	{
+		return D3DGlobalInfoQueue().GetMessages(mMessageIndex);
+	}
+
+	std::string DebugInfoD3D::GetResultInfo(HRESULT result) const
 	{
 		std::stringstream description;
 		description << "ERROR CODE: 0x" << std::hex << result << std::dec << " (" << result << ")\n";
 		const _com_error err(result);
 		description << "  DESCRIPTION: " << err.ErrorMessage();
 		description << "\n  ERROR INFO: ";
-		description << D3DGlobalInfoQueue().GetMessages(mMessageIndex); \
+		description << GetErrorMessage(); \
 		return description.str();
 	}
 }

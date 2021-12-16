@@ -41,6 +41,7 @@ namespace Zeron {
 		void SetFullScreen(bool isFullScreen);
 		void SetFullScreenType(FullScreenType fullScreenType);
 
+		virtual void* GetAPIHandle() const = 0;
 		virtual void* GetPlatformHandle() const = 0;
 
 		std::unique_ptr<WindowEvent> GetNextEvent();

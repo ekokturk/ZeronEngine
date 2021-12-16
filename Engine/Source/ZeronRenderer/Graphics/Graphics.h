@@ -2,8 +2,9 @@
 
 #pragma once
 
-namespace Zeron
-{
+namespace Zeron {
+	class Window;
+
 	enum class GraphicsType {
 		Null,
 		OpenGLES,
@@ -16,6 +17,9 @@ namespace Zeron
 		virtual ~Graphics() = default;
 		virtual bool Init() = 0;
 		virtual bool Destroy() = 0;
+		virtual void RenderFrame() = 0;
+
+		virtual void CreateGraphicsContext(Window* window) = 0;
 
 	};
 }

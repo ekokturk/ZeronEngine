@@ -22,6 +22,7 @@ set(PCH_CORE
 )
 
 if(WIN32)
+    target_compile_definitions(ZeronCore PUBLIC ZE_PLATFORM_WIN32=1)
     list(APPEND PCH_GENERIC <Windows.h>)
 endif()
 

@@ -20,7 +20,7 @@ namespace Zeron {
 #if ZE_GRAPHICS_D3D
 		if(mGraphicsAdapters.empty()) {
 			Microsoft::WRL::ComPtr<IDXGIFactory> dxgiFactory;
-			D3D_CALL(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf())), mGraphicsAdapters);
+			D3D_ASSERT_RESULT(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf())), mGraphicsAdapters);
 			Microsoft::WRL::ComPtr<IDXGIAdapter>  dxgiAdapter;
 			UINT index = 0;
 			while (SUCCEEDED(dxgiFactory->EnumAdapters(index, &dxgiAdapter))) {
@@ -31,5 +31,18 @@ namespace Zeron {
 #endif
 
 		return mGraphicsAdapters;
+	}
+
+	IDXGIFactory* GraphicsD3D::GetFactoryDXGI() const
+	{
+		ZE_ASSERT(mFactory, "DXGI factory is null!");
+		return mFactory.Get();
+	}
+
+	IDXGIAdapter* GraphicsD3D::GetPrimaryAdapterDXGI() const
+	{
+		auto& adapterList = GetAdapters();
+		ZE_ASSERT(!adapterList.empty(), "No graphics adapters found!");
+		return adapterList[0].GetAdapter();
 	}
 }

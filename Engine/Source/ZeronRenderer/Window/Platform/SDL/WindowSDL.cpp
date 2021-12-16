@@ -24,7 +24,7 @@ namespace Zeron {
 		if(mWindowSDL) {
 			SDL_DestroyWindow(mWindowSDL);
 			mWindowSDLCount--;
-			ZE_ASSERT(mWindowSDLCount >= 0, "Invalid SDL window count!")
+			ZE_ASSERT(mWindowSDLCount >= 0, "Invalid SDL window count!");
 		}
 
 		if(mWindowSDLCount == 0) {
@@ -174,10 +174,22 @@ namespace Zeron {
 	#endif
 	}
 
-	void* WindowSDL::GetPlatformHandle() const
+	void* WindowSDL::GetAPIHandle() const
 	{
 	#if ZE_WINDOW_SDL
-		return mWindowSDL;
+			return mWindowSDL;
+	#else
+			return nullptr;
+	#endif
+	}
+	
+	void* WindowSDL::GetPlatformHandle() const
+	{
+	#if ZE_PLATFORM_WIN32
+		SDL_SysWMinfo wmInfo;
+		SDL_VERSION(&wmInfo.version);
+		SDL_GetWindowWMInfo(mWindowSDL, &wmInfo);
+		return wmInfo.info.win.window;
 	#else
 		return nullptr;
 	#endif

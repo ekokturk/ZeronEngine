@@ -16,14 +16,14 @@
 #define ZE_LOGE_LINEINFO(message, ...) \
 	ZE_LOGE(message "\n  FILE: " ZE_XSTRING(__FILE__) "\n  LINE: " ZE_XSTRING(__LINE__) "\n  " __VA_ARGS__)
 
-#define ZE_EXPECT(condition, ...) { if(!(condition)) { \
+#define ZE_EXPECT(condition, ...) do { if(!(condition)) { \
 	ZE_LOGE_LINEINFO("UNEXPECTED VALUE!", __VA_ARGS__); \
-	ZE_DEBUG_BREAK(); } }
+	ZE_DEBUG_BREAK(); } } while(0)
 
-#define ZE_ASSERT(condition, ...) { if(!(condition)) { \
+#define ZE_ASSERT(condition, ...) do { if(!(condition)) { \
 	ZE_LOGE_LINEINFO("ASSERTION FAILED!", __VA_ARGS__); \
 	ZE_DEBUG_BREAK(); \
-	std::abort(); } }
+	std::abort(); } } while(0)
 
 #define ZE_FAIL(...) \
 	ZE_LOGE_LINEINFO("FAILURE!", __VA_ARGS__); \

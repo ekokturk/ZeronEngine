@@ -10,7 +10,7 @@ namespace Zeron {
 		: mAdapter(std::move(adapter))
 		, mDesc(DXGI_ADAPTER_DESC())
 	{
-		D3D_CALL(mAdapter->GetDesc(&mDesc));
+		D3D_ASSERT_RESULT(mAdapter->GetDesc(&mDesc));
 	}
 
 	IDXGIAdapter* GraphicsAdapterD3D::GetAdapter() const

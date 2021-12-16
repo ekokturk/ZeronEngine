@@ -35,8 +35,9 @@ namespace Zeron {
 	{
 	public:
 		DebugInfoD3D();
-		[[nodiscard]] std::string GetInfo(HRESULT result) const;
-
+		[[nodiscard]] std::string GetResultInfo(HRESULT result) const;
+		[[nodiscard]] std::string GetErrorMessage() const;
+	
 	private:
 		UINT64 mMessageIndex;
 	};
@@ -44,24 +45,39 @@ namespace Zeron {
 #endif
 
 #if ZE_DEBUG
-#define D3D_CALL(call, return_type) \
-do { \
-	::Zeron::DebugInfoD3D debugInfo; \
-	const HRESULT result = (call); \
-	if (FAILED(result)){ \
-		ZE_FAIL("{}", debugInfo.GetInfo(result).c_str()); \
-		return return_type; \
-	} \
-} while (0)
+#define D3D_ASSERT(call) \
+	do { \
+		::Zeron::DebugInfoD3D debugInfo; \
+		(call); \
+		const std::string errorMsg = debugInfo.GetErrorMessage(); \
+		if(!errorMsg.empty()) { \
+			ZE_FAIL("ERROR INFO: {}", errorMsg.c_str()); \
+		} \
+	} while (0)
+
+#define D3D_ASSERT_RESULT(call, return_type) \
+	do { \
+		::Zeron::DebugInfoD3D debugInfo; \
+		const HRESULT result = (call); \
+		if (FAILED(result)) { \
+			ZE_FAIL("{}", debugInfo.GetResultInfo(result).c_str()); \
+			return return_type; \
+		} \
+	} while (0)
 #else
-#define D3D_CALL(call, return_type) \
-do { \
-	const HRESULT result = (call); \
-	if (FAILED(result)){ \
-		ZE_LOGE("ERROR Direct3D: code {}", result); \
-		return return_type;\
-	} \
-} while (0)
+#define D3D_ASSERT(call) \
+	(call)
+
+#define D3D_ASSERT_RESULT(call, return_type) \
+	do { \
+		const HRESULT result = (call); \
+		if (FAILED(result)) { \
+			ZE_LOGE("ERROR Direct3D: code {}", result); \
+			return return_type;\
+		} \
+	} while (0)
 #endif
+
+
 
 #endif
