@@ -50,18 +50,54 @@ namespace Zeron {
 		D3D_ASSERT_RESULT(mSwapChain->GetBuffer(0, _uuidof(ID3D11Resource), &mBackBuffer));
 		
 		D3D_ASSERT_RESULT(mGraphics.GetDevice()->CreateRenderTargetView(mBackBuffer.Get(), nullptr, &mRenderTarget));
-		mGraphics.GetDeviceContext()->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), nullptr);
+
+		D3D11_TEXTURE2D_DESC depthStencilDesc;
+		depthStencilDesc.Width = window->GetWidth();
+		depthStencilDesc.Height = window->GetHeight();
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.CPUAccessFlags = 0;
+		depthStencilDesc.MiscFlags = 0;
+
+		D3D_ASSERT_RESULT(mGraphics.GetDevice()->CreateTexture2D(&depthStencilDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
+		D3D_ASSERT_RESULT(mGraphics.GetDevice()->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDepthStencilView.GetAddressOf()));
+		
+		SetRenderTarget();
+		SetViewport(Vec2i::ZERO, window->GetSize());
+	}
+
+	void GraphicsContextD3D11::SetRenderTarget()
+	{
+		D3D_ASSERT(mGraphics.GetDeviceContext()->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get()));
 	}
 
 	void GraphicsContextD3D11::ClearBuffer(Color color)
 	{
-		const float c[]{ color.normR(), color.normG(), color.normB(), color.A() };
+		const float c[]{ color.normR(), color.normG(), color.normB(), color.normA() };
 		mGraphics.GetDeviceContext()->ClearRenderTargetView(mRenderTarget.Get(), c);
+		mGraphics.GetDeviceContext()->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 	}
 
 	void GraphicsContextD3D11::SetViewport(const Vec2i& pos, const Vec2i& size)
 	{
-		// TODO
+		D3D11_VIEWPORT viewport;
+		ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+
+		viewport.TopLeftX = static_cast<FLOAT>(pos.X);
+		viewport.TopLeftY = static_cast<FLOAT>(pos.Y);
+		viewport.Width = static_cast<FLOAT>(size.X);
+		viewport.Height = static_cast<FLOAT>(size.Y);
+		viewport.MinDepth = 0.f;
+		viewport.MaxDepth = 1.f;
+
+		
+		// TODO: Multiple viewports
+		D3D_ASSERT(mGraphics.GetDeviceContext()->RSSetViewports(1, &viewport));
 	}
 
 	void GraphicsContextD3D11::SwapBuffers()

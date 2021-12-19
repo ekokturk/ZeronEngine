@@ -20,7 +20,7 @@ namespace Zeron {
 		};
 
 		Color(Palette color);
-		Color(uint8_t r, uint8_t g, uint8_t b, float a = 1.f);
+		Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
 		Color(float r, float g, float b, float a = 1.f);
 		Color(uint32_t hex, float a = 1.f);
 
@@ -30,7 +30,7 @@ namespace Zeron {
 			mRed	= (value >> 16) & 0xFF;
 			mGreen	= (value >> 8) & 0xFF;
 			mBlue	=  value & 0xFF;
-			mAlpha	=  1.f;
+			mAlpha	=  255;
 			return *this;
 		}
 
@@ -42,11 +42,12 @@ namespace Zeron {
 		[[nodiscard]] uint8_t R() const			{ return mRed;   }
 		[[nodiscard]] uint8_t G() const			{ return mGreen; }
 		[[nodiscard]] uint8_t B() const			{ return mBlue;  }
-		[[nodiscard]] float	A() const			{ return mAlpha; }
+		[[nodiscard]] uint8_t A() const			{ return mAlpha; }
 
 		[[nodiscard]] float	normR() const { return static_cast<float>(mRed)	  / 255; }
 		[[nodiscard]] float	normG() const { return static_cast<float>(mGreen) / 255; }
 		[[nodiscard]] float	normB() const { return static_cast<float>(mBlue)  / 255; }
+		[[nodiscard]] float	normA() const { return static_cast<float>(mAlpha) / 255; }
 		
 		[[nodiscard]] uint32_t HexRGB() const	{ return HexFromRGB(mRed, mGreen, mBlue); }
 		[[nodiscard]] uint32_t HexRGBA() const	{ return HexFromRGBA(mRed, mGreen, mBlue, mAlpha); }
@@ -68,9 +69,8 @@ namespace Zeron {
 					static_cast<uint8_t>(b * 255);
 		}
 
-		static uint32_t HexFromARGB(uint8_t r, uint8_t g, uint8_t b, float a) {
-			return	static_cast<uint8_t>(std::clamp(a, 0.f, 1.f) * 255) << 24 
-					| HexFromRGB(r, g, b);
+		static uint32_t HexFromARGB(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+			return	a << 24 | HexFromRGB(r, g, b);
 		}
 
 		static uint32_t HexFromARGB(float r, float g, float b, float a) {
@@ -79,9 +79,8 @@ namespace Zeron {
 								  std::clamp(b, 0.f, 1.f));
 		}
 
-		static uint32_t HexFromRGBA(uint8_t r, uint8_t g, uint8_t b, float a) {
-			return	HexFromRGB(r, g, b) << 8
-					| static_cast<uint8_t>(std::clamp(a, 0.f, 1.f) * 255);
+		static uint32_t HexFromRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+			return	HexFromRGB(r, g, b) << 8 | a;
 		}
 
 		static uint32_t HexFromRGBA(float r, float g, float b, float a) {
@@ -94,7 +93,7 @@ namespace Zeron {
 		uint8_t		mRed;
 		uint8_t		mGreen;
 		uint8_t		mBlue;
-		float		mAlpha;
+		uint8_t		mAlpha;
 	};
 
 }

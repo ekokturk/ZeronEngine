@@ -32,7 +32,8 @@ namespace Zeron {
 
 		return mGraphicsAdapters;
 	}
-
+	
+#if ZE_GRAPHICS_D3D
 	IDXGIFactory* GraphicsD3D::GetFactoryDXGI() const
 	{
 		ZE_ASSERT(mFactory, "DXGI factory is null!");
@@ -45,4 +46,6 @@ namespace Zeron {
 		ZE_ASSERT(!adapterList.empty(), "No graphics adapters found!");
 		return adapterList[0].GetAdapter();
 	}
+#endif
+
 }
