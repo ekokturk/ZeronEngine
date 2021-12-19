@@ -11,6 +11,7 @@ namespace Zeron
 		GraphicsContext(Window* window);
 		virtual ~GraphicsContext() = default;
 
+		virtual void SetRenderTarget() = 0;
 		virtual void ClearBuffer(Color color = Color::Black) = 0;
 		virtual void SwapBuffers() = 0;
 		virtual void SetViewport(const Vec2i& pos, const Vec2i& size) = 0;

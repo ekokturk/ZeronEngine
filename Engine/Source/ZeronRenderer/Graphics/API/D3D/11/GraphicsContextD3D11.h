@@ -9,6 +9,7 @@
 
 struct IDXGISwapChain;
 struct ID3D11RenderTargetView;
+struct ID3D11DepthStencilView;
 struct ID3D11Texture2D;
 
 namespace Zeron {
@@ -20,6 +21,7 @@ namespace Zeron {
 		GraphicsContextD3D11(Window* window, GraphicsD3D11& graphics);
 		~GraphicsContextD3D11() override = default;
 
+		virtual void SetRenderTarget() override;
 		virtual void ClearBuffer(Color color) override ;
 		virtual void SetViewport(const Vec2i& pos, const Vec2i& size) override;
 		virtual void SwapBuffers() override;
@@ -29,7 +31,7 @@ namespace Zeron {
 		[[nodiscard]] bool IsVSyncEnabled() const override;
 		
 		[[nodiscard]] ID3D11RenderTargetView* GetRenderTarget() const;
-		
+
 	private:
 
 	private:
@@ -38,6 +40,9 @@ namespace Zeron {
 		Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> mBackBuffer;
 
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
+		
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTarget;
 		HWND mHWND;
 	};

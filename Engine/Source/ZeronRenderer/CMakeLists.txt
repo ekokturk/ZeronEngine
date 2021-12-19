@@ -7,6 +7,7 @@ add_zeron_module_dependency(SDL2)
 
 # ============ MODULE CREATE ============
 add_zeron_module(ZeronRenderer ${CMAKE_CURRENT_SOURCE_DIR})
+set(SHADER_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders")
 
 # ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBRARIES "")
@@ -31,9 +32,37 @@ endif()
 if(WIN32)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_WIN32=1)
 
+    # ======== D3D ========
     target_compile_definitions(ZeronRenderer PUBLIC ZE_GRAPHICS_D3D=1)
     list(APPEND MODULE_LIBRARIES dxgi)
     list(APPEND MODULE_LIBRARIES d3d11)
+    list(APPEND MODULE_LIBRARIES D3DCompiler)
+
+    # ======== HLSL ========
+    file(GLOB_RECURSE HLSL_SHADERS "${SHADER_DIRECTORY}/HLSL/*.hlsl")
+    source_group(TREE "${SHADER_DIRECTORY}/HLSL/" PREFIX "Shaders/HLSL" FILES ${HLSL_SHADERS})
+    target_sources(ZeronRenderer PRIVATE ${HLSL_SHADERS})
+
+    set(HLSL_SHADER_MODEL 5.0)
+    foreach(HLSL_SHADER_PATH IN LISTS HLSL_SHADERS)
+        get_filename_component(HLSL_SHADER_FILENAME ${HLSL_SHADER_PATH} NAME_WLE)
+        get_filename_component(HLSL_SHADER_EXTENSTION ${HLSL_SHADER_FILENAME} EXT)
+        if(HLSL_SHADER_EXTENSTION STREQUAL ".vs")
+            set(HLSL_SHADER_TYPE Vertex)
+        elseif(HLSL_SHADER_EXTENSTION STREQUAL ".fs")
+            set(HLSL_SHADER_TYPE Pixel)
+        else()
+            message(FATAL_ERROR "Invalid HLSL shader extension!")
+        endif()
+        set_source_files_properties(${HLSL_SHADER_PATH} 
+            PROPERTIES 
+                VS_SHADER_OBJECT_FILE_NAME $(OutDir)/Resources/Shaders/${HLSL_SHADER_FILENAME}.cso
+                VS_SHADER_TYPE ${HLSL_SHADER_TYPE} 
+                VS_SHADER_MODEL ${HLSL_SHADER_MODEL}
+                VS_SHADER_ENTRYPOINT main
+        )
+    endforeach()
+    
 endif()
 
 
