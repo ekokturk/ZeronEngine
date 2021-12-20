@@ -58,6 +58,11 @@ namespace Zeron {
 	public:
 		LRESULT WndProc(UINT msg, WPARAM wParam, LPARAM lParam);
 	private:
+		// Get client Rect in screen coordinates
+		RECT GetScreenRect() const;
+		// Get window Rect from client coordinates
+		RECT GetAdjustedRect(const Vec2i& position, const Vec2i& size) const;
+		
 		KeyCode GetKeyCodeWin32(WPARAM wParam, LPARAM lParam);
 		MouseCode GetMouseCodeWin32(WPARAM wParam, LPARAM lParam);
 #endif
