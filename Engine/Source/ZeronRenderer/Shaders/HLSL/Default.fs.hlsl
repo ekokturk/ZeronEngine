@@ -1,10 +1,14 @@
 struct FS_INPUT
 {
 	float4 inPosition : SV_POSITION;
-	float3 inColor : COLOR;
+	float2 inTextureCoord: TEXTURE_COORD;
 };
+
+Texture2D tex : TEXTURE : register(t0);
+SamplerState samplerState : SAMPLER : register(s0);
 
 float4 main(FS_INPUT input) : SV_TARGET
 {
-	return float4(input.inColor, 1.f);
+	float3 pixelColor = tex.Sample(samplerState, input.inTextureCoord);
+	return float4(pixelColor, 1.f);
 }

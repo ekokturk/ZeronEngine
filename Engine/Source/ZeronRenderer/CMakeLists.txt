@@ -4,6 +4,7 @@
 add_zeron_module_dependency(GLFW)
 add_zeron_module_dependency(GLAD)
 add_zeron_module_dependency(SDL2)
+add_zeron_module_dependency(stb)
 
 # ============ MODULE CREATE ============
 add_zeron_module(ZeronRenderer ${CMAKE_CURRENT_SOURCE_DIR})
@@ -28,6 +29,8 @@ if (TARGET SDL2)
     target_compile_definitions(ZeronRenderer PUBLIC SDL_MAIN_HANDLED)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_SDL=1)
 endif()
+
+list(APPEND MODULE_LIBRARIES stb-header-only)
 
 if(WIN32)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_WIN32=1)
@@ -77,4 +80,9 @@ target_link_libraries(ZeronRenderer
         ZeronCore
     PRIVATE
         ${MODULE_LIBRARIES}
+)
+
+add_custom_command(TARGET ZeronRenderer POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Resources/" "$<TARGET_FILE_DIR:ZeronRenderer>/Resources/"
+    COMMENT "Copying ZeronRenderer resources to output directory..."
 )

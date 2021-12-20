@@ -7,6 +7,6 @@ namespace Zeron {
 	 struct Vertex
 	 {
 		 Vec3 mPosition;
-		 Color mColor;
+		 Vec2 mTextureCoord;
 	 };
 }

@@ -34,6 +34,7 @@ namespace Zeron {
 	public:
 		void SetRasterizerState();
 		void SetDepthStencilState();
+		void SetSamplerState();
 		bool InitializeShaders();
 		
 		[[nodiscard]] ID3D11Device* GetDevice() const;
@@ -47,9 +48,11 @@ namespace Zeron {
 		std::vector<std::unique_ptr<GraphicsContextD3D11>> mGraphicsContexes;
 		std::vector<std::unique_ptr<VertexBufferD3D11>> mVertexBuffers;
 
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
 
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
 #endif
 	};
 }

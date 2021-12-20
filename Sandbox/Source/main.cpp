@@ -22,19 +22,12 @@ int main(int argc, char** argv) {
 	}
 
 	const std::vector v1 = {
-	Vertex{{-.5f, -.5f, 1.f},{1.f,0,0}},
-	Vertex{{0, .5f, 0.f},{1.f,0,0}},
-	Vertex{{.5f, -.5f, 1.f},{1.f,0,0}},
-	};
-
-	const std::vector v2 = {
-		Vertex{{-.3f, -.3f, 0.f},{1.f,1.f,0}},
-		Vertex{{0, .3f, 0.f},{1.f,1.f,0}},
-		Vertex{{.3f, -.3f, 1.f},{1.f,1.f,0}},
+	Vertex{{-.5f, -.5f, 1.f},{0.f,1.f}},
+	Vertex{{0, .5f, 0.f},{.5f,0}},
+	Vertex{{.5f, -.5f, 1.f},{1.f,1.f}},
 	};
 
 	gfx->CreateVertexBuffer(v1);
-	gfx->CreateVertexBuffer(v2);
 
 	bool isRunning = true;
 	while (isRunning) {
