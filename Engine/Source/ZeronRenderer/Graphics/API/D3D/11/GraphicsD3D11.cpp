@@ -7,6 +7,9 @@
 #include "Graphics/API/D3D/11/GraphicsContextD3D11.h"
 #include "Window/Window.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
 namespace Zeron
 {
 	bool GraphicsD3D11::Init()
@@ -37,6 +40,36 @@ namespace Zeron
 		InitializeShaders();
 		SetRasterizerState();
 		SetDepthStencilState();
+		SetSamplerState();
+
+		// TODO: Move this into texture class texture class
+		int width, height, comp;
+		if(stbi_uc* textData = stbi_load("Resources/Textures/test_texture.png", &width, &height, &comp, STBI_rgb_alpha))
+		{
+			D3D11_TEXTURE2D_DESC textDesc;
+			textDesc.Width = width;
+			textDesc.Height = height;
+			textDesc.MipLevels = 1;
+			textDesc.ArraySize = 1;
+			textDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+			textDesc.SampleDesc.Count = 1;
+			textDesc.SampleDesc.Quality = 0;
+			textDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+			textDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
+			textDesc.CPUAccessFlags = 0;
+			textDesc.MiscFlags = 0;
+			
+			D3D11_SUBRESOURCE_DATA bufferData;
+			ZeroMemory(&bufferData, sizeof(D3D11_SUBRESOURCE_DATA));
+			bufferData.pSysMem = textData;
+			bufferData.SysMemPitch = width * STBI_rgb_alpha;
+
+			Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+			D3D_ASSERT_RESULT(mDevice->CreateTexture2D(&textDesc, &bufferData, texture.GetAddressOf()), false);
+			D3D_ASSERT_RESULT(mDevice->CreateShaderResourceView(texture.Get(), nullptr, &mTexture), false);
+			
+			stbi_image_free(textData);
+		}
 		
 		return true;
 #else
@@ -70,6 +103,8 @@ namespace Zeron
 		D3D_ASSERT(mDeviceContext->VSSetShader(mShaders[0]->GetVertexShader(), nullptr, 0));
 		D3D_ASSERT(mDeviceContext->PSSetShader(mShaders[0]->GetPixelShader(), nullptr, 0));
 
+		mDeviceContext->PSSetShaderResources(0, 1, mTexture.GetAddressOf());
+		
 		for(auto& buffer : mVertexBuffers) {
 			buffer->BindBuffer(*this);
 			mDeviceContext->Draw(buffer->GetSize(), 0);
@@ -123,13 +158,29 @@ namespace Zeron
 		D3D_ASSERT(mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0));
 	}
 
+	void GraphicsD3D11::SetSamplerState()
+	{
+		D3D11_SAMPLER_DESC samplerDesc;
+		ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
+		samplerDesc.Filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP; // X Coord
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP; // Y Coord
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_NEVER;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+		D3D_ASSERT_RESULT(mDevice->CreateSamplerState(&samplerDesc, mSamplerState.GetAddressOf()));
+		D3D_ASSERT(mDeviceContext->PSSetSamplers(0, 1, mSamplerState.GetAddressOf()));
+	}
+
 	bool GraphicsD3D11::InitializeShaders()
 	{
 		auto shader = std::make_shared<ShaderD3D11>();
 		// TODO: Move semantic names to static values
 		D3D11_INPUT_ELEMENT_DESC layout[] = {
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			//{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			{ "TEXTURE_COORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 
 		// TODO: Add a static shader path
