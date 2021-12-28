@@ -11,7 +11,7 @@ add_zeron_module(ZeronCore ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 set(PCH_GENERIC 			
-	<string> <map> <unordered_map> <queue> <any> <variant>
+	<array> <string> <map> <unordered_map> <queue> <any> <variant>
 	<exception> <iostream> <sstream> <fstream> <functional>
 	<memory> <filesystem> <algorithm> <cmath> <bitset>
 )
