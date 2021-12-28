@@ -2,8 +2,8 @@
 
 #pragma once
 
-namespace Zeron {
-
+namespace Zeron
+{
 	template<typename T>
 	class TVec2 {
 	public:
@@ -14,6 +14,7 @@ namespace Zeron {
 
 	public:
 		TVec2() : X(0), Y(0) {}
+		TVec2(T value) : X(value), Y(value) {}
 		TVec2(T x, T y) : X(x), Y(y) {}
 		TVec2(const TVec2&) = default;
 		TVec2(TVec2&&) = default;

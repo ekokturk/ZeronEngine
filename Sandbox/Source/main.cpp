@@ -9,26 +9,30 @@
 #include "Graphics/RenderTarget.h"
 #include "Graphics/SwapChain.h"
 #include "Graphics/Buffer.h"
+#include "Core/Math/Mat4.h"
+#include "glm/glm.hpp"
+
+using namespace Zeron;
+
 
 struct CBData
 {
-	float mOffsetX = 0;
-	float mOffsetY = 0;
+	Mat4 mMatrix;
 };
 
-int main(int argc, char** argv) {
+void TestWindow()
+{
 
-	using namespace Zeron;
-	std::array<std::shared_ptr<SwapChain>,3> swapChainList;
-	
+	std::array<std::shared_ptr<SwapChain>, 3> swapChainList;
+
 	std::vector<std::unique_ptr<Window>> windows;
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL",800,600,0)));
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW",800,600,0)));
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32",800,600,0)));
+	windows.push_back(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL", 800, 600, 0)));
+	windows.push_back(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW", 800, 600, 0)));
+	windows.push_back(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32", 800, 600, 0)));
 
 	auto gfx = std::make_unique<GraphicsD3D11>();
-	if(!gfx->Init()) {
-		return 1;
+	if (!gfx->Init()) {
+		return;
 	}
 	auto ctx = gfx->GetImmediateContext();
 	int i = 0;
@@ -51,7 +55,7 @@ int main(int argc, char** argv) {
 	};
 
 	CBData dataCB;
-	
+
 	auto vertexBuffer = gfx->CreateVertexBuffer(v1);
 	auto indexBuffer = gfx->CreateIndexBuffer(i1);
 	auto constantBuffer = gfx->CreateConstantBuffer<CBData>(dataCB);
@@ -62,7 +66,7 @@ int main(int argc, char** argv) {
 	while (isRunning) {
 		for (int k = 0; k < windows.size(); k++) {
 			Window* window = windows[k].get();
-			
+
 			window->BeginFrame();
 			WindowEvent e;
 			while (auto e = window->GetNextEvent()) {
@@ -79,7 +83,7 @@ int main(int argc, char** argv) {
 						window->SetHidden();
 					}
 					if (procEvnt.mCode == KeyCode::G) {
-						window->SetAspectRatio(16,9);
+						window->SetAspectRatio(16, 9);
 					}
 					if (procEvnt.mCode == KeyCode::C) {
 						ctx->SetFillMode(true);
@@ -94,10 +98,11 @@ int main(int argc, char** argv) {
 						window->SetFullScreenType(FullScreenType::Monitor);
 					}
 					if (procEvnt.mCode == KeyCode::Left) {
-						dataCB.mOffsetX -= 0.1f;
+						//dataCB.mMatrix = Math::Scale(dataCB.mMatrix, Vec3(.3f));
+						dataCB.mMatrix = Math::Rotate(dataCB.mMatrix, -1.2f, { 0,0,1.f });
 					}
 					if (procEvnt.mCode == KeyCode::Right) {
-						dataCB.mOffsetX += 0.1f;
+						dataCB.mMatrix = Math::Rotate(dataCB.mMatrix, 1.2f,  { 0,0,1.f });
 					}
 				}
 				if (e->GetID() == WindowEventID::KeyUp) {
@@ -115,38 +120,49 @@ int main(int argc, char** argv) {
 				}
 				else if (e->GetID() == WindowEventID::MouseEnter) {
 					auto& procEvnt = static_cast<WindowEvent_MouseEnter&>(*e);
-					std::cout << procEvnt.GetEventName()  << std::endl;
+					std::cout << procEvnt.GetEventName() << std::endl;
 				}
 				else if (e->GetID() == WindowEventID::MouseExit) {
 					auto& procEvnt = static_cast<WindowEvent_MouseExit&>(*e);
-					std::cout << procEvnt.GetEventName()  << std::endl;
+					std::cout << procEvnt.GetEventName() << std::endl;
 				}
 			}
 			window->EndFrame();
 
+
+			
 			SwapChain* swapChain = swapChainList[k].get();
 			RenderTarget* target = swapChain->GetRenderTarget();
 
 			ctx->UpdateBuffer(*constantBuffer, &dataCB, sizeof(dataCB));
-			
+
 			ctx->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 			ctx->SetRenderTarget(target);
-			ctx->Clear(Color{  .3f,0,0.f });
+			ctx->Clear(Color{ .3f,0,0.f });
 
 			ctx->SetShader(shader.get());
 			ctx->SetTexture(texture.get());
-			
+
 			ctx->SetVertexBuffer(*vertexBuffer);
 			ctx->SetIndexBuffer(*indexBuffer);
 			ctx->SetConstantBuffer(*constantBuffer);
-			
+
 			ctx->DrawIndexed(indexBuffer->GetSize(), 0);
 
 			swapChain->SwapBuffers();
-			
+
 		}
 
 	}
+}
+
+int main(int argc, char** argv) {
+
+	TestWindow();
+
+	Mat4 test;
+	test[1][3] = 1;
+	std::cout << test[1][3];
 
 	return 0;
 }
