@@ -1,16 +1,14 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #pragma once
-
 #if ZE_GRAPHICS_D3D
 #if ZE_DEBUG
-#include <wrl.h>
-#include <comdef.h>
+#include "Graphics/API/D3D/DXGI.h"
 #include <initguid.h>
 #include <dxgidebug.h>
 
-namespace Zeron {
-
+namespace Zeron
+{
 	class DebugInfoQueueD3D {
 	public:
 		DebugInfoQueueD3D();
@@ -21,7 +19,7 @@ namespace Zeron {
 		[[nodiscard]] std::string GetMessages(UINT64 startIndex = 0) const;
 		
 	private:
-		Microsoft::WRL::ComPtr<IDXGIInfoQueue> mInfoQueue;
+		ZE::ComPtr<IDXGIInfoQueue> mInfoQueue;
 		GUID mInfoFlags;
 		bool mIsInitialized;
 	};
@@ -77,7 +75,5 @@ namespace Zeron {
 		} \
 	} while (0)
 #endif
-
-
 
 #endif

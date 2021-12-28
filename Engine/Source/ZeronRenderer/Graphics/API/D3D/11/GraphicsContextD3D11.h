@@ -1,50 +1,63 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #pragma once
-
 #if ZE_GRAPHICS_D3D
+#include "Graphics/API/D3D/DXGI.h"
 #include "Graphics/GraphicsContext.h"
-#include <wrl.h>
-#include "Core/Types/Color.h"
+#include <d3d11.h>
 
-struct IDXGISwapChain;
-struct ID3D11RenderTargetView;
-struct ID3D11DepthStencilView;
-struct ID3D11Texture2D;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct ID3D11RasterizerState;
+struct ID3D11DepthStencilState;
+struct ID3D11SamplerState;
 
-namespace Zeron {
-	
+namespace Zeron
+{
+	class Texture;
+	class Buffer;
+	class Shader;
+	class RenderTargetD3D11;
 	class GraphicsD3D11;
 
 	class GraphicsContextD3D11 final : public GraphicsContext {
 	public:
-		GraphicsContextD3D11(Window* window, GraphicsD3D11& graphics);
-		~GraphicsContextD3D11() override = default;
+		GraphicsContextD3D11(GraphicsD3D11& graphics);
+		~GraphicsContextD3D11();
 
-		virtual void SetRenderTarget() override;
-		virtual void ClearBuffer(Color color) override ;
-		virtual void SetViewport(const Vec2i& pos, const Vec2i& size) override;
-		virtual void SwapBuffers() override;
-		virtual void SetVSyncEnabled(bool isEnabled) override;
-		virtual void SetRefreshRate(uint16_t rate) override;
+		virtual void SetPrimitiveTopology(PrimitiveTopology topology) override;
+		virtual void SetVertexBuffer(Buffer& vb) override;
+		virtual void SetIndexBuffer(Buffer& ib) override;
+		virtual void SetConstantBuffer(Buffer& cb) override;
+		virtual void SetShader(Shader* shader) override;
+		virtual void SetTexture(Texture* texture) override;
 
-		[[nodiscard]] bool IsVSyncEnabled() const override;
+		virtual void UpdateBuffer(Buffer& buff, void* data, uint32_t size) override;
 		
-		[[nodiscard]] ID3D11RenderTargetView* GetRenderTarget() const;
+		virtual void SetFillMode(bool isSolid) override;
+		
+		virtual void SetRenderTarget(RenderTarget* target) override;
+
+		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexStart) override;
+		virtual void Clear(Color color) override;
 
 	private:
+		// Pipeline States
+		void CreateRasterizerState(D3D11_FILL_MODE fillMode);
+		void CreateDepthStencilState();
+		void CreateSamplerState();
 
+		ZE::ComPtr<ID3D11RasterizerState> mRasterizerState;
+		ZE::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
+		ZE::ComPtr<ID3D11SamplerState> mSamplerState;
+	
 	private:
-		GraphicsD3D11& mGraphics;
-		UINT mVSyncEnabled;
-		Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> mBackBuffer;
+		ID3D11Device* mDevice;
+		ID3D11DeviceContext* mDeviceContext;
+		ZE::ComPtr<ID3D11DeviceContext> mDefferedContext;
 
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
-		
-		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTarget;
-		HWND mHWND;
+		PrimitiveTopology mPrimitiveTopology;
+		RenderTargetD3D11* mRenderTarget;
 	};
 }
 #endif

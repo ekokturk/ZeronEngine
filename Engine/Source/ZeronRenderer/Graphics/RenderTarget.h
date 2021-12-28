@@ -2,11 +2,10 @@
 
 #pragma once
 
-#include "Graphics/Shader.h"
-
-namespace Zeron {
-
-	class ShaderD3D : public Shader {
+namespace Zeron
+{
+	class RenderTarget {
 	public:
+		virtual ~RenderTarget() = default;
 	};
 }

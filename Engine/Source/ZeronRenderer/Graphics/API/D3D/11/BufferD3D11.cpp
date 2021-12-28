@@ -4,40 +4,49 @@
 #include "BufferD3D11.h"
 #include "Graphics/API/D3D/11/GraphicsD3D11.h"
 #include "Graphics/API/D3D/DebugInfoD3D.h"
+#include <d3d11.h>
 
-namespace Zeron {
-	
-	VertexBufferD3D11::VertexBufferD3D11(GraphicsD3D11& graphics, const std::vector<Vertex>& data)
+namespace Zeron
+{
+	BufferD3D11::BufferD3D11(GraphicsD3D11& graphics, BufferType type, const void* data, uint32_t size, uint32_t stride)
+		: mBufferType(type)
 	{
-		ZE_ASSERT(!data.empty(), "Can't have empty vertex buffer");
-		mSize = static_cast<UINT>(data.size());
-		// TODO: Parameterize these
-		mStride = sizeof(Vertex);
-		mOffset = 0;
-		
-		D3D11_BUFFER_DESC bufferDesc;
-		ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
-		bufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-		bufferDesc.ByteWidth = mStride * mSize;
-		bufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.CPUAccessFlags = 0;
-		bufferDesc.MiscFlags = 0;
+		mSize = size;
+		mStride = stride;
+		D3D11_BUFFER_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+		if (mBufferType == BufferType::Constant) {
+			desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
+			desc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+			// Constant buffer needs to be 16 byte aligned
+			desc.ByteWidth = mStride + (16 - mStride % 16);
+			desc.StructureByteStride = 0;
+		}
+		else {
+			desc.BindFlags = mBufferType == BufferType::Vertex ?
+				D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER : D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
+			desc.CPUAccessFlags = 0;
+			desc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+			desc.ByteWidth = mStride * mSize;
+		}
+		desc.MiscFlags = 0;
 
 		D3D11_SUBRESOURCE_DATA bufferData;
 		ZeroMemory(&bufferData, sizeof(D3D11_SUBRESOURCE_DATA));
-		bufferData.pSysMem = &data.front();
+		bufferData.pSysMem = data;
 
-		D3D_ASSERT_RESULT(graphics.GetDevice()->CreateBuffer(&bufferDesc, &bufferData, mBuffer.GetAddressOf()));
+		D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateBuffer(&desc, &bufferData, mBuffer.GetAddressOf()));
 	}
 
-	ID3D11Buffer* VertexBufferD3D11::GetBuffer() const
+	BufferType BufferD3D11::GetBufferType() const
+	{
+		return mBufferType;
+	}
+
+	ID3D11Buffer* BufferD3D11::GetBufferD3D() const
 	{
 		return mBuffer.Get();
-	}
-
-	void VertexBufferD3D11::BindBuffer(GraphicsD3D11& graphics) const
-	{
-		graphics.GetDeviceContext()->IASetVertexBuffers(0, 1, mBuffer.GetAddressOf(), &mStride, &mOffset);
 	}
 }
 #endif
