@@ -1,27 +1,43 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
 #pragma once
+#include "GraphicsTypes.h"
 #include "Primitives.h"
 
-namespace Zeron {
+namespace Zeron
+{
+	class Buffer;
+	class Texture;
+	class Shader;
+	class GraphicsContext;
 	class Window;
+	class SwapChain;
 
-	enum class GraphicsType {
-		Null,
-		OpenGLES,
-		Direct3D11,
-	};
-	
 	class Graphics
 	{
 	public:
 		virtual ~Graphics() = default;
 		virtual bool Init() = 0;
-		virtual bool Destroy() = 0;
-		virtual void RenderFrame() = 0;
-		virtual void Draw() = 0;
 
-		virtual void CreateGraphicsContext(Window* window) = 0;
-		virtual void CreateVertexBuffer(const std::vector<Vertex>& data) = 0;
+		virtual GraphicsType GetGraphicsType() const = 0;
+
+		virtual std::shared_ptr<GraphicsContext> GetImmediateContext() const = 0;
+		
+		virtual std::shared_ptr<GraphicsContext> CreateGraphicsContext() = 0;
+		virtual std::shared_ptr<SwapChain> CreateSwapChain(Window& window) = 0;
+		template <typename T>
+		std::shared_ptr<Buffer> CreateVertexBuffer(const std::vector<T>& data) {
+			return CreateBuffer(BufferType::Vertex,  &data.front(), static_cast<uint32_t>(data.size()), sizeof(T));
+		}
+		std::shared_ptr<Buffer> CreateIndexBuffer(const std::vector<unsigned long>& data);
+		template <typename T>
+		std::shared_ptr<Buffer> CreateConstantBuffer(const T& data) {
+			return CreateBuffer(BufferType::Constant, &data, 1, sizeof(T));
+		}
+		virtual std::shared_ptr<Shader> CreateShader(const std::string& name) = 0;
+		virtual std::shared_ptr<Texture> CreateTexture(const std::string& name) = 0;
+	
+	protected:
+		virtual std::shared_ptr<Buffer> CreateBuffer(BufferType type, const void* data, uint32_t size, uint32_t stride) = 0;
 	};
 }

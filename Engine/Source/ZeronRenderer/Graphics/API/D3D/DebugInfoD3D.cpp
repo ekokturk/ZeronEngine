@@ -4,8 +4,8 @@
 #if ZE_GRAPHICS_D3D
 #if ZE_DEBUG
 
-namespace Zeron {
-
+namespace Zeron
+{
 	DebugInfoQueueD3D::DebugInfoQueueD3D()
 		: mInfoQueue(nullptr)
 		, mInfoFlags(DXGI_DEBUG_ALL)

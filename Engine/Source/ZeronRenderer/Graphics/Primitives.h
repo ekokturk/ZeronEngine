@@ -2,8 +2,8 @@
 
 #pragma once
 
-namespace Zeron {
-
+namespace Zeron
+{
 	 struct Vertex
 	 {
 		 Vec3 mPosition;

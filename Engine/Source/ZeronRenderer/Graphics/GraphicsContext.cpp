@@ -4,9 +4,6 @@
 
 namespace Zeron
 {
-	GraphicsContext::GraphicsContext(Window* window)
-		: mWindow(window) {
-	}
 }
 
 

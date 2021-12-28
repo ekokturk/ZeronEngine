@@ -2,15 +2,20 @@
 
 #pragma once
 #if ZE_GRAPHICS_D3D
-#include "Graphics/Graphics.h"
-#include "Graphics/API/D3D/ShaderD3D.h"
-#include <wrl.h>
-#include <d3d11.h>
+#include "Graphics/API/D3D/DXGI.h"
+#include "Graphics/Shader.h"
 
-namespace Zeron {
+struct D3D11_INPUT_ELEMENT_DESC;
+struct ID3D11VertexShader;
+struct ID3D11InputLayout;
+struct ID3D11PixelShader;
+struct ID3D10Blob;
+
+namespace Zeron
+{
 	class GraphicsD3D11;
 
-	class ShaderD3D11 : public ShaderD3D {
+	class ShaderD3D11 : public Shader {
 	public:
 		bool CreateVertexShader(GraphicsD3D11& graphics, std::string shaderName, D3D11_INPUT_ELEMENT_DESC* description, UINT elementNo);
 		bool CreatePixelShader(GraphicsD3D11& graphics, std::string shaderName);
@@ -20,11 +25,11 @@ namespace Zeron {
 		[[nodiscard]] ID3D11InputLayout* GetInputLayout() const;
 
 	protected:
-		Microsoft::WRL::ComPtr<ID3D11VertexShader> mVertexShader;
-		Microsoft::WRL::ComPtr<ID3D11PixelShader> mPixelShader;
+		ZE::ComPtr<ID3D11VertexShader> mVertexShader;
+		ZE::ComPtr<ID3D11PixelShader> mPixelShader;
 		
-		Microsoft::WRL::ComPtr<ID3D10Blob> mShaderBuffer;
-		Microsoft::WRL::ComPtr<ID3D11InputLayout> mInputLayout;
+		ZE::ComPtr<ID3D10Blob> mShaderBuffer;
+		ZE::ComPtr<ID3D11InputLayout> mInputLayout;
 	};
 }
 #endif
