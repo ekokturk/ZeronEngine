@@ -10,12 +10,28 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 namespace Zeron
 {
 	struct Math {
 
+		// Global directions
+		template<typename T> static const TVec3<T> FORWARD_DIR;
+		template<typename T> static const TVec3<T> RIGHT_DIR;
+		template<typename T> static const TVec3<T> UP_DIR;
+
+		template<typename T>
+		static bool EqualsNear(T value, T other, float precision = static_cast<T>(0.00001)) {
+			return std::abs(value - other) < precision;
+		}
+		
 		// ----------------- GLM Wrappers -----------------
+		template<typename T>
+		[[nodiscard]] static T PI() {
+			return glm::pi<T>();
+		}
+		
 		template<typename T>
 		[[nodiscard]] static T ToRadians(T degrees) {
 			return glm::radians(degrees);
@@ -67,7 +83,21 @@ namespace Zeron
 		[[nodiscard]] static TMat4<T> PerspectiveFOV(T fov, T width, T height, T nearZ, T farZ) {
 			return glm::perspectiveFovLH(fov, width, height, nearZ, farZ);
 		}
-		
+
+		template<typename T>
+		[[nodiscard]] static TMat4<T> RotationMatrixFromEuler(T pitch, T yaw, T roll) {
+			return glm::eulerAngleYXZ(yaw, pitch, roll);
+		}
+
+		template<typename T>
+		[[nodiscard]] static TVec3<T> Transform(const TVec3<T>& v, const TMat4<T>& m) {
+			 const glm::tvec4<T> temp = m * glm::tvec4<T>(v.X, v.Y, v.Z, 1) ;
+			 return { temp.x, temp.y, temp.z };
+		}
+
 	};
 
+	template<class T> const TVec3<T> Math::RIGHT_DIR = TVec3<T>(1, 0, 0);
+	template<class T> const TVec3<T> Math::UP_DIR = TVec3<T>(0, 1, 0);
+	template<class T> const TVec3<T> Math::FORWARD_DIR = TVec3<T>(0, 0, 1);
 }
