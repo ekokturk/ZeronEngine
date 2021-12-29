@@ -9,8 +9,11 @@ namespace Zeron
 	public:
 		T X, Y, Z;
 		
-		static TVec3 ZERO;
-		static TVec3 ONE;
+		static const TVec3 ZERO;
+		static const TVec3 ONE;
+		static const TVec3 AXIS_X;
+		static const TVec3 AXIS_Y;
+		static const TVec3 AXIS_Z;
 
 	public:
 		TVec3()							: X(0), Y(0), Z(0) {}
@@ -84,6 +87,14 @@ namespace Zeron
 			return *this;
 		}
 
+		TVec3 operator-() const & {
+			return TVec3(*this) * static_cast<T>(-1);
+		}
+
+		TVec3 operator-() const && {
+			return TVec3(*this) * static_cast<T>(-1);
+		}
+
 		T Length() const
 		{
 			return sqrt((X * X) + (Y * Y) + (Z * Z));
@@ -121,8 +132,11 @@ namespace Zeron
 		return os;
 	}
 
-	template<class T> TVec3<T> TVec3<T>::ZERO = TVec3<T>(0, 0, 0);
-	template<class T> TVec3<T> TVec3<T>::ONE  = TVec3<T>(1, 1, 1);
+	template<class T> const TVec3<T> TVec3<T>::ZERO		= TVec3<T>(0, 0, 0);
+	template<class T> const TVec3<T> TVec3<T>::ONE		= TVec3<T>(1, 1, 1);
+	template<class T> const TVec3<T> TVec3<T>::AXIS_X	= TVec3<T>(1, 0, 0);
+	template<class T> const TVec3<T> TVec3<T>::AXIS_Y	= TVec3<T>(0, 1, 0);
+	template<class T> const TVec3<T> TVec3<T>::AXIS_Z	= TVec3<T>(0, 0, 1);
 
 	using Vec3	= TVec3<float>;
 	using Vec3i = TVec3<int>;

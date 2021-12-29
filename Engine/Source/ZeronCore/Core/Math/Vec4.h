@@ -9,8 +9,12 @@ namespace Zeron
 	public:
 		T X, Y, Z, W;
 
-		static TVec4 ZERO;
-		static TVec4 ONE;
+		static const TVec4 ZERO;
+		static const TVec4 ONE;
+		static const TVec4 AXIS_X;
+		static const TVec4 AXIS_Y;
+		static const TVec4 AXIS_Z;
+		static const TVec4 AXIS_W;
 
 	public:
 		TVec4() : X(0), Y(0), Z(0), W(0) {}
@@ -84,6 +88,14 @@ namespace Zeron
 			return *this;
 		}
 
+		TVec4 operator-() const & {
+			return TVec4(*this) * static_cast<T>(-1);
+		}
+
+		TVec4 operator-() const && {
+			return TVec4(*this) * static_cast<T>(-1);
+		}
+
 		T Length() const
 		{
 			return sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));
@@ -116,8 +128,12 @@ namespace Zeron
 		return os;
 	}
 
-	template<class T> TVec4<T> TVec4<T>::ZERO = TVec3<T>(0, 0, 0, 0);
-	template<class T> TVec4<T> TVec4<T>::ONE = TVec3<T>(1, 1, 1, 1);
+	template<class T> const TVec4<T> TVec4<T>::ZERO		= TVec4<T>(0, 0, 0, 0);
+	template<class T> const TVec4<T> TVec4<T>::ONE		= TVec4<T>(1, 1, 1, 1);
+	template<class T> const TVec4<T> TVec4<T>::AXIS_X	= TVec4<T>(1, 0, 0, 0);
+	template<class T> const TVec4<T> TVec4<T>::AXIS_Y	= TVec4<T>(0, 1, 0, 0);
+	template<class T> const TVec4<T> TVec4<T>::AXIS_Z	= TVec4<T>(0, 0, 1, 0);
+	template<class T> const TVec4<T> TVec4<T>::AXIS_W	= TVec4<T>(0, 0, 0, 1);
 
 	using Vec4 = TVec4<float>;
 	using Vec4i = TVec4<int>;

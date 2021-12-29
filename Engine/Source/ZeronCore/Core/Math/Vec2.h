@@ -9,9 +9,11 @@ namespace Zeron
 	public:
 		T X, Y;
 
-		static TVec2 ZERO;
-		static TVec2 ONE;
-
+		static const TVec2 ZERO;
+		static const TVec2 ONE;
+		static const TVec2 AXIS_X;
+		static const TVec2 AXIS_Y;
+	
 	public:
 		TVec2() : X(0), Y(0) {}
 		TVec2(T value) : X(value), Y(value) {}
@@ -84,6 +86,14 @@ namespace Zeron
 			return *this;
 		}
 
+		TVec2 operator-() const & {
+			return TVec2(*this) * static_cast<T>(-1);
+		}
+
+		TVec2 operator-() const && {
+			return TVec2(*this) * static_cast<T>(-1);
+		}
+
 		T Length() const
 		{
 			return sqrt((X * X) + (Y * Y));
@@ -115,8 +125,10 @@ namespace Zeron
 		return os;
 	}
 
-	template<class T> TVec2<T> TVec2<T>::ZERO = TVec2<T>(0, 0);
-	template<class T> TVec2<T> TVec2<T>::ONE  = TVec2<T>(1, 1);
+	template<class T> const TVec2<T> TVec2<T>::ZERO		= TVec2<T>(0, 0);
+	template<class T> const TVec2<T> TVec2<T>::ONE		= TVec2<T>(1, 1);
+	template<class T> const TVec2<T> TVec2<T>::AXIS_X	= TVec2<T>(1, 0);
+	template<class T> const TVec2<T> TVec2<T>::AXIS_Y	= TVec2<T>(0, 1);
 
 	using Vec2	= TVec2<float>;
 	using Vec2i = TVec2<int>;
