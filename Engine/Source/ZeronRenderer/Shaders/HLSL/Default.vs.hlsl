@@ -18,7 +18,7 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output;
-	output.outPosition = mul(float4(input.inPos, 1), mat);
+	output.outPosition = mul(float4(input.inPos, 1.f), mat);
 	output.outTextureCoord = input.inTextureCoord;
     return output;
 }

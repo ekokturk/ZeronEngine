@@ -43,10 +43,10 @@ void TestWindow()
 	}
 
 	const std::vector v1 = {
-		Vertex{{-.5f, -.5f, 1.f},{0.f,1.f}},
-		Vertex{{-.5f, .5f, 1.f},{0.f,0.f}},
-		Vertex{{.5f, .5f, 1.f},{1.f,0}},
-		Vertex{{.5f, -.5f, 1.f},{1.f,1.f}},
+		Vertex{{-.5f, -.5f, 0.f},{0.f,1.f}},
+		Vertex{{-.5f, .5f, 0.f},{0.f,0.f}},
+		Vertex{{.5f, .5f, 0.f},{1.f,0}},
+		Vertex{{.5f, -.5f, 0.f},{1.f,1.f}},
 	};
 
 	const std::vector<unsigned long> i1 = {
@@ -62,8 +62,20 @@ void TestWindow()
 	auto shader = gfx->CreateShader("Default");
 	auto texture = gfx->CreateTexture("test_texture.png");
 
+	Mat4 worldMatrix;
+	Vec3 eyePosition(0, 0, -2.f);
+	const Vec3 lookAtPosition(0, 0, 0);
+	const Vec3 upVector = Vec3::AXIS_Y;
+	const float fovDegrees = 90.f;
+	const float fovRadians = Math::ToRadians(fovDegrees);
+	const float nearZ = 0.1f;
+	const float farZ = 1000.f;
+	Mat4 viewMatrix = Math::LookAt(eyePosition, lookAtPosition, upVector);
+
 	bool isRunning = true;
 	while (isRunning) {
+
+
 		for (int k = 0; k < windows.size(); k++) {
 			Window* window = windows[k].get();
 
@@ -97,12 +109,17 @@ void TestWindow()
 					if (procEvnt.mCode == KeyCode::N2) {
 						window->SetFullScreenType(FullScreenType::Monitor);
 					}
+					if (procEvnt.mCode == KeyCode::Up) {
+						viewMatrix = Math::Translate(viewMatrix, -Vec3::AXIS_Z);
+					}
+					if (procEvnt.mCode == KeyCode::Down) {
+						viewMatrix = Math::Translate(viewMatrix, Vec3::AXIS_Z);
+					}
 					if (procEvnt.mCode == KeyCode::Left) {
-						//dataCB.mMatrix = Math::Scale(dataCB.mMatrix, Vec3(.3f));
-						dataCB.mMatrix = Math::Rotate(dataCB.mMatrix, -1.2f, { 0,0,1.f });
+						viewMatrix = Math::Rotate(viewMatrix, Math::ToRadians(45.f), Vec3::AXIS_Y);
 					}
 					if (procEvnt.mCode == KeyCode::Right) {
-						dataCB.mMatrix = Math::Rotate(dataCB.mMatrix, 1.2f,  { 0,0,1.f });
+						viewMatrix = Math::Rotate(viewMatrix, Math::ToRadians(-45.f), Vec3::AXIS_Y);
 					}
 				}
 				if (e->GetID() == WindowEventID::KeyUp) {
@@ -128,12 +145,13 @@ void TestWindow()
 				}
 			}
 			window->EndFrame();
-
-
 			
 			SwapChain* swapChain = swapChainList[k].get();
 			RenderTarget* target = swapChain->GetRenderTarget();
-
+			const Vec2i windowSize = swapChain->GetWindowSize();
+			Mat4 projectionMatrix = Math::PerspectiveFOV(fovRadians, 
+				static_cast<float>(windowSize.X), static_cast<float>(windowSize.Y), nearZ, farZ);
+			dataCB.mMatrix =  projectionMatrix * viewMatrix * worldMatrix;
 			ctx->UpdateBuffer(*constantBuffer, &dataCB, sizeof(dataCB));
 
 			ctx->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
