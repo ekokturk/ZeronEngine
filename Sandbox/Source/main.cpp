@@ -11,6 +11,7 @@
 #include "Graphics/Buffer.h"
 #include "Core/Math/Mat4.h"
 #include "glm/glm.hpp"
+#include "Renderer/Camera.h"
 
 using namespace Zeron;
 
@@ -55,6 +56,8 @@ void TestWindow()
 	};
 
 	CBData dataCB;
+	Camera camera;
+	camera.SetPosition({ 0.f, 0, -2.f });
 
 	auto vertexBuffer = gfx->CreateVertexBuffer(v1);
 	auto indexBuffer = gfx->CreateIndexBuffer(i1);
@@ -63,15 +66,7 @@ void TestWindow()
 	auto texture = gfx->CreateTexture("test_texture.png");
 
 	Mat4 worldMatrix;
-	Vec3 eyePosition(0, 0, -2.f);
-	const Vec3 lookAtPosition(0, 0, 0);
-	const Vec3 upVector = Vec3::AXIS_Y;
-	const float fovDegrees = 90.f;
-	const float fovRadians = Math::ToRadians(fovDegrees);
-	const float nearZ = 0.1f;
-	const float farZ = 1000.f;
-	Mat4 viewMatrix = Math::LookAt(eyePosition, lookAtPosition, upVector);
-
+	
 	bool isRunning = true;
 	while (isRunning) {
 
@@ -109,17 +104,49 @@ void TestWindow()
 					if (procEvnt.mCode == KeyCode::N2) {
 						window->SetFullScreenType(FullScreenType::Monitor);
 					}
+
+					if (procEvnt.mCode == KeyCode::W) {
+						//camera.Move({ 0,0,-.3f });
+						camera.Move(camera.GetForwardDir() * -.25f);
+					}
+					if (procEvnt.mCode == KeyCode::S) {
+						//camera.Move({ 0,0,.3f });
+						camera.Move(camera.GetForwardDir() * .25f);
+					}
+					if (procEvnt.mCode == KeyCode::A) {
+						//camera.Move({ -1.f,0,0 });
+						camera.Move(camera.GetRightDir() * -.25f);
+					}
+					if (procEvnt.mCode == KeyCode::D) {
+						//camera.Move({ 1.f,0,0 });
+						camera.Move(camera.GetRightDir() * .25f);
+					}
+					if (procEvnt.mCode == KeyCode::Q) {
+						//camera.Move({ 0,-1.f,0 });
+						camera.Move(camera.GetUpDir() * -.25f);
+					}
+					if (procEvnt.mCode == KeyCode::E) {
+						//camera.Move({ 0,1.f,0 });
+						camera.Move(camera.GetUpDir() * .25f);
+					}
+					
 					if (procEvnt.mCode == KeyCode::Up) {
-						viewMatrix = Math::Translate(viewMatrix, -Vec3::AXIS_Z);
+						camera.Rotate({ Math::ToRadians(15.f),0,0 });
 					}
 					if (procEvnt.mCode == KeyCode::Down) {
-						viewMatrix = Math::Translate(viewMatrix, Vec3::AXIS_Z);
+						camera.Rotate({ Math::ToRadians(-15.f),0,0 });
 					}
 					if (procEvnt.mCode == KeyCode::Left) {
-						viewMatrix = Math::Rotate(viewMatrix, Math::ToRadians(45.f), Vec3::AXIS_Y);
+						camera.Rotate({ 0,Math::ToRadians(-15.f),0 });
 					}
 					if (procEvnt.mCode == KeyCode::Right) {
-						viewMatrix = Math::Rotate(viewMatrix, Math::ToRadians(-45.f), Vec3::AXIS_Y);
+						camera.Rotate({ 0,Math::ToRadians(15.f),0 });
+					}
+					if (procEvnt.mCode == KeyCode::RightShift) {
+						camera.Rotate({ 0,0,Math::ToRadians(-15.f) });
+					}
+					if (procEvnt.mCode == KeyCode::RightControl) {
+						camera.Rotate({ 0,0,Math::ToRadians(15.f) });
 					}
 				}
 				if (e->GetID() == WindowEventID::KeyUp) {
@@ -149,9 +176,10 @@ void TestWindow()
 			SwapChain* swapChain = swapChainList[k].get();
 			RenderTarget* target = swapChain->GetRenderTarget();
 			const Vec2i windowSize = swapChain->GetWindowSize();
-			Mat4 projectionMatrix = Math::PerspectiveFOV(fovRadians, 
-				static_cast<float>(windowSize.X), static_cast<float>(windowSize.Y), nearZ, farZ);
-			dataCB.mMatrix =  projectionMatrix * viewMatrix * worldMatrix;
+			camera.SetAspectRatio(static_cast<float>(windowSize.X) / static_cast<float>(windowSize.Y));
+			//camera.LookAt({ 0,0,0 });
+			dataCB.mMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix() * worldMatrix;
+			dataCB.mMatrix = Math::Transpose(dataCB.mMatrix);
 			ctx->UpdateBuffer(*constantBuffer, &dataCB, sizeof(dataCB));
 
 			ctx->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
