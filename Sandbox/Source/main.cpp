@@ -13,34 +13,40 @@
 #include "glm/glm.hpp"
 #include "Renderer/Camera.h"
 
-using namespace Zeron;
+#include "GUI/ImGui/ImGuiInstance.h"
 
+using namespace Zeron;
 
 struct CBData
 {
 	Mat4 mMatrix;
 };
 
+struct WindowContext {
+	std::unique_ptr<Window> mWindow;
+	std::unique_ptr<ImGuiInstance> mImGui;
+	std::shared_ptr<SwapChain> mSwapChain;
+};
+
 void TestWindow()
 {
-
-	std::array<std::shared_ptr<SwapChain>, 3> swapChainList;
-
-	std::vector<std::unique_ptr<Window>> windows;
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL", 800, 600, 0)));
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW", 800, 600, 0)));
-	windows.push_back(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32", 800, 600, 0)));
-
 	auto gfx = std::make_unique<GraphicsD3D11>();
 	if (!gfx->Init()) {
 		return;
 	}
 	auto ctx = gfx->GetImmediateContext();
-	int i = 0;
-	for (auto& window : windows) {
-		window->Init();
-		swapChainList[i] = gfx->CreateSwapChain(*window);
-		i++;
+	
+	std::array<WindowContext, 3> windowCtxList;
+	windowCtxList[0].mWindow = Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL", 800, 600, 0));
+	windowCtxList[1].mWindow = Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32", 800, 600, 0));
+	windowCtxList[2].mWindow = Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW", 800, 600, 0));
+
+	for (auto& window : windowCtxList) {
+		window.mWindow->Init();
+		window.mSwapChain = gfx->CreateSwapChain(*window.mWindow);
+		window.mSwapChain->SetVSyncEnabled(true);
+		window.mImGui = std::make_unique<ImGuiInstance>();
+		window.mImGui->Init(*gfx, *window.mWindow);
 	}
 
 	const std::vector v1 = {
@@ -66,17 +72,24 @@ void TestWindow()
 	auto texture = gfx->CreateTexture("test_texture.png");
 
 	Mat4 worldMatrix;
+
+	char buffText[256] = {};
 	
 	bool isRunning = true;
 	while (isRunning) {
-
-
-		for (int k = 0; k < windows.size(); k++) {
-			Window* window = windows[k].get();
+		for (int k = 0; k < windowCtxList.size(); k++) {
+			Window* window = windowCtxList[k].mWindow.get();
+			SwapChain* swapChain = windowCtxList[k].mSwapChain.get();
+			ImGuiInstance& imgui = *windowCtxList[k].mImGui;
 
 			window->BeginFrame();
-			WindowEvent e;
+			imgui.NewFrame();
+
 			while (auto e = window->GetNextEvent()) {
+				if(imgui.HandleEvent(*e)) {
+					continue;
+				}
+				
 				if (e->GetID() == WindowEventID::WindowClosed) {
 					isRunning = false;
 				}
@@ -106,27 +119,21 @@ void TestWindow()
 					}
 
 					if (procEvnt.mCode == KeyCode::W) {
-						//camera.Move({ 0,0,-.3f });
 						camera.Move(camera.GetForwardDir() * -.25f);
 					}
 					if (procEvnt.mCode == KeyCode::S) {
-						//camera.Move({ 0,0,.3f });
 						camera.Move(camera.GetForwardDir() * .25f);
 					}
 					if (procEvnt.mCode == KeyCode::A) {
-						//camera.Move({ -1.f,0,0 });
 						camera.Move(camera.GetRightDir() * -.25f);
 					}
 					if (procEvnt.mCode == KeyCode::D) {
-						//camera.Move({ 1.f,0,0 });
 						camera.Move(camera.GetRightDir() * .25f);
 					}
 					if (procEvnt.mCode == KeyCode::Q) {
-						//camera.Move({ 0,-1.f,0 });
 						camera.Move(camera.GetUpDir() * -.25f);
 					}
 					if (procEvnt.mCode == KeyCode::E) {
-						//camera.Move({ 0,1.f,0 });
 						camera.Move(camera.GetUpDir() * .25f);
 					}
 					
@@ -172,8 +179,15 @@ void TestWindow()
 				}
 			}
 			window->EndFrame();
-			
-			SwapChain* swapChain = swapChainList[k].get();
+
+			ImGui::Begin("Another Window");   
+			ImGui::Text("Hello from another window!");
+			ImGui::InputText("test", buffText, 256);
+			if(ImGui::Button("dsfs")) {
+			}
+			ImGui::End();
+
+
 			RenderTarget* target = swapChain->GetRenderTarget();
 			const Vec2i windowSize = swapChain->GetWindowSize();
 			camera.SetAspectRatio(static_cast<float>(windowSize.X) / static_cast<float>(windowSize.Y));
@@ -194,6 +208,7 @@ void TestWindow()
 			ctx->SetConstantBuffer(*constantBuffer);
 
 			ctx->DrawIndexed(indexBuffer->GetSize(), 0);
+			imgui.Draw();
 
 			swapChain->SwapBuffers();
 
