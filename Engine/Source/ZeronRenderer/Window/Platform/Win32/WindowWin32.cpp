@@ -311,9 +311,7 @@ namespace Zeron {
 				}
 			} break;
 			case WM_KEYUP: {
-				if (NOTREPEATING(lParam)) {
-					mEventQueue.emplace(std::make_unique<WindowEvent_KeyUp>(GetKeyCodeWin32(wParam, lParam)));
-				}
+				mEventQueue.emplace(std::make_unique<WindowEvent_KeyUp>(GetKeyCodeWin32(wParam, lParam)));
 			} break;
 			case WM_CHAR: {
 				const unsigned char utf8Char = static_cast<unsigned char>(wctob(static_cast<wchar_t>(wParam)));

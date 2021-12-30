@@ -5,41 +5,44 @@ add_zeron_module_dependency(GLFW)
 add_zeron_module_dependency(GLAD)
 add_zeron_module_dependency(SDL2)
 add_zeron_module_dependency(stb)
+add_zeron_module_dependency(ImGui)
 
 # ============ MODULE CREATE ============
 add_zeron_module(ZeronRenderer ${CMAKE_CURRENT_SOURCE_DIR})
 set(SHADER_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders")
 
 # ========= MODULE DEPENDENCIES =========
-set(MODULE_LIBRARIES "")
+set(MODULE_LIBS_PRIVATE "")
+set(MODULE_LIBS_PUBLIC "")
 set(MODULE_INCLUDES "")
 
 if (TARGET glad)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_GRAPHICS_OPENGL=1)
-    list(APPEND MODULE_LIBRARIES glad opengl32)
+    list(APPEND MODULE_LIBS_PRIVATE glad opengl32)
 endif()
 
 if (TARGET glfw)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_GLFW=1)
-    list(APPEND MODULE_LIBRARIES glfw)
+    list(APPEND MODULE_LIBS_PRIVATE glfw)
 endif()
 
 if (TARGET SDL2)
-    list(APPEND MODULE_LIBRARIES SDL2 SDL2main)
+    list(APPEND MODULE_LIBS_PRIVATE SDL2 SDL2main)
     target_compile_definitions(ZeronRenderer PUBLIC SDL_MAIN_HANDLED)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_SDL=1)
 endif()
 
-list(APPEND MODULE_LIBRARIES stb-header-only)
+list(APPEND MODULE_LIBS_PRIVATE stb-header-only)
+list(APPEND MODULE_LIBS_PUBLIC imgui)
 
 if(WIN32)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_WIN32=1)
 
     # ======== D3D ========
     target_compile_definitions(ZeronRenderer PUBLIC ZE_GRAPHICS_D3D=1)
-    list(APPEND MODULE_LIBRARIES dxgi)
-    list(APPEND MODULE_LIBRARIES d3d11)
-    list(APPEND MODULE_LIBRARIES D3DCompiler)
+    list(APPEND MODULE_LIBS_PRIVATE dxgi)
+    list(APPEND MODULE_LIBS_PRIVATE d3d11)
+    list(APPEND MODULE_LIBS_PRIVATE D3DCompiler)
 
     # ======== HLSL ========
     file(GLOB_RECURSE HLSL_SHADERS "${SHADER_DIRECTORY}/HLSL/*.hlsl")
@@ -78,8 +81,9 @@ target_include_directories(ZeronRenderer
 target_link_libraries(ZeronRenderer
     PUBLIC
         ZeronCore
+        ${MODULE_LIBS_PUBLIC}
     PRIVATE
-        ${MODULE_LIBRARIES}
+        ${MODULE_LIBS_PRIVATE}
 )
 
 add_custom_command(TARGET ZeronRenderer POST_BUILD
