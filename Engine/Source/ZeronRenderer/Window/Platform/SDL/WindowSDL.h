@@ -42,14 +42,14 @@ namespace Zeron {
 		int GetCurrentDisplay() const;
 
 	private:
-		void ProcessEvents();
-		void ProcessWindowEvents(const SDL_Event& e);
+		void ProcessEvents_();
+		void ProcessWindowEvents_(const SDL_Event& e);
 
-		virtual void OnFullScreenChangedBorderless() override;
-		virtual void OnFullScreenChangedMonitor() override;
+		virtual void OnFullScreenChangedBorderless_() override;
+		virtual void OnFullScreenChangedMonitor_() override;
 
-		static KeyCode GetKeyCodeSDL(int32_t code);
-		static MouseCode GetMouseCodeSDL(int32_t code);
+		static KeyCode GetKeyCodeSDL_(int32_t code);
+		static MouseCode GetMouseCodeSDL_(int32_t code);
 
 		SDL_Window* mWindowSDL;
 

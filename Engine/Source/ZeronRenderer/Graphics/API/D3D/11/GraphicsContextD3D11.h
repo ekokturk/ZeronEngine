@@ -41,6 +41,8 @@ namespace Zeron
 		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexStart) override;
 		virtual void Clear(Color color) override;
 
+		virtual void ResizeSwapChain(SwapChain& swapChain, const Vec2i& size) override;
+	
 	private:
 		// Pipeline States
 		void CreateRasterizerState(D3D11_FILL_MODE fillMode);

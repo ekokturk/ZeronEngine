@@ -44,7 +44,8 @@ namespace Zeron
 
 		SetViewport(Vec2i::ZERO, window.GetSize());
 
-		mRenderTarget = std::make_unique<RenderTargetD3D11>(graphics, *this);
+		mRenderTarget = std::make_unique<RenderTargetD3D11>();
+		mRenderTarget->CreateBuffers(graphics.GetDeviceD3D(), *this);
 	}
 
 	SwapChainD3D11::~SwapChainD3D11()

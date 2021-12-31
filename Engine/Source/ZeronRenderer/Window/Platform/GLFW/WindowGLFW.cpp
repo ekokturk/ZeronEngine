@@ -20,6 +20,7 @@ namespace Zeron {
 		, mWindowGLFW(nullptr)
 		, mMonitorGLFW(nullptr)
 		, mCursorGLFW(nullptr)
+		, mIsResizing(false)
 		, mIsCursorClipped(false)
 	{
 		mWindowType = WindowAPI::GLFW;
@@ -79,7 +80,7 @@ namespace Zeron {
 		glfwGetWindowPos(mWindowGLFW, &mPos.X, &mPos.Y);
 		mPosPrev = mPos;
 
-		RegisterEvents();
+		RegisterEvents_();
 		
 		mWindowGLFWCount++;
 		return true;
@@ -106,6 +107,12 @@ namespace Zeron {
 		}
 
 		glfwPollEvents();
+
+		// Queue blocked until resizing is over so we send the final size with the event
+		if(mIsResizing) {
+			QueueEvent(std::make_unique<WindowEvent_WindowResized>(mSize.X, mSize.Y));
+			mIsResizing = false;
+		}
 	#endif
 	}
 
@@ -179,7 +186,7 @@ namespace Zeron {
 		mIsCursorClipped = shouldClip;
 	}
 
-	void WindowGLFW::OnFullScreenChangedBorderless()
+	void WindowGLFW::OnFullScreenChangedBorderless_()
 	{
 	#if ZE_WINDOW_GLFW
 		if (mIsFullScreen) {
@@ -205,7 +212,7 @@ namespace Zeron {
 	#endif
 	}
 
-	void WindowGLFW::OnFullScreenChangedMonitor()
+	void WindowGLFW::OnFullScreenChangedMonitor_()
 	{
 	#if ZE_WINDOW_GLFW
 		if(mIsFullScreen) {
@@ -315,24 +322,24 @@ namespace Zeron {
 		return result;
 	}
 
-	void WindowGLFW::RegisterEvents()
+	void WindowGLFW::RegisterEvents_()
 	{
 	#if ZE_WINDOW_GLFW
 	// ------------------------ WINDOW EVENTS --------------------------
 		// WINDOW RESIZE
 		glfwSetWindowSizeCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int width, int height) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			const int canResize = glfwGetWindowAttrib(windowGLFW, GLFW_RESIZABLE);
 			// Size of the window is not changed on minimize
 			if (!window->IsMinimized() && canResize == GLFW_TRUE) {
 				window->OnSizeChanged(width, height);
-				window->QueueEvent(std::make_unique<WindowEvent_WindowResized>(width, height));
+				window->mIsResizing = true;
 			}
 			});
 
 		// WINDOW REPOSITION
 		glfwSetWindowPosCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int posX, int posY) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			// Here is ideal to handle Minimize/Maximize since this event is triggered before them
 			if (glfwGetWindowAttrib(windowGLFW, GLFW_ICONIFIED) == GLFW_TRUE) {
 				window->OnMinimized();
@@ -363,13 +370,13 @@ namespace Zeron {
 
 		// WINDOW CLOSED
 		glfwSetWindowCloseCallback(mWindowGLFW, [](GLFWwindow* windowGLFW) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			window->QueueEvent(std::make_unique<WindowEvent_WindowClosed>());
 			});
 
 		// WINDOW FOCUSED/UNFOCUSED
 		glfwSetWindowFocusCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int isFocused) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			switch (isFocused) {
 			case GLFW_TRUE: {
 				window->OnFocusChanged(true);
@@ -383,16 +390,20 @@ namespace Zeron {
 			}
 		});
 
+		//glfwSetFramebufferSizeCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int scaleX, int scaleY) {
+		//	WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
+		//});
+
 	// ------------------------ MOUSE EVENTS ---------------------------
 		// MOUSE BUTTON PRESSED
 		glfwSetMouseButtonCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int buttonIndex, int actionType, int modifiers) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			switch (actionType) {
 				case GLFW_PRESS: {
-					window->QueueEvent(std::make_unique<WindowEvent_MouseDown>(GetMouseCodeGLFW(buttonIndex)));
+					window->QueueEvent(std::make_unique<WindowEvent_MouseDown>(GetMouseCodeGLFW_(buttonIndex)));
 				} break;
 				case GLFW_RELEASE: {
-					window->QueueEvent(std::make_unique<WindowEvent_MouseUp>(GetMouseCodeGLFW(buttonIndex)));
+					window->QueueEvent(std::make_unique<WindowEvent_MouseUp>(GetMouseCodeGLFW_(buttonIndex)));
 				} break;
 				default:;
 			}
@@ -400,7 +411,7 @@ namespace Zeron {
 		
 		// MOUSE MOVED
 		glfwSetCursorPosCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, double posX, double posY){
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			if(window->IsHovered()) {
 				window->QueueEvent(std::make_unique<WindowEvent_MouseMoved>(static_cast<int>(posX), static_cast<int>(posY)));
 			}
@@ -408,13 +419,13 @@ namespace Zeron {
 
 		// MOUSE SCROLLED
 		glfwSetScrollCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, double offsetX, double offsetY) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			window->QueueEvent(std::make_unique<WindowEvent_MouseScrolled>(static_cast<float>(offsetX), static_cast<float>(offsetY)));
 		});
 
 		// MOUSE ENTER/EXIT
 		glfwSetCursorEnterCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int isEntered) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			if (window->IsFocused() && window->IsCursorClipped()) {
 				return;
 			}
@@ -434,20 +445,20 @@ namespace Zeron {
 
 	// --------------------------- KEY EVENTS --------------------------
 		glfwSetKeyCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int keyIndex, int scanCode, int actionType, int modifierMask) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			switch (actionType) {
 				case GLFW_PRESS:{
-					window->QueueEvent(std::make_unique<WindowEvent_KeyDown>(GetKeyCodeGLFW(keyIndex)));
+					window->QueueEvent(std::make_unique<WindowEvent_KeyDown>(GetKeyCodeGLFW_(keyIndex)));
 				} break;
 				case GLFW_RELEASE:{
-					window->QueueEvent(std::make_unique<WindowEvent_KeyUp>(GetKeyCodeGLFW(keyIndex)));
+					window->QueueEvent(std::make_unique<WindowEvent_KeyUp>(GetKeyCodeGLFW_(keyIndex)));
 				} break;
 				default:;
 			}
 		});
 
 		glfwSetCharModsCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, unsigned int codepoint, int modifierMask) {
-			WindowGLFW* window = GetUserPointerGLFW(windowGLFW);
+			WindowGLFW* window = GetUserPointerGLFW_(windowGLFW);
 			window->QueueEvent(std::make_unique<WindowEvent_TextChar>(static_cast<unsigned char>(codepoint)));
 		});
 		
@@ -457,7 +468,7 @@ namespace Zeron {
 	#endif
 	}
 
-	WindowGLFW* WindowGLFW::GetUserPointerGLFW(GLFWwindow* windowGLFW)
+	WindowGLFW* WindowGLFW::GetUserPointerGLFW_(GLFWwindow* windowGLFW)
 	{
 	#if ZE_WINDOW_GLFW
 		ZE_ASSERT(windowGLFW, "GLFW Window user point is not set!");
@@ -467,7 +478,7 @@ namespace Zeron {
 	#endif
 	}
 
-	KeyCode WindowGLFW::GetKeyCodeGLFW(int code) {
+	KeyCode WindowGLFW::GetKeyCodeGLFW_(int code) {
 		switch (code) {
 	#if ZE_WINDOW_GLFW
 		case GLFW_KEY_UNKNOWN:			return KeyCode::Unknown;
@@ -594,7 +605,7 @@ namespace Zeron {
 		}
 	}
 	
-	MouseCode WindowGLFW::GetMouseCodeGLFW(int code)
+	MouseCode WindowGLFW::GetMouseCodeGLFW_(int code)
 	{
 		switch (code)
 		{

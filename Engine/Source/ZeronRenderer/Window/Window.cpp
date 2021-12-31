@@ -64,7 +64,7 @@ namespace Zeron {
 		mIsFullScreen = isFullScreen;
 		switch (mFullScreenType) {
 		case Zeron::FullScreenType::Borderless: {
-			OnFullScreenChangedBorderless();
+			OnFullScreenChangedBorderless_();
 		} break;
 		case Zeron::FullScreenType::Monitor:
 		default: ZE_FAIL("Active FullScreenType is not supported!");

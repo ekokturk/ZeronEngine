@@ -1,5 +1,6 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
+#include "SwapChainD3D11.h"
 #ifdef ZE_GRAPHICS_D3D
 #include "GraphicsContextD3D11.h"
 #include "Graphics/API/D3D/DebugInfoD3D.h"
@@ -129,6 +130,18 @@ namespace Zeron {
 			const float c[]{ color.normR(), color.normG(), color.normB(), color.normA() };
 			D3D_ASSERT(mDeviceContext->ClearRenderTargetView(mRenderTarget->GetRenderTargetD3D(), c));
 			D3D_ASSERT(mDeviceContext->ClearDepthStencilView(mRenderTarget->GetDepthStencilD3D(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0));
+		}
+	}
+
+	void GraphicsContextD3D11::ResizeSwapChain(SwapChain& swapChain, const Vec2i& size)
+	{
+		auto& swapChainAPI = static_cast<SwapChainD3D11&>(swapChain);
+		if(auto* targetAPI = static_cast<RenderTargetD3D11*>(swapChainAPI.GetRenderTarget())) {
+			targetAPI->ReleaseBuffers();
+			// TODO: Parameterize values or move it to swapchain class
+			swapChainAPI.GetSwapChainD3D()->ResizeBuffers(0, size.X, size.Y, 
+				DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+			targetAPI->CreateBuffers(mDevice, swapChainAPI);
 		}
 	}
 

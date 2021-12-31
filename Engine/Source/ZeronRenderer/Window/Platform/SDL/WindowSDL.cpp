@@ -86,7 +86,7 @@ namespace Zeron {
 	}
 
 	void WindowSDL::BeginFrame() {
-		ProcessEvents();
+		ProcessEvents_();
 	}
 
 	void WindowSDL::EndFrame() {
@@ -160,14 +160,14 @@ namespace Zeron {
 #endif
 	}
 
-	void WindowSDL::OnFullScreenChangedBorderless()
+	void WindowSDL::OnFullScreenChangedBorderless_()
 	{
 	#if ZE_WINDOW_SDL
 		SDL_SetWindowFullscreen(mWindowSDL, mIsFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 	#endif
 		}
 
-	void WindowSDL::OnFullScreenChangedMonitor()
+	void WindowSDL::OnFullScreenChangedMonitor_()
 	{
 	#if ZE_WINDOW_SDL
 		SDL_SetWindowFullscreen(mWindowSDL, mIsFullScreen ? SDL_WINDOW_FULLSCREEN : 0);
@@ -239,7 +239,7 @@ namespace Zeron {
 	#endif
 	}
 
-	void WindowSDL::ProcessEvents()
+	void WindowSDL::ProcessEvents_()
 	{
 	#if ZE_WINDOW_SDL
 		SDL_Event eventSDL;
@@ -260,17 +260,17 @@ namespace Zeron {
 			case SDL_APP_DIDENTERFOREGROUND: {
 			} break;
 			case SDL_WINDOWEVENT: {
-				ProcessWindowEvents(eventSDL);
+				ProcessWindowEvents_(eventSDL);
 			} break;
 			case SDL_KEYDOWN: {
 				if(eventSDL.key.repeat == FALSE) {
-					const KeyCode code = GetKeyCodeSDL(eventSDL.key.keysym.sym);
+					const KeyCode code = GetKeyCodeSDL_(eventSDL.key.keysym.sym);
 					mEventQueue.emplace(std::make_unique<WindowEvent_KeyDown>(code));
 				}
 			} break;
 			case SDL_KEYUP: {
 				if (eventSDL.key.repeat == FALSE) {
-					const KeyCode code = GetKeyCodeSDL(eventSDL.key.keysym.sym);
+					const KeyCode code = GetKeyCodeSDL_(eventSDL.key.keysym.sym);
 					mEventQueue.emplace(std::make_unique<WindowEvent_KeyUp>(code));
 				}
 			} break;
@@ -278,11 +278,11 @@ namespace Zeron {
 				mEventQueue.emplace(std::make_unique<WindowEvent_TextChar>(eventSDL.text.text[0]));
 			} break;
 			case SDL_MOUSEBUTTONDOWN: {
-					const MouseCode code = GetMouseCodeSDL(eventSDL.button.button);
+					const MouseCode code = GetMouseCodeSDL_(eventSDL.button.button);
 					mEventQueue.emplace(std::make_unique<WindowEvent_MouseDown>(code));
 			} break;
 			case SDL_MOUSEBUTTONUP: {
-				const MouseCode code = GetMouseCodeSDL(eventSDL.button.button);
+				const MouseCode code = GetMouseCodeSDL_(eventSDL.button.button);
 				mEventQueue.emplace(std::make_unique<WindowEvent_MouseUp>(code));
 			} break;
 			case SDL_MOUSEMOTION: {
@@ -298,7 +298,7 @@ namespace Zeron {
 	#endif
 	}
 
-	void WindowSDL::ProcessWindowEvents(const SDL_Event& e)
+	void WindowSDL::ProcessWindowEvents_(const SDL_Event& e)
 	{
 	#if ZE_WINDOW_SDL
 		const Uint32 windowID = SDL_GetWindowID(mWindowSDL);
@@ -366,7 +366,7 @@ namespace Zeron {
 	#endif
 	}
 
-	KeyCode WindowSDL::GetKeyCodeSDL(int32_t code) {
+	KeyCode WindowSDL::GetKeyCodeSDL_(int32_t code) {
 		switch (code) {
 	#if ZE_WINDOW_SDL
 		case SDLK_0:			return KeyCode::N0;
@@ -491,7 +491,7 @@ namespace Zeron {
 		}
 	}
 
-	MouseCode WindowSDL::GetMouseCodeSDL(int32_t code)
+	MouseCode WindowSDL::GetMouseCodeSDL_(int32_t code)
 	{
 		switch (code) {
 		#if ZE_WINDOW_SDL

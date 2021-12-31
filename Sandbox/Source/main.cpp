@@ -23,6 +23,8 @@ struct CBData
 };
 
 struct WindowContext {
+	WindowContext(std::unique_ptr<Window> window) : mWindow(move(window)) {}
+	
 	std::unique_ptr<Window> mWindow;
 	std::unique_ptr<ImGuiInstance> mImGui;
 	std::shared_ptr<SwapChain> mSwapChain;
@@ -36,10 +38,12 @@ void TestWindow()
 	}
 	auto ctx = gfx->GetImmediateContext();
 	
-	std::array<WindowContext, 3> windowCtxList;
-	windowCtxList[0].mWindow = Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL", 800, 600, 0));
-	windowCtxList[1].mWindow = Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32", 800, 600, 0));
-	windowCtxList[2].mWindow = Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW", 800, 600, 0));
+	std::vector<WindowContext> windowCtxList;
+
+	windowCtxList.emplace_back(WindowContext(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL", 800, 600, 0))));
+	windowCtxList.emplace_back(WindowContext(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32", 800, 600, 0))));
+	windowCtxList.emplace_back(WindowContext(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW", 800, 600, 0))));
+
 
 	for (auto& window : windowCtxList) {
 		window.mWindow->Init();
@@ -74,13 +78,15 @@ void TestWindow()
 	Mat4 worldMatrix;
 
 	char buffText[256] = {};
+
+	bool isResizing = false;
 	
 	bool isRunning = true;
 	while (isRunning) {
-		for (int k = 0; k < windowCtxList.size(); k++) {
-			Window* window = windowCtxList[k].mWindow.get();
-			SwapChain* swapChain = windowCtxList[k].mSwapChain.get();
-			ImGuiInstance& imgui = *windowCtxList[k].mImGui;
+		for (auto& windowCtx : windowCtxList) {
+			Window* window = windowCtx.mWindow.get();
+			SwapChain* swapChain = windowCtx.mSwapChain.get();
+			ImGuiInstance& imgui = *windowCtx.mImGui;
 
 			window->BeginFrame();
 			imgui.NewFrame();
@@ -176,6 +182,11 @@ void TestWindow()
 				else if (e->GetID() == WindowEventID::MouseExit) {
 					auto& procEvnt = static_cast<WindowEvent_MouseExit&>(*e);
 					std::cout << procEvnt.GetEventName() << std::endl;
+				}
+				else if (e->GetID() == WindowEventID::WindowResized) {
+					auto& procEvnt = static_cast<WindowEvent_WindowResized&>(*e);
+					ctx->ResizeSwapChain(*swapChain, { procEvnt.mWidth, procEvnt.mHeight });
+					swapChain->SetViewport({}, { procEvnt.mWidth, procEvnt.mHeight });
 				}
 			}
 			window->EndFrame();
