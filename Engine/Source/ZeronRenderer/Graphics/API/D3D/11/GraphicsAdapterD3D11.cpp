@@ -1,15 +1,15 @@
 // Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
 
+#if ZE_GRAPHICS_D3D
 #include "GraphicsAdapterD3D11.h"
 #include "Graphics/API/D3D/DebugInfoD3D.h"
 
-namespace Zeron {
-#if ZE_GRAPHICS_D3D
-	
+namespace Zeron
+{
 	GraphicsAdapterD3D11::GraphicsAdapterD3D11(ZE::ComPtr<IDXGIAdapter> adapter)
 		: mAdapter(std::move(adapter))
-		, mDesc(DXGI_ADAPTER_DESC())
 	{
+		ZeroMemory(&mDesc, sizeof(DXGI_ADAPTER_DESC));
 		D3D_ASSERT_RESULT(mAdapter->GetDesc(&mDesc));
 	}
 
@@ -17,6 +17,5 @@ namespace Zeron {
 	{
 		return mAdapter.Get();
 	}
-
-#endif
 }
+#endif

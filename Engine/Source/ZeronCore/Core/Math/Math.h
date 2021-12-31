@@ -63,8 +63,8 @@ namespace Zeron
 		}
 
 		template<typename T>
-		[[nodiscard]] static TMat4<T> Scale(const TMat4<T>& m, const TVec3<T>& axis) {
-			return glm::scale(m, glm::tvec3<T>(axis.X, axis.Y, axis.Z));
+		[[nodiscard]] static TMat4<T> Scale(const TMat4<T>& m, const TVec3<T>& size) {
+			return glm::scale(m, glm::tvec3<T>(size.X, size.Y, size.Z));
 		}
 
 		template<typename T>

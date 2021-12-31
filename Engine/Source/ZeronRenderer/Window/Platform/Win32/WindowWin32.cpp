@@ -291,7 +291,7 @@ namespace Zeron {
 			window = reinterpret_cast<WindowWin32*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 		}
 
-		if (window) {
+		if (window && window->GetWindowType() == WindowAPI::Win32) {
 			return window->WndProc(msg, wParam, lParam);
 		}
 		return DefWindowProc(hWnd, msg, wParam, lParam);
