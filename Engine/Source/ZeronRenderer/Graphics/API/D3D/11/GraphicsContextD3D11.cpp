@@ -22,6 +22,7 @@ namespace Zeron {
 		CreateRasterizerState(D3D11_FILL_SOLID);
 		CreateDepthStencilState();
 		CreateSamplerState();
+		CreateBlendState();
 	}
 
 	GraphicsContextD3D11::~GraphicsContextD3D11()
@@ -101,12 +102,20 @@ namespace Zeron {
 		D3D_ASSERT(mDeviceContext->IASetIndexBuffer(ibAPI.GetBufferD3D(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0));
 	}
 
-	void GraphicsContextD3D11::SetConstantBuffer(Buffer& cb)
+	void GraphicsContextD3D11::SetConstantBuffer(Buffer& cb, ShaderType type, uint32_t slot)
 	{
 		ZE_ASSERT(cb.GetBufferType() == BufferType::Constant, "Invalid buffer type!");
 		const auto& cbAPI = static_cast<BufferD3D11&>(cb);
 		ID3D11Buffer* arr[] = { cbAPI.GetBufferD3D() };
-		D3D_ASSERT(mDeviceContext->VSSetConstantBuffers(0, 1, arr));
+		switch (type) {
+			case ShaderType::Vertex: {
+				D3D_ASSERT(mDeviceContext->VSSetConstantBuffers(slot, 1, arr));
+			} break;
+			case ShaderType::Fragment: {
+				D3D_ASSERT(mDeviceContext->PSSetConstantBuffers(slot, 1, arr));
+			} break;
+			default: ZE_FAIL("Shader type is not supported for Constant buffer!");
+		}
 	}
 
 	void GraphicsContextD3D11::SetFillMode(bool isSolid)
@@ -184,6 +193,34 @@ namespace Zeron {
 		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 		D3D_ASSERT_RESULT(mDevice->CreateSamplerState(&samplerDesc, mSamplerState.GetAddressOf()));
 		D3D_ASSERT(mDeviceContext->PSSetSamplers(0, 1, mSamplerState.GetAddressOf()));
+	}
+
+	void GraphicsContextD3D11::CreateBlendState()
+	{
+		D3D11_RENDER_TARGET_BLEND_DESC rtbDesc;
+		ZeroMemory(&rtbDesc, sizeof(D3D11_RENDER_TARGET_BLEND_DESC));
+		
+		rtbDesc.BlendEnable = true;
+		rtbDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		// Source Pixel * Source Blend (OP) Destination Pixel * Destination Blend
+		rtbDesc.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		rtbDesc.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+		rtbDesc.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		
+		// Source Alpha * Source Blend (OP) Destination Alpha * Destination Blend
+		rtbDesc.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+		rtbDesc.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		rtbDesc.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		
+
+		D3D11_BLEND_DESC blendDesc;
+		ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+		blendDesc.RenderTarget[0] = rtbDesc;
+		
+		D3D_ASSERT_RESULT(mDevice->CreateBlendState(&blendDesc, mBlendState.GetAddressOf()));
+		D3D_ASSERT(mDeviceContext->OMSetBlendState(mBlendState.Get(), nullptr, UINT32_MAX));
+
 	}
 }
 #endif

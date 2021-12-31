@@ -1,3 +1,8 @@
+cbuffer alphaBuffer : register(b0)
+{
+	float alpha;
+}
+
 struct FS_INPUT
 {
 	float4 inPosition : SV_POSITION;
@@ -10,5 +15,5 @@ SamplerState samplerState : SAMPLER : register(s0);
 float4 main(FS_INPUT input) : SV_TARGET
 {
 	float3 pixelColor = tex.Sample(samplerState, input.inTextureCoord);
-	return float4(pixelColor, 1.f);
+	return float4(pixelColor, alpha);
 }

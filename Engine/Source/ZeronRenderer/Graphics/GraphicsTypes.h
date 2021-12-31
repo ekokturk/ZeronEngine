@@ -22,6 +22,10 @@ namespace Zeron
 		Index,
 		Constant
 	};
-	
+
+	enum class ShaderType {
+		Vertex,
+		Fragment,
+	};
 
 }

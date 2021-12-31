@@ -17,9 +17,14 @@
 
 using namespace Zeron;
 
-struct CBData
+struct VertexShaderCBData
 {
 	Mat4 mMatrix;
+};
+
+struct PixelShaderCBData
+{
+	float mAlpha = 1.f;
 };
 
 struct WindowContext {
@@ -54,26 +59,43 @@ void TestWindow()
 	}
 
 	const std::vector v1 = {
-		Vertex{{-.5f, -.5f, 0.f},{0.f,1.f}},
-		Vertex{{-.5f, .5f, 0.f},{0.f,0.f}},
-		Vertex{{.5f, .5f, 0.f},{1.f,0}},
-		Vertex{{.5f, -.5f, 0.f},{1.f,1.f}},
+		Vertex{{-.5f, -.5f, -0.5f},{0.f,1.f}},
+		Vertex{{-.5f, .5f, -0.5f},{0.f,0.f}},
+		Vertex{{.5f, .5f, -0.5f},{1.f,0}},
+		Vertex{{.5f, -.5f, -0.5f},{1.f,1.f}},
+		Vertex{{-.5f, -.5f, 0.5f},{0.f,1.f}},
+		Vertex{{-.5f, .5f, 0.5f},{0.f,0.f}},
+		Vertex{{.5f, .5f, 0.5f},{1.f,0.f}},
+		Vertex{{.5f, -.5f, 0.5f},{1.f,1.f}},
 	};
 
 	const std::vector<unsigned long> i1 = {
 		0, 1, 2,
-		0, 2, 3
+		0, 2, 3,
+		4, 7, 6,
+		4, 6, 5,
+		3, 2, 6,
+		3, 6, 7,
+		4, 5, 1,
+		4, 1, 0,
+		1, 5, 6,
+		1, 6, 2,
+		0, 3, 7,
+		0, 7, 4,
 	};
 
-	CBData dataCB;
+	VertexShaderCBData vertexCB;
+	PixelShaderCBData pixelCB;
 	Camera camera;
 	camera.SetPosition({ 0.f, 0, -2.f });
 
 	auto vertexBuffer = gfx->CreateVertexBuffer(v1);
 	auto indexBuffer = gfx->CreateIndexBuffer(i1);
-	auto constantBuffer = gfx->CreateConstantBuffer<CBData>(dataCB);
+	auto constantBufferVS = gfx->CreateConstantBuffer<VertexShaderCBData>(vertexCB);
+	auto constantBufferPS = gfx->CreateConstantBuffer<PixelShaderCBData>(pixelCB);
 	auto shader = gfx->CreateShader("Default");
-	auto texture = gfx->CreateTexture("test_texture.png");
+	auto testTexture = gfx->CreateTexture("test_texture.png");
+	auto missingTexture = gfx->CreateTexture("missing_texture.png");
 
 	Mat4 worldMatrix;
 
@@ -191,34 +213,48 @@ void TestWindow()
 			}
 			window->EndFrame();
 
-			ImGui::Begin("Another Window");   
-			ImGui::Text("Hello from another window!");
-			ImGui::InputText("test", buffText, 256);
-			if(ImGui::Button("dsfs")) {
-			}
+			ImGui::Begin("Debug Window");
+			ImGui::SliderFloat("Alpha", &pixelCB.mAlpha, 0.f, 1.f);
 			ImGui::End();
 
-
 			RenderTarget* target = swapChain->GetRenderTarget();
-			const Vec2i windowSize = swapChain->GetWindowSize();
-			camera.SetAspectRatio(static_cast<float>(windowSize.X) / static_cast<float>(windowSize.Y));
-			//camera.LookAt({ 0,0,0 });
-			dataCB.mMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix() * worldMatrix;
-			dataCB.mMatrix = Math::Transpose(dataCB.mMatrix);
-			ctx->UpdateBuffer(*constantBuffer, &dataCB, sizeof(dataCB));
-
 			ctx->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 			ctx->SetRenderTarget(target);
 			ctx->Clear(Color{ .3f,0,0.f });
 
-			ctx->SetShader(shader.get());
-			ctx->SetTexture(texture.get());
+			const Vec2i windowSize = swapChain->GetWindowSize();
+			camera.SetAspectRatio(static_cast<float>(windowSize.X) / static_cast<float>(windowSize.Y));
+			//camera.LookAt({ 0,0,0 });
 
-			ctx->SetVertexBuffer(*vertexBuffer);
-			ctx->SetIndexBuffer(*indexBuffer);
-			ctx->SetConstantBuffer(*constantBuffer);
+			{
+				vertexCB.mMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix() * worldMatrix;
+				vertexCB.mMatrix = Math::Transpose(vertexCB.mMatrix);
+				ctx->UpdateBuffer(*constantBufferVS, &vertexCB, sizeof(vertexCB));
+				float alphaA = 1.f;
+				ctx->UpdateBuffer(*constantBufferPS, &alphaA, sizeof(alphaA));
+				ctx->SetShader(shader.get());
+				ctx->SetTexture(missingTexture.get());
+				ctx->SetVertexBuffer(*vertexBuffer);
+				ctx->SetIndexBuffer(*indexBuffer);
+				ctx->SetConstantBuffer(*constantBufferVS, ShaderType::Vertex);
+				ctx->SetConstantBuffer(*constantBufferPS, ShaderType::Fragment);
+				ctx->DrawIndexed(indexBuffer->GetSize(), 0);
+			}
+			
+			{
+				vertexCB.mMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix() * Math::Scale(worldMatrix, { 1.2f });
+				vertexCB.mMatrix = Math::Transpose(vertexCB.mMatrix);
+				ctx->UpdateBuffer(*constantBufferVS, &vertexCB, sizeof(vertexCB));
+				ctx->UpdateBuffer(*constantBufferPS, &pixelCB, sizeof(pixelCB));
+				ctx->SetShader(shader.get());
+				ctx->SetTexture(testTexture.get());
+				ctx->SetVertexBuffer(*vertexBuffer);
+				ctx->SetIndexBuffer(*indexBuffer);
+				ctx->SetConstantBuffer(*constantBufferVS, ShaderType::Vertex);
+				ctx->SetConstantBuffer(*constantBufferPS, ShaderType::Fragment);
+				ctx->DrawIndexed(indexBuffer->GetSize(), 0);
+			}
 
-			ctx->DrawIndexed(indexBuffer->GetSize(), 0);
 			imgui.Draw();
 
 			swapChain->SwapBuffers();

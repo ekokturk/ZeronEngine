@@ -28,7 +28,7 @@ namespace Zeron
 		virtual void SetPrimitiveTopology(PrimitiveTopology topology) override;
 		virtual void SetVertexBuffer(Buffer& vb) override;
 		virtual void SetIndexBuffer(Buffer& ib) override;
-		virtual void SetConstantBuffer(Buffer& cb) override;
+		virtual void SetConstantBuffer(Buffer& cb, ShaderType type, uint32_t slot) override;
 		virtual void SetShader(Shader* shader) override;
 		virtual void SetTexture(Texture* texture) override;
 
@@ -48,10 +48,12 @@ namespace Zeron
 		void CreateRasterizerState(D3D11_FILL_MODE fillMode);
 		void CreateDepthStencilState();
 		void CreateSamplerState();
+		void CreateBlendState();
 
 		ZE::ComPtr<ID3D11RasterizerState> mRasterizerState;
 		ZE::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
 		ZE::ComPtr<ID3D11SamplerState> mSamplerState;
+		ZE::ComPtr<ID3D11BlendState> mBlendState;
 	
 	private:
 		ID3D11Device* mDevice;

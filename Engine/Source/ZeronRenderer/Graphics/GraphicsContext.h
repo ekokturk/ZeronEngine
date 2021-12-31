@@ -22,7 +22,7 @@ namespace Zeron
 		virtual void SetTexture(Texture* texture) = 0;
 		virtual void SetVertexBuffer(Buffer& vb) = 0;
 		virtual void SetIndexBuffer(Buffer& ib) = 0;
-		virtual void SetConstantBuffer(Buffer& cb) = 0;
+		virtual void SetConstantBuffer(Buffer& cb, ShaderType type, uint32_t slot = 0) = 0;
 
 		virtual void SetFillMode(bool isSolid) = 0;
 		virtual void UpdateBuffer(Buffer& buff, void* data, uint32_t size) = 0;
