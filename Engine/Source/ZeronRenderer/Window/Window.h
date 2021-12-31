@@ -76,8 +76,8 @@ namespace Zeron {
 		void OnMinimized();
 		void OnMaximized();
 
-		virtual void OnFullScreenChangedBorderless() = 0;
-		virtual void OnFullScreenChangedMonitor() = 0;
+		virtual void OnFullScreenChangedBorderless_() = 0;
+		virtual void OnFullScreenChangedMonitor_() = 0;
 	
 	protected:
 		std::string mName;

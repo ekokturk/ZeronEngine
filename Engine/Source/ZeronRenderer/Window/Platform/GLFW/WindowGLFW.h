@@ -48,20 +48,21 @@ namespace Zeron {
 		GLFWmonitor* FindCurrentMonitor() const;
 
 	private:
-		void RegisterEvents();
-		virtual void OnFullScreenChangedBorderless() override;
-		virtual void OnFullScreenChangedMonitor() override;
+		void RegisterEvents_();
+		virtual void OnFullScreenChangedBorderless_() override;
+		virtual void OnFullScreenChangedMonitor_() override;
 
 		// Native GLFW window is set to point to WindowGLFW
-		static WindowGLFW* GetUserPointerGLFW(GLFWwindow* windowGLFW);
+		static WindowGLFW* GetUserPointerGLFW_(GLFWwindow* windowGLFW);
 
-		static KeyCode GetKeyCodeGLFW(int code);
-		static MouseCode GetMouseCodeGLFW(int code);
+		static KeyCode GetKeyCodeGLFW_(int code);
+		static MouseCode GetMouseCodeGLFW_(int code);
 		
 		GLFWwindow* mWindowGLFW;
 		GLFWmonitor* mMonitorGLFW;
 		GLFWcursor* mCursorGLFW;
 
+		bool mIsResizing;
 		bool mIsCursorClipped;
 
 		static int mWindowGLFWCount;

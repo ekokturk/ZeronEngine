@@ -13,6 +13,7 @@ namespace Zeron {
 	WindowWin32::WindowWin32(const WindowConfig& config)
 		: Window(config)
 		, mHwnd(nullptr)
+		, mIsResizing(false)
 		, mSizeMinX(0)
 		, mSizeMinY(0)
 		, mSizeMaxX(0)
@@ -53,7 +54,7 @@ namespace Zeron {
 		const Vec2i screenCenter = { GetSystemMetrics(SM_CXSCREEN) / 2 - mSize.X ,
 		 GetSystemMetrics(SM_CYSCREEN) / 2 - mSize.Y };
 		
-		const RECT rect = GetAdjustedRect(screenCenter, mSize);
+		const RECT rect = GetAdjustedRect_(screenCenter, mSize);
 
 		mHwnd = CreateWindowEx(
 			0,                              // Optional window styles.
@@ -77,7 +78,7 @@ namespace Zeron {
 		ShowWindow(mHwnd, SW_SHOW);
 
 		// We cache position manually since event is not triggered on creation
-		const RECT screenRect = GetScreenRect();
+		const RECT screenRect = GetScreenRect_();
 		OnPositionChanged(screenRect.left, screenRect.top);
 		
 		return true;
@@ -92,8 +93,14 @@ namespace Zeron {
 	#if ZE_WINDOW_WIN32
 		MSG msg = { 0 };
 		while (PeekMessage(&msg, mHwnd, NULL, NULL, PM_REMOVE) == TRUE) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			if (msg.message == WM_QUIT){
+				// TODO: App Terminated event here
+				mEventQueue.emplace(std::make_unique<WindowEvent_WindowClosed>());
+			}
+			else {
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
 		}
 	#endif
 	}
@@ -137,7 +144,7 @@ namespace Zeron {
 	{
 	#if ZE_WINDOW_WIN32
 		if (!IsFullScreen()) {
-			const RECT rect = GetAdjustedRect(mPos, {width, height});
+			const RECT rect = GetAdjustedRect_(mPos, {width, height});
 			SetWindowPos(mHwnd, HWND_TOP, 
 				rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 
 				SWP_NOMOVE | SWP_NOOWNERZORDER);
@@ -162,7 +169,7 @@ namespace Zeron {
 	{
 	#if ZE_WINDOW_WIN32
 		if(!IsFullScreen()) {
-			const RECT rect = GetAdjustedRect({posX, posY}, mSize);
+			const RECT rect = GetAdjustedRect_({posX, posY}, mSize);
 			SetWindowPos(mHwnd, HWND_TOP, 
 				rect.left, rect.top, rect.right - rect.left,rect.bottom - rect.top,
 				SWP_NOSIZE | SWP_NOOWNERZORDER);
@@ -184,7 +191,7 @@ namespace Zeron {
 	#endif
 	}
 
-	void WindowWin32::OnFullScreenChangedBorderless()
+	void WindowWin32::OnFullScreenChangedBorderless_()
 	{
 	#if ZE_WINDOW_WIN32
 		if (mIsFullScreen) {
@@ -199,14 +206,14 @@ namespace Zeron {
 			SetWindowPos(mHwnd, HWND_TOP, monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.top, w, h, SWP_FRAMECHANGED);
 		}
 		else {
-			const RECT rect = GetAdjustedRect(mPosPrev, mSizePrev);
+			const RECT rect = GetAdjustedRect_(mPosPrev, mSizePrev);
 			SetWindowLongPtr(mHwnd, GWL_STYLE, WS_VISIBLE | WS_OVERLAPPEDWINDOW);
 			SetWindowPos(mHwnd, nullptr, rect.left, rect.top, rect.right - rect.left,rect.bottom - rect.top, SWP_FRAMECHANGED);
 		}
 	#endif
 	}
 
-	void WindowWin32::OnFullScreenChangedMonitor()
+	void WindowWin32::OnFullScreenChangedMonitor_()
 	{
 	#if ZE_WINDOW_WIN32
 	#endif
@@ -293,7 +300,7 @@ namespace Zeron {
 	LRESULT CALLBACK WindowWin32::WndProc(UINT msg, WPARAM wParam, LPARAM lParam) {
 		switch (msg) {
 			case WM_CREATE: {
-			}
+			} break;
 			case WM_PAINT: {
 				PAINTSTRUCT ps = { 0 };
 				HDC hdc = BeginPaint(mHwnd, &ps);
@@ -304,14 +311,19 @@ namespace Zeron {
 			} break;
 			case WM_CLOSE: {
 				mEventQueue.emplace(std::make_unique<WindowEvent_WindowClosed>());
-			}
+				// We don't want to trigger WM_DESTROY so we return from here
+				return 0;
+			} break;
+			case WM_DESTROY: {
+				//PostQuitMessage(0);
+			} break;
 			case WM_KEYDOWN: {
 				if(NOTREPEATING(lParam)) {
-					mEventQueue.emplace(std::make_unique<WindowEvent_KeyDown>(GetKeyCodeWin32(wParam, lParam)));
+					mEventQueue.emplace(std::make_unique<WindowEvent_KeyDown>(GetKeyCodeWin32_(wParam, lParam)));
 				}
 			} break;
 			case WM_KEYUP: {
-				mEventQueue.emplace(std::make_unique<WindowEvent_KeyUp>(GetKeyCodeWin32(wParam, lParam)));
+				mEventQueue.emplace(std::make_unique<WindowEvent_KeyUp>(GetKeyCodeWin32_(wParam, lParam)));
 			} break;
 			case WM_CHAR: {
 				const unsigned char utf8Char = static_cast<unsigned char>(wctob(static_cast<wchar_t>(wParam)));
@@ -363,10 +375,10 @@ namespace Zeron {
 				mEventQueue.emplace(std::make_unique<WindowEvent_MouseUp>(MouseCode::MiddleButton));
 			} break;
 			case WM_XBUTTONDOWN: {
-				mEventQueue.emplace(std::make_unique<WindowEvent_MouseDown>(GetMouseCodeWin32(wParam, lParam)));
+				mEventQueue.emplace(std::make_unique<WindowEvent_MouseDown>(GetMouseCodeWin32_(wParam, lParam)));
 			} break;
 			case WM_XBUTTONUP: {
-				mEventQueue.emplace(std::make_unique<WindowEvent_MouseUp>(GetMouseCodeWin32(wParam, lParam)));
+				mEventQueue.emplace(std::make_unique<WindowEvent_MouseUp>(GetMouseCodeWin32_(wParam, lParam)));
 			} break;
 			case WM_MOUSEWHEEL: {
 				const float wheelDelta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;
@@ -440,21 +452,31 @@ namespace Zeron {
 					else {
 						OnRestored();
 					}
-					const RECT rect = GetScreenRect();
+					const RECT rect = GetScreenRect_();
 					const int width = rect.right - rect.left;
 					const int height = rect.bottom - rect.top;
 					OnSizeChanged(width, height);
-					mEventQueue.emplace(std::make_unique<WindowEvent_WindowResized>(width, height));
+					// We don't want to send this repeatedly if we are manually resizing the window
+					if(!mIsResizing) {
+						mEventQueue.emplace(std::make_unique<WindowEvent_WindowResized>(mSize.X, mSize.Y));
+					}
 				}
 
 				// MOVE
 				if ((flags & SWP_NOMOVE) != SWP_NOMOVE) {
-					const RECT rect = GetScreenRect();
+					const RECT rect = GetScreenRect_();
 					OnPositionChanged(rect.left, rect.top);
 					mEventQueue.emplace(std::make_unique<WindowEvent_WindowMoved>(rect.left, rect.top));
 				}
 				return 0;
 			}
+			case WM_ENTERSIZEMOVE: {
+				mIsResizing = true;
+			} break;
+			case WM_EXITSIZEMOVE: {
+				mIsResizing = false;
+				mEventQueue.emplace(std::make_unique<WindowEvent_WindowResized>(mSize.X, mSize.Y));
+			} break;
 			case WM_GETMINMAXINFO:
 			{
 				if (mSizeMaxX > 0 && mSizeMaxY > 0 && mSizeMinX > 0 && mSizeMinY > 0) {
@@ -486,18 +508,15 @@ namespace Zeron {
 			}
 			case WM_DISPLAYCHANGE: {
 				// TODO: Implement this for resolution change, monitor plugged/unplugged
-			}
+			} break;
 			case WM_DPICHANGED: {
 				// TODO: Implement this for DPI change
-			}
-			case WM_DESTROY: {
-				PostQuitMessage(0);
 			} break;
 		}
 		return DefWindowProc(mHwnd, msg, wParam, lParam);
 	}
 
-	RECT WindowWin32::GetScreenRect() const
+	RECT WindowWin32::GetScreenRect_() const
 	{
 		RECT rect;
 		GetClientRect(mHwnd, &rect);
@@ -505,7 +524,7 @@ namespace Zeron {
 		return rect;
 	}
 
-	RECT WindowWin32::GetAdjustedRect(const Vec2i& position, const Vec2i& size) const
+	RECT WindowWin32::GetAdjustedRect_(const Vec2i& position, const Vec2i& size) const
 	{
 		RECT rect;
 		rect.left = position.X;
@@ -516,7 +535,7 @@ namespace Zeron {
 		return rect;
 	}
 
-	KeyCode WindowWin32::GetKeyCodeWin32(WPARAM wParam, LPARAM lParam) {
+	KeyCode WindowWin32::GetKeyCodeWin32_(WPARAM wParam, LPARAM lParam) {
 		switch (wParam) {
 		case 0x30:			return KeyCode::N0;
 		case 0x31:			return KeyCode::N1;
@@ -641,7 +660,7 @@ namespace Zeron {
 		return KeyCode::Unknown;
 	}
 
-	MouseCode WindowWin32::GetMouseCodeWin32(WPARAM wParam, LPARAM lParam) 
+	MouseCode WindowWin32::GetMouseCodeWin32_(WPARAM wParam, LPARAM lParam) 
 	{
 		// This is only used for X1 and X2 buttons
 		switch (GET_XBUTTON_WPARAM(wParam)) {

@@ -43,11 +43,13 @@ namespace Zeron {
 		virtual void* GetPlatformHandle() const override;
 
 	private:
-		virtual void OnFullScreenChangedBorderless() override;
-		virtual void OnFullScreenChangedMonitor() override;
+		virtual void OnFullScreenChangedBorderless_() override;
+		virtual void OnFullScreenChangedMonitor_() override;
 
 	private:
 		HWND mHwnd;
+		
+		bool mIsResizing;
 
 		int mSizeMinX;
 		int mSizeMinY;
@@ -59,12 +61,12 @@ namespace Zeron {
 		LRESULT WndProc(UINT msg, WPARAM wParam, LPARAM lParam);
 	private:
 		// Get client Rect in screen coordinates
-		RECT GetScreenRect() const;
+		RECT GetScreenRect_() const;
 		// Get window Rect from client coordinates
-		RECT GetAdjustedRect(const Vec2i& position, const Vec2i& size) const;
+		RECT GetAdjustedRect_(const Vec2i& position, const Vec2i& size) const;
 		
-		KeyCode GetKeyCodeWin32(WPARAM wParam, LPARAM lParam);
-		MouseCode GetMouseCodeWin32(WPARAM wParam, LPARAM lParam);
+		KeyCode GetKeyCodeWin32_(WPARAM wParam, LPARAM lParam);
+		MouseCode GetMouseCodeWin32_(WPARAM wParam, LPARAM lParam);
 #endif
 	};
 

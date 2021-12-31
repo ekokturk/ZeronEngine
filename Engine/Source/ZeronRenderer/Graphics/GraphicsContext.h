@@ -6,9 +6,10 @@
 namespace Zeron
 {
 	class Buffer;
-	class Texture;
-	class Shader;
 	class RenderTarget;
+	class Shader;
+	class SwapChain;
+	class Texture;
 	class Window;
 	
 	class GraphicsContext {
@@ -29,8 +30,7 @@ namespace Zeron
 		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexStart) = 0;
 		virtual void Clear(Color color) = 0;
 
-
-	private:
+		virtual void ResizeSwapChain(SwapChain& swapChain, const Vec2i& size) = 0;
 	};
 
 }
