@@ -9,14 +9,26 @@ namespace Zeron {
 		enum Palette {
 			White = 0xFFFFFF,
 			Black = 0x000000,
-			Red = 0xFF0000,
-			Green = 0x008000,
+			LightGray = 0xD3D3D3,
+			Gray = 0x808080,
+			DarkGray = 0x696969,
 			Yellow = 0xFFFF00,
 			Orange = 0xFFA500,
+			DarkOrange = 0xFF8C00,
+			OrangeRed = 0xFF4500,
+			Crimson = 0xDC143C,
+			Red = 0xFF0000,
+			DarkRed = 0x8B0000,
+			Green = 0x008000,
+			LightPink = 0xFFB6C1,
+			Pink = 0xFF69B4,
+			DarkPink = 0xFF1493,
 			Purple = 0x800080,
-			Gray = 0x808080,
-			DarkRed = 0x6E0000,
-			LightBlue = 0x00FFFF
+			Violet = 0xEE82EE,
+			SteelBlue = 0x4682B4,
+			LightBlue = 0xADD8E6,
+			Blue = 0x0000FF,
+			DarkBlue = 0x00008B,
 		};
 
 		Color(Palette color);

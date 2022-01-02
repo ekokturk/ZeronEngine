@@ -28,4 +28,9 @@ namespace Zeron
 		Fragment,
 	};
 
+	enum class TextureType {
+		Invalid,
+		Diffuse,
+		Normal,
+	};
 }

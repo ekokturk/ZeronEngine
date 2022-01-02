@@ -5,9 +5,9 @@
 namespace Zeron
 {
 	Camera::Camera()
-		: mFOV(90)
+		: mFOV(90.f)
 		, mAspectRatio(4.f/3)
-		, mClip(0.01f, 1000.f)
+		, mClip(0.01f, 10000.f)
 	{
 		UpdateProjection_();
 		UpdateView_();
@@ -141,7 +141,7 @@ namespace Zeron
 
 	void Camera::UpdateProjection_()
 	{
-		mProjectionMatrix = Math::Perspective(mFOV, mAspectRatio, mClip.X, mClip.Y);
+		mProjectionMatrix = Math::Perspective(Math::ToRadians(mFOV), mAspectRatio, mClip.X, mClip.Y);
 	}
 
 	void Camera::UpdateView_()

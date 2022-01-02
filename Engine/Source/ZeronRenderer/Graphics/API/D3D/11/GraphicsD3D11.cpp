@@ -109,10 +109,28 @@ namespace Zeron
 	#endif
 	}
 
-	std::shared_ptr<Texture> GraphicsD3D11::CreateTexture(const std::string& name)
+	std::shared_ptr<Texture> GraphicsD3D11::CreateTexture(TextureType type, const Color& data)
 	{
 	#if ZE_GRAPHICS_D3D
-		return std::make_shared<TextureD3D11>(*this, name);
+		return std::make_shared<TextureD3D11>(*this, type, &data, 1, 1);
+	#else
+		return nullptr;
+	#endif
+	}
+
+	std::shared_ptr<Texture> GraphicsD3D11::CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height)
+	{
+	#if ZE_GRAPHICS_D3D
+		return std::make_shared<TextureD3D11>(*this, type, data, width, height);
+	#else
+		return nullptr;
+	#endif
+	}
+
+	std::shared_ptr<Texture> GraphicsD3D11::CreateTexture(TextureType type, const std::string& path)
+	{
+	#if ZE_GRAPHICS_D3D
+		return std::make_shared<TextureD3D11>(*this, type, path);
 	#else
 		return nullptr;
 	#endif

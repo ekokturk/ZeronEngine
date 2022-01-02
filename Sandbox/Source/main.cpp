@@ -12,7 +12,7 @@
 #include "Core/Math/Mat4.h"
 #include "glm/glm.hpp"
 #include "Renderer/Camera.h"
-
+#include "Renderer/Model.h"
 #include "GUI/ImGui/ImGuiInstance.h"
 
 using namespace Zeron;
@@ -24,7 +24,9 @@ struct VertexShaderCBData
 
 struct PixelShaderCBData
 {
-	float mAlpha = 1.f;
+	//float mAlpha = 1.f;
+	Vec3 mAmbientLightColor = Vec3::ONE;
+	float mAmbientLightStrength = 1.f;
 };
 
 struct WindowContext {
@@ -58,50 +60,32 @@ void TestWindow()
 		window.mImGui->Init(*gfx, *window.mWindow);
 	}
 
-	const std::vector v1 = {
-		Vertex{{-.5f, -.5f, -0.5f},{0.f,1.f}},
-		Vertex{{-.5f, .5f, -0.5f},{0.f,0.f}},
-		Vertex{{.5f, .5f, -0.5f},{1.f,0}},
-		Vertex{{.5f, -.5f, -0.5f},{1.f,1.f}},
-		Vertex{{-.5f, -.5f, 0.5f},{0.f,1.f}},
-		Vertex{{-.5f, .5f, 0.5f},{0.f,0.f}},
-		Vertex{{.5f, .5f, 0.5f},{1.f,0.f}},
-		Vertex{{.5f, -.5f, 0.5f},{1.f,1.f}},
-	};
 
-	const std::vector<unsigned long> i1 = {
-		0, 1, 2,
-		0, 2, 3,
-		4, 7, 6,
-		4, 6, 5,
-		3, 2, 6,
-		3, 6, 7,
-		4, 5, 1,
-		4, 1, 0,
-		1, 5, 6,
-		1, 6, 2,
-		0, 3, 7,
-		0, 7, 4,
-	};
 
 	VertexShaderCBData vertexCB;
 	PixelShaderCBData pixelCB;
 	Camera camera;
-	camera.SetPosition({ 0.f, 0, -2.f });
+	camera.SetPosition({ 0.f, 300, -300.f });
+	camera.SetFieldOfView(60.f);
 
-	auto vertexBuffer = gfx->CreateVertexBuffer(v1);
-	auto indexBuffer = gfx->CreateIndexBuffer(i1);
+
 	auto constantBufferVS = gfx->CreateConstantBuffer<VertexShaderCBData>(vertexCB);
 	auto constantBufferPS = gfx->CreateConstantBuffer<PixelShaderCBData>(pixelCB);
 	auto shader = gfx->CreateShader("Default");
-	auto testTexture = gfx->CreateTexture("test_texture.png");
-	auto missingTexture = gfx->CreateTexture("missing_texture.png");
+	auto modelTexture = gfx->CreateTexture(TextureType::Diffuse, "Resources/Textures/TestHumanoid_CLR.png");
 
+	Model model(*gfx, "Resources/Models/TestHumanoid_Model.fbx", constantBufferVS);
+	for(auto& mesh : model.GetMeshes()) {
+		mesh.AddTexture(modelTexture);
+	}
+	
 	Mat4 worldMatrix;
 
 	char buffText[256] = {};
 
 	bool isResizing = false;
+	float cameraSensitivity = 1.f;
+	bool isCameraLookAtEnabled = true;
 	
 	bool isRunning = true;
 	while (isRunning) {
@@ -147,22 +131,22 @@ void TestWindow()
 					}
 
 					if (procEvnt.mCode == KeyCode::W) {
-						camera.Move(camera.GetForwardDir() * -.25f);
+						camera.Move(camera.GetForwardDir() * -cameraSensitivity);
 					}
 					if (procEvnt.mCode == KeyCode::S) {
-						camera.Move(camera.GetForwardDir() * .25f);
+						camera.Move(camera.GetForwardDir() * cameraSensitivity);
 					}
 					if (procEvnt.mCode == KeyCode::A) {
-						camera.Move(camera.GetRightDir() * -.25f);
+						camera.Move(camera.GetRightDir() * -cameraSensitivity);
 					}
 					if (procEvnt.mCode == KeyCode::D) {
-						camera.Move(camera.GetRightDir() * .25f);
+						camera.Move(camera.GetRightDir() * cameraSensitivity);
 					}
 					if (procEvnt.mCode == KeyCode::Q) {
-						camera.Move(camera.GetUpDir() * -.25f);
+						camera.Move(camera.GetUpDir() * -cameraSensitivity);
 					}
 					if (procEvnt.mCode == KeyCode::E) {
-						camera.Move(camera.GetUpDir() * .25f);
+						camera.Move(camera.GetUpDir() * cameraSensitivity);
 					}
 					
 					if (procEvnt.mCode == KeyCode::Up) {
@@ -214,7 +198,17 @@ void TestWindow()
 			window->EndFrame();
 
 			ImGui::Begin("Debug Window");
-			ImGui::SliderFloat("Alpha", &pixelCB.mAlpha, 0.f, 1.f);
+			ImGui::SliderFloat3("Ambient Light Color", reinterpret_cast<float*>(&pixelCB.mAmbientLightColor), 0.f, 1.f);
+			ImGui::SliderFloat("Ambient Light Strength", &pixelCB.mAmbientLightStrength, 0.f, 1.f);
+			float rotation[] = { camera.GetRotation().X, camera.GetRotation().Y, camera.GetRotation().Z };
+			if(ImGui::SliderFloat3("Rotation", rotation, -Math::PI<float>(), Math::PI<float>())) {
+				camera.SetRotation({ rotation[0], rotation[1], rotation[2] });
+			}
+			float position[] = { camera.GetPosition().X, camera.GetPosition().Y, camera.GetPosition().Z };
+			if (ImGui::DragFloat3("Position", position, -20, 20)) {
+				camera.SetPosition({ position[0], position[1], position[2] });
+			}
+			ImGui::Checkbox("Camera Look At", &isCameraLookAtEnabled);
 			ImGui::End();
 
 			RenderTarget* target = swapChain->GetRenderTarget();
@@ -224,35 +218,15 @@ void TestWindow()
 
 			const Vec2i windowSize = swapChain->GetWindowSize();
 			camera.SetAspectRatio(static_cast<float>(windowSize.X) / static_cast<float>(windowSize.Y));
-			//camera.LookAt({ 0,0,0 });
+			if(isCameraLookAtEnabled) {
+				camera.LookAt({ 0,0,0 });
+			}
 
 			{
-				vertexCB.mMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix() * worldMatrix;
-				vertexCB.mMatrix = Math::Transpose(vertexCB.mMatrix);
-				ctx->UpdateBuffer(*constantBufferVS, &vertexCB, sizeof(vertexCB));
-				float alphaA = 1.f;
-				ctx->UpdateBuffer(*constantBufferPS, &alphaA, sizeof(alphaA));
-				ctx->SetShader(shader.get());
-				ctx->SetTexture(missingTexture.get());
-				ctx->SetVertexBuffer(*vertexBuffer);
-				ctx->SetIndexBuffer(*indexBuffer);
-				ctx->SetConstantBuffer(*constantBufferVS, ShaderType::Vertex);
-				ctx->SetConstantBuffer(*constantBufferPS, ShaderType::Fragment);
-				ctx->DrawIndexed(indexBuffer->GetSize(), 0);
-			}
-			
-			{
-				vertexCB.mMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix() * Math::Scale(worldMatrix, { 1.2f });
-				vertexCB.mMatrix = Math::Transpose(vertexCB.mMatrix);
-				ctx->UpdateBuffer(*constantBufferVS, &vertexCB, sizeof(vertexCB));
 				ctx->UpdateBuffer(*constantBufferPS, &pixelCB, sizeof(pixelCB));
-				ctx->SetShader(shader.get());
-				ctx->SetTexture(testTexture.get());
-				ctx->SetVertexBuffer(*vertexBuffer);
-				ctx->SetIndexBuffer(*indexBuffer);
-				ctx->SetConstantBuffer(*constantBufferVS, ShaderType::Vertex);
 				ctx->SetConstantBuffer(*constantBufferPS, ShaderType::Fragment);
-				ctx->DrawIndexed(indexBuffer->GetSize(), 0);
+				ctx->SetShader(shader.get());
+				model.Draw(*ctx, camera);
 			}
 
 			imgui.Draw();

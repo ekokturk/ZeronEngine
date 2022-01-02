@@ -1,6 +1,12 @@
-cbuffer alphaBuffer : register(b0)
+//cbuffer alphaBuffer : register(b0)
+//{
+//	float alpha;
+//}
+
+cbuffer lightBuffer : register(b0)
 {
-	float alpha;
+	float3 ambientLightColor;
+	float ambientLightStrength = 1.f;
 }
 
 struct FS_INPUT
@@ -15,5 +21,7 @@ SamplerState samplerState : SAMPLER : register(s0);
 float4 main(FS_INPUT input) : SV_TARGET
 {
 	float3 pixelColor = tex.Sample(samplerState, input.inTextureCoord);
-	return float4(pixelColor, alpha);
+	float3 ambientLight = ambientLightColor * ambientLightStrength;
+	float3 finalColor = pixelColor * ambientLight;
+	return float4(finalColor, 1.f /*alpha*/);
 }

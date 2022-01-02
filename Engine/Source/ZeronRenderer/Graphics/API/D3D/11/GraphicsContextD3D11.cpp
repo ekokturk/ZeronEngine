@@ -50,19 +50,26 @@ namespace Zeron {
 
 	void GraphicsContextD3D11::SetTexture(Texture* texture)
 	{
+		if(!texture) {
+			// TODO: Set null texture here maybe? Pink material
+			return;
+		}
 		const auto* textureApi = static_cast<TextureD3D11*>(texture);
 		ID3D11ShaderResourceView* view[] = { textureApi->GetResourceViewD3D() };
 		// TODO: handle slots
-		mDeviceContext->PSSetShaderResources(0, 1, view);
+		// TODO: multiple textures
+		if(texture->GetTextureType() == TextureType::Diffuse) {
+			mDeviceContext->PSSetShaderResources(0, 1, view);
+		}
 	}
 
-	void GraphicsContextD3D11::UpdateBuffer(Buffer& buff, void* data, uint32_t size)
+	void GraphicsContextD3D11::UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes)
 	{
 		const auto& buffApi = static_cast<BufferD3D11&>(buff);
 		ZE_ASSERT(buff.GetBufferType() == BufferType::Constant, "Only constant buffers can be updated for now!");
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		D3D_ASSERT_RESULT(mDeviceContext->Map(buffApi.GetBufferD3D(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-		CopyMemory(mappedResource.pData, data, size);
+		CopyMemory(mappedResource.pData, data, sizeBytes);
 		D3D_ASSERT(mDeviceContext->Unmap(buffApi.GetBufferD3D(), 0));
 	}
 
@@ -219,7 +226,8 @@ namespace Zeron {
 		blendDesc.RenderTarget[0] = rtbDesc;
 		
 		D3D_ASSERT_RESULT(mDevice->CreateBlendState(&blendDesc, mBlendState.GetAddressOf()));
-		D3D_ASSERT(mDeviceContext->OMSetBlendState(mBlendState.Get(), nullptr, UINT32_MAX));
+		//D3D_ASSERT(mDeviceContext->OMSetBlendState(mBlendState.Get(), nullptr, UINT32_MAX));
+		D3D_ASSERT(mDeviceContext->OMSetBlendState(nullptr, nullptr, UINT32_MAX));
 
 	}
 }

@@ -9,13 +9,13 @@ namespace Zeron {
 	public:
 		virtual ~Buffer() = default;
 
-		uint32_t GetStride() const { return mStride; }
-		uint32_t GetSize() const { return mSize; }
+		[[nodiscard]] uint32_t GetStride() const { return mStride; }
+		[[nodiscard]] uint32_t GetCount() const { return mCount; }
 
-		virtual BufferType GetBufferType() const = 0;
+		[[nodiscard]] virtual BufferType GetBufferType() const = 0;
 	
 	protected:
-		uint32_t mSize = 0;
+		uint32_t mCount = 0;
 		uint32_t mStride = 0;
 	};
 }

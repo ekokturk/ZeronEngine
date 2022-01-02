@@ -32,12 +32,15 @@ namespace Zeron
 		std::shared_ptr<Buffer> CreateIndexBuffer(const std::vector<unsigned long>& data);
 		template <typename T>
 		std::shared_ptr<Buffer> CreateConstantBuffer(const T& data) {
-			return CreateBuffer(BufferType::Constant, &data, 1, sizeof(T));
+			return CreateBuffer(BufferType::Constant,  &data, 1, sizeof(T));
 		}
 		virtual std::shared_ptr<Shader> CreateShader(const std::string& name) = 0;
-		virtual std::shared_ptr<Texture> CreateTexture(const std::string& name) = 0;
+		
+		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const Color& data) = 0;
+		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const std::string& path) = 0;
+		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) = 0;
 	
 	protected:
-		virtual std::shared_ptr<Buffer> CreateBuffer(BufferType type, const void* data, uint32_t size, uint32_t stride) = 0;
+		virtual std::shared_ptr<Buffer> CreateBuffer(BufferType type, const void* data, uint32_t count, uint32_t stride) = 0;
 	};
 }

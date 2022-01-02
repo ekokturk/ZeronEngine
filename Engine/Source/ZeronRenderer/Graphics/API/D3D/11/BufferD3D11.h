@@ -14,10 +14,10 @@ namespace Zeron
 
 	class BufferD3D11 : public Buffer {
 	public:
-		BufferD3D11(GraphicsD3D11& graphics, BufferType type, const void* data, uint32_t size, uint32_t stride);
+		BufferD3D11(GraphicsD3D11& graphics, BufferType type, const void* data, uint32_t count, uint32_t stride);
 		
-		BufferType GetBufferType() const override;
-		ID3D11Buffer* GetBufferD3D() const;
+		[[nodiscard]] BufferType GetBufferType() const override;
+		[[nodiscard]] ID3D11Buffer* GetBufferD3D() const;
 	
 	protected:
 		ZE::ComPtr<ID3D11Buffer> mBuffer;

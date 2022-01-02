@@ -8,10 +8,10 @@
 
 namespace Zeron
 {
-	BufferD3D11::BufferD3D11(GraphicsD3D11& graphics, BufferType type, const void* data, uint32_t size, uint32_t stride)
+	BufferD3D11::BufferD3D11(GraphicsD3D11& graphics, BufferType type, const void* data, uint32_t count, uint32_t stride)
 		: mBufferType(type)
 	{
-		mSize = size;
+		mCount = count;
 		mStride = stride;
 		D3D11_BUFFER_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
@@ -28,7 +28,7 @@ namespace Zeron
 				D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER : D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 			desc.CPUAccessFlags = 0;
 			desc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-			desc.ByteWidth = mStride * mSize;
+			desc.ByteWidth = mStride * mCount;
 		}
 		desc.MiscFlags = 0;
 
