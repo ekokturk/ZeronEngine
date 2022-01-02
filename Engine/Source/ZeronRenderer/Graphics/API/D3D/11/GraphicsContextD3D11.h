@@ -32,7 +32,7 @@ namespace Zeron
 		virtual void SetShader(Shader* shader) override;
 		virtual void SetTexture(Texture* texture) override;
 
-		virtual void UpdateBuffer(Buffer& buff, void* data, uint32_t size) override;
+		virtual void UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes) override;
 		
 		virtual void SetFillMode(bool isSolid) override;
 		

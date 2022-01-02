@@ -4,4 +4,8 @@
 
 namespace Zeron
 {
+	TextureType Texture::GetTextureType() const
+	{
+		return mType;
+	}
 }

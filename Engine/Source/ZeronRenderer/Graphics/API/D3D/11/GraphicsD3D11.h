@@ -40,8 +40,11 @@ namespace Zeron
 		virtual std::shared_ptr<SwapChain> CreateSwapChain(Window& window) override;
 
 		virtual std::shared_ptr<Shader> CreateShader(const std::string& name) override;
-		virtual std::shared_ptr<Texture> CreateTexture(const std::string& name) override;
-
+		
+		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const Color& data) override;
+		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) override;
+		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const std::string& path) override;
+	
 	protected:
 		std::shared_ptr<Buffer> CreateBuffer(BufferType type, const void* data, uint32_t size, uint32_t stride) override;
 

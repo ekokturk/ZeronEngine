@@ -25,7 +25,7 @@ namespace Zeron
 		virtual void SetConstantBuffer(Buffer& cb, ShaderType type, uint32_t slot = 0) = 0;
 
 		virtual void SetFillMode(bool isSolid) = 0;
-		virtual void UpdateBuffer(Buffer& buff, void* data, uint32_t size) = 0;
+		virtual void UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes) = 0;
 
 		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexStart) = 0;
 		virtual void Clear(Color color) = 0;

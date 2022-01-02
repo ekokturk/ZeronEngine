@@ -6,6 +6,7 @@ add_zeron_module_dependency(GLAD)
 add_zeron_module_dependency(SDL2)
 add_zeron_module_dependency(stb)
 add_zeron_module_dependency(ImGui)
+add_zeron_module_dependency(assimp)
 
 # ============ MODULE CREATE ============
 add_zeron_module(ZeronRenderer ${CMAKE_CURRENT_SOURCE_DIR})
@@ -34,6 +35,7 @@ endif()
 
 list(APPEND MODULE_LIBS_PRIVATE stb-header-only)
 list(APPEND MODULE_LIBS_PUBLIC imgui)
+list(APPEND MODULE_LIBS_PRIVATE assimp)
 
 if(WIN32)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_WIN32=1)

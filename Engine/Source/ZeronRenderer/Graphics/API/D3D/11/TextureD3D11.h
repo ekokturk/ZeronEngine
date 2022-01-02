@@ -12,17 +12,20 @@ namespace Zeron
 
 	class TextureD3D11 : public Texture {
 	public:
-		TextureD3D11(GraphicsD3D11& graphics, const std::string& name);
+		TextureD3D11(GraphicsD3D11& graphics, TextureType type, const Color* data, uint32_t width, uint32_t height);
+		TextureD3D11(GraphicsD3D11& graphics, TextureType type, const std::string& filePath);
+		
 		~TextureD3D11();
 
-		ID3D11Texture2D* GetTextureD3D() const;
-		ID3D11ShaderResourceView* GetResourceViewD3D() const;
+		[[nodiscard]] ID3D11Texture2D* GetTextureD3D() const;
+		[[nodiscard]] ID3D11ShaderResourceView* GetResourceViewD3D() const;
 	
 	private:
+		void InitTexture_(GraphicsD3D11& graphics, const Color* data);
+
 		ZE::ComPtr<ID3D11Texture2D> mTexture;
 		ZE::ComPtr<ID3D11ShaderResourceView> mResourceView;
 		Vec2i mSize;
-		int mChannel;
 	};
 }
 #endif
