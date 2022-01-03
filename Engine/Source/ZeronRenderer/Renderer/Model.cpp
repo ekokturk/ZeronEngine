@@ -21,14 +21,14 @@ namespace Zeron
 		LoadModel(graphics, modelPath);
 	}
 
-	void Model::Draw(GraphicsContext& ctx, Camera& camera)
+	void Model::Draw(GraphicsContext& ctx, Camera& camera, const Mat4& worldMatrix)
 	{
 		for(auto& mesh : mMeshList) {
 
-			const Mat4 worldMatrix;
-			Mat4 transform = camera.GetProjectionMatrix() * camera.GetViewMatrix() * worldMatrix * mesh.GetTransform();
-			transform = Math::Transpose(transform);
-			ctx.UpdateBuffer(*mConstantBuffer, &transform, sizeof(transform));
+			Mat4 buffer[2];
+			buffer[0] = camera.GetProjectionMatrix() * camera.GetViewMatrix() * worldMatrix * mesh.GetTransform();
+			buffer[1] = worldMatrix * mesh.GetTransform();
+			ctx.UpdateBuffer(*mConstantBuffer, &buffer, sizeof(buffer));
 			ctx.SetConstantBuffer(*mConstantBuffer, ShaderType::Vertex);
 			mesh.Draw(ctx);
 		}
@@ -83,6 +83,7 @@ namespace Zeron
 		for(unsigned i = 0; i < meshNode->mNumVertices; ++i) {
 			Vertex vertex;
 			vertex.mPosition = { meshNode->mVertices[i].x, meshNode->mVertices[i].y, meshNode->mVertices[i].z };
+			vertex.mNormal = { meshNode->mNormals[i].x, meshNode->mNormals[i].y, meshNode->mNormals[i].z };
 
 			// Main texture at 0
 			if(meshNode->mTextureCoords[0]) {

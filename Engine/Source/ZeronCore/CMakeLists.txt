@@ -26,6 +26,11 @@ if(WIN32)
     list(APPEND PCH_GENERIC <Windows.h>)
 endif()
 
+if(MSVC)
+ # Enable parallel builds
+ target_compile_options(ZeronCore PUBLIC "/MP")
+endif()
+
 # ============ MODULE INIT ============
 target_include_directories(ZeronCore 
     PUBLIC 

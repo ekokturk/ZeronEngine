@@ -23,7 +23,7 @@ namespace Zeron
 		
 		Model(Graphics& graphics, const std::string& modelPath, std::shared_ptr<Buffer> constantBuffer);
 
-		void Draw(GraphicsContext& ctx, Camera& camera);
+		void Draw(GraphicsContext& ctx, Camera& camera, const Mat4& worldMatrix);
 
 		std::vector<Mesh>& GetMeshes();
 		const std::vector<Mesh>& GetMeshes() const;

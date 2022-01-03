@@ -6,16 +6,26 @@ namespace Zeron
 {
 	Camera::Camera()
 		: mFOV(90.f)
-		, mAspectRatio(4.f/3)
-		, mClip(0.01f, 10000.f)
+		, mViewSize{4.f, 3.f}
+		, mClip{ 0.01f, 10000.f }
+		, mProjectionType(ProjectionType::Perspective)
 	{
 		UpdateProjection_();
 		UpdateView_();
 	}
 
-	Camera::Camera(float fovDegrees, float aspectRatio, float clipStart, float clipEnd)
+	Camera::Camera(const Vec2& viewSize, float clipStart, float clipEnd)
+		: mFOV(90.f)
+		, mViewSize(viewSize)
+		, mClip(clipStart, clipEnd)
+		, mProjectionType(ProjectionType::Orthographic)
+	{
+	}
+
+	Camera::Camera(float fovDegrees, const Vec2& viewSize, float clipStart, float clipEnd)
 		: mFOV(fovDegrees)
-		, mAspectRatio(aspectRatio)
+		, mViewSize(viewSize)
+		, mProjectionType(ProjectionType::Perspective)
 	{
 		SetClipPositions(clipStart, clipEnd); // Updates projection
 		UpdateView_();
@@ -76,9 +86,9 @@ namespace Zeron
 		UpdateProjection_();
 	}
 
-	void Camera::SetAspectRatio(float aspectRatio)
+	void Camera::SetViewSize(const Vec2& size)
 	{
-		mAspectRatio = aspectRatio;
+		mViewSize = size;
 		UpdateProjection_();
 	}
 
@@ -86,6 +96,12 @@ namespace Zeron
 	{
 		mClip = { std::min(clipStart, clipEnd),
 			std::max(clipStart, clipEnd) };
+		UpdateProjection_();
+	}
+
+	void Camera::SetProjectionType(ProjectionType type)
+	{
+		mProjectionType = type;
 		UpdateProjection_();
 	}
 
@@ -119,9 +135,9 @@ namespace Zeron
 		return mFOV;
 	}
 
-	float Camera::GetAspectRatio() const
+	const Vec2& Camera::GetViewSize() const
 	{
-		return mAspectRatio;
+		return mViewSize;
 	}
 
 	const Vec2& Camera::GetClipPositions() const
@@ -139,9 +155,19 @@ namespace Zeron
 		return mProjectionMatrix;
 	}
 
+	ProjectionType Camera::GetProjectionType() const
+	{
+		return mProjectionType;
+	}
+
 	void Camera::UpdateProjection_()
 	{
-		mProjectionMatrix = Math::Perspective(Math::ToRadians(mFOV), mAspectRatio, mClip.X, mClip.Y);
+		if(mProjectionType == ProjectionType::Orthographic) {
+			mProjectionMatrix = Math::Orthographic(-mViewSize.X / 2, mViewSize.X/2, -mViewSize.Y/2, mViewSize.Y/2, mClip.X, mClip.Y);
+		}
+		else {
+			mProjectionMatrix = Math::Perspective(Math::ToRadians(mFOV), mViewSize.X / mViewSize.Y, mClip.X, mClip.Y);
+		}
 	}
 
 	void Camera::UpdateView_()
