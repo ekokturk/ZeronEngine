@@ -78,6 +78,12 @@ namespace Zeron
 		[[nodiscard]] static TMat4<T> Perspective(T fov, T aspect, T nearZ, T farZ) {
 			return glm::perspectiveLH(fov, aspect, nearZ, farZ);
 		}
+
+		template<typename T>
+		[[nodiscard]] static TMat4<T> Orthographic(T left, T right, T bottom, T top, T nearZ, T farZ) {
+			return glm::orthoLH(left, right, bottom, top, nearZ, farZ);
+		}
+
 		
 		template<typename T>
 		[[nodiscard]] static TMat4<T> PerspectiveFOV(T fov, T width, T height, T nearZ, T farZ) {

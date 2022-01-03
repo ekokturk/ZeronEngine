@@ -19,7 +19,8 @@ using namespace Zeron;
 
 struct VertexShaderCBData
 {
-	Mat4 mMatrix;
+	Mat4 mViewModelProjectionMatrix;
+	Mat4 mWorldMatrix;
 };
 
 struct PixelShaderCBData
@@ -27,6 +28,13 @@ struct PixelShaderCBData
 	//float mAlpha = 1.f;
 	Vec3 mAmbientLightColor = Vec3::ONE;
 	float mAmbientLightStrength = 1.f;
+	
+	Vec3 mDynamicLightColor = Vec3::ONE;
+	float mDynamicLightStrength = 1.f;
+	Vec3 mDynamicLightPosition;
+	float mDynamicLightAttenuationA = 1.f;
+	float mDynamicLightAttenuationB = 0.1f;
+	float mDynamicLightAttenuationC = 0.1f;
 };
 
 struct WindowContext {
@@ -84,9 +92,9 @@ void TestWindow()
 	char buffText[256] = {};
 
 	bool isResizing = false;
-	float cameraSensitivity = 1.f;
+	float cameraSensitivity = 10.f;
 	bool isCameraLookAtEnabled = true;
-	
+
 	bool isRunning = true;
 	while (isRunning) {
 		for (auto& windowCtx : windowCtxList) {
@@ -200,6 +208,13 @@ void TestWindow()
 			ImGui::Begin("Debug Window");
 			ImGui::SliderFloat3("Ambient Light Color", reinterpret_cast<float*>(&pixelCB.mAmbientLightColor), 0.f, 1.f);
 			ImGui::SliderFloat("Ambient Light Strength", &pixelCB.mAmbientLightStrength, 0.f, 1.f);
+			ImGui::Separator();
+			ImGui::DragFloat3("Dynamic Light Position", reinterpret_cast<float*>(&pixelCB.mDynamicLightPosition), 3.f);
+			ImGui::SliderFloat("Dynamic Light  Strength", &pixelCB.mDynamicLightStrength, 0.f, 100.f);
+			ImGui::SliderFloat("Attenuation A", &pixelCB.mDynamicLightAttenuationA, 0.f, 10.f);
+			ImGui::SliderFloat("Attenuation B", &pixelCB.mDynamicLightAttenuationB, 0.f, 10.f);
+			ImGui::SliderFloat("Attenuation C", &pixelCB.mDynamicLightAttenuationC, 0.f, 10.f);
+			ImGui::Separator();
 			float rotation[] = { camera.GetRotation().X, camera.GetRotation().Y, camera.GetRotation().Z };
 			if(ImGui::SliderFloat3("Rotation", rotation, -Math::PI<float>(), Math::PI<float>())) {
 				camera.SetRotation({ rotation[0], rotation[1], rotation[2] });
@@ -209,6 +224,12 @@ void TestWindow()
 				camera.SetPosition({ position[0], position[1], position[2] });
 			}
 			ImGui::Checkbox("Camera Look At", &isCameraLookAtEnabled);
+			bool projPers = camera.GetProjectionType() == ProjectionType::Perspective;
+			if(ImGui::Checkbox("Is Perspective", &projPers)) {
+				camera.SetProjectionType(projPers ? ProjectionType::Perspective : ProjectionType::Orthographic);
+			}
+
+
 			ImGui::End();
 
 			RenderTarget* target = swapChain->GetRenderTarget();
@@ -217,16 +238,16 @@ void TestWindow()
 			ctx->Clear(Color{ .3f,0,0.f });
 
 			const Vec2i windowSize = swapChain->GetWindowSize();
-			camera.SetAspectRatio(static_cast<float>(windowSize.X) / static_cast<float>(windowSize.Y));
+			camera.SetViewSize({ static_cast<float>(windowSize.X), static_cast<float>(windowSize.Y) });
 			if(isCameraLookAtEnabled) {
-				camera.LookAt({ 0,0,0 });
+				camera.LookAt({ 0,0,-150 });
 			}
 
 			{
 				ctx->UpdateBuffer(*constantBufferPS, &pixelCB, sizeof(pixelCB));
 				ctx->SetConstantBuffer(*constantBufferPS, ShaderType::Fragment);
 				ctx->SetShader(shader.get());
-				model.Draw(*ctx, camera);
+				model.Draw(*ctx, camera, worldMatrix);
 			}
 
 			imgui.Draw();

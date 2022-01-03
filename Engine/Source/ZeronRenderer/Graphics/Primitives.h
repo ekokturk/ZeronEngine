@@ -8,5 +8,6 @@ namespace Zeron
 	 {
 		 Vec3 mPosition;
 		 Vec2 mTextureCoord;
+		 Vec3 mNormal;
 	 };
 }
