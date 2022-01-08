@@ -34,7 +34,7 @@ print(f"Generation complete...\n")
 # Content of the cmake file to be generated
 with open(f"{INSTALL_DIRECTORY}/CMakeLists.txt", "w") as f:
     f.write( 
-'''# Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+'''# Copyright (C) Eser Kokturk. All Rights Reserved.
 
 set(GLAD_FOLDER "ZeronEngine/ThirdParty/GLAD")
 

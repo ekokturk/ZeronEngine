@@ -1,4 +1,4 @@
-# Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+# Copyright (C) Eser Kokturk. All Rights Reserved.
 
 # =========== VARIABLES ===========
 init_output_directory("")

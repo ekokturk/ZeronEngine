@@ -9,4 +9,4 @@ A personal playground game engine.
 - Run 'InstallDependencies.bat' to download and install engine dependency libraries
 - Run 'GenerateProject.bat' to create project solution
 
-Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+Copyright (C) Eser Kokturk. All Rights Reserved.

@@ -1,4 +1,4 @@
-// Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+// Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #include "Window/Window.h"
 #include "Graphics/API/D3D/11/GraphicsD3D11.h"
