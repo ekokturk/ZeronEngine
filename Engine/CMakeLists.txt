@@ -1,4 +1,4 @@
-# Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+# Copyright (C) Eser Kokturk. All Rights Reserved.
 
 # --- Config
 
@@ -7,7 +7,7 @@ set(ZERON_THIRDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty")
 set_property(GLOBAL PROPERTY ZERON_THIRDPARTY_DIR "${ZERON_THIRDPARTY_DIR}")
 
 # ========== ZERON ENGINE =========
-set(ZERON_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+set(ZERON_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Modules")
 init_output_directory("")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DZE_DEBUG=1")

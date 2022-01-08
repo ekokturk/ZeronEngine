@@ -1,4 +1,4 @@
-// Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+// Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #include "ZeronTestFramework.h"
 #include "Window/Platform/Win32/WindowWin32.h"

@@ -67,7 +67,7 @@ CMAKE_FILE_PATH = f"{os.path.abspath(os.path.dirname(sys.argv[0]))}/CMakeLists.t
 with open(CMAKE_FILE_PATH, "w") as f:
     f.write(
 '''
-# Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+# Copyright (C) Eser Kokturk. All Rights Reserved.
 
 set(IMGUI_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/imgui")
 set(IMGUI_FOLDER "ZeronEngine/ThirdParty/ImGui")

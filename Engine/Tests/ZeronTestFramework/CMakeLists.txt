@@ -1,4 +1,4 @@
-# Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+# Copyright (C) Eser Kokturk. All Rights Reserved.
     
 file(GLOB_RECURSE files	"*.cpp"	"*.h")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Source Files/" FILES ${files})

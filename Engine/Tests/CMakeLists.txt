@@ -1,4 +1,4 @@
-# Copyright (C) 2020, Eser Kokturk. All Rights Reserved.
+# Copyright (C) Eser Kokturk. All Rights Reserved.
 
 # ============ THIRD PARTY ==============
 add_zeron_module_dependency(googletest)
