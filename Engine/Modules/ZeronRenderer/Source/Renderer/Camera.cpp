@@ -155,7 +155,7 @@ namespace Zeron
 		return mProjectionMatrix;
 	}
 
-	ProjectionType Camera::GetProjectionType() const
+	Camera::ProjectionType Camera::GetProjectionType() const
 	{
 		return mProjectionType;
 	}

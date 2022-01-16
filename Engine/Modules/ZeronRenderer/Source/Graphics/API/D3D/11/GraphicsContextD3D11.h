@@ -30,7 +30,8 @@ namespace Zeron
 		virtual void SetIndexBuffer(Buffer& ib) override;
 		virtual void SetConstantBuffer(Buffer& cb, ShaderType type, uint32_t slot) override;
 		virtual void SetShader(Shader* shader) override;
-		virtual void SetTexture(Texture* texture) override;
+		virtual void SetShaderProgram(ShaderProgram* program) override;
+		virtual void SetTexture(Texture* texture, uint8_t slot) override;
 
 		virtual void UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes) override;
 		
@@ -50,6 +51,7 @@ namespace Zeron
 		void CreateSamplerState();
 		void CreateBlendState();
 
+	private:
 		ZE::ComPtr<ID3D11RasterizerState> mRasterizerState;
 		ZE::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
 		ZE::ComPtr<ID3D11SamplerState> mSamplerState;

@@ -26,6 +26,7 @@ namespace Zeron
 	enum class ShaderType {
 		Vertex,
 		Fragment,
+		Invalid,
 	};
 
 	enum class TextureType {

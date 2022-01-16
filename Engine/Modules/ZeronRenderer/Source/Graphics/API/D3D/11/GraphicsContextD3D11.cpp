@@ -38,17 +38,30 @@ namespace Zeron {
 
 	void GraphicsContextD3D11::SetShader(Shader* shader)
 	{
-		const auto* shaderApi = static_cast<ShaderD3D11*>(shader);
-		if(auto* vertexShader = shaderApi->GetVertexShader()) {
-			D3D_ASSERT(mDeviceContext->VSSetShader(vertexShader, nullptr, 0));
+		if(!shader) {
+			return;
 		}
-		if(auto* pixelShader = shaderApi->GetPixelShader()) {
-			D3D_ASSERT(mDeviceContext->PSSetShader(pixelShader, nullptr, 0));
+		const auto* shaderD3D = static_cast<ShaderD3D11*>(shader);
+		if(shaderD3D->GetType() == ShaderType::Vertex) {
+			D3D_ASSERT(mDeviceContext->VSSetShader(static_cast<ID3D11VertexShader*>(shaderD3D->GetShaderD3D()), nullptr, 0));
 		}
-		D3D_ASSERT(mDeviceContext->IASetInputLayout(shaderApi->GetInputLayout()));
+		else if(shaderD3D->GetType() == ShaderType::Fragment) {
+			D3D_ASSERT(mDeviceContext->PSSetShader(static_cast<ID3D11PixelShader*>(shaderD3D->GetShaderD3D()), nullptr, 0));
+		}
 	}
 
-	void GraphicsContextD3D11::SetTexture(Texture* texture)
+	void GraphicsContextD3D11::SetShaderProgram(ShaderProgram* program)
+	{
+		if(!program) {
+			return;
+		}
+		const auto* programD3D = static_cast<ShaderProgramD3D11*>(program);
+		SetShader(programD3D->GetShader(ShaderType::Vertex));
+		SetShader(programD3D->GetShader(ShaderType::Fragment));
+		D3D_ASSERT(mDeviceContext->IASetInputLayout(programD3D->GetInputLayoutD3D()));
+	}
+
+	void GraphicsContextD3D11::SetTexture(Texture* texture, uint8_t slot)
 	{
 		if(!texture) {
 			// TODO: Set null texture here maybe? Pink material
@@ -56,11 +69,7 @@ namespace Zeron {
 		}
 		const auto* textureApi = static_cast<TextureD3D11*>(texture);
 		ID3D11ShaderResourceView* view[] = { textureApi->GetResourceViewD3D() };
-		// TODO: handle slots
-		// TODO: multiple textures
-		if(texture->GetTextureType() == TextureType::Diffuse) {
-			mDeviceContext->PSSetShaderResources(0, 1, view);
-		}
+		mDeviceContext->PSSetShaderResources(slot, 1, view);
 	}
 
 	void GraphicsContextD3D11::UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes)
@@ -155,9 +164,9 @@ namespace Zeron {
 		if(auto* targetAPI = static_cast<RenderTargetD3D11*>(swapChainAPI.GetRenderTarget())) {
 			targetAPI->ReleaseBuffers();
 			// TODO: Parameterize values or move it to swapchain class
-			swapChainAPI.GetSwapChainD3D()->ResizeBuffers(0, size.X, size.Y, 
-				DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
-			targetAPI->CreateBuffers(mDevice, swapChainAPI);
+			D3D_ASSERT_RESULT(swapChainAPI.GetSwapChainD3D()->ResizeBuffers(0, size.X, size.Y,
+				DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+			D3D_ASSERT(targetAPI->CreateBuffers(mDevice, swapChainAPI));
 		}
 	}
 

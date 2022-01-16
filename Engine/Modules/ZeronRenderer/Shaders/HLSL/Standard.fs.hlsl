@@ -1,7 +1,8 @@
-//cbuffer alphaBuffer : register(b0)
-//{
-//	float alpha;
-//}
+
+Texture2D mDiffuseTexture	: TEXTURE : register(t0);
+Texture2D mNormalTexture	: TEXTURE : register(t1);
+
+SamplerState mDefaultSampler : SAMPLER : register(s0);
 
 cbuffer lightBuffer : register(b0)
 {
@@ -25,12 +26,10 @@ struct FS_INPUT
 	float3 inWorldPos : WORLD_POSITION;
 };
 
-Texture2D tex : TEXTURE : register(t0);
-SamplerState samplerState : SAMPLER : register(s0);
 
 float4 main(FS_INPUT input) : SV_TARGET
 {
-	const float3 sampleColor = tex.Sample(samplerState, input.inTextureCoord);
+	const float3 sampleColor = mDiffuseTexture.Sample(mDefaultSampler, input.inTextureCoord);
 	const float3 ambientLight = ambientLightColor * ambientLightStrength;
 	
 	float3 appliedLight = ambientLight;

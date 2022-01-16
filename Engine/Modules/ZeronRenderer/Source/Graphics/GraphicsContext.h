@@ -5,6 +5,7 @@
 
 namespace Zeron
 {
+	class ShaderProgram;
 	class Buffer;
 	class RenderTarget;
 	class Shader;
@@ -18,8 +19,9 @@ namespace Zeron
 
 		virtual void SetRenderTarget(RenderTarget* target) = 0;
 		virtual void SetShader(Shader* shader) = 0;
+		virtual void SetShaderProgram(ShaderProgram* shader) = 0;
 		virtual void SetPrimitiveTopology(PrimitiveTopology topology) = 0;
-		virtual void SetTexture(Texture* texture) = 0;
+		virtual void SetTexture(Texture* texture, uint8_t slot = 0) = 0;
 		virtual void SetVertexBuffer(Buffer& vb) = 0;
 		virtual void SetIndexBuffer(Buffer& ib) = 0;
 		virtual void SetConstantBuffer(Buffer& cb, ShaderType type, uint32_t slot = 0) = 0;
