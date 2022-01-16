@@ -90,20 +90,22 @@ namespace Zeron
 	#endif
 	}
 
-	std::shared_ptr<Shader> GraphicsD3D11::CreateShader(const std::string& name)
+	std::shared_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(const std::string& shaderName,
+		const std::string& shaderDirectory, const VertexLayout& layout)
 	{
 	#if ZE_GRAPHICS_D3D
-		std::shared_ptr<ShaderD3D11> shader = std::make_shared<ShaderD3D11>();
-		// TODO: Abstract this
-		D3D11_INPUT_ELEMENT_DESC layout[] = {
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			//{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-			{ "TEXTURE_COORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{ "NORMAL",0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-		};
-		shader->CreateVertexShader(*this, name + ".vs.cso", layout, ARRAYSIZE(layout));
-		shader->CreatePixelShader(*this, name + ".fs.cso");
-		return std::static_pointer_cast<Shader>(shader);
+		return std::make_shared<ShaderProgramD3D11>(*this, shaderName, shaderDirectory, layout);
+	#else
+		return nullptr;
+	#endif
+	}
+
+	std::shared_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(const std::string& shaderName,
+		const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader,
+	    const VertexLayout& layout)
+	{
+	#if ZE_GRAPHICS_D3D
+		return std::make_shared<ShaderProgramD3D11>(*this, shaderName, vertexShader, fragmentShader, layout);
 	#else
 		return nullptr;
 	#endif

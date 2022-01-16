@@ -1,5 +1,6 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
+#include "Graphics/GraphicsContext.h"
 #if ZE_GRAPHICS_D3D
 #include "ShaderD3D11.h"
 #include "GraphicsD3D11.h"
@@ -7,49 +8,110 @@
 
 #include "d3dcompiler.h"
 #include <d3d11.h>
+#include <d3dcommon.h>
 
 namespace Zeron
 {
-	bool ShaderD3D11::CreateVertexShader(GraphicsD3D11& graphics, std::string shaderName,
-		D3D11_INPUT_ELEMENT_DESC* description, UINT elementNo)
+	ShaderD3D11::ShaderD3D11(GraphicsD3D11& graphics, ShaderType type, const ZE::ComPtr<ID3D10Blob>& buffer)
+		: mShaderBuffer(buffer)
 	{
-		const auto shaderPath = std::filesystem::path(RESOURCE_PATH + shaderName);
-		if (std::filesystem::exists(shaderPath)) {
-			const std::wstring widePath = shaderPath.wstring();
-			D3D_ASSERT_RESULT(D3DReadFileToBlob(widePath.c_str(), mShaderBuffer.GetAddressOf()), false);
-			D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateVertexShader(mShaderBuffer->GetBufferPointer(),
-				mShaderBuffer->GetBufferSize(), nullptr, mVertexShader.GetAddressOf()), false);
-			D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateInputLayout(description, elementNo, mShaderBuffer->GetBufferPointer(),
-				mShaderBuffer->GetBufferSize(), mInputLayout.GetAddressOf()), false);
+		mType = type;
+		switch (mType) {
+			case ShaderType::Vertex: {
+				D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateVertexShader(mShaderBuffer->GetBufferPointer(),
+					mShaderBuffer->GetBufferSize(), nullptr, reinterpret_cast<ID3D11VertexShader**>(mShader.GetAddressOf())));
+			} break;
+			case ShaderType::Fragment: {
+				D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreatePixelShader(mShaderBuffer->GetBufferPointer(),
+					mShaderBuffer->GetBufferSize(), nullptr, reinterpret_cast<ID3D11PixelShader**>(mShader.GetAddressOf())));
+			} break;
 		}
-		return false;
 	}
 
-	bool ShaderD3D11::CreatePixelShader(GraphicsD3D11& graphics, std::string shaderName)
+	ID3D11DeviceChild* ShaderD3D11::GetShaderD3D() const
 	{
-		const auto shaderPath = std::filesystem::path(RESOURCE_PATH + shaderName);
-		if(std::filesystem::exists(shaderPath)) {
-			D3D_ASSERT_RESULT(D3DReadFileToBlob(shaderPath.wstring().c_str(), mShaderBuffer.GetAddressOf()), false);
-			D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreatePixelShader(mShaderBuffer->GetBufferPointer(),
-				mShaderBuffer->GetBufferSize(), nullptr, mPixelShader.GetAddressOf()), false);
+		return mShader.Get();
+	}
+
+	ID3DBlob* ShaderD3D11::GetShaderBufferD3D() const
+	{
+		return mShaderBuffer.Get();
+	}
+
+	ShaderProgramD3D11::ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& layout)
+	{
+		mName = shaderName;
+		ZE::ComPtr<ID3DBlob> buffer;
+		const auto shaderPath = std::filesystem::path(shaderDirectory);
+		if(const auto filePath = shaderPath / (shaderName + ".vs.cso"); std::filesystem::exists(filePath)) {
+			D3D_ASSERT_RESULT(D3DReadFileToBlob(filePath.wstring().c_str(), buffer.GetAddressOf()));
+			mVertexShader = std::make_shared<ShaderD3D11>(graphics, ShaderType::Vertex, buffer);
+		}
+		if(const auto filePath = shaderPath / (shaderName + ".fs.cso"); std::filesystem::exists(filePath)) {
+			D3D_ASSERT_RESULT(D3DReadFileToBlob(filePath.wstring().c_str(), buffer.GetAddressOf()));
+			mFragmentShader = std::make_shared<ShaderD3D11>(graphics, ShaderType::Fragment, buffer);
+		}
+		CreateInputLayout_(graphics, layout);
+	}
+
+	ShaderProgramD3D11::ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader,
+		const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& layout)
+	{
+		mName = shaderName;
+		mVertexShader = vertexShader;
+		mFragmentShader = fragmentShader;
+		CreateInputLayout_(graphics, layout);
+	}
+
+	void ShaderProgramD3D11::Bind(GraphicsContext& graphicsContext)
+	{
+		//D3D_ASSERT(mDeviceContext->IASetInputLayout(shaderApi->GetInputLayout()));
+	}
+
+	ID3D11InputLayout* ShaderProgramD3D11::GetInputLayoutD3D() const
+	{
+		return mInputLayout.Get();
+	}
+
+	bool ShaderProgramD3D11::CreateInputLayout_(GraphicsD3D11& graphics, const VertexLayout& layout)
+	{
+		if (auto* vs = static_cast<ShaderD3D11*>(mVertexShader.get())) {
+			const std::vector<D3D11_INPUT_ELEMENT_DESC> desc = GetVertexLayoutD3D(layout);
+			D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateInputLayout(desc.data(),
+				static_cast<UINT>(layout.GetElements().size()), vs->GetShaderBufferD3D()->GetBufferPointer(),
+				static_cast<UINT>(vs->GetShaderBufferD3D()->GetBufferSize()), mInputLayout.GetAddressOf()), false);
 			return true;
 		}
 		return false;
 	}
 
-	ID3D11VertexShader* ShaderD3D11::GetVertexShader() const
+	std::vector<D3D11_INPUT_ELEMENT_DESC> ShaderProgramD3D11::GetVertexLayoutD3D(const VertexLayout& layout) const
 	{
-		return mVertexShader.Get();
+		uint32_t offset = 0;
+		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutD3D;
+		for (const auto& e : layout.GetElements()) {
+			D3D11_INPUT_ELEMENT_DESC desc;
+			desc.Format = GetVertexFormatD3D(e.mFormat);
+			desc.SemanticName = e.mName.c_str();
+			desc.SemanticIndex = 0;
+			desc.AlignedByteOffset = offset;
+			desc.InputSlot = 0;
+			desc.InputSlotClass = e.mIsInstanced ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+			desc.InstanceDataStepRate = 0;
+			layoutD3D.emplace_back(desc);
+			offset += VertexLayout::GetVertexFormatSize(e.mFormat);
+		}
+		return layoutD3D;
 	}
 
-	ID3D11PixelShader* ShaderD3D11::GetPixelShader() const
+	DXGI_FORMAT ShaderProgramD3D11::GetVertexFormatD3D(VertexFormat format) const
 	{
-		return mPixelShader.Get();
-	}
-
-	ID3D11InputLayout* ShaderD3D11::GetInputLayout() const
-	{
-		return mInputLayout.Get();
+		switch (format) {
+		case VertexFormat::Float2: return DXGI_FORMAT_R32G32_FLOAT;
+		case VertexFormat::Float3: return DXGI_FORMAT_R32G32B32_FLOAT;
+		case VertexFormat::Unknown:
+		default: return DXGI_FORMAT_UNKNOWN;
+		}
 	}
 }
 #endif

@@ -43,6 +43,7 @@ struct WindowContext {
 	std::unique_ptr<Window> mWindow;
 	std::unique_ptr<ImGuiInstance> mImGui;
 	std::shared_ptr<SwapChain> mSwapChain;
+	Camera mCamera;
 };
 
 void TestWindow()
@@ -66,27 +67,26 @@ void TestWindow()
 		window.mSwapChain->SetVSyncEnabled(true);
 		window.mImGui = std::make_unique<ImGuiInstance>();
 		window.mImGui->Init(*gfx, *window.mWindow);
+		window.mCamera.SetPosition({ 0.f, 300, -300.f });
+		window.mCamera.SetFieldOfView(60.f);
 	}
 
 
 
 	VertexShaderCBData vertexCB;
 	PixelShaderCBData pixelCB;
-	Camera camera;
-	camera.SetPosition({ 0.f, 300, -300.f });
-	camera.SetFieldOfView(60.f);
-
 
 	auto constantBufferVS = gfx->CreateConstantBuffer<VertexShaderCBData>(vertexCB);
 	auto constantBufferPS = gfx->CreateConstantBuffer<PixelShaderCBData>(pixelCB);
-	auto shader = gfx->CreateShader("Default");
+	auto shader = gfx->CreateShaderProgram("Default", "Resources/Shaders", {
+		{"POSITION", VertexFormat::Float3},
+		{"TEXTURE_COORD", VertexFormat::Float2},
+		{"NORMAL", VertexFormat::Float3},
+	});
 	auto modelTexture = gfx->CreateTexture(TextureType::Diffuse, "Resources/Textures/TestHumanoid_CLR.png");
 
 	Model model(*gfx, "Resources/Models/TestHumanoid_Model.fbx", constantBufferVS);
-	for(auto& mesh : model.GetMeshes()) {
-		mesh.AddTexture(modelTexture);
-	}
-	
+
 	Mat4 worldMatrix;
 
 	char buffText[256] = {};
@@ -101,6 +101,7 @@ void TestWindow()
 			Window* window = windowCtx.mWindow.get();
 			SwapChain* swapChain = windowCtx.mSwapChain.get();
 			ImGuiInstance& imgui = *windowCtx.mImGui;
+			Camera& camera = windowCtx.mCamera;
 
 			window->BeginFrame();
 			imgui.NewFrame();
@@ -224,9 +225,9 @@ void TestWindow()
 				camera.SetPosition({ position[0], position[1], position[2] });
 			}
 			ImGui::Checkbox("Camera Look At", &isCameraLookAtEnabled);
-			bool projPers = camera.GetProjectionType() == ProjectionType::Perspective;
+			bool projPers = camera.GetProjectionType() == Camera::ProjectionType::Perspective;
 			if(ImGui::Checkbox("Is Perspective", &projPers)) {
-				camera.SetProjectionType(projPers ? ProjectionType::Perspective : ProjectionType::Orthographic);
+				camera.SetProjectionType(projPers ? Camera::ProjectionType::Perspective : Camera::ProjectionType::Orthographic);
 			}
 
 
@@ -234,6 +235,7 @@ void TestWindow()
 
 			RenderTarget* target = swapChain->GetRenderTarget();
 			ctx->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+
 			ctx->SetRenderTarget(target);
 			ctx->Clear(Color{ .3f,0,0.f });
 
@@ -246,8 +248,13 @@ void TestWindow()
 			{
 				ctx->UpdateBuffer(*constantBufferPS, &pixelCB, sizeof(pixelCB));
 				ctx->SetConstantBuffer(*constantBufferPS, ShaderType::Fragment);
-				ctx->SetShader(shader.get());
-				model.Draw(*ctx, camera, worldMatrix);
+				ctx->SetShaderProgram(shader.get());
+				ctx->SetTexture(modelTexture.get());
+				for (int i = 0; i < 1; ++i) {
+					for (int j = 0; j < 1; ++j) {
+						model.Draw(*ctx, camera, Math::Translate(worldMatrix, { i*100.f,0,j * 100.f }));
+					}
+				}
 			}
 
 			imgui.Draw();

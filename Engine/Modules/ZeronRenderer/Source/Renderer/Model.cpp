@@ -101,12 +101,12 @@ namespace Zeron
 			}
 		}
 
-		std::vector<std::shared_ptr<Texture>> textures;
-		aiMaterial* material = scene->mMaterials[meshNode->mMaterialIndex];
-		std::vector<std::shared_ptr<Texture>> diffuseTexture = LoadMaterialTextures(graphics, scene, material, TextureType::Diffuse);
-		textures.insert(textures.end(), diffuseTexture.begin(), diffuseTexture.end());
+		//std::vector<std::shared_ptr<Texture>> textures;
+		//aiMaterial* material = scene->mMaterials[meshNode->mMaterialIndex];
+		//std::vector<std::shared_ptr<Texture>> diffuseTexture = LoadMaterialTextures(graphics, scene, material, TextureType::Diffuse);
+		//textures.insert(textures.end(), diffuseTexture.begin(), diffuseTexture.end());
 
-		return Mesh(graphics, vertices, indices, textures, transform);
+		return Mesh(graphics, vertices, indices, transform);
 	}
 
 	std::vector<std::shared_ptr<Texture>> Model::LoadMaterialTextures(Graphics& graphics, const aiScene* scene,

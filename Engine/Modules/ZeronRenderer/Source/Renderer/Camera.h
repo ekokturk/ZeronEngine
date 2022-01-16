@@ -4,14 +4,14 @@
 
 namespace Zeron
 {
-	enum class ProjectionType {
-		Perspective,
-		Orthographic
-	};
-
-	
 	class Camera {
 	public:
+		
+		enum class ProjectionType {
+			Perspective,
+			Orthographic
+		};
+		
 		Camera();
 		Camera(const Vec2& viewSize, float clipStart, float clipEnd);
 		Camera(float fovDegrees, const Vec2& viewSize, float clipStart, float clipEnd);

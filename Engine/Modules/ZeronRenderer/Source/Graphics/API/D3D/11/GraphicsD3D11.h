@@ -31,16 +31,22 @@ namespace Zeron
 		~GraphicsD3D11();
 		
 		virtual bool Init() override;
-
+		
 		GraphicsType GetGraphicsType() const override;
-		
 		std::shared_ptr<GraphicsContext> GetImmediateContext() const override;
-		
+
+		// Graphics
 		virtual std::shared_ptr<GraphicsContext> CreateGraphicsContext() override;
 		virtual std::shared_ptr<SwapChain> CreateSwapChain(Window& window) override;
 
-		virtual std::shared_ptr<Shader> CreateShader(const std::string& name) override;
-		
+		// Shader
+		std::shared_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName,
+			const std::string& shaderDirectory, const VertexLayout& layout) override;
+		std::shared_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName,
+			const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader,
+			const VertexLayout& layout) override;
+
+		// Texture
 		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const Color& data) override;
 		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) override;
 		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const std::string& path) override;
@@ -56,7 +62,7 @@ namespace Zeron
 		ID3D11Device* GetDeviceD3D() const;
 		ID3D11DeviceContext* GetDeviceContextD3D() const;
 
-	
+		
 	private:
 		ZE::ComPtr<IDXGIFactory> mFactory;
 		std::vector<GraphicsAdapterD3D11> mGraphicsAdapters;
