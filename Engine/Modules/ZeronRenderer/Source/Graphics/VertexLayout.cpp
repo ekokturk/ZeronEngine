@@ -14,10 +14,6 @@ namespace Zeron
 		return mElements;
 	}
 
-	void VertexLayout::ForEachElement(std::function<void(const VertexLayout::Element&)> callback)
-	{
-	}
-
 	uint32_t VertexLayout::GetVertexFormatSize(VertexFormat format)
 	{
 		switch (format) {

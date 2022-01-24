@@ -57,8 +57,8 @@ void TestWindow()
 	std::vector<WindowContext> windowCtxList;
 
 	windowCtxList.emplace_back(WindowContext(Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("SDL", 800, 600, 0))));
-	windowCtxList.emplace_back(WindowContext(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32", 800, 600, 0))));
-	windowCtxList.emplace_back(WindowContext(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW", 800, 600, 0))));
+	//windowCtxList.emplace_back(WindowContext(Window::CreatePlatformWindow(WindowAPI::Win32, WindowConfig("Win32", 800, 600, 0))));
+	//windowCtxList.emplace_back(WindowContext(Window::CreatePlatformWindow(WindowAPI::GLFW, WindowConfig("GLFW", 800, 600, 0))));
 
 
 	for (auto& window : windowCtxList) {
@@ -67,21 +67,32 @@ void TestWindow()
 		window.mSwapChain->SetVSyncEnabled(true);
 		window.mImGui = std::make_unique<ImGuiInstance>();
 		window.mImGui->Init(*gfx, *window.mWindow);
-		window.mCamera.SetPosition({ 0.f, 300, -300.f });
+		window.mCamera.SetPosition({ 0.f, 200, -400.f });
 		window.mCamera.SetFieldOfView(60.f);
 	}
 
+	std::vector<VertexInstance> instanceData;
+	const uint32_t instanceCountN = 100;
+	const uint32_t instanceCountM = 100;
+	for (int i = 0; i < instanceCountN; ++i) {
+		for (int j = 0; j < instanceCountM; ++j) {
+			instanceData.emplace_back(VertexInstance{ {i * 10.f, j * 10.f, 0 } });
+		}
+	}
+	auto instanceBuffer = gfx->CreateVertexBuffer<VertexInstance>(instanceData);
 
 
 	VertexShaderCBData vertexCB;
 	PixelShaderCBData pixelCB;
 
+	auto perObjectConstant = gfx->CreateConstantBuffer<VertexShaderCBData>(vertexCB);
 	auto constantBufferVS = gfx->CreateConstantBuffer<VertexShaderCBData>(vertexCB);
 	auto constantBufferPS = gfx->CreateConstantBuffer<PixelShaderCBData>(pixelCB);
-	auto shader = gfx->CreateShaderProgram("Default", "Resources/Shaders", {
+	auto shader = gfx->CreateShaderProgram("Standard", "Resources/Shaders", {
 		{"POSITION", VertexFormat::Float3},
 		{"TEXTURE_COORD", VertexFormat::Float2},
 		{"NORMAL", VertexFormat::Float3},
+		{"INSTANCE_POS", VertexFormat::Float3, true, 1},
 	});
 	auto modelTexture = gfx->CreateTexture(TextureType::Diffuse, "Resources/Textures/TestHumanoid_CLR.png");
 
@@ -242,7 +253,7 @@ void TestWindow()
 			const Vec2i windowSize = swapChain->GetWindowSize();
 			camera.SetViewSize({ static_cast<float>(windowSize.X), static_cast<float>(windowSize.Y) });
 			if(isCameraLookAtEnabled) {
-				camera.LookAt({ 0,0,-150 });
+				camera.LookAt({ 0,100,0 });
 			}
 
 			{
@@ -250,10 +261,17 @@ void TestWindow()
 				ctx->SetConstantBuffer(*constantBufferPS, ShaderType::Fragment);
 				ctx->SetShaderProgram(shader.get());
 				ctx->SetTexture(modelTexture.get());
-				for (int i = 0; i < 1; ++i) {
-					for (int j = 0; j < 1; ++j) {
-						model.Draw(*ctx, camera, Math::Translate(worldMatrix, { i*100.f,0,j * 100.f }));
-					}
+				const auto& meshes = model.GetMeshes();
+				for (const auto& modelMesh : meshes) {
+					Mat4 buffer[2];
+					buffer[0] = camera.GetProjectionMatrix() * camera.GetViewMatrix() * worldMatrix * modelMesh.GetTransform();
+					buffer[1] = worldMatrix * modelMesh.GetTransform();
+					ctx->UpdateBuffer(*perObjectConstant, &buffer, sizeof(buffer));
+					ctx->SetConstantBuffer(*perObjectConstant, ShaderType::Vertex);
+					Buffer* vertexBuff[2] = { modelMesh.GetVertexBuffer(), instanceBuffer.get() };
+					ctx->SetVertexBuffers(vertexBuff, 2);
+					ctx->SetIndexBuffer(*modelMesh.GetIndexBuffer());
+					ctx->DrawInstancedIndexed(modelMesh.GetIndexBuffer()->GetCount(), instanceCountM*instanceCountN);
 				}
 			}
 

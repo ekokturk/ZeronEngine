@@ -34,8 +34,6 @@ namespace Zeron
 		ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& layout);
 		ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, 
 			const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& layout);
-		
-		virtual void Bind(GraphicsContext& graphicsContext) override;
 
 		ID3D11InputLayout* GetInputLayoutD3D() const;
 	

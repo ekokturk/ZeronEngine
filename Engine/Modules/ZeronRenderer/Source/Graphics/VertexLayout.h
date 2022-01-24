@@ -16,13 +16,12 @@ namespace Zeron
 		struct Element {
 			std::string mName;
 			VertexFormat mFormat = VertexFormat::Unknown;
-			bool mIsNormalized = false;
 			bool mIsInstanced = false;
+			uint8_t mSlot = 0;
 		};
 
 		VertexLayout(const std::initializer_list<Element>& elements);
 		const std::vector<Element>& GetElements() const;
-		void ForEachElement(std::function<void(const VertexLayout::Element&)> callback);
 
 		static uint32_t GetVertexFormatSize(VertexFormat format);
 	

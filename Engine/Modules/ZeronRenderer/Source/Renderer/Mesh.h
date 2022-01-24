@@ -21,6 +21,8 @@ namespace Zeron
 		void Draw(GraphicsContext& ctx);
 
 		const Mat4& GetTransform() const;
+		Buffer* GetVertexBuffer() const;
+		Buffer* GetIndexBuffer() const;
 	
 	private:
 		std::shared_ptr<Buffer> mVertexBuffer;
