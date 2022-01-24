@@ -36,6 +36,11 @@ namespace Zeron {
 		D3D_ASSERT(mDeviceContext->OMSetRenderTargets(1, renderView, mRenderTarget->GetDepthStencilD3D()));
 	}
 
+	void GraphicsContextD3D11::Draw(uint32_t vertexCount, uint32_t vertexStart)
+	{
+		D3D_ASSERT(mDeviceContext->Draw(vertexCount, vertexStart));
+	}
+
 	void GraphicsContextD3D11::SetShader(Shader* shader)
 	{
 		if(!shader) {
@@ -101,14 +106,29 @@ namespace Zeron {
 		D3D_ASSERT(mDeviceContext->IASetPrimitiveTopology(toplogyApi));
 	}
 
-	void GraphicsContextD3D11::SetVertexBuffer(Buffer& vb)
+	void GraphicsContextD3D11::SetVertexBuffer(Buffer& vb, uint32_t slot)
 	{
 		ZE_ASSERT(vb.GetBufferType() == BufferType::Vertex, "Invalid buffer type!");
 		const auto& vbAPI = static_cast<BufferD3D11&>(vb);
 		ID3D11Buffer* arr[] = { vbAPI.GetBufferD3D() };
 		uint32_t stride[] = { vbAPI.GetStride() };
 		uint32_t offset[] = { 0 };
-		D3D_ASSERT(mDeviceContext->IASetVertexBuffers(0, 1, arr, stride, offset));
+		D3D_ASSERT(mDeviceContext->IASetVertexBuffers(slot, 1, arr, stride, offset));
+	}
+
+	void GraphicsContextD3D11::SetVertexBuffers(Buffer** vb, uint32_t count, uint32_t slot)
+	{
+		//ZE_ASSERT(vb.GetBufferType() == BufferType::Vertex, "Invalid buffer type!");
+		std::vector<ID3D11Buffer*> arr;
+		std::vector<uint32_t> stride;
+		std::vector<uint32_t> offset;
+		for(uint32_t i = 0; i < count; ++i) {
+			const BufferD3D11* vbAPI = static_cast<BufferD3D11*>(vb[i]);
+			arr.push_back(vbAPI->GetBufferD3D());
+			stride.push_back(vbAPI->GetStride());
+			offset.push_back(0);
+		}
+		D3D_ASSERT(mDeviceContext->IASetVertexBuffers(slot, count, arr.data(), stride.data(), offset.data()));
 	}
 
 	void GraphicsContextD3D11::SetIndexBuffer(Buffer& ib)
@@ -147,6 +167,18 @@ namespace Zeron {
 	void GraphicsContextD3D11::DrawIndexed(uint32_t indexCount, uint32_t indexStart)
 	{
 		D3D_ASSERT(mDeviceContext->DrawIndexed(indexCount, indexStart, 0));
+	}
+
+	void GraphicsContextD3D11::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart,
+		uint32_t instanceStart)
+	{
+		D3D_ASSERT(mDeviceContext->DrawInstanced(vertexCount, instanceCount, vertexStart, instanceStart));
+	}
+
+	void GraphicsContextD3D11::DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t indexStart,
+		uint32_t baseVertexLocation, uint32_t instanceStart)
+	{
+		D3D_ASSERT(mDeviceContext->DrawIndexedInstanced(indexCount, instanceCount, indexStart, baseVertexLocation, instanceStart));
 	}
 
 	void GraphicsContextD3D11::Clear(Color color)

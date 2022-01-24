@@ -71,6 +71,7 @@ if(WIN32)
                 VS_SHADER_TYPE ${HLSL_SHADER_TYPE} 
                 VS_SHADER_MODEL ${HLSL_SHADER_MODEL}
                 VS_SHADER_ENTRYPOINT main
+                VS_SHADER_ENABLE_DEBUG 1
         )
     endforeach()
     

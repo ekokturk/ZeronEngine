@@ -23,8 +23,6 @@ namespace Zeron
 	public:
 		virtual ~ShaderProgram() = default;
 
-		virtual void Bind(GraphicsContext& graphicsContext) = 0;
-
 		Shader* GetShader(ShaderType type) const;
 		const std::string& GetShaderName() const;
 	

@@ -13,4 +13,8 @@ namespace Zeron
 		 Vec3 mNormal;
 
 	};
+
+	struct VertexInstance {
+		Vec3 mInstancePosition;
+	};
 }

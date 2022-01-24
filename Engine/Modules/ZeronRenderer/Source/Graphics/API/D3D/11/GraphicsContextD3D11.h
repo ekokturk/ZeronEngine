@@ -26,7 +26,8 @@ namespace Zeron
 		~GraphicsContextD3D11();
 
 		virtual void SetPrimitiveTopology(PrimitiveTopology topology) override;
-		virtual void SetVertexBuffer(Buffer& vb) override;
+		virtual void SetVertexBuffer(Buffer& vb, uint32_t slot) override;
+		virtual void SetVertexBuffers(Buffer** vb, uint32_t count, uint32_t slot = 0) override;
 		virtual void SetIndexBuffer(Buffer& ib) override;
 		virtual void SetConstantBuffer(Buffer& cb, ShaderType type, uint32_t slot) override;
 		virtual void SetShader(Shader* shader) override;
@@ -39,7 +40,11 @@ namespace Zeron
 		
 		virtual void SetRenderTarget(RenderTarget* target) override;
 
+		virtual void Draw(uint32_t vertexCount, uint32_t vertexStart) override;
 		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexStart) override;
+		virtual void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)  override;
+		virtual void DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t indexStart, uint32_t baseVertexLocation, uint32_t instanceStart)  override;
+
 		virtual void Clear(Color color) override;
 
 		virtual void ResizeSwapChain(SwapChain& swapChain, const Vec2i& size) override;

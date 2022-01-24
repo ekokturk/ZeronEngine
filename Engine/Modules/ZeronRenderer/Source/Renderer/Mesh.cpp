@@ -29,4 +29,14 @@ namespace Zeron
 	{
 		return mTransform;
 	}
+
+	Buffer* Mesh::GetVertexBuffer() const
+	{
+		return mVertexBuffer.get();
+	}
+
+	Buffer* Mesh::GetIndexBuffer() const
+	{
+		return mIndexBuffer.get();
+	}
 }

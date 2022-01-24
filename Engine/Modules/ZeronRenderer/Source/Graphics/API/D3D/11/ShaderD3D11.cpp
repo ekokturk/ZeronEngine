@@ -63,11 +63,6 @@ namespace Zeron
 		CreateInputLayout_(graphics, layout);
 	}
 
-	void ShaderProgramD3D11::Bind(GraphicsContext& graphicsContext)
-	{
-		//D3D_ASSERT(mDeviceContext->IASetInputLayout(shaderApi->GetInputLayout()));
-	}
-
 	ID3D11InputLayout* ShaderProgramD3D11::GetInputLayoutD3D() const
 	{
 		return mInputLayout.Get();
@@ -87,19 +82,24 @@ namespace Zeron
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> ShaderProgramD3D11::GetVertexLayoutD3D(const VertexLayout& layout) const
 	{
+		int currentSlot = -1;
 		uint32_t offset = 0;
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutD3D;
 		for (const auto& e : layout.GetElements()) {
+			if(currentSlot < e.mSlot) {
+				currentSlot = e.mSlot;
+				offset = 0;
+			}
 			D3D11_INPUT_ELEMENT_DESC desc;
 			desc.Format = GetVertexFormatD3D(e.mFormat);
 			desc.SemanticName = e.mName.c_str();
 			desc.SemanticIndex = 0;
-			desc.AlignedByteOffset = offset;
-			desc.InputSlot = 0;
+			desc.InputSlot = e.mSlot;
 			desc.InputSlotClass = e.mIsInstanced ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
-			desc.InstanceDataStepRate = 0;
-			layoutD3D.emplace_back(desc);
+			desc.InstanceDataStepRate = e.mIsInstanced ? 1 : 0;
+			desc.AlignedByteOffset = offset;
 			offset += VertexLayout::GetVertexFormatSize(e.mFormat);
+			layoutD3D.emplace_back(desc);
 		}
 		return layoutD3D;
 	}
