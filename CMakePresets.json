@@ -1,0 +1,44 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 22,
+        "patch": 3
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "binaryDir": "${sourceDir}/Solution/${presetName}",
+            "cacheVariables": {
+                "CMAKE_CXX_STANDARD": "17",
+                "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "environment": {
+            }
+        },
+        {
+            "name": "dev",
+            "cacheVariables": {
+                "ZERON_SANDBOX": true,
+                "ZERON_TEST_FRAMEWORK": true
+            }
+        },
+        {
+            "name": "Win32_x64",
+            "displayName": "Windows Desktop 64-bit",
+            "generator": "Visual Studio 16 2019",
+            "inherits": ["base", "dev"],
+            "architecture": {
+                "value": "x64", "strategy": "set"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        }
+    ],
+    "buildPresets": [
+    ],
+    "testPresets": [
+    ]
+}

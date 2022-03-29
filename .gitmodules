@@ -1,0 +1,27 @@
+[submodule "assimp - Asset Import Library"]
+	path = Engine/ThirdParty/assimp/.submodule
+	url = https://github.com/assimp/assimp.git
+[submodule "fmt - Formatting Library"]
+	path = Engine/ThirdParty/fmt/.submodule
+	url = https://github.com/fmtlib/fmt.git
+[submodule "glad - OpenGL Loader"]
+	path = Engine/ThirdParty/GLAD/.submodule
+	url = https://github.com/Dav1dde/glad.git
+[submodule "glfw - Desktop Window Library"]
+	path = Engine/ThirdParty/GLFW/.submodule
+	url = https://github.com/glfw/glfw.git
+[submodule "glm - Math Library"]
+	path = Engine/ThirdParty/glm/.submodule
+	url = https://github.com/g-truc/glm.git
+[submodule "GoogleTest - Testing and Mocking Framework"]
+	path = Engine/ThirdParty/GoogleTest/.submodule
+	url = https://github.com/google/googletest.git
+[submodule "ImGui - Graphical User Interface Library"]
+	path = Engine/ThirdParty/ImGui/.submodule
+	url = https://github.com/ocornut/imgui.git
+[submodule "STB - Image Loading Library"]
+	path = Engine/ThirdParty/stb/.submodule
+	url = https://github.com/nothings/stb.git
+[submodule "SLD2 - Multi-platform Window Library"]
+	path = Engine/ThirdParty/SDL2/.submodule
+	url = https://github.com/libsdl-org/SDL.git

@@ -1,4 +1,3 @@
-# Set output directory of the binary files to designated folders
 macro(init_output_directory path)
     if(NOT DEFINED ${OUTPUT_DIRECTORY})
         set(OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Binaries")
@@ -11,22 +10,6 @@ macro(init_output_directory path)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIRECTORY}/Release/${path})
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIRECTORY}/Release/${path})
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIRECTORY}/Release/${path})
-
-endmacro()
-
-macro(add_subdirectories path)
-    file(GLOB dirs ${path}/*)
-    foreach(dir ${dirs})
-        if(EXISTS "${dir}/CMakeLists.txt")
-            add_subdirectory(${dir})
-        endif()
-    endforeach()
-endmacro()
-
-macro(add_target )
-    file(GLOB_RECURSE module_files	"${module_dir}/*.cpp"	"${module_dir}/*.h")
-    source_group(TREE "${module_dir}"	PREFIX "Source Files/" FILES ${module_files})
-    add_library(${module_name} SHARED ${module_files})
 endmacro()
 
 macro(add_zeron_module module_name module_dir)
