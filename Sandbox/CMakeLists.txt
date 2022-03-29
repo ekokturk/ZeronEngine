@@ -4,6 +4,7 @@
 init_output_directory("")
 
 # =========== TARGET ===========
+message("Generating Sandbox project...")
 
 set(SANDBOX_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 
@@ -15,6 +16,8 @@ add_executable(
 )
 
 target_link_libraries(Sandbox PUBLIC ZeronClient)
-#target_precompile_headers(Sandbox REUSE_FROM ZeronEngine)
 
-set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Sandbox>)
+if(MSVC)
+    set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Sandbox>)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
+endif()

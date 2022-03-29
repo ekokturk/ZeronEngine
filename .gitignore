@@ -1,7 +1,8 @@
 ## ===================== ZERON ENGINE =====================
 Solution/
 Engine/ThirdParty/*/*
-!Engine/ThirdParty/*/install.py
+!Engine/ThirdParty/*/update.py
+CMakeUserPresets.json
 
 # VS Code
 .vscode

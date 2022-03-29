@@ -1,6 +1,8 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
+message("Generating Zeron Engine...")
 # --- Config
+include("${CMAKE_CURRENT_SOURCE_DIR}/Tools/CMake/ZeronMacros.cmake")
 
 # ========== ENGINE DEPENDENCIES =========
 set(ZERON_THIRDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty")
@@ -16,7 +18,6 @@ add_subdirectory("${ZERON_SOURCE_DIR}/ZeronCore")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronRenderer")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronClient")
 
-option(BUILD_ZERON_TEST "Build Zeron Engine unit tests" ON)
-if(BUILD_ZERON_TEST)
+if(ZERON_TEST_FRAMEWORK)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/Tests")
 endif()

@@ -1,20 +1,15 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#CMake version
-cmake_minimum_required(VERSION 3.14)
-
-include("${CMAKE_CURRENT_SOURCE_DIR}/Tools/CMake/Macros.cmake")
+cmake_minimum_required(VERSION 3.22.3)
 
 # ============ PROJECT ============
 project(ZERONENGINE)
-set(VERSION_MAJOR 1)
-set(VERSION_MINOR 0)
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 1)
 set(VERSION_PATCH 0)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "PredefinedTargets")
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS TRUE)
 
 # ============  PLATFORM CONFIG =============
@@ -24,18 +19,11 @@ if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE) # Symbols are exported by default for DLLs
 endif()
 
-# ============  ENGINE CONFIG =============
-option(BUILD_SANDBOX "Generate Sandbox" ON)
-
 # ============  ENGINE =============
-message("Generating Zeron Engine...")
 add_subdirectory(Engine)
 
 # ============  SANDBOX =============
-if(BUILD_SANDBOX)
-    message("Generating Sandbox project...")
+if(ZERON_SANDBOX)
     add_subdirectory(Sandbox)
-    # Set Sandbox as Visual Studio Startup Project
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
 endif()
 
