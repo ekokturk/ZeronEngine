@@ -1,6 +1,6 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "Logger.h"
+#include <Core/Logger.h>
 
 namespace Zeron
 {

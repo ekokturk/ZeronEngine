@@ -1,6 +1,6 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "MouseCode.h"
+#include <Window/Input/MouseCode.h>
 
 namespace Zeron {
 

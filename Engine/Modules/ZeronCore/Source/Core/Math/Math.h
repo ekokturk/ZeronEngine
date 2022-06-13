@@ -2,15 +2,14 @@
 
 #pragma once
 
-#include "Core/Math/Vec2.h"
-#include "Core/Math/Vec3.h"
-#include "Core/Math/Vec4.h"
-#include "Core/Math/Mat3.h"
-#include "Core/Math/Mat4.h"
-
-#include "glm/glm.hpp"
-#include "glm/gtx/transform.hpp"
-#include "glm/gtx/euler_angles.hpp"
+#include <Core/Math/Mat3.h>
+#include <Core/Math/Mat4.h>
+#include <Core/Math/Vec2.h>
+#include <Core/Math/Vec3.h>
+#include <Core/Math/Vec4.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 namespace Zeron
 {

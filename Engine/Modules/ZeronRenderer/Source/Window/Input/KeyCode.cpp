@@ -1,6 +1,6 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "KeyCode.h"
+#include <Window/Input/KeyCode.h>
 
 namespace Zeron
 {

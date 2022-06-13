@@ -2,8 +2,8 @@
 
 #pragma once
 
-namespace Zeron {
-
+namespace Zeron
+{
 	enum class FullScreenType : uint8_t
 	{
 		Borderless,		// Borderless Fullscreen Window
@@ -29,5 +29,4 @@ namespace Zeron {
 		int mHeight;
 		bool mIsFullScreen;
 	};
-
 }

@@ -1,6 +1,6 @@
 ﻿// Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "Material.h"
+#include <Renderer/Material.h>
 
 namespace Zeron
 {

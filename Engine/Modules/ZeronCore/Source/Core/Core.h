@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Logger.h"
+#include <Core/Logger.h>
 
 #define ZE_STRING(s) #s
 #define ZE_XSTRING(s) ZE_STRING(s)

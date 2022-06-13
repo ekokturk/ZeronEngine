@@ -1,9 +1,9 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "WindowEvents.h"
+#include <Window/WindowEvents.h>
 
-namespace Zeron {
-	
+namespace Zeron
+{
 	WindowEvent::WindowEvent() 
 		: mID(WindowEventID::Invalid)
 	{

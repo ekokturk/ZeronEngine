@@ -1,13 +1,14 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #pragma once
-#include "Types/Color.h"
-#include "Types/Enum.h"
+
+#include <Core/Types/Color.h>
+#include <Core/Types/Enum.h>
 #pragma warning( disable : 4003)
-#include "fmt/core.h"
-#include "fmt/color.h"
-#include "fmt/chrono.h"
-#include "fmt/printf.h"
+#include <fmt/core.h>
+#include <fmt/color.h>
+#include <fmt/chrono.h>
+#include <fmt/printf.h>
 
 namespace Zeron {
 	enum LogSink

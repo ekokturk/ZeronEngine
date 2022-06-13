@@ -7,5 +7,5 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 add_subdirectory(ZeronTestFramework)
 
-add_subdirectory(ZeronCoreTests)
-add_subdirectory(ZeronRendererTests)
+add_subdirectory(TestModule_ZeronCore)
+add_subdirectory(TestModule_ZeronRenderer)

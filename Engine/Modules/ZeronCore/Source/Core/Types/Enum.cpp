@@ -1,3 +1,3 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "Enum.h"
+#include <Core/Types/Enum.h>
