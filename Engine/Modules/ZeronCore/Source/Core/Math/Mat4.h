@@ -1,6 +1,7 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #pragma once
+
 #include <glm/detail/type_mat.hpp>
 
 namespace Zeron

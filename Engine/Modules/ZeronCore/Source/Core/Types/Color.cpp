@@ -1,7 +1,8 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "Color.h"
-#include "fmt/format.h"
+#include <Core/Types/Color.h>
+
+#include <fmt/format.h>
 
 namespace Zeron {
 

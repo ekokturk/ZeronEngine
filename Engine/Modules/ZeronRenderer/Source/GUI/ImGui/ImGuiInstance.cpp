@@ -1,9 +1,10 @@
 ﻿// Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "ImGuiInstance.h"
-#include "Graphics/Graphics.h"
-#include "Window/Window.h"
-#include "imgui/imgui_internal.h"
+#include <GUI/ImGui/ImGuiInstance.h>
+
+#include <Graphics/Graphics.h>
+#include <imgui/imgui_internal.h>
+#include <Window/Window.h>
 
 namespace Zeron
 {

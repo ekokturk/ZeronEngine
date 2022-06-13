@@ -2,17 +2,18 @@
 
 #pragma once
 
-#include "imgui/imgui.h"
-#include "ImGuiGraphics.h"
-#include "Window/Input/KeyCode.h"
+#include <GUI/ImGui/ImGuiGraphics.h>
+#include <imgui/imgui.h>
+#include <Window/Input/KeyCode.h>
+
+struct ImGuiContext;
 
 // TODO: Modify Cursor Type (e.g. drag arrow)
-
 namespace Zeron
 {
-	struct WindowEvent;
 	class Graphics;
 	class Window;
+	struct WindowEvent;
 
 	class ImGuiInstance {
 	public:

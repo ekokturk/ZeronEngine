@@ -1,13 +1,13 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "Window.h"
+#include <Window/Window.h>
 
-#include "Window/Platform/SDL/WindowSDL.h"
-#include "Window/Platform/GLFW/WindowGLFW.h"
-#include "Window/Platform/Win32/WindowWin32.h"
+#include <Window/API/GLFW/WindowGLFW.h>
+#include <Window/API/SDL/WindowSDL.h>
+#include <Window/API/Win32/WindowWin32.h>
 
-namespace Zeron {
-
+namespace Zeron
+{
 	Window::Window(const WindowConfig& config)
 		: mName(config.mName)
 		, mID(config.mID)

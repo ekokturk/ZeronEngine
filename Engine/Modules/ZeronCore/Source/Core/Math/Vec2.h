@@ -27,6 +27,10 @@ namespace Zeron
 			return X == other.X && Y == other.Y;
 		}
 
+		bool operator!=(const TVec2& other) const {
+			return X != other.X || Y != other.Y;
+		}
+
 		TVec2 operator+(const TVec2& other) const {
 			return { X + other.X, Y + other.Y };
 		}

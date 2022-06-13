@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "Window/Input/KeyCode.h"
-#include "Window/Input/MouseCode.h"
+#include <Window/Input/KeyCode.h>
+#include <Window/Input/MouseCode.h>
 
-namespace Zeron {
-
+namespace Zeron
+{
 	class Window;
 	
 	enum class WindowEventID : uint8_t {

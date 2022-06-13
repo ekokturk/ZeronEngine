@@ -1,12 +1,12 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #pragma once
-#include "Core/Math/Math.h"
-#include "Window/WindowConfig.h"
-#include "Window/WindowEvents.h"
 
-namespace Zeron {
+#include <Window/WindowConfig.h>
+#include <Window/WindowEvents.h>
 
+namespace Zeron
+{
 	class Window {
 	public:
 		static std::unique_ptr<Window> CreatePlatformWindow(WindowAPI type, const WindowConfig& config);

@@ -43,12 +43,6 @@ list(APPEND MODULE_LIBS_PRIVATE assimp)
 if(WIN32)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_WIN32=1)
 
-    # ======== D3D ========
-    target_compile_definitions(ZeronRenderer PUBLIC ZE_GRAPHICS_D3D=1)
-    list(APPEND MODULE_LIBS_PRIVATE dxgi)
-    list(APPEND MODULE_LIBS_PRIVATE d3d11)
-    list(APPEND MODULE_LIBS_PRIVATE D3DCompiler)
-
     # ======== HLSL ========
     file(GLOB_RECURSE HLSL_SHADERS "${SHADER_DIRECTORY}/HLSL/*.hlsl")
     source_group(TREE "${SHADER_DIRECTORY}/HLSL/" PREFIX "Shaders/HLSL" FILES ${HLSL_SHADERS})
@@ -87,6 +81,7 @@ target_include_directories(ZeronRenderer
 target_link_libraries(ZeronRenderer
     PUBLIC
         ZeronCore
+        ZeronGraphics
         ${MODULE_LIBS_PUBLIC}
     PRIVATE
         ${MODULE_LIBS_PRIVATE}

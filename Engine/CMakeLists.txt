@@ -15,8 +15,8 @@ init_output_directory("")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DZE_DEBUG=1")
 
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronCore")
+add_subdirectory("${ZERON_SOURCE_DIR}/ZeronGraphics")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronRenderer")
-add_subdirectory("${ZERON_SOURCE_DIR}/ZeronClient")
 
 if(ZERON_TEST_FRAMEWORK)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/Tests")

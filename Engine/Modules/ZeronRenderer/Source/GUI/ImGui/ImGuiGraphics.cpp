@@ -1,10 +1,12 @@
 ﻿// Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "ImGuiGraphics.h"
-#include "Graphics/Graphics.h"
+#include <GUI/ImGui/ImGuiGraphics.h>
+
+#include <Graphics/Graphics.h>
+
 #if ZE_GRAPHICS_D3D
-#include "imgui/imgui_impl_dx11.h"
-#include "Graphics/API/D3D/11/GraphicsD3D11.h"
+#include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#include <imgui/imgui_impl_dx11.h>
 #endif
 
 namespace Zeron
