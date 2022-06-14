@@ -96,8 +96,9 @@ void TestWindow()
 		{"INSTANCE_POS", VertexFormat::Float3, true, 1},
 	});
 
-	Image colorTexture("Resources/Textures/TestHumanoid_CLR.png");
-	auto modelTexture = gfx->CreateTexture(TextureType::Diffuse, colorTexture.GetColorData(), colorTexture.GetWidth(), colorTexture.GetHeight());
+	Image colorTexture;
+	colorTexture.Load("Resources/Textures/TestHumanoid_CLR.png");
+	auto modelTexture = gfx->CreateTexture(TextureType::Diffuse, colorTexture.GetColorData().data(), colorTexture.GetWidth(), colorTexture.GetHeight());
 
 	Model model(*gfx, "Resources/Models/TestHumanoid_Model.fbx", constantBufferVS);
 

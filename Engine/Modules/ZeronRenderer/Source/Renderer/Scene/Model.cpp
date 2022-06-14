@@ -139,8 +139,9 @@ namespace Zeron
 				aiString path;
 				material->GetTexture(aiType, i, &path);
 				std::filesystem::path filePath(path.C_Str());
-				Image texture(filePath.string());
-				materialTextures.emplace_back(graphics.CreateTexture(type, texture.GetColorData(), texture.GetWidth(), texture.GetHeight()));
+				Image texture;
+				texture.Load(filePath.string());
+				materialTextures.emplace_back(graphics.CreateTexture(type, texture.GetColorData().data(), texture.GetWidth(), texture.GetHeight()));
 			}
 		}
 

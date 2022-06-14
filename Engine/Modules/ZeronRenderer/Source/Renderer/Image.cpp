@@ -7,40 +7,88 @@
 namespace Zeron
 {
 	Image::Image()
-		: mData(nullptr)
+		: mColorChannel(ColorChannel::None)
+		, mRawData(nullptr)
 	{
-	}
-
-	Image::Image(const std::string& path)
-		: mData(nullptr)
-	{
-		Load(path);
 	}
 
 	Image::~Image()
 	{
-		stbi_image_free(mData);
+		Clear();
 	}
 
-	bool Image::Load(const std::string& path)
+	bool Image::Load(const std::string& path, ColorChannel channel, bool storeRawData)
 	{
-		int channels = 0;
-		stbi_uc* imageData = stbi_load(path.c_str(), &mSize.X, &mSize.Y, &channels, STBI_rgb_alpha);
-		if (imageData && channels != 0) {
-			// TODO: Support loading other channels
-			// We can possibly use std::vector<Color> here for all channels
-			
-			mData = reinterpret_cast<Color*>(imageData);
-			return true;
+		const int desiredChannel = static_cast<int>(channel);
+		if(desiredChannel > 4 || desiredChannel < 1) {
+			ZE_FAIL("Requested invalid color channel to load '{}'", path.c_str());
+			return false;
 		}
 		
-		ZE_LOGE("Unable to load image '%s'", path.c_str());
-		return false;
+		Clear();
+		int fileChannels = 0;
+		stbi_uc* data = stbi_load(path.c_str(), &mSize.X, &mSize.Y, &fileChannels, desiredChannel);
+		ZE_ASSERT(fileChannels >= desiredChannel, "File '{}' does not contain the desired color channel!", path.c_str());
+		
+		if(!data) {
+			ZE_LOGE("Unable to load image '{}'!", path.c_str());
+			return false;
+		}
+
+		mPath = path;
+		// We either use raw byte data or RGBA CSolor for the loaded image
+		mColorChannel = channel;
+		if(storeRawData) {
+			mRawData = data;
+		}
+		else {
+			mData.reserve(mSize.X * mSize.Y * desiredChannel);
+			for (int j = 0; j < mSize.Y; ++j) {
+				for (int i = 0; i < mSize.X; ++i) {
+					const int index = desiredChannel * i + desiredChannel * mSize.X * j;
+					switch (mColorChannel) { 
+						case ColorChannel::Gray: {
+							mData.emplace_back(data[index], data[index], data[index]);
+						} break;
+						case ColorChannel::GrayA: {
+							mData.emplace_back(data[index], data[index], data[index], data[index + 1]);
+						} break;
+						case ColorChannel::RGB: {
+							mData.emplace_back(data[index], data[index + 1], data[index + 2]);
+						} break;
+						case ColorChannel::RGBA: {
+							mData.emplace_back(data[index], data[index + 1], data[index + 2], data[index + 3]);
+						} break;
+						case ColorChannel::None:
+						default: ZE_FAIL("Invalid color channel!");
+					}
+				}
+			}
+			stbi_image_free(data);
+		}
+		return true;
 	}
 
-	const Color* Image::GetColorData() const
+	void Image::Clear()
 	{
+		mSize = Vec2i::ZERO;
+		mColorChannel = ColorChannel::None;
+		mPath.clear();
+		mData.clear();
+		if (mRawData) {
+			stbi_image_free(mRawData);
+		}
+	}
+
+	const std::vector<Color>& Image::GetColorData() const
+	{
+		ZE_ASSERT(!mRawData, "Can't use Zeron::Color data when image stores raw data!");
 		return mData;
+	}
+
+	const unsigned char* Image::GetRawData() const
+	{
+		return mRawData;
 	}
 
 	int Image::GetWidth() const
@@ -51,5 +99,17 @@ namespace Zeron
 	int Image::GetHeight() const
 	{
 		return mSize.Y;
+	}
+
+	int Image::GetByteSize() const
+	{
+		return mRawData ?
+			mSize.X * mSize.Y * static_cast<int>(mColorChannel) :
+			static_cast<int>(mData.size()) * 4;
+	}
+
+	const std::string& Image::GetFilePath() const
+	{
+		return mPath;
 	}
 }
