@@ -4,6 +4,14 @@
 
 namespace Zeron {
 
+	enum class ColorChannel {
+		None = 0,
+		Gray = 1,
+		GrayA = 2,
+		RGB = 3,
+		RGBA = 4
+	};
+	
 	class Color {
 	public:
 		enum Palette {

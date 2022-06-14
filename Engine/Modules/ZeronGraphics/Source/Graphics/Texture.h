@@ -7,10 +7,6 @@
 namespace Zeron
 {
 	class Texture {
-		
-	protected:
-		static constexpr const char* RESOURCE_PATH = "Resources/Textures/";
-
 	public:
 		Texture(TextureType type);
 		virtual ~Texture() = default;
