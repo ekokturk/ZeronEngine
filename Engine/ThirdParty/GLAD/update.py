@@ -19,7 +19,7 @@ os.chdir(glad.path)
 
 glad.updateCMakeFile('''
 set(GLAD_FOLDER "ZeronEngine/ThirdParty/GLAD")
-add_library( glad SHARED "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c")
+add_library( glad "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c")
 set(GLAD_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_include_directories(glad PUBLIC ${GLAD_INCLUDE_DIR})
 target_compile_definitions(glad PUBLIC GLAD_GLAPI_EXPORT PRIVATE GLAD_GLAPI_EXPORT_BUILD)

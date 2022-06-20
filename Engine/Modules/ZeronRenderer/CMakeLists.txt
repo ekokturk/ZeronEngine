@@ -20,11 +20,6 @@ set(MODULE_LIBS_PRIVATE "")
 set(MODULE_LIBS_PUBLIC "")
 set(MODULE_INCLUDES "")
 
-if (TARGET glad)
-    target_compile_definitions(ZeronRenderer PUBLIC ZE_GRAPHICS_OPENGL=1)
-    list(APPEND MODULE_LIBS_PRIVATE glad opengl32)
-endif()
-
 if (TARGET glfw)
     target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_GLFW=1)
     list(APPEND MODULE_LIBS_PRIVATE glfw)

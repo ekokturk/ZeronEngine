@@ -1,11 +1,22 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
 # ============ THIRD PARTY ==============
-add_zeron_module_dependency(googletest)
+if (NOT MSVC)
+    include(CTest) 
+    include(Dart)
+endif()
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+add_zeron_module_dependency(GoogleTest)
 
-add_subdirectory(ZeronTestFramework)
+if(TARGET gtest)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-add_subdirectory(TestModule_ZeronCore)
-add_subdirectory(TestModule_ZeronRenderer)
+    # Zeron Test Dependencies
+    add_subdirectory(ZeronTestFramework)
+
+    # Zeron Test Modules
+    add_subdirectory(TestModule_ZeronCore)
+    add_subdirectory(TestModule_ZeronRenderer)
+else()
+    message(FATAL_ERROR "Google Test library was not found!")
+endif()

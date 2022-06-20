@@ -25,6 +25,17 @@ namespace TestModule_ZeronRenderer {
         	}
         }
 
+        static void TickForSeconds(float seconds = 1.f) {
+            const auto start = std::chrono::high_resolution_clock::now();
+		    double elapsedTime = 0.0;
+            do {
+                const auto end = std::chrono::high_resolution_clock::now();
+                elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+                TickFrame();
+            }
+            while (elapsedTime < (1 * 1000.0));
+        }
+
         static void TearDownTestSuite() {
             mWindow = nullptr;
         }
@@ -40,159 +51,159 @@ namespace TestModule_ZeronRenderer {
 
     TYPED_TEST_P(WindowTest, CreateRenamed_SetPrevName_HasPrevName)
     {
-        const std::string namePrev = mWindow->GetName();
+        const std::string namePrev = this->mWindow->GetName();
         const std::string nameNew = "New Name";
-        mWindow->SetName(nameNew);
-        TickFrame();
-        ASSERT_EQ(nameNew, mWindow->GetName());
+        this->mWindow->SetName(nameNew);
+        this->TickFrame();
+        ASSERT_EQ(nameNew, this->mWindow->GetName());
 
-        mWindow->SetName(namePrev);
-        TickFrame();
+        this->mWindow->SetName(namePrev);
+        this->TickFrame();
 
-        EXPECT_EQ(namePrev, mWindow->GetName());
+        EXPECT_EQ(namePrev, this->mWindow->GetName());
     }
 
     TYPED_TEST_P(WindowTest, GetPosition_SetNewPosition_PrevAndCurrentPosChanged)
     {
-        ASSERT_FALSE(mWindow->IsFullScreen());
-        const Vec2i oldPos = mWindow->GetPos();
+        ASSERT_FALSE(this->mWindow->IsFullScreen());
+        const Vec2i oldPos = this->mWindow->GetPos();
 
-        const Vec2i newPos = { 200, 250 };
-        mWindow->SetScreenPosition(newPos.X, newPos.Y);
-        TickFrame();
+        const Vec2i newPos = { 54, 74 };
+        this->mWindow->SetScreenPosition(newPos.X, newPos.Y);
+        this->TickForSeconds(.5f);
 
-        EXPECT_EQ(newPos, mWindow->GetPos());
-        EXPECT_EQ(oldPos, mWindow->GetPosPrev());
+        EXPECT_EQ(newPos, this->mWindow->GetPos());
+        EXPECT_EQ(oldPos, this->mWindow->GetPosPrev());
     }
 
     TYPED_TEST_P(WindowTest, CreateWindowed_SetSize_IsResized)
     {
-        mWindow->SetFullScreen(false);
-        TickFrame();
-        ASSERT_FALSE(mWindow->IsFullScreen());
+        this->mWindow->SetFullScreen(false);
+        this->TickForSeconds(.5f);
+        ASSERT_FALSE(this->mWindow->IsFullScreen());
 
-        const Vec2i oldSize = mWindow->GetSize();
+        const Vec2i oldSize = this->mWindow->GetSize();
         const Vec2i newSize(400, 500);
-        mWindow->SetSize(newSize.X, newSize.Y);
-        TickFrame();
+        this->mWindow->SetSize(newSize.X, newSize.Y);
+        this->TickForSeconds(.5f);
 
-        const Vec2i& currentSize = mWindow->GetSize();
-        const Vec2i& currentSizePrev = mWindow->GetSizePrev();
+        const Vec2i& currentSize = this->mWindow->GetSize();
+        const Vec2i& currentSizePrev = this->mWindow->GetSizePrev();
         EXPECT_EQ(newSize, currentSize);
         EXPECT_EQ(oldSize, currentSizePrev);
     }
 
     TYPED_TEST_P(WindowTest, CreateFullscreen_SetSizeAndRestore_NotResizedAndWindowed)
     {
-        mWindow->SetFullScreen(true);
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsFullScreen());
-        const Vec2i fullScreenSize = mWindow->GetSize();
-        const Vec2i fullScreenSizePrev = mWindow->GetSizePrev();
+        this->mWindow->SetFullScreen(true);
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsFullScreen());
+        const Vec2i fullScreenSize = this->mWindow->GetSize();
+        const Vec2i fullScreenSizePrev = this->mWindow->GetSizePrev();
 
-        mWindow->SetSize(400, 500);
-        TickFrame();
-        const Vec2i expectedSize = mWindow->GetSize();
-        const Vec2i expectedSizePrev = mWindow->GetSizePrev();
-        mWindow->SetFullScreen(false);
-        TickFrame();
+        this->mWindow->SetSize(400, 500);
+        this->TickFrame();
+        const Vec2i expectedSize = this->mWindow->GetSize();
+        const Vec2i expectedSizePrev = this->mWindow->GetSizePrev();
+        this->mWindow->SetFullScreen(false);
+        this->TickFrame();
 
         EXPECT_EQ(expectedSize, fullScreenSize);
         EXPECT_EQ(expectedSizePrev, fullScreenSizePrev);
-        EXPECT_FALSE(mWindow->IsFullScreen());
+        EXPECT_FALSE(this->mWindow->IsFullScreen());
     }
 
     TYPED_TEST_P(WindowTest, CreateFullscreen_SetPosition_IsNotRepositioned)
     {
-        mWindow->SetFullScreen(true);
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsFullScreen());
-        const Vec2i fullScreenPos = mWindow->GetPos();
-        const Vec2i fullScreenPosPrev = mWindow->GetPosPrev();
+        this->mWindow->SetFullScreen(true);
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsFullScreen());
+        const Vec2i fullScreenPos = this->mWindow->GetPos();
+        const Vec2i fullScreenPosPrev = this->mWindow->GetPosPrev();
 
-        mWindow->SetScreenPosition(200, 250);
-        TickFrame();
-        const Vec2i currentPos = mWindow->GetPos();
-        const Vec2i currentPosPrev = mWindow->GetPosPrev();
-        mWindow->SetFullScreen(false);
-        TickFrame();
+        this->mWindow->SetScreenPosition(200, 250);
+        this->TickFrame();
+        const Vec2i currentPos = this->mWindow->GetPos();
+        const Vec2i currentPosPrev = this->mWindow->GetPosPrev();
+        this->mWindow->SetFullScreen(false);
+        this->TickFrame();
 
         EXPECT_EQ(fullScreenPos, currentPos);
         EXPECT_EQ(fullScreenPosPrev, currentPosPrev);
-        EXPECT_FALSE(mWindow->IsFullScreen());
+        EXPECT_FALSE(this->mWindow->IsFullScreen());
     }
 
     TYPED_TEST_P(WindowTest, CreateMinimized_Restore_IsRestored)
     {
-        mWindow->SetMinimized();
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsMinimized());
+        this->mWindow->SetMinimized();
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsMinimized());
 
-        mWindow->SetRestored();
-        TickFrame();
+        this->mWindow->SetRestored();
+        this->TickFrame();
 
-        EXPECT_FALSE(mWindow->IsMinimized());
+        EXPECT_FALSE(this->mWindow->IsMinimized());
     }
 
     TYPED_TEST_P(WindowTest, CreateMaximized_MinimizeAndRestore_IsMaximized)
     {
-        mWindow->SetMaximized();
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsMaximized());
+        this->mWindow->SetMaximized();
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsMaximized());
 
-        mWindow->SetMinimized();
-        TickFrame();
-        mWindow->SetRestored();
-        TickFrame();
+        this->mWindow->SetMinimized();
+        this->TickFrame();
+        this->mWindow->SetRestored();
+        this->TickFrame();
 
-        EXPECT_TRUE(mWindow->IsMaximized());
+        EXPECT_TRUE(this->mWindow->IsMaximized());
     }
 
     TYPED_TEST_P(WindowTest, CreateMaximized_Restore_IsRestored)
     {
-        mWindow->SetMaximized();
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsMaximized());
+        this->mWindow->SetMaximized();
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsMaximized());
 
-        mWindow->SetRestored();
-        TickFrame();
+        this->mWindow->SetRestored();
+        this->TickFrame();
 
-        EXPECT_FALSE(mWindow->IsMaximized());
+        EXPECT_FALSE(this->mWindow->IsMaximized());
     }
 
     TYPED_TEST_P(WindowTest, CreateMaximized_MinimizeAndRestoreToWindowed_HasInitialSize)
     {
-        const Vec2i initialSize = mWindow->GetSize();
-        mWindow->SetMaximized();
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsMaximized());
-        const Vec2i maximizedSize = mWindow->GetSize();
+        const Vec2i initialSize = this->mWindow->GetSize();
+        this->mWindow->SetMaximized();
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsMaximized());
+        const Vec2i maximizedSize = this->mWindow->GetSize();
 
-        mWindow->SetMinimized();
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsMinimized());
-        mWindow->SetRestored();
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsMaximized());
-        mWindow->SetRestored();
-        TickFrame();
+        this->mWindow->SetMinimized();
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsMinimized());
+        this->mWindow->SetRestored();
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsMaximized());
+        this->mWindow->SetRestored();
+        this->TickFrame();
 
-        const Vec2i& currentSize = mWindow->GetSize();
-        const Vec2i& currentSizePrev = mWindow->GetSizePrev();
+        const Vec2i& currentSize = this->mWindow->GetSize();
+        const Vec2i& currentSizePrev = this->mWindow->GetSizePrev();
         EXPECT_EQ(initialSize, currentSize);
         EXPECT_EQ(maximizedSize, currentSizePrev);
     }
 	
     TYPED_TEST_P(WindowTest, CreateHidden_SetVisible_IsVisible)
     {
-        mWindow->SetHidden();
-        TickFrame();
-        ASSERT_TRUE(mWindow->IsHidden());
+        this->mWindow->SetHidden();
+        this->TickFrame();
+        ASSERT_TRUE(this->mWindow->IsHidden());
 
-        mWindow->SetVisible();
-        TickFrame();
+        this->mWindow->SetVisible();
+        this->TickFrame();
 
-        EXPECT_FALSE(mWindow->IsHidden());
+        EXPECT_FALSE(this->mWindow->IsHidden());
     }
 	
 
@@ -214,13 +225,15 @@ namespace TestModule_ZeronRenderer {
     );
 
 
-    using WINDOW_TYPES = ::testing::Types<
-        WindowGLFW,
-		WindowSDL,
-		WindowWin32
-	>;
-    INSTANTIATE_TYPED_TEST_SUITE_P(API, WindowTest, WINDOW_TYPES);
-
+#if ZE_WINDOW_GLFW
+    INSTANTIATE_TYPED_TEST_SUITE_P(WindowAPI_GLFW, WindowTest, WindowGLFW);
+#endif
+#if ZE_WINDOW_SDL
+    INSTANTIATE_TYPED_TEST_SUITE_P(WindowAPI_SDL, WindowTest, WindowSDL);
+#endif
+#if ZE_WINDOW_WIN32
+    INSTANTIATE_TYPED_TEST_SUITE_P(WindowAPI_Win32, WindowTest, WindowWin32);
+#endif
 }
 
 

@@ -52,7 +52,7 @@ namespace Zeron
 		}
 
 		TVec2 operator/(T value) const {
-			return value == 0 ? TVec3(0, 0) : { X / value, Y / value };
+			return value == 0 ? TVec2(0, 0) : TVec2{ X / value, Y / value };
 		}
 
 		TVec2& operator+=(const TVec2& other) {

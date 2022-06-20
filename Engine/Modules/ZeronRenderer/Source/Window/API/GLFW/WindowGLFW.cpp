@@ -44,6 +44,10 @@ namespace Zeron {
 	bool WindowGLFW::Init()
 	{
 	#if ZE_WINDOW_GLFW
+		glfwSetErrorCallback([](int errorCode, const char* errorMessage) {
+			ZE_LOGE("GLFW ERROR {}: {}", errorCode, errorMessage);
+		});
+
 		if (mWindowGLFWCount == 0) {
 			if (glfwInit() == GLFW_FALSE) {
 				ZE_FAIL("GLFW was not initialized!");
@@ -53,10 +57,6 @@ namespace Zeron {
 			glfwGetVersion(&vMajor, &vMinor, &vPatch);
 			ZE_LOGI("GLFW v{}.{}.{} initialized...", vMajor, vMinor, vPatch);
 		}
-
-		glfwSetErrorCallback([](int errorCode, const char* errorMessage) {
-			ZE_LOGE("GLFW ERROR {}: {}", errorCode, errorMessage);
-		});
 
 		// const int initRefreshRate = videoMode ? videoMode->refreshRate : mRefreshRate;
 		//glfwWindowHint(GLFW_REFRESH_RATE, initRefreshRate);
@@ -197,7 +197,7 @@ namespace Zeron {
 			int xPos, yPos;
 			glfwGetMonitorPos(monitor, &xPos, &yPos);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_FALSE);
-			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, FALSE);
+			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, GLFW_FALSE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_TRUE);
 			glfwSetWindowMonitor(mWindowGLFW, nullptr, xPos, yPos, width, height, mode->refreshRate);
 		}
@@ -205,7 +205,7 @@ namespace Zeron {
 			GLFWmonitor* monitor = FindCurrentMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_FALSE);
-			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, TRUE);
+			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, GLFW_TRUE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_TRUE);
 			glfwSetWindowMonitor(mWindowGLFW, nullptr, mPosPrev.X, mPosPrev.Y, mSizePrev.X, mSizePrev.Y, mode->refreshRate);
 		}
@@ -219,7 +219,7 @@ namespace Zeron {
 			GLFWmonitor* monitor = FindCurrentMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_FALSE);
-			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, FALSE);
+			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, GLFW_FALSE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_TRUE);
 			glfwSetWindowMonitor(mWindowGLFW, monitor, 0, 0, mSize.X, mSize.Y, mode->refreshRate);
 		}
@@ -229,7 +229,7 @@ namespace Zeron {
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 			glfwSetWindowMonitor(mWindowGLFW, nullptr, mPosPrev.X, mPosPrev.Y, mSizePrev.X, mSizePrev.Y, mode->refreshRate);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_FALSE);
-			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, TRUE);
+			glfwSetWindowAttrib(mWindowGLFW, GLFW_DECORATED, GLFW_TRUE);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_TRUE);
 		}
 	#endif

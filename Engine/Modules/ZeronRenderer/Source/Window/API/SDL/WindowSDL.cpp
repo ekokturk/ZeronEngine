@@ -263,13 +263,13 @@ namespace Zeron {
 				ProcessWindowEvents_(eventSDL);
 			} break;
 			case SDL_KEYDOWN: {
-				if(eventSDL.key.repeat == FALSE) {
+				if(eventSDL.key.repeat == SDL_FALSE) {
 					const KeyCode code = GetKeyCodeSDL_(eventSDL.key.keysym.sym);
 					mEventQueue.emplace(std::make_unique<WindowEvent_KeyDown>(code));
 				}
 			} break;
 			case SDL_KEYUP: {
-				if (eventSDL.key.repeat == FALSE) {
+				if (eventSDL.key.repeat == SDL_FALSE) {
 					const KeyCode code = GetKeyCodeSDL_(eventSDL.key.keysym.sym);
 					mEventQueue.emplace(std::make_unique<WindowEvent_KeyUp>(code));
 				}

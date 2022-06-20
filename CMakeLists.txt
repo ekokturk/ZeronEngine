@@ -10,13 +10,26 @@ set(VERSION_PATCH 0)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "PredefinedTargets")
-set(BUILD_SHARED_LIBS TRUE)
+
+# ============ COMPILER CONFIG =============
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif()
 
 # ============  PLATFORM CONFIG =============
 # WINDOWS
 if(WIN32)
+    set(BUILD_SHARED_LIBS TRUE)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".dll")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE) # Symbols are exported by default for DLLs
+endif()
+
+# LINUX
+if(UNIX AND NOT APPLE)
+endif()
+
+# ANDROID
+if(ANDROID)
 endif()
 
 # ============  ENGINE =============

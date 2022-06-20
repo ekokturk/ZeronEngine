@@ -37,7 +37,8 @@ if(TARGET glad)
         "${IMGUI_SOURCE_DIR}/imgui_impl_opengl3.cpp"
         "${IMGUI_SOURCE_DIR}/imgui_impl_opengl3_loader.h"
     )
-	list(APPEND IMGUI_LIBS glad opengl32)
+    find_package(OpenGL REQUIRED)
+    list(APPEND MODULE_LIBS_PRIVATE glad ${OPENGL_gl_LIBRARY})
 endif()
 
 if(WIN32)
@@ -48,7 +49,7 @@ if(WIN32)
 	list(APPEND IMGUI_LIBS dxgi d3d11)
 endif()
 
-add_library(imgui SHARED ${IMGUI_SOURCE_FILES})
+add_library(imgui ${IMGUI_SOURCE_FILES})
 set_target_properties(imgui PROPERTIES FOLDER ${IMGUI_FOLDER})
 
 target_link_libraries(imgui 
