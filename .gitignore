@@ -1,11 +1,17 @@
 ## ===================== ZERON ENGINE =====================
-Solution/
+.vs/
+Build/
+out/
 Engine/ThirdParty/*/*
 !Engine/ThirdParty/*/update.py
 CMakeUserPresets.json
 
 # VS Code
-.vscode
+.cache/
+.vscode/
 
 # Python
 __pycache__
+
+# Other
+_ReSharper.Caches/

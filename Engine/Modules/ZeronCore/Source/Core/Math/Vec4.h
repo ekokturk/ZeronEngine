@@ -50,7 +50,7 @@ namespace Zeron
 		}
 
 		TVec4 operator/(T value) const {
-			return value == 0 ? TVec4(0, 0, 0, 0) : { X / value, Y / value, Z / value, W / value };
+			return value == 0 ? TVec4(0, 0, 0, 0) : TVec4{ X / value, Y / value, Z / value, W / value };
 		}
 
 		TVec4& operator+=(const TVec4& other) {

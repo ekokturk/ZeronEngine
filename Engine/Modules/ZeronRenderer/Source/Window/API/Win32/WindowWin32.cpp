@@ -7,8 +7,9 @@
 #define NOTREPEATING(lParam) (lParam & 0x40000000) == 0
 
 namespace Zeron {
-
+#if ZE_WINDOW_WIN32
 	LRESULT CALLBACK WndProcRouter(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
 
 	WindowWin32::WindowWin32(const WindowConfig& config)
 		: Window(config)

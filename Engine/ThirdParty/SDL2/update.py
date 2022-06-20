@@ -6,6 +6,8 @@ ZeronSubmodule().extract([
     {'from':'cmake/'},
     {'from':'include/'},
     {'from':'src/'},
+    {'from':'sdl2.pc.in'},
+    {'from':'SDL2.spec.in'},
     {'from':'sdl2-config.in'},
     {'from':'sdl2-config.cmake.in'},
     {'from':'sdl2-config-version.cmake.in'},

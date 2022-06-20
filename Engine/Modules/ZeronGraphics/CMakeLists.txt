@@ -12,7 +12,8 @@ set(MODULE_INCLUDES "")
 
 if (TARGET glad)
     target_compile_definitions(ZeronGraphics PUBLIC ZE_GRAPHICS_OPENGL=1)
-    list(APPEND MODULE_LIBS_PRIVATE glad opengl32)
+    find_package(OpenGL REQUIRED)
+    list(APPEND MODULE_LIBS_PRIVATE glad ${OPENGL_gl_LIBRARY})
 endif()
 
 if(WIN32)

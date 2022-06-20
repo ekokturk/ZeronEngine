@@ -2,7 +2,7 @@
     
 file(GLOB_RECURSE files	"*.cpp"	"*.h")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Source Files/" FILES ${files})
-add_library(ZeronTestFramework SHARED ${files})
+add_library(ZeronTestFramework ${files})
 set_target_properties(ZeronTestFramework PROPERTIES FOLDER "ZeronEngine/Tests")
 
 target_include_directories(
@@ -10,7 +10,6 @@ target_include_directories(
         PUBLIC 
             "${CMAKE_CURRENT_SOURCE_DIR}"
 )
-
 
 target_link_libraries(
     ZeronTestFramework 

@@ -43,7 +43,7 @@ namespace Zeron {
 		template<typename... Args>
 		void Log(const char* message, Args... args)
 		{
-			Log(LogSink::ConsoleAndFile, Color::White, message, std::forward<Args>(args)...);
+			Log(LogSink::FileAndConsole, Color::White, message, std::forward<Args>(args)...);
 		}
 
 	protected:

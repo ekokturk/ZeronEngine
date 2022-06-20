@@ -21,7 +21,9 @@ namespace Zeron
 				return false;
 			}
 		}
+#if ZE_PLATFORM_WIN32
 		mLogFile.open(logFilePath, std::ofstream::out | std::ofstream::ios_base::app);
+#endif
 		return true;
 	}
 

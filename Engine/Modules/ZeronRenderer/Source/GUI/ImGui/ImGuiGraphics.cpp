@@ -3,6 +3,7 @@
 #include <GUI/ImGui/ImGuiGraphics.h>
 
 #include <Graphics/Graphics.h>
+#include <imgui/imgui.h>
 
 #if ZE_GRAPHICS_D3D
 #include <Graphics/API/D3D/11/GraphicsD3D11.h>

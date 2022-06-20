@@ -14,7 +14,9 @@ ZeronSubmodule().extract([
 ).updateCMakeFile('''
 set(ASSIMP_FOLDER "ZeronEngine/ThirdParty/assimp")
 set_target_properties(assimp PROPERTIES FOLDER ${ASSIMP_FOLDER})
-set_target_properties(zlibstatic PROPERTIES FOLDER ${ASSIMP_FOLDER})
+if(TARGET zlibstatic)
+    set_target_properties(zlibstatic PROPERTIES FOLDER ${ASSIMP_FOLDER})
+endif()
 ''', [
     ('IF ( ASSIMP_BUILD_ASSIMP_TOOLS )', 'IF ( FALSE )'),
     ('IF ( ASSIMP_BUILD_TESTS )','IF ( FALSE )'),

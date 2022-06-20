@@ -10,21 +10,22 @@ add_zeron_module(ZeronCore ${SOURCE_DIRECTORY})
 
 # ========= MODULE DEPENDENCIES =========
 
-
 set(PCH_GENERIC 			
-	<array> <string> <map> <unordered_map> <queue> <any> <variant>
+	<cstdint> <array> <map> <unordered_map> <queue> <any> <variant>
 	<exception> <iostream> <sstream> <fstream> <functional>
 	<memory> <filesystem> <algorithm> <cmath> <bitset>
 )
 
 set(PCH_CORE
-	"${SOURCE_DIRECTORY}/Core/Core.h"
-	"${SOURCE_DIRECTORY}/Core/Math/Math.h"
+	"<Core/Core.h>"
+	"<Core/Math/Math.h>"
 )
 
 if(WIN32)
     target_compile_definitions(ZeronCore PUBLIC ZE_PLATFORM_WIN32=1)
     list(APPEND PCH_GENERIC <Windows.h>)
+elseif(UNIX AND NOT APPLE)
+    target_compile_definitions(ZeronCore PUBLIC ZE_PLATFORM_LINUX=1)
 endif()
 
 if(MSVC)
