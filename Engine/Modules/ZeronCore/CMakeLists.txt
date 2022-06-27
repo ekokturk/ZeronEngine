@@ -1,12 +1,11 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
 # ============ THIRD PARTY ==============
-add_zeron_module_dependency(fmt)
-add_zeron_module_dependency(glm)
+zeron_add_module_dependency(fmt)
+zeron_add_module_dependency(glm)
 
 # ============ MODULE CREATE ============
-set(SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Source")
-add_zeron_module(ZeronCore ${SOURCE_DIRECTORY})
+zeron_add_module(ZeronCore ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ========= MODULE DEPENDENCIES =========
 
@@ -24,7 +23,7 @@ set(PCH_CORE
 if(WIN32)
     target_compile_definitions(ZeronCore PUBLIC ZE_PLATFORM_WIN32=1)
     list(APPEND PCH_GENERIC <Windows.h>)
-elseif(UNIX AND NOT APPLE)
+elseif(LINUX)
     target_compile_definitions(ZeronCore PUBLIC ZE_PLATFORM_LINUX=1)
 endif()
 
@@ -35,8 +34,7 @@ endif()
 
 # ============ MODULE INIT ============
 target_include_directories(ZeronCore 
-    PUBLIC 
-        "${SOURCE_DIRECTORY}"
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(ZeronCore

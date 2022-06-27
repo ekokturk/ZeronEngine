@@ -2,7 +2,7 @@
 
 # --------- Zeron Core Tests --------- 
 if(TARGET ZeronCore)
-    add_zeron_module_test(TestModule_ZeronCore)
+    zeron_add_module_test(TestModule_ZeronCore)
     target_link_libraries(
         TestModule_ZeronCore 
             PUBLIC 

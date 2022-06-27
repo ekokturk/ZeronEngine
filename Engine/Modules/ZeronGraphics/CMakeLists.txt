@@ -1,32 +1,36 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
-# ============ MODULE CREATE ============
-set(SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+set(GFX_OGL ZE_GRAPHICS_OPENGL=1)
+if(WIN32)
+    set(GFX_D3D ZE_GRAPHICS_D3D=1)
+endif()
 
-add_zeron_module(ZeronGraphics "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+# ============ MODULE CREATE ============
+zeron_add_module(ZeronGraphics "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBS_PRIVATE "")
-set(MODULE_LIBS_PUBLIC "")
-set(MODULE_INCLUDES "")
 
-if (TARGET glad)
-    target_compile_definitions(ZeronGraphics PUBLIC ZE_GRAPHICS_OPENGL=1)
+# OpenGL
+if (DEFINED GFX_D3D)
+    zeron_add_module_dependency(GLAD)
+    if(NOT TARGET glad)
+        message("Glad GL loader cannot be found!")
+    endif()
+    target_compile_definitions(ZeronGraphics PUBLIC ${GFX_D3D})
     find_package(OpenGL REQUIRED)
     list(APPEND MODULE_LIBS_PRIVATE glad ${OPENGL_gl_LIBRARY})
 endif()
 
-if(WIN32)
-    # ======== D3D ========
-    target_compile_definitions(ZeronGraphics PUBLIC ZE_GRAPHICS_D3D=1)
-    list(APPEND MODULE_LIBS_PRIVATE dxgi)
-    list(APPEND MODULE_LIBS_PRIVATE d3d11)
-    list(APPEND MODULE_LIBS_PRIVATE D3DCompiler)
+# Direct3D
+if(DEFINED GFX_D3D)
+    target_compile_definitions(ZeronGraphics PUBLIC ${GFX_D3D})
+    list(APPEND MODULE_LIBS_PRIVATE dxgi d3d11 D3DCompiler)
 endif()
 
 
 # ============ MODULE INIT ============
-target_include_directories(ZeronGraphics PUBLIC "${SOURCE_DIRECTORY}")
+target_include_directories(ZeronGraphics PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(ZeronGraphics
     PUBLIC
         ZeronCore
