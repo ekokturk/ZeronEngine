@@ -6,7 +6,7 @@ if (NOT MSVC)
     include(Dart)
 endif()
 
-add_zeron_module_dependency(GoogleTest)
+zeron_add_module_dependency(GoogleTest)
 
 if(TARGET gtest)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
