@@ -1,5 +1,8 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
+# ============ MODULE CREATE ============
+zeron_add_module(ZeronRenderer ${CMAKE_CURRENT_SOURCE_DIR})
+
 # ============ THIRD PARTY ==============
 if(DESKTOP)
     zeron_add_module_dependency(GLFW)
@@ -8,9 +11,6 @@ zeron_add_module_dependency(SDL2)
 zeron_add_module_dependency(stb)
 zeron_add_module_dependency(ImGui)
 zeron_add_module_dependency(assimp)
-
-# ============ MODULE CREATE ============
-zeron_add_module(ZeronRenderer ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBS_PRIVATE "")

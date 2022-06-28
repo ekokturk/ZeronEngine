@@ -18,7 +18,7 @@ function(zeron_compile_hlsl target outputDir)
         message(WARNING "No HLSL shaders available to compile!")
         return()
     else()
-        message("Compiling ${shader_count} Zeron HLSL shaders...")
+        message("ZERON ---- Compiling Zeron HLSL shaders (Count: ${shader_count})")
     endif()
 
     source_group("Shaders/HLSL" FILES ${hlsl_shaders})

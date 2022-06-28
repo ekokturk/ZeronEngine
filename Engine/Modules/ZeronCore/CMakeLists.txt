@@ -1,11 +1,11 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
+# ============ MODULE CREATE ============
+zeron_add_module(ZeronCore ${CMAKE_CURRENT_SOURCE_DIR})
+
 # ============ THIRD PARTY ==============
 zeron_add_module_dependency(fmt)
 zeron_add_module_dependency(glm)
-
-# ============ MODULE CREATE ============
-zeron_add_module(ZeronCore ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ========= MODULE DEPENDENCIES =========
 

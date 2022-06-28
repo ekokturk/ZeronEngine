@@ -1,7 +1,7 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
 # =========== SETUP ===========
-message("Generating Sandbox project...")
+message("ZERON - Generating: Sandbox Project")
 
 set(SANDBOX_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 set(SANDBOX_SHARED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shared")

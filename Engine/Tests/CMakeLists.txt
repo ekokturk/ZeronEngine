@@ -6,6 +6,8 @@ if (NOT MSVC)
     include(Dart)
 endif()
 
+message("ZERON - Generating: Zeron Engine Tests")
+
 zeron_add_module_dependency(GoogleTest)
 
 if(TARGET gtest)
