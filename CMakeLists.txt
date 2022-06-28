@@ -14,7 +14,7 @@ option(BUILD_SHARED_LIBS    "Build shared libraries" ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "PredefinedTargets")
-
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 # ============ COMPILER CONFIG =============
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

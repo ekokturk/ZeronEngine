@@ -12,14 +12,16 @@ macro(zeron_set_output_directory dirName)
 endmacro()
 
 macro(zeron_copy_runtime_dependencies target)
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${target}> $<TARGET_FILE_DIR:${target}>
-        COMMAND_EXPAND_LISTS
-    )
+    if(WIN32)
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${target}> $<TARGET_FILE_DIR:${target}>
+            COMMAND_EXPAND_LISTS
+        )
+    endif()
 endmacro()
 
 macro(zeron_add_module module_name module_dir)
-    message("Adding Zeron module: ${module_name}")
+    message("ZERON -- Module: ${module_name}")
     if(NOT EXISTS ${module_dir})
         message(FATAL_ERROR "Zeron Third Party directory doesn't exist!")
     endif()
@@ -37,7 +39,7 @@ macro(zeron_add_module_dependency dep_name)
             message(FATAL_ERROR "Zeron Third Party directory doesn't exist!")
         endif()
     endif()
-    message("Adding Zeron module dependency: ${dep_name}")
+    message("ZERON ------ Dependency: ${dep_name}")
     file(RELATIVE_PATH rel_path ${CMAKE_CURRENT_SOURCE_DIR} ${ZERON_THIRDPARTY_DIR})
     add_subdirectory("${rel_path}/${dep_name}" "${CMAKE_CURRENT_BINARY_DIR}/${dep_name}")
 endmacro()
