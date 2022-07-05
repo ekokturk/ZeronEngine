@@ -1,5 +1,7 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
+message("ZERON --- Platform: Win32")
+
 include("${ZERON_CMAKE_UTILS}/ZeronShaderCompiler.cmake")
 include("${ZERON_CMAKE_UTILS}/ZeronUtils.cmake")
 

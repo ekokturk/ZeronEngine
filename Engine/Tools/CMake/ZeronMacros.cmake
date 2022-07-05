@@ -1,5 +1,5 @@
 macro(zeron_set_output_directory dirName)
-    if(NOT DEFINED ${OUTPUT_DIRECTORY})
+    if(NOT DEFINED ${ZERON_BINARY_OUTPUT_DIRECTORY})
         set(OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Binaries")
     endif()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIRECTORY}/${dirName}/Debug/)

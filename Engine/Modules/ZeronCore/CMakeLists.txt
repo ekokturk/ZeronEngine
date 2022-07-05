@@ -8,6 +8,7 @@ zeron_add_module_dependency(fmt)
 zeron_add_module_dependency(glm)
 
 # ========= MODULE DEPENDENCIES =========
+set(MODULE_LIBS_PRIVATE "")
 
 set(PCH_GENERIC 			
 	<cstdint> <array> <map> <unordered_map> <queue> <any> <variant>
@@ -25,6 +26,10 @@ if(WIN32)
     list(APPEND PCH_GENERIC <Windows.h>)
 elseif(LINUX)
     target_compile_definitions(ZeronCore PUBLIC ZE_PLATFORM_LINUX=1)
+elseif(ANDROID)
+    target_compile_definitions(ZeronCore PUBLIC ZE_PLATFORM_ANDROID=1)
+	find_library(ANDROID_LOG_LIB log)
+	list(APPEND MODULE_LIBS_PRIVATE ${ANDROID_LOG_LIB})
 endif()
 
 if(MSVC)
@@ -41,6 +46,8 @@ target_link_libraries(ZeronCore
 	PUBLIC 
 		fmt::fmt-header-only
 		glm-header-only
+	PRIVATE
+		${MODULE_LIBS_PRIVATE}
 )
 
 target_precompile_headers(ZeronCore	

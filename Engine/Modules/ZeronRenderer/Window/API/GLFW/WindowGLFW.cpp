@@ -294,6 +294,7 @@ namespace Zeron {
 
 	GLFWmonitor* WindowGLFW::FindCurrentMonitor() const
 	{
+	#if ZE_WINDOW_GLFW
 		GLFWmonitor* result;
 		long areaSize = 0;
 		int monitorCount = 0;
@@ -320,6 +321,9 @@ namespace Zeron {
 			}
 		}
 		return result;
+	#else
+		return nullptr;
+	#endif
 	}
 
 	void WindowGLFW::RegisterEvents_()

@@ -59,6 +59,10 @@ namespace Zeron {
 			return *this;
 		}
 
+		bool operator==(Palette color) const {
+			return this->HexRGB() == static_cast<uint32_t>(color);
+		}
+
 		uint8_t R() const			{ return mRed;   }
 		uint8_t G() const			{ return mGreen; }
 		uint8_t B() const			{ return mBlue;  }

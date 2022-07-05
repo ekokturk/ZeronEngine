@@ -24,7 +24,10 @@ endif()
 
 if (TARGET SDL2)
     list(APPEND MODULE_LIBS_PRIVATE SDL2 SDL2main)
-    target_compile_definitions(ZeronRenderer PUBLIC SDL_MAIN_HANDLED ZE_WINDOW_SDL=1)
+    target_compile_definitions(ZeronRenderer PUBLIC ZE_WINDOW_SDL=1)
+    if(NOT ANDROID)
+        target_compile_definitions(ZeronRenderer PUBLIC SDL_MAIN_HANDLED)
+    endif()
 endif()
 
 list(APPEND MODULE_LIBS_PRIVATE stb-header-only assimp)

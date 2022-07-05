@@ -1,5 +1,7 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
+message("ZERON --- Platform: Linux")
+
 file(GLOB_RECURSE SANDBOX_LINUX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 set(SANDBOX_SOURCES ${SANDBOX_LINUX_SOURCES} ${SANDBOX_SHARED_SOURCES})
 source_group(TREE "${SANDBOX_DIR}" PREFIX "Source Files/" FILES ${SANDBOX_SOURCES})

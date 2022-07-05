@@ -2,8 +2,27 @@
 
 #include <Core/Logger.h>
 
+#if ZE_PLATFORM_ANDROID
+#include <android/log.h>
+#endif
+
 namespace Zeron
 {
+	namespace {
+	#if ZE_PLATFORM_ANDROID
+		void FlushToAndroidConsole(const std::string& message, Color color) {
+			android_LogPriority priority = ANDROID_LOG_INFO;
+			if (color == Color::Red) {
+				priority = android_LogPriority::ANDROID_LOG_ERROR;
+			}
+			else if (color == Color::Yellow) {
+				priority = android_LogPriority::ANDROID_LOG_WARN;
+			}
+			__android_log_print(priority, "Zeron Engine", "%s", message.c_str());
+		}
+	#endif
+	}
+
 	Logger::Logger(bool shouldTimestamp)
 		: mShouldTimestamp(shouldTimestamp)
 	{
@@ -45,7 +64,11 @@ namespace Zeron
 
 	void Logger::FlushToConsole(const std::string& message, Color color) const
 	{
+	#if ZE_PLATFORM_ANDROID
+		FlushToAndroidConsole(message, color);
+	#else
 		fmt::print(fmt::fg(static_cast<fmt::color>(color.HexRGB())), message.c_str());
+	#endif
 	}
 }
 
