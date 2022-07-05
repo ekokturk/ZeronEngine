@@ -26,6 +26,11 @@
 			"cacheVariables": {
 				"CMAKE_C_COMPILER": "cl",
 				"CMAKE_CXX_COMPILER": "cl"
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
 			}
 		},
 		{
@@ -46,6 +51,30 @@
 					"sourceDir": "$env{PWD}",
 					"copySources": false
 				}
+			},
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Linux"
+			}
+		},
+		{
+			"name": "Android_x86-64",
+			"displayName": "Android x86_64",
+			"generator": "Ninja",
+			"inherits": [ "base"],
+			"cacheVariables": {
+				"CMAKE_SYSTEM_NAME": "Android",
+				"CMAKE_SYSTEM_VERSION": "21",
+				"CMAKE_ANDROID_ARCH_ABI": "x86_64",
+				"CMAKE_ANDROID_STL_TYPE": "c++_shared",
+				"UNIFY_OUTPUT_DIR": "ON"
+			},
+			"toolchainFile": "Engine/Tools/CMake/ZeronAndroidToolchain.cmake",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
 			}
 		}
 	],

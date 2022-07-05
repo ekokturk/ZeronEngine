@@ -15,3 +15,5 @@ set(SDL2_FOLDER "${ZERON_THIRDPARTY_FOLDER_PREFIX}/SDL2")
 set_target_properties(SDL2main PROPERTIES FOLDER ${SDL2_FOLDER})
 set_target_properties(SDL2 PROPERTIES FOLDER ${SDL2_FOLDER})
 set_target_properties(uninstall PROPERTIES FOLDER ${SDL2_FOLDER})
+
+set_property(GLOBAL PROPERTY SDL_JAVA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/.submodule/android-project/app/src/main/java/)
