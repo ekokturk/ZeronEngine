@@ -3,52 +3,59 @@
 #pragma once
 
 #include <Graphics/GraphicsTypes.h>
+#include <Graphics/PipelineBinding.h>
 
 namespace Zeron
 {
+	class CommandBuffer;
+	class Sampler;
+	class RenderPass;
+	class Pipeline;
+	class ResourceLayout;
 	class Buffer;
-	class GraphicsContext;
-	class Shader;
-	class ShaderProgram;
+	class CommandQueue;
 	class SwapChain;
+	class GraphicsContext;
+	class ShaderProgram;
+	class Shader;
 	class VertexLayout;
 	class Window;
 	class Texture;
 
-	class Graphics
-	{
+	class Graphics {
 	public:
+		static std::unique_ptr<Graphics> CreateGraphics(GraphicsType api);
+
 		virtual ~Graphics() = default;
+
 		virtual bool Init() = 0;
-
 		virtual GraphicsType GetGraphicsType() const = 0;
-		virtual std::shared_ptr<GraphicsContext> GetImmediateContext() const = 0;
+		virtual MSAALevel GetMultiSamplingLevel() const = 0;
 
-		// Graphics Context
-		virtual std::shared_ptr<GraphicsContext> CreateGraphicsContext() = 0;
-		virtual std::shared_ptr<SwapChain> CreateSwapChain(void* windowHandle, const Vec2i& size) = 0;
+		virtual std::unique_ptr<GraphicsContext> CreateGraphicsContext() = 0;
+		virtual std::unique_ptr<CommandBuffer> CreateCommandBuffer(uint32_t count = 1, bool isCompute = false) = 0;
 
-		// Buffer
-		template <typename T>
-		std::shared_ptr<Buffer> CreateVertexBuffer(const std::vector<T>& data) {
-			return CreateBuffer(BufferType::Vertex,  &data.front(), static_cast<uint32_t>(data.size()), sizeof(T));
+		virtual std::unique_ptr<Pipeline> CreatePipeline(ShaderProgram* shader) = 0;
+		virtual std::unique_ptr<Pipeline> CreatePipeline(ShaderProgram* shader, RenderPass* renderPass, MSAALevel samplingLevel, 
+			PrimitiveTopology topology = PrimitiveTopology::TriangleList, bool isSolidFill = true, FaceCullMode cullMode = FaceCullMode::Back) = 0;
+		virtual std::unique_ptr<PipelineBinding> CreatePipelineBinding(Pipeline& pipeline, const std::vector<BindingHandle>& bindingList) = 0;
+
+		virtual std::unique_ptr<Buffer> CreateBuffer(BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage = BufferUsageType::Default) = 0;
+
+		virtual std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout) = 0;
+		virtual std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout) = 0;
+
+		virtual std::unique_ptr<Texture> CreateTexture(TextureType type, const Color& data) = 0;
+		virtual std::unique_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) = 0;
+
+		virtual std::unique_ptr<Sampler> CreateSampler(SamplerAddressMode addressMode = SamplerAddressMode::Repeat, bool hasAnisotropicFilter = true) = 0;
+
+		template <typename T> std::unique_ptr<Buffer> CreateVertexBuffer(const std::vector<T>& data) {
+			return CreateBuffer(BufferType::Vertex, static_cast<uint32_t>(data.size()), sizeof(T), &data.front());
 		}
-		std::shared_ptr<Buffer> CreateIndexBuffer(const std::vector<unsigned long>& data);
-		template <typename T>
-		std::shared_ptr<Buffer> CreateConstantBuffer(const T& data) {
-			return CreateBuffer(BufferType::Constant,  &data, 1, sizeof(T));
+		template <typename T> std::unique_ptr<Buffer> CreateUniformBuffer(const T& data) {
+			return CreateBuffer(BufferType::Uniform, 1, sizeof(T), &data, BufferUsageType::Dynamic);
 		}
-
-		// Shader
-		virtual std::shared_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& layout) = 0;
-		virtual std::shared_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader,
-			const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& layout) = 0;
-
-		// Texture
-		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const Color& data) = 0;
-		virtual std::shared_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) = 0;
-	
-	protected:
-		virtual std::shared_ptr<Buffer> CreateBuffer(BufferType type, const void* data, uint32_t count, uint32_t stride) = 0;
+		std::unique_ptr<Buffer> CreateIndexBuffer(const std::vector<uint32_t>& data);
 	};
 }

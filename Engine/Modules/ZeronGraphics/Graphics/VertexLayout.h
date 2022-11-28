@@ -8,6 +8,7 @@ namespace Zeron
 		Unknown,
 		Float2,
 		Float3,
+		Color
 	};
 
 	class VertexLayout {

@@ -27,31 +27,11 @@ set(IMGUI_SOURCE_FILES
     ${IMGUI_SOURCE_DIR}/imgui_widgets.cpp
 )
 
-if(TARGET glad)
-    list(APPEND IMGUI_SOURCE_FILES 
-        ${IMGUI_SOURCE_DIR}/imgui_impl_opengl3.h
-        ${IMGUI_SOURCE_DIR}/imgui_impl_opengl3.cpp
-        ${IMGUI_SOURCE_DIR}/imgui_impl_opengl3_loader.h
-    )
-    find_package(OpenGL REQUIRED)
-    list(APPEND MODULE_LIBS_PRIVATE glad ${OPENGL_gl_LIBRARY})
-endif()
-
-if(WIN32)
-    list(APPEND IMGUI_SOURCE_FILES 
-        ${IMGUI_SOURCE_DIR}/imgui_impl_dx11.h
-        ${IMGUI_SOURCE_DIR}/imgui_impl_dx11.cpp
-    )
-	list(APPEND IMGUI_LIBS dxgi d3d11)
-endif()
+zeron_add_shader_directory("${CMAKE_CURRENT_SOURCE_DIR}/utils")
 
 add_library(imgui ${IMGUI_SOURCE_FILES})
 set_target_properties(imgui PROPERTIES FOLDER ${ZERON_THIRDPARTY_FOLDER_PREFIX}/ImGui)
 
-target_link_libraries(imgui 
-    PRIVATE
-        ${IMGUI_LIBS}
-)
 target_include_directories(imgui 
     PUBLIC 
         ${CMAKE_CURRENT_SOURCE_DIR}	

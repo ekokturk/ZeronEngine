@@ -4,26 +4,28 @@
 
 namespace Zeron
 {
-	class RenderTarget;
+	class FrameBuffer;
 	class Window;
 	
 	class SwapChain {
 	public:
-		SwapChain(const Vec2i& size);
+		SwapChain(const Vec2i& size, uint32_t bufferCount);
 		virtual ~SwapChain() = default;
 
-		virtual void SwapBuffers() = 0;
+		virtual void Present() = 0;
 		virtual void SetVSyncEnabled(bool isEnabled) = 0;
 		virtual void SetRefreshRate(uint16_t rate) = 0;
 
 		const Vec2i& GetSize() const;
+		uint32_t GetFrameCount() const;
 		virtual bool IsVSyncEnabled() const = 0;
-		virtual RenderTarget* GetRenderTarget() const = 0;
+		virtual FrameBuffer* GetFrameBuffer() const = 0;
 
 	protected:
-		void SetSize_(const Vec2i& size);
+		void _setSize(const Vec2i& size);
 	
 	private:
 		Vec2i mSize;
+		uint32_t mBufferCount;
 	};
 }

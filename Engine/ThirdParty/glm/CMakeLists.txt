@@ -12,3 +12,8 @@ file(COPY           ${CMAKE_CURRENT_SOURCE_DIR}/.submodule/glm/
 
 add_library(glm-header-only INTERFACE)
 target_include_directories(glm-header-only INTERFACE ${GLM_SOURCE_DIR})
+target_compile_definitions(glm-header-only 
+     INTERFACE 
+          GLM_FORCE_DEPTH_ZERO_TO_ONE
+          GLM_FORCE_LEFT_HANDED
+)

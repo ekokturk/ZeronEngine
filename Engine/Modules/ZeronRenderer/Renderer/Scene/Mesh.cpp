@@ -9,7 +9,7 @@
 namespace Zeron
 {
 	Mesh::Mesh(Graphics& graphics, const std::vector<Vertex>& vertices, 
-		const std::vector<unsigned long>& indices, 
+		const std::vector<uint32_t>& indices, 
 		const Mat4& transform)
 	{
 		mVertexBuffer = graphics.CreateVertexBuffer<Vertex>(vertices);
@@ -17,11 +17,8 @@ namespace Zeron
 		mTransform = transform;
 	}
 
-	void Mesh::Draw(GraphicsContext& ctx)
+	Mesh::~Mesh()
 	{
-		ctx.SetVertexBuffer(*mVertexBuffer);
-		ctx.SetIndexBuffer(*mIndexBuffer);
-		ctx.DrawIndexed(mIndexBuffer->GetCount(), 0);
 	}
 
 	const Mat4& Mesh::GetTransform() const

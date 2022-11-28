@@ -11,13 +11,12 @@ namespace Zeron
 	public:
 		static std::unique_ptr<Window> CreatePlatformWindow(WindowAPI type, const WindowConfig& config);
 
-		Window(const WindowConfig& config);
+		Window(const WindowConfig& config, WindowAPI api);
 		virtual ~Window() = default;
 
 		virtual bool Init() = 0;
 
-		virtual void BeginFrame() = 0;
-		virtual void EndFrame() = 0;
+		virtual void Update() = 0;
 
 		virtual void SetVisible() = 0;
 		virtual void SetHidden() = 0;
@@ -41,8 +40,8 @@ namespace Zeron
 		void SetFullScreen(bool isFullScreen);
 		void SetFullScreenType(FullScreenType fullScreenType);
 
-		virtual void* GetAPIHandle() const = 0;
-		virtual void* GetPlatformHandle() const = 0;
+		virtual void* GetApiHandle() const = 0;
+		virtual SystemHandle GetSystemHandle() const = 0;
 
 		std::unique_ptr<WindowEvent> GetNextEvent();
 
@@ -76,8 +75,8 @@ namespace Zeron
 		void OnMinimized();
 		void OnMaximized();
 
-		virtual void OnFullScreenChangedBorderless_() = 0;
-		virtual void OnFullScreenChangedMonitor_() = 0;
+		virtual void _onFullScreenChangedBorderless() = 0;
+		virtual void _onFullScreenChangedMonitor() = 0;
 	
 	protected:
 		std::string mName;
@@ -92,8 +91,8 @@ namespace Zeron
 		bool mIsFocused;
 		bool mIsHovered;
 		bool mIsHidden;
-		WindowAPI mWindowType;
 		FullScreenType mFullScreenType;
+		WindowAPI mWindowType;
 
 		std::queue<std::unique_ptr<WindowEvent>> mEventQueue;
 	};

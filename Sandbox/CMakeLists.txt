@@ -22,8 +22,12 @@ elseif(ANDROID)
 endif()
 
 if(MSVC)
-    set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Sandbox>)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
+    set_target_properties(Sandbox PROPERTIES 
+        VS_DPI_AWARE "PerMonitor" # enabled high dpi support
+        VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Sandbox>
+    )
+
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     cmake_path(GET CMAKE_BINARY_DIR PARENT_PATH BUILD_DIR)
 

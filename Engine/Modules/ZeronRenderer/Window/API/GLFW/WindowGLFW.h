@@ -16,31 +16,30 @@ namespace Zeron {
 		WindowGLFW(const WindowConfig& windowProps);
 		~WindowGLFW();
 
-		virtual bool Init() override;
+		bool Init() override;
 
-		virtual void BeginFrame() override;
-		virtual void EndFrame() override;
+		void Update() override;
 
-		virtual void SetVisible() override;
-		virtual void SetHidden() override;
+		void SetVisible() override;
+		void SetHidden() override;
 		
-		virtual void SetMinimized() override;
-		virtual void SetMaximized() override;
-		virtual void SetRestored() override;
+		void SetMinimized() override;
+		void SetMaximized() override;
+		void SetRestored() override;
 
-		virtual void SetFocused() override;
-		virtual void SetAttention() override;
+		void SetFocused() override;
+		void SetAttention() override;
 		
-		virtual void SetName(const std::string& name) override;
-		virtual void SetAspectRatio(int numerator, int denominator) override;
-		virtual void SetSize(int width, int height) override;
-		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
-		virtual void SetScreenPosition(int posX, int posY) override;
+		void SetName(const std::string& name) override;
+		void SetAspectRatio(int numerator, int denominator) override;
+		void SetSize(int width, int height) override;
+		void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
+		void SetScreenPosition(int posX, int posY) override;
 
-		virtual void SetClipCursor(bool shouldClip) override;
+		void SetClipCursor(bool shouldClip) override;
 
-		virtual void* GetAPIHandle() const override;
-		virtual void* GetPlatformHandle() const override;
+		void* GetApiHandle() const override;
+		SystemHandle GetSystemHandle() const override;
 		
 		// This is needed for input callbacks
 		void QueueEvent(std::unique_ptr<WindowEvent> e);
@@ -49,15 +48,15 @@ namespace Zeron {
 		GLFWmonitor* FindCurrentMonitor() const;
 
 	private:
-		void RegisterEvents_();
-		virtual void OnFullScreenChangedBorderless_() override;
-		virtual void OnFullScreenChangedMonitor_() override;
+		void _registerEvents();
+		void _onFullScreenChangedBorderless() override;
+		void _onFullScreenChangedMonitor() override;
 
 		// Native GLFW window is set to point to WindowGLFW
-		static WindowGLFW* GetUserPointerGLFW_(GLFWwindow* windowGLFW);
+		static WindowGLFW* _getUserPointerGLFW(GLFWwindow* windowGLFW);
 
-		static KeyCode GetKeyCodeGLFW_(int code);
-		static MouseCode GetMouseCodeGLFW_(int code);
+		static KeyCode _getKeyCodeGLFW(int code);
+		static MouseCode _getMouseCodeGLFW(int code);
 		
 		GLFWwindow* mWindowGLFW;
 		GLFWmonitor* mMonitorGLFW;

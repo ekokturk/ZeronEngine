@@ -1,26 +1,24 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
+#if ZE_WINDOW_SDL
 #include <Window/API/SDL/WindowSDL.h>
 
-#if ZE_WINDOW_SDL
+#include <Window/API/SDL/SDLHelpers.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
-#endif
 
 namespace Zeron {
 
 	int WindowSDL::mWindowSDLCount = 0;
 
 	WindowSDL::WindowSDL(const WindowConfig& config)
-		: Window(config) 
+		: Window(config, WindowAPI::SDL)
 		, mWindowSDL(nullptr)
 	{
-		mWindowType = WindowAPI::SDL;
 	}
 	
 	WindowSDL::~WindowSDL()
 	{
-	#if ZE_WINDOW_SDL
 		if(mWindowSDL) {
 			SDL_DestroyWindow(mWindowSDL);
 			mWindowSDLCount--;
@@ -30,12 +28,10 @@ namespace Zeron {
 		if(mWindowSDLCount == 0) {
 			SDL_Quit();
 		}
-	#endif
 	}
 
 	bool WindowSDL::Init()
 	{
-	#if ZE_WINDOW_SDL
 		if (mWindowSDLCount == 0) {
 			if (SDL_Init(SDL_INIT_VIDEO) != SDL_FALSE) {
 				ZE_FAIL("SDL was not initialized!");
@@ -49,6 +45,7 @@ namespace Zeron {
 		SDL_DisplayMode displayMode;
 		const int currentDisplay = GetCurrentDisplay();
 		SDL_GetCurrentDisplayMode(currentDisplay, &displayMode);
+
 		const int initWidth = mIsFullScreen ? displayMode.w : mSize.X;
 		const int initHeight = mIsFullScreen ? displayMode.h : mSize.Y;
 		const int initRefreshRate = displayMode.refresh_rate;
@@ -78,170 +75,116 @@ namespace Zeron {
 		
 		mWindowSDLCount++;
 		return true;
-	#else
-		ZE_FAIL("Current platform does not support SDL window!");
-		return false;
-	#endif
-
 	}
 
-	void WindowSDL::BeginFrame() {
-		ProcessEvents_();
-	}
-
-	void WindowSDL::EndFrame() {
+	void WindowSDL::Update() {
 		ClearEventQueue();
+		_processEvents();
 	}
 
 	void WindowSDL::SetVisible()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_ShowWindow(mWindowSDL);
-	#endif
 	}
 
 	void WindowSDL::SetHidden()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_HideWindow(mWindowSDL);
-	#endif
 	}
 
 	void WindowSDL::SetName(const std::string& name)
 	{
-	#if ZE_WINDOW_SDL
 		mName = name;
 		SDL_SetWindowTitle(mWindowSDL, mName.c_str());
-	#endif
 	}
 
 	void WindowSDL::SetAspectRatio(int numerator, int denominator)
 	{
-	#if ZE_WINDOW_SDL
 		if(!IsFullScreen()) {
 			ZE_FAIL("WindowSDL::SetAspectRatio Not implemented!");
 		}
-	#endif
 	}
 
 	void WindowSDL::SetSize(int width, int height)
 	{
-	#if ZE_WINDOW_SDL
 		if (!IsFullScreen()) {
 			SDL_SetWindowSize(mWindowSDL, width, height);
 		}
-	#endif
 	}
 
 	void WindowSDL::SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight)
 	{
-	#if ZE_WINDOW_SDL
 		SDL_SetWindowMaximumSize(mWindowSDL, maxWidth, maxHeight);
 		SDL_SetWindowMinimumSize(mWindowSDL, minWidth, minHeight);
-	#endif
 	}
 
 	void WindowSDL::SetScreenPosition(int posX, int posY)
 	{
-	#if ZE_WINDOW_SDL
 		if (!IsFullScreen()) {
 			// There is no event triggered for SDL_SetWindowPosition
 			// So we update the cached position here
 			OnPositionChanged(posX, posY);
 			SDL_SetWindowPosition(mWindowSDL, mPos.X, mPos.Y);
 		}
-	#endif
 	}
 
 	void WindowSDL::SetClipCursor(bool shouldClip)
 	{
-#if ZE_WINDOW_SDL
 		SDL_SetWindowGrab(mWindowSDL, mIsFullScreen ? SDL_TRUE : SDL_FALSE);
-#endif
 	}
 
-	void WindowSDL::OnFullScreenChangedBorderless_()
+	void WindowSDL::_onFullScreenChangedBorderless()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_SetWindowFullscreen(mWindowSDL, mIsFullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-	#endif
-		}
-
-	void WindowSDL::OnFullScreenChangedMonitor_()
-	{
-	#if ZE_WINDOW_SDL
-		SDL_SetWindowFullscreen(mWindowSDL, mIsFullScreen ? SDL_WINDOW_FULLSCREEN : 0);
-	#endif
 	}
 
-	void* WindowSDL::GetAPIHandle() const
+	void WindowSDL::_onFullScreenChangedMonitor()
 	{
-	#if ZE_WINDOW_SDL
-			return mWindowSDL;
-	#else
-			return nullptr;
-	#endif
+		SDL_SetWindowFullscreen(mWindowSDL, mIsFullScreen ? SDL_WINDOW_FULLSCREEN : 0);
+	}
+
+	void* WindowSDL::GetApiHandle() const
+	{
+		return mWindowSDL;
 	}
 	
-	void* WindowSDL::GetPlatformHandle() const
+	SystemHandle WindowSDL::GetSystemHandle() const
 	{
-	#if ZE_PLATFORM_WIN32
-		SDL_SysWMinfo wmInfo;
-		SDL_VERSION(&wmInfo.version);
-		SDL_GetWindowWMInfo(mWindowSDL, &wmInfo);
-		return wmInfo.info.win.window;
-	#else
-		return nullptr;
-	#endif
+		return SDLHelpers::GetPlatformWindowHandle(mWindowSDL);
 	}
 
 	int WindowSDL::GetCurrentDisplay() const
 	{
-	#if ZE_WINDOW_SDL
 		return mWindowSDL ? SDL_GetWindowDisplayIndex(mWindowSDL) : 1;
-	#else
-		return -1;
-	#endif
 	}
 
 	void WindowSDL::SetMinimized()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_MinimizeWindow(mWindowSDL);
-	#endif
 	}
 
 	void WindowSDL::SetMaximized()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_MaximizeWindow(mWindowSDL);
-	#endif
 	}
 
 	void WindowSDL::SetRestored()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_RestoreWindow(mWindowSDL);
-	#endif
 	}
 
 	void WindowSDL::SetFocused()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_SetWindowInputFocus(mWindowSDL);
-	#endif
 	}
 
 	void WindowSDL::SetAttention()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_FlashWindow(mWindowSDL, SDL_FLASH_UNTIL_FOCUSED);
-	#endif
 	}
 
-	void WindowSDL::ProcessEvents_()
+	void WindowSDL::_processEvents()
 	{
-	#if ZE_WINDOW_SDL
 		SDL_Event eventSDL;
 		while(SDL_PollEvent(&eventSDL)) {
 			switch (eventSDL.type) {
@@ -260,17 +203,17 @@ namespace Zeron {
 			case SDL_APP_DIDENTERFOREGROUND: {
 			} break;
 			case SDL_WINDOWEVENT: {
-				ProcessWindowEvents_(eventSDL);
+				_processWindowEvents(eventSDL);
 			} break;
 			case SDL_KEYDOWN: {
 				if(eventSDL.key.repeat == SDL_FALSE) {
-					const KeyCode code = GetKeyCodeSDL_(eventSDL.key.keysym.sym);
+					const KeyCode code = _getKeyCodeSDL(eventSDL.key.keysym.sym);
 					mEventQueue.emplace(std::make_unique<WindowEvent_KeyDown>(code));
 				}
 			} break;
 			case SDL_KEYUP: {
 				if (eventSDL.key.repeat == SDL_FALSE) {
-					const KeyCode code = GetKeyCodeSDL_(eventSDL.key.keysym.sym);
+					const KeyCode code = _getKeyCodeSDL(eventSDL.key.keysym.sym);
 					mEventQueue.emplace(std::make_unique<WindowEvent_KeyUp>(code));
 				}
 			} break;
@@ -278,11 +221,11 @@ namespace Zeron {
 				mEventQueue.emplace(std::make_unique<WindowEvent_TextChar>(eventSDL.text.text[0]));
 			} break;
 			case SDL_MOUSEBUTTONDOWN: {
-					const MouseCode code = GetMouseCodeSDL_(eventSDL.button.button);
+					const MouseCode code = _getMouseCodeSDL(eventSDL.button.button);
 					mEventQueue.emplace(std::make_unique<WindowEvent_MouseDown>(code));
 			} break;
 			case SDL_MOUSEBUTTONUP: {
-				const MouseCode code = GetMouseCodeSDL_(eventSDL.button.button);
+				const MouseCode code = _getMouseCodeSDL(eventSDL.button.button);
 				mEventQueue.emplace(std::make_unique<WindowEvent_MouseUp>(code));
 			} break;
 			case SDL_MOUSEMOTION: {
@@ -295,12 +238,10 @@ namespace Zeron {
 			default:;
 			}
 		}
-	#endif
 	}
 
-	void WindowSDL::ProcessWindowEvents_(const SDL_Event& e)
+	void WindowSDL::_processWindowEvents(const SDL_Event& e)
 	{
-	#if ZE_WINDOW_SDL
 		const Uint32 windowID = SDL_GetWindowID(mWindowSDL);
 		if(e.window.windowID != windowID) {
 			return;
@@ -363,12 +304,10 @@ namespace Zeron {
 		} break;
 		default: break;
 		}
-	#endif
 	}
 
-	KeyCode WindowSDL::GetKeyCodeSDL_(int32_t code) {
+	KeyCode WindowSDL::_getKeyCodeSDL(int32_t code) {
 		switch (code) {
-	#if ZE_WINDOW_SDL
 		case SDLK_0:			return KeyCode::N0;
 		case SDLK_1:			return KeyCode::N1;
 		case SDLK_2:			return KeyCode::N2;
@@ -486,23 +425,22 @@ namespace Zeron {
 		case SDLK_BACKSLASH:	return KeyCode::Backslash;
 		case SDLK_BACKQUOTE:	return KeyCode::Tilde;
 		case SDLK_MENU:			return KeyCode::Menu;
-		#endif
 		default:				return KeyCode::Unknown;
 		}
 	}
 
-	MouseCode WindowSDL::GetMouseCodeSDL_(int32_t code)
+	MouseCode WindowSDL::_getMouseCodeSDL(int32_t code)
 	{
 		switch (code) {
-		#if ZE_WINDOW_SDL
 		case SDL_BUTTON_LEFT:	return MouseCode::LeftButton;
 		case SDL_BUTTON_RIGHT:	return MouseCode::RightButton;
 		case SDL_BUTTON_MIDDLE: return MouseCode::MiddleButton;
 		case SDL_BUTTON_X1:		return MouseCode::ButtonX1;
 		case SDL_BUTTON_X2:		return MouseCode::ButtonX2;
-		#endif
 		default:				return MouseCode::Unknown;
 		}
 	}
 
 }
+
+#endif

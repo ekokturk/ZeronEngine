@@ -8,7 +8,10 @@ if(WIN32)
 endif()
 
 set(CMAKE_MESSAGE_LOG_LEVEL "WARNING")
-add_custom_target(uninstall)
+
+option(SDL_TEST_ENABLED_BY_DEFAULT "" OFF)
+# option(SDL2_DISABLE_UNINSTALL "" ON)
+
 add_subdirectory(.submodule)
 
 set(SDL2_FOLDER "${ZERON_THIRDPARTY_FOLDER_PREFIX}/SDL2")

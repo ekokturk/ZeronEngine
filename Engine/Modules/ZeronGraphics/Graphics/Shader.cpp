@@ -4,22 +4,44 @@
 
 namespace Zeron
 {
+	Shader::Shader(ShaderType type)
+		: mType(type)
+	{
+
+	}
+
+	Shader::~Shader()
+	{
+	}
+
 	ShaderType Shader::GetType() const
 	{
 		return mType;
 	}
 
-	Shader* ShaderProgram::GetShader(ShaderType type) const
+	ShaderProgram::ShaderProgram(const std::string& name, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
+		: mName(name)
+		, mVertexLayout(vertexLayout)
+		, mResourceLayout(resourceLayout)
 	{
-		switch (type) {
-			case ShaderType::Vertex: return mVertexShader.get();
-			case ShaderType::Fragment: return mFragmentShader.get();
-		}
-		return nullptr;
+	}
+
+	ShaderProgram::~ShaderProgram()
+	{
 	}
 
 	const std::string& ShaderProgram::GetShaderName() const
 	{
 		return mName;
+	}
+
+	const VertexLayout& ShaderProgram::GetVertexLayout() const
+	{
+		return mVertexLayout;
+	}
+
+	const ResourceLayout& ShaderProgram::GetResourceLayout() const
+	{
+		return mResourceLayout;
 	}
 }

@@ -11,7 +11,7 @@ zeron_add_module_dependency(glm)
 set(MODULE_LIBS_PRIVATE "")
 
 set(PCH_GENERIC 			
-	<cstdint> <array> <map> <unordered_map> <queue> <any> <variant>
+	<cstdint> <array> <map> <unordered_map> <set> <queue> <any> <variant>
 	<exception> <iostream> <sstream> <fstream> <functional>
 	<memory> <filesystem> <algorithm> <cmath> <bitset>
 )
