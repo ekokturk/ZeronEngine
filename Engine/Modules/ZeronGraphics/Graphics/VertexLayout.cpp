@@ -19,6 +19,7 @@ namespace Zeron
 		switch (format) {
 			case VertexFormat::Float2: return sizeof(float) * 2;
 			case VertexFormat::Float3: return sizeof(float) * 3;
+			case VertexFormat::Color: return sizeof(Color);
 			case VertexFormat::Unknown:;
 			default: return 0;
 		}

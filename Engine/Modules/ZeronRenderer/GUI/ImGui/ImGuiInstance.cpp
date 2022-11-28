@@ -3,6 +3,7 @@
 #include <GUI/ImGui/ImGuiInstance.h>
 
 #include <Graphics/Graphics.h>
+#include <GUI/ImGui/ImGuiRenderer.h>
 #include <imgui/imgui_internal.h>
 #include <Window/Window.h>
 
@@ -12,19 +13,17 @@ namespace Zeron
 
 	ImGuiInstance::ImGuiInstance()
 		: mContext(ImGui::CreateContext())
-		, mWindow(nullptr)
 	{
 	}
 
 	ImGuiInstance::~ImGuiInstance()
 	{
-		mImGuiGraphics.Destroy(*mContext);
+		mImGuiRenderer->Destroy(*mContext);
 		ImGui::DestroyContext(mContext);
 	}
 
-	bool ImGuiInstance::Init(Graphics& graphics, Window& window)
+	bool ImGuiInstance::Init(Graphics& graphics, GraphicsContext& graphicsContext)
 	{
-		mWindow = &window;
 		ImGuiIO& io = mContext->IO;
 		io.BackendPlatformName = "Zeron Engine - ImGui";
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
@@ -52,8 +51,8 @@ namespace Zeron
 		io.KeyMap[ImGuiKey_Y] = KeyCode::Y;
 		io.KeyMap[ImGuiKey_Z] = KeyCode::Z;
 
-		return mWindow && 
-			mImGuiGraphics.Init(*mContext, graphics);
+		mImGuiRenderer = std::make_unique<ImGuiRenderer>();
+		return mImGuiRenderer->Init(*mContext, graphics, graphicsContext);
 	}
 
 	void ImGuiInstance::NewFrame()
@@ -61,18 +60,23 @@ namespace Zeron
 		const auto now = std::chrono::high_resolution_clock::now();
 		mContext->IO.DeltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - mTime).count();
 		mTime = now;
-		mImGuiGraphics.NewFrame(*mContext);
-		if (mWindow) {
-			mContext->IO.DisplaySize = ImVec2(static_cast<float>(mWindow->GetSize().X),
-				static_cast<float>(mWindow->GetSize().Y));
-		}
+		mContext->IO.DisplaySize = mImGuiRenderer->GetDisplaySize();
+		mContext->IO.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+		mImGuiRenderer->NewFrame(*mContext);
 		ImGui::NewFrame();
 	}
 
-	void ImGuiInstance::Draw() const
+	void ImGuiInstance::Update(Graphics& graphics)
 	{
+		// Render all ImGui commands
 		ImGui::Render();
-		mImGuiGraphics.Draw(*mContext);
+		// Update render resources
+		mImGuiRenderer->Update(*mContext, graphics);
+	}
+
+	void ImGuiInstance::Draw(CommandBuffer& cmd) const
+	{
+		mImGuiRenderer->Draw(*mContext, cmd);
 	}
 
 	bool ImGuiInstance::HandleEvent(WindowEvent& evt) const
@@ -98,13 +102,13 @@ namespace Zeron
 			case WindowEventID::KeyDown: {
 				if(io.WantCaptureKeyboard) {
 					auto& keyDownEvt = static_cast<WindowEvent_KeyDown&>(evt);
-					handled = OnKey_(keyDownEvt.mCode, true);
+					handled = _onKey(keyDownEvt.mCode, true);
 				}
 			} break;
 			case WindowEventID::KeyUp: {
 				if (io.WantCaptureKeyboard) {
 					auto& keyUpEvt = static_cast<WindowEvent_KeyUp&>(evt);
-					handled = OnKey_(keyUpEvt.mCode, false);
+					handled = _onKey(keyUpEvt.mCode, false);
 				}
 			} break;
 			case WindowEventID::TextChar: {
@@ -153,7 +157,7 @@ namespace Zeron
 		return handled;
 	}
 
-	bool ImGuiInstance::OnKey_(KeyCode::Type code, bool isPressed) const
+	bool ImGuiInstance::_onKey(KeyCode::Type code, bool isPressed) const
 	{
 		ImGuiIO& io = mContext->IO;
 		switch (code) {

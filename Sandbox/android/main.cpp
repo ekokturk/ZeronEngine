@@ -1,25 +1,21 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
+#include "Core/Logger.h"
 #include <Window/Window.h>
+
+#include <SampleVulkan.h>
 
 using namespace Zeron;
 
 __attribute__ ((visibility("default"))) 
-int main(int argc, char* argv[]) {
-	auto window = Window::CreatePlatformWindow(WindowAPI::SDL, WindowConfig("Linux - SDL", 800, 600, 0));
-	window->Init();
+int main(int argc, char** argv) {
 
-	ZE_LOGI("Launched Zeron Android App...");
-	bool isRunning = true;
-	while (isRunning) {
-		std::cout << "Test";
-		window->BeginFrame();
-		while (auto e = window->GetNextEvent()) {
-			if (e->GetID() == WindowEventID::WindowClosed) {
-				isRunning = false;
-			}
-		}
-		window->EndFrame();
+	auto windowVk = Zeron::Window::CreatePlatformWindow(Zeron::WindowAPI::SDL, Zeron::WindowConfig("Vulkan", 800, 600, 0));
+
+	while(
+		SampleVulkan::Run(windowVk.get())
+		) 
+	{
 	}
 	return 0;
 }

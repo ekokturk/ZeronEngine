@@ -5,6 +5,7 @@ out/
 Engine/ThirdParty/*/*
 !Engine/ThirdParty/*/update.py
 !Engine/ThirdParty/*/CMakeLists.txt
+!Engine/ThirdParty/*/utils/
 CMakeUserPresets.json
 
 # VS Code

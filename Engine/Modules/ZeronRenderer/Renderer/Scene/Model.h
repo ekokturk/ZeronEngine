@@ -21,22 +21,20 @@ namespace Zeron
 	class Model {
 	public:
 		
-		Model(Graphics& graphics, const std::string& modelPath, std::shared_ptr<Buffer> constantBuffer);
+		Model(Graphics& graphics, const std::string& modelPath, std::unique_ptr<Buffer> uniformBuffer);
 
-		void Draw(GraphicsContext& ctx, Camera& camera, const Mat4& worldMatrix);
-
-		std::vector<Mesh>& GetMeshes();
-		const std::vector<Mesh>& GetMeshes() const;
+		std::vector<std::unique_ptr<Mesh>>& GetMeshes();
+		const std::vector<std::unique_ptr<Mesh>>& GetMeshes() const;
 		
 	private:
 		// TODO: Move this to ModelImporter class
 		bool LoadModel(Graphics& graphics, const std::string& modelPath);
 		void ProcessNode(Graphics& graphics, aiNode* node, const aiScene* scene, const Mat4& parentTransform);
-		Mesh ProcessMesh(Graphics& graphics, aiMesh* meshNode, const aiScene* scene, const Mat4& transform);
+		std::unique_ptr<Mesh> ProcessMesh(Graphics& graphics, aiMesh* meshNode, const aiScene* scene, const Mat4& transform);
 		std::vector<std::shared_ptr<Texture>> LoadMaterialTextures(Graphics& graphics, const aiScene* scene, aiMaterial* material, TextureType type);
 		
-		std::vector<Mesh> mMeshList;
-		std::shared_ptr<Buffer> mConstantBuffer;
+		std::vector<std::unique_ptr<Mesh>> mMeshList;
+		std::unique_ptr<Buffer> mConstantBuffer;
 	};
 }
 

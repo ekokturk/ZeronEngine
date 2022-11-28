@@ -4,9 +4,7 @@
 
 #include <Window/Window.h>
 
-#ifndef ZE_WINDOW_WIN32
-	typedef void* HWND;
-#endif
+#ifdef ZE_WINDOW_WIN32
 
 // TODO: Joystick Control
 // TODO: Display Management
@@ -17,37 +15,35 @@ namespace Zeron {
 		WindowWin32(const WindowConfig& config);
 		~WindowWin32();
 
-		virtual bool Init() override;
+		bool Init() override;
 
-		virtual void BeginFrame() override;
-		virtual void EndFrame() override;
+		void Update() override;
 
-		virtual void SetVisible() override;
-		virtual void SetHidden() override;
+		void SetVisible() override;
+		void SetHidden() override;
 		
-		virtual void SetMinimized() override;
-		virtual void SetMaximized() override;
-		virtual void SetRestored() override;
+		void SetMinimized() override;
+		void SetMaximized() override;
+		void SetRestored() override;
 
-		virtual void SetFocused() override;
-		virtual void SetAttention() override;
+		void SetFocused() override;
+		void SetAttention() override;
 
-		virtual void SetName(const std::string& name) override;
-		virtual void SetAspectRatio(int numerator, int denominator) override;
-		virtual void SetSize(int width, int height) override;
-		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
-		virtual void SetScreenPosition(int posX, int posY) override;
+		void SetName(const std::string& name) override;
+		void SetAspectRatio(int numerator, int denominator) override;
+		void SetSize(int width, int height) override;
+		void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
+		void SetScreenPosition(int posX, int posY) override;
 		
-		virtual void SetClipCursor(bool shouldClip) override;
+		void SetClipCursor(bool shouldClip) override;
 
-		virtual void* GetAPIHandle() const override;
-		virtual void* GetPlatformHandle() const override;
+		void* GetApiHandle() const override;
+		SystemHandle GetSystemHandle() const override;
 
 	private:
-		virtual void OnFullScreenChangedBorderless_() override;
-		virtual void OnFullScreenChangedMonitor_() override;
+		void _onFullScreenChangedBorderless() override;
+		void _onFullScreenChangedMonitor() override;
 
-	private:
 		HWND mHwnd;
 		
 		bool mIsResizing;
@@ -57,19 +53,20 @@ namespace Zeron {
 		int mSizeMaxX;
 		int mSizeMaxY;
 
-#if ZE_WINDOW_WIN32
 	public:
 		LRESULT WndProc(UINT msg, WPARAM wParam, LPARAM lParam);
 	private:
 		// Get client Rect in screen coordinates
-		RECT GetScreenRect_() const;
+		RECT _getScreenRect() const;
 		// Get window Rect from client coordinates
-		RECT GetAdjustedRect_(const Vec2i& position, const Vec2i& size) const;
+		RECT _getAdjustedRect(const Vec2i& position, const Vec2i& size) const;
 		
-		KeyCode GetKeyCodeWin32_(WPARAM wParam, LPARAM lParam);
-		MouseCode GetMouseCodeWin32_(WPARAM wParam, LPARAM lParam);
-#endif
+		KeyCode _getKeyCodeWin32(WPARAM wParam, LPARAM lParam);
+		MouseCode _getMouseCodeWin32(WPARAM wParam, LPARAM lParam);
+
+		static uint32_t mWindowIdCounter;
 	};
 
 }
 
+#endif

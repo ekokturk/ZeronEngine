@@ -8,7 +8,7 @@
 
 namespace Zeron
 {
-	Window::Window(const WindowConfig& config)
+	Window::Window(const WindowConfig& config, WindowAPI api)
 		: mName(config.mName)
 		, mID(config.mID)
 		, mSize{ config.mWidth, config.mHeight }
@@ -19,10 +19,9 @@ namespace Zeron
 		, mIsMinimized(false)
 		, mIsMaximized(false)
 		, mIsHidden(false)
-		, mWindowType(WindowAPI::Null)
 		, mFullScreenType(FullScreenType::Borderless)
+		, mWindowType(api)
 	{
-
 	}
 
 	std::unique_ptr<Window> Window::CreatePlatformWindow(WindowAPI type, const WindowConfig& config)
@@ -64,7 +63,7 @@ namespace Zeron
 		mIsFullScreen = isFullScreen;
 		switch (mFullScreenType) {
 		case Zeron::FullScreenType::Borderless: {
-			OnFullScreenChangedBorderless_();
+			_onFullScreenChangedBorderless();
 		} break;
 		case Zeron::FullScreenType::Monitor:
 		default: ZE_FAIL("Active FullScreenType is not supported!");

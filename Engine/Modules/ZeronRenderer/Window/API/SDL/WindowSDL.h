@@ -2,6 +2,7 @@
 
 #pragma once
 
+#if ZE_WINDOW_SDL
 #include <Window/Window.h>
 
 union SDL_Event;
@@ -13,44 +14,43 @@ namespace Zeron {
 		WindowSDL(const WindowConfig& config);
 		~WindowSDL();
 
-		virtual bool Init() override;
+		bool Init() override;
 
-		virtual void BeginFrame() override;
-		virtual void EndFrame() override;
+		void Update() override;
 
-		virtual void SetVisible() override;
-		virtual void SetHidden() override;
+		void SetVisible() override;
+		void SetHidden() override;
 		
-		virtual void SetMinimized() override;
-		virtual void SetMaximized() override;
-		virtual void SetRestored() override;
+		void SetMinimized() override;
+		void SetMaximized() override;
+		void SetRestored() override;
 
-		virtual void SetFocused() override;
-		virtual void SetAttention() override;
+		void SetFocused() override;
+		void SetAttention() override;
 
 		
-		virtual void SetName(const std::string& name) override;
-		virtual void SetAspectRatio(int numerator, int denominator) override;
-		virtual void SetSize(int width, int height) override;
-		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
-		virtual void SetScreenPosition(int posX, int posY) override;
+		void SetName(const std::string& name) override;
+		void SetAspectRatio(int numerator, int denominator) override;
+		void SetSize(int width, int height) override;
+		void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
+		void SetScreenPosition(int posX, int posY) override;
 
-		virtual void SetClipCursor(bool shouldClip) override;
+		void SetClipCursor(bool shouldClip) override;
 
-		virtual void* GetAPIHandle() const override;
-		virtual void* GetPlatformHandle() const override;
+		void* GetApiHandle() const override;
+		SystemHandle GetSystemHandle() const override;
 		
 		int GetCurrentDisplay() const;
 
 	private:
-		void ProcessEvents_();
-		void ProcessWindowEvents_(const SDL_Event& e);
+		void _processEvents();
+		void _processWindowEvents(const SDL_Event& e);
 
-		virtual void OnFullScreenChangedBorderless_() override;
-		virtual void OnFullScreenChangedMonitor_() override;
+		void _onFullScreenChangedBorderless() override;
+		void _onFullScreenChangedMonitor() override;
 
-		static KeyCode GetKeyCodeSDL_(int32_t code);
-		static MouseCode GetMouseCodeSDL_(int32_t code);
+		static KeyCode _getKeyCodeSDL(int32_t code);
+		static MouseCode _getMouseCodeSDL(int32_t code);
 
 		SDL_Window* mWindowSDL;
 
@@ -59,3 +59,4 @@ namespace Zeron {
 
 }
 
+#endif

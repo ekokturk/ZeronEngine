@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <GUI/ImGui/ImGuiGraphics.h>
+#include <GUI/ImGui/ImGuiRenderer.h>
 #include <imgui/imgui.h>
 #include <Window/Input/KeyCode.h>
 
@@ -20,17 +20,17 @@ namespace Zeron
 		ImGuiInstance();
 		~ImGuiInstance();
 
-		bool Init(Graphics& graphics, Window& window);
+		bool Init(Graphics& graphics, GraphicsContext& graphicsContext);
 		bool HandleEvent(WindowEvent& evt) const;
 		void NewFrame();
-		void Draw() const;
+		void Update(Graphics& graphics);
+		void Draw(CommandBuffer& cmd) const;
 
 	private:
-		bool OnKey_(KeyCode::Type code, bool isPressed) const;
+		bool _onKey(KeyCode::Type code, bool isPressed) const;
 
 		ImGuiContext* mContext;
-		ImGuiGraphics mImGuiGraphics;
-		Window* mWindow;
+		std::unique_ptr<ImGuiRenderer> mImGuiRenderer;
 
 		// TODO: Change this with Timer wrapper later
 		std::chrono::high_resolution_clock::time_point mTime;

@@ -8,8 +8,7 @@ set_property(GLOBAL PROPERTY ZERON_FONTS_DIR    ${ASSETS_DIR}/Fonts)
 set_property(GLOBAL PROPERTY ZERON_MODELS_DIR   ${ASSETS_DIR}/Models)
 set_property(GLOBAL PROPERTY ZERON_TEXTURES_DIR ${ASSETS_DIR}/Textures)
 
-set_property(GLOBAL PROPERTY ZERON_SHADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Shaders")
-
+zeron_add_shader_directory("${CMAKE_CURRENT_SOURCE_DIR}/Shaders")
 
 if(ANDROID)
     set_property(GLOBAL PROPERTY ZERON_ANDROID_PROJECT_DIR ${PLATFORM_DIR}/Android/project)

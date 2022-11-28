@@ -12,6 +12,24 @@ namespace Zeron
 	{
 		ZeroMemory(&mDesc, sizeof(DXGI_ADAPTER_DESC));
 		D3D_ASSERT_RESULT(mAdapter->GetDesc(&mDesc));
+
+		mName.reserve(256);
+		std::wcstombs(mName.data(), mDesc.Description, 256);
+	}
+
+	const char* GraphicsAdapterD3D11::GetName() const
+	{
+		return mName.c_str();
+	}
+
+	bool GraphicsAdapterD3D11::HasSwapChainSupport() const
+	{
+		return true;
+	}
+
+	bool GraphicsAdapterD3D11::IsDiscreteAdapter() const
+	{
+		return true;
 	}
 
 	IDXGIAdapter* GraphicsAdapterD3D11::GetAdapterD3D() const

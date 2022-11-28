@@ -5,20 +5,22 @@
 #ifdef ZE_GRAPHICS_D3D
 #include <d3d11.h>
 #include <Graphics/API/D3D/11/GraphicsD3D11.h>
-#include <Graphics/API/D3D/11/RenderTargetD3D11.h>
+#include <Graphics/API/D3D/11/FrameBufferD3D11.h>
+#include <Graphics/API/D3D/11/D3D11Helpers.h>
 #include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {
-	SwapChainD3D11::SwapChainD3D11(GraphicsD3D11& graphics, void* windowHandle, const Vec2i& size)
-		: SwapChain(size)
+	SwapChainD3D11::SwapChainD3D11(GraphicsD3D11& graphics, SystemHandle systemHandle, const Vec2i& size)
+		: SwapChain(size, 2)
 		, mVSyncEnabled(0)
 		, mHWND(nullptr) {
 
-		mHWND = static_cast<HWND>(windowHandle);
+		mHWND = static_cast<HWND>(systemHandle.mWindow);
 		ZE_ASSERT(mHWND, "Win32 window handle returned null!");
 
 		const Vec2i& windowSize = GetSize();
+		const MSAALevel msaaLevel = graphics.GetMultiSamplingLevel();
 
 		DXGI_SWAP_CHAIN_DESC desc;
 		desc.BufferDesc.Width = windowSize.X;
@@ -30,11 +32,15 @@ namespace Zeron
 		desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 
 		// Anti-aliasing (Set to none)
-		desc.SampleDesc.Count = 1;
+		const UINT sampleCount = D3D11Helpers::GetMultiSampleLevel(msaaLevel);
+		// TODO: Use sample quality for MSAA
+		//UINT sampleQuality = 0;
+		//graphics.GetDeviceD3D()->CheckMultisampleQualityLevels(DXGI_FORMAT_B8G8R8A8_UNORM, sampleCount, &sampleQuality);
+		desc.SampleDesc.Count = sampleCount;
 		desc.SampleDesc.Quality = 0;
 
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;			// Buffer to be used as render target
-		desc.BufferCount = 1;										// 1 back buffer
+		desc.BufferCount = GetFrameCount() - 1;				// Back buffer count
 		desc.OutputWindow = mHWND;
 
 		desc.Windowed = true;
@@ -43,15 +49,15 @@ namespace Zeron
 
 		D3D_ASSERT_RESULT(graphics.GetFactoryD3D()->CreateSwapChain(graphics.GetDeviceD3D(), &desc, &mSwapChain));
 
-		mRenderTarget = std::make_unique<RenderTargetD3D11>();
-		mRenderTarget->CreateBuffers(graphics.GetDeviceD3D(), *this);
+		mFrameBuffer = std::make_unique<FrameBufferD3D11>();
+		mFrameBuffer->CreateBuffers(graphics.GetDeviceD3D(), *this, msaaLevel);
 	}
 
 	SwapChainD3D11::~SwapChainD3D11()
 	{
 	}
 
-	void SwapChainD3D11::SwapBuffers()
+	void SwapChainD3D11::Present()
 	{
 		D3D_ASSERT_RESULT(mSwapChain->Present(mVSyncEnabled, 0));
 	}
@@ -68,9 +74,9 @@ namespace Zeron
 
 	void SwapChainD3D11::Resize(const Vec2i& size)
 	{
-		ZE_ASSERT(!mRenderTarget->GetRenderTargetD3D(), "Render target needs to be released before we resize the swap chain!");
-		ZE_ASSERT(!mRenderTarget->GetDepthStencilD3D(), "Depth Stencil needs to be released before we resize the swap chain!");
-		SetSize_(size);
+		ZE_ASSERT(!mFrameBuffer->GetRenderTargetD3D(), "Render target needs to be released before we resize the swap chain!");
+		ZE_ASSERT(!mFrameBuffer->GetDepthStencilD3D(), "Depth Stencil needs to be released before we resize the swap chain!");
+		_setSize(size);
 		D3D_ASSERT_RESULT(mSwapChain->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 	}
 
@@ -79,9 +85,9 @@ namespace Zeron
 		return mVSyncEnabled == 0 ? false : true;
 	}
 
-	RenderTarget* SwapChainD3D11::GetRenderTarget() const
+	FrameBuffer* SwapChainD3D11::GetFrameBuffer() const
 	{
-		return mRenderTarget.get();
+		return mFrameBuffer.get();
 	}
 
 	struct IDXGISwapChain* SwapChainD3D11::GetSwapChainD3D() const

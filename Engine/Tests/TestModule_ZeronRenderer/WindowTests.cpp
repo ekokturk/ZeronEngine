@@ -20,8 +20,7 @@ namespace TestModule_ZeronRenderer {
 
         static void TickFrame(int count = 1) {
         	for(int i = 0; i < count; i++) {
-                mWindow->BeginFrame();
-                mWindow->EndFrame();
+                mWindow->Update();
         	}
         }
 

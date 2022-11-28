@@ -4,8 +4,9 @@
 
 namespace Zeron
 {
-	SwapChain::SwapChain(const Vec2i& size)
+	SwapChain::SwapChain(const Vec2i& size, uint32_t bufferCount)
 		: mSize(size)
+		, mBufferCount(bufferCount)
 	{
 	}
 
@@ -15,7 +16,12 @@ namespace Zeron
 		return mSize;
 	}
 
-	void SwapChain::SetSize_(const Vec2i& size)
+	uint32_t SwapChain::GetFrameCount() const
+	{
+		return mBufferCount;
+	}
+
+	void SwapChain::_setSize(const Vec2i& size)
 	{
 		ZE_ASSERT(mSize != Vec2i::ZERO, "Swapchain cannot have zero size!");
 		mSize = size;

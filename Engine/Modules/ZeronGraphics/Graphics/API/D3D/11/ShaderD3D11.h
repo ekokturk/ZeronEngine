@@ -22,7 +22,9 @@ namespace Zeron
 	public:
 
 		ShaderD3D11(GraphicsD3D11& graphics, ShaderType type, const ZE::ComPtr<ID3D10Blob>& buffer);
+		~ShaderD3D11();
 
+		// D3D11 API
 		ID3D11DeviceChild* GetShaderD3D() const;
 		ID3D10Blob* GetShaderBufferD3D() const;
 
@@ -33,19 +35,24 @@ namespace Zeron
 
 	class ShaderProgramD3D11 : public ShaderProgram {
 	public:
-		ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& layout);
-		ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, 
-			const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& layout);
+		ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout);
+		ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout);
+		~ShaderProgramD3D11();
 
+		// ShaderProgram
+		Shader* GetShader(ShaderType type) const override;
+
+		// D3D11 API
 		ID3D11InputLayout* GetInputLayoutD3D() const;
 	
 	private:
-		bool CreateInputLayout_(GraphicsD3D11& graphics, const VertexLayout& layout);
-		std::vector<D3D11_INPUT_ELEMENT_DESC> GetVertexLayoutD3D(const VertexLayout& layout) const;
-		DXGI_FORMAT GetVertexFormatD3D(VertexFormat format) const;
-		
+		bool _createInputLayout(GraphicsD3D11& graphics);
+		std::vector<D3D11_INPUT_ELEMENT_DESC> _getVertexLayoutD3D(const VertexLayout& layout) const;
+		DXGI_FORMAT _getVertexFormatD3D(VertexFormat format) const;
+	private:
+		std::shared_ptr<ShaderD3D11> mVertexShader;
+		std::shared_ptr<ShaderD3D11> mFragmentShader;
 		ZE::ComPtr<ID3D11InputLayout> mInputLayout;
-
 	};
 }
 #endif

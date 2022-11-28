@@ -1,47 +1,107 @@
+function(zeron_compile_shaders target outputDir)
+    get_property(_srcShaderDirs GLOBAL PROPERTY ZERON_SHADER_DIRECTORIES)
 
-function(zeron_compile_hlsl target outputDir)
-    if(NOT TARGET ${target})
-        message(FATAL_ERROR "Target does not exist!")
-    endif()
-    if(NOT WIN32)
-        message(FATAL_ERROR "HLSL shaders are supported only in Windows builds!")
-    endif()
-    get_property(shader_dir GLOBAL PROPERTY ZERON_SHADERS_DIR)
-    set(hlsl_shader_dir "${shader_dir}/HLSL")
-    if(NOT EXISTS ${hlsl_shader_dir})
-        message(FATAL_ERROR "Zeron HLSL shader directory does not exist!")
+    if(NOT GLSLC_EXEC)
+        message(FATAL_ERROR "Vulkan SPIR-V compiler glslc was not found!")
     endif()
 
-    file(GLOB_RECURSE hlsl_shaders "${hlsl_shader_dir}/*.hlsl")
-    list(LENGTH hlsl_shaders shader_count )
-    if(shader_count EQUAL 0)
-        message(WARNING "No HLSL shaders available to compile!")
-        return()
-    else()
-        message("ZERON ---- Compiling Zeron HLSL shaders (Count: ${shader_count})")
-    endif()
+    # TODO: Add sub folder support for this
+    set(_outShaderDir ${CMAKE_CURRENT_BINARY_DIR}/${outputDir})
 
-    source_group("Shaders/HLSL" FILES ${hlsl_shaders})
-    target_sources(${target} PRIVATE ${hlsl_shaders})
-
-    set(HLSL_SHADER_MODEL 5.0)
-    foreach(HLSL_SHADER_PATH IN LISTS hlsl_shaders)
-        get_filename_component(HLSL_SHADER_FILENAME ${HLSL_SHADER_PATH} NAME_WLE)
-        get_filename_component(HLSL_SHADER_EXTENSTION ${HLSL_SHADER_FILENAME} EXT)
-        if(HLSL_SHADER_EXTENSTION STREQUAL ".vs")
-            set(HLSL_SHADER_TYPE Vertex)
-        elseif(HLSL_SHADER_EXTENSTION STREQUAL ".fs")
-            set(HLSL_SHADER_TYPE Pixel)
-        else()
-            message(FATAL_ERROR "Invalid HLSL shader extension!")
+    # Find helper headers in the shader directories
+    # We need to do this so they can be associated with source files
+    foreach (_srcShaderDir IN LISTS _srcShaderDirs)
+        file(GLOB_RECURSE _foundSrcHeaders "${_srcShaderDir}/*.h.hlsl")
+        # Disable compilation of the utils files in Visual Studio
+        set_source_files_properties(${_foundSrcHeaders} PROPERTIES VS_TOOL_OVERRIDE "None")
+        list(APPEND _allSrcShaderHeaders ${_foundSrcHeaders})
+        if(_foundSrcHeaders)
+            list(APPEND _shaderIncludeDirs ${_srcShaderDir})
         endif()
-        set_source_files_properties(${HLSL_SHADER_PATH} 
-            PROPERTIES 
-                VS_SHADER_OBJECT_FILE_NAME $(OutDir)/${outputDir}/${HLSL_SHADER_FILENAME}.cso
-                VS_SHADER_TYPE ${HLSL_SHADER_TYPE} 
-                VS_SHADER_MODEL ${HLSL_SHADER_MODEL}
-                VS_SHADER_ENTRYPOINT main
-                VS_SHADER_ENABLE_DEBUG 1
-        )
     endforeach()
+
+    # Find shader source files in specified directories
+    foreach (_srcShaderDir IN LISTS _srcShaderDirs)
+        file(GLOB_RECURSE _srcShaderList 
+            "${_srcShaderDir}/*.vert.hlsl"
+            "${_srcShaderDir}/*.frag.hlsl"
+            "${_srcShaderDir}/*.comp.hlsl"
+        )
+        foreach (_srcShader IN LISTS _srcShaderList)
+            list(APPEND _allSrcShaders ${_srcShader})
+            cmake_path(ABSOLUTE_PATH _srcShader OUTPUT_VARIABLE _srcShaderAbs)
+            get_filename_component(_shaderName ${_srcShader} NAME_WLE)
+            get_filename_component(_shaderExtension ${_shaderName} EXT)
+
+            # ======================================================
+            # ================= Compile for Vulkan =================
+            set(_outShader "${_outShaderDir}/${_shaderName}.spv")
+            set(_outShaderDep "${_outShaderDir}/${_shaderName}.d")
+            add_custom_command(
+                OUTPUT ${_outShader}
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${_outShaderDir}
+                COMMAND ${CMAKE_COMMAND} -E echo "[ZERON] Compiling SPIRV for '${target}': ${_srcShader} -> ${_outShader}"
+                COMMAND ${GLSLC_EXEC}
+                            -MD -MF "${_outShaderDep}" 
+                            -O "${_srcShaderAbs}"
+                            -o "${_outShader}" 
+                            -I "${_shaderIncludeDirs}"
+                            -DZE_SHADER_SPIRV
+                            # --target-env=vulkan1.2 "${include_flags}"
+                DEPENDS "${_srcShaderAbs}"
+                BYPRODUCTS "${_outShaderDep}"
+                DEPFILE "${_outShaderDep}"
+                VERBATIM
+                COMMAND_EXPAND_LISTS
+            )
+
+            add_custom_command(
+                TARGET ${target} 
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_outShader} "$<TARGET_FILE_DIR:${target}>/${outputDir}/${_shaderName}.spv"
+            )
+            list(APPEND _allCompiledShaders ${_outShader})
+            # =========================================================
+
+            # ========================================================
+            # ================= Compile for Direct3D =================
+            if(WIN32)
+                set(_shaderModelHLSL 5.0)
+                if(_shaderExtension STREQUAL ".vert")
+                    set(_shaderType Vertex)
+                elseif(_shaderExtension STREQUAL ".frag")
+                    set(_shaderType Pixel)
+                elseif(_shaderExtension STREQUAL ".comp")
+                    set(_shaderType Compute)
+                else()
+                    message(FATAL_ERROR "Invalid HLSL shader extension '${_shaderExtension}'!")
+                endif()
+                set_source_files_properties(${_srcShader} 
+                    PROPERTIES 
+                        VS_SHADER_FLAGS /I"${_shaderIncludeDirs}"
+                        VS_SHADER_OBJECT_FILE_NAME $(OutDir)/${outputDir}/${_shaderName}.cso
+                        VS_SHADER_TYPE ${_shaderType} 
+                        VS_SHADER_MODEL ${_shaderModelHLSL}
+                        VS_SHADER_ENTRYPOINT main
+                        VS_SHADER_ENABLE_DEBUG 1
+                )
+            endif()
+            # =========================================================
+        endforeach ()
+        
+        list(LENGTH _srcShaderList _srcShaderListCount)
+        cmake_path(RELATIVE_PATH _srcShaderDir BASE_DIRECTORY ${PROJECT_SOURCE_DIR} OUTPUT_VARIABLE _relativeSrcShaderDir)
+        message("ZERON ---- Found (${_srcShaderListCount}) shaders to compile in '${_relativeSrcShaderDir}'")
+    endforeach()
+
+    # Create target to compile shaders
+    add_custom_target(ShaderCompiler DEPENDS ${_allCompiledShaders})
+    get_target_property(_targetFolder ${target} FOLDER)
+    set_target_properties(ShaderCompiler PROPERTIES FOLDER ${_targetFolder})
+
+    source_group("Shaders" FILES ${_allSrcShaders} ${_allSrcShaderHeaders})
+    # Visual Studio only detects HLSL Compiler for valid targetss
+    target_sources(${target} PUBLIC ${_allSrcShaders} ${_allSrcShaderHeaders})
+
+    add_dependencies(${target} ShaderCompiler)
 endfunction()
