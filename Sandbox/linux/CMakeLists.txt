@@ -11,7 +11,9 @@ source_group(TREE "${SANDBOX_DIR}" PREFIX "Source Files/" FILES ${SANDBOX_SOURCE
 
 add_executable(Sandbox ${SANDBOX_SOURCES}  )
 target_include_directories(Sandbox PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${SANDBOX_SHARED_DIR})
-target_link_libraries(Sandbox PUBLIC ZeronRenderer)
+target_link_libraries(Sandbox PUBLIC 
+    ZeronPlatform ZeronRenderer ZeronGUI
+)
 
 zeron_compile_shaders(Sandbox "Resources/Shaders")
 zeron_copy_assets(Sandbox "Resources")

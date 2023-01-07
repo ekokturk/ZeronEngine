@@ -18,7 +18,7 @@ if(TARGET gtest)
 
     # Zeron Test Modules
     add_subdirectory(TestModule_ZeronCore)
-    add_subdirectory(TestModule_ZeronRenderer)
+    add_subdirectory(TestModule_ZeronPlatform)
 else()
     message(FATAL_ERROR "Google Test library was not found!")
 endif()

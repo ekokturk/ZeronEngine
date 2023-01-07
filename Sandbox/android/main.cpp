@@ -1,21 +1,30 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "Core/Logger.h"
-#include <Window/Window.h>
-
 #include <SampleVulkan.h>
+
+#include <Platform/Window.h>
+#include <Platform/Platform.h>
+#include <Graphics/Graphics.h>
 
 using namespace Zeron;
 
 __attribute__ ((visibility("default"))) 
 int main(int argc, char** argv) {
 
-	auto windowVk = Zeron::Window::CreatePlatformWindow(Zeron::WindowAPI::SDL, Zeron::WindowConfig("Vulkan", 800, 600, 0));
+	auto platform = Zeron::Platform::CreatePlatformInstance();
+	auto graphicsVulkan = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Vulkan);
 
-	while(
-		SampleVulkan::Run(windowVk.get())
-		) 
+	graphicsVulkan->Init();
+
+	Sandbox::SampleRunner runner;
+	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform->CreatePlatformWindow({ "Vulkan - SDL", 800, 600, 0, false, Zeron::WindowAPI::SDL }));
+
+	bool isRunning = true;
+	while(isRunning)
 	{
+		platform->Update();
+		isRunning &= runner.RunAll(Sandbox::SampleRunner::RunCondition::SingleSuccess);
 	}
+
 	return 0;
 }
