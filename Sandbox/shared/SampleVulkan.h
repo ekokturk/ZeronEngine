@@ -2,11 +2,25 @@
 
 #pragma once
 
+#include <Sandbox.h>
+
 namespace Zeron {
+	class Graphics;
 	class Window;
 }
 
-class SampleVulkan {
-public:
-	static bool Run(Zeron::Window* window);
-};
+namespace SampleVulkan
+{
+	struct SampleContext;
+
+	class SampleInstance : public Sandbox::ISampleInstance {
+	public:
+		SampleInstance(Zeron::Graphics* graphics, Zeron::Window* window);
+		~SampleInstance();
+		bool Run() override;
+	private:
+		std::unique_ptr<SampleContext> mCtx;
+	};
+}
+
+

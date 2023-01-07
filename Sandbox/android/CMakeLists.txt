@@ -14,7 +14,7 @@ add_library(Sandbox ${SANDBOX_SOURCES})
 target_link_libraries(
     Sandbox 
         PUBLIC 
-            ZeronRenderer 
+            ZeronPlatform ZeronRenderer ZeronGUI
             ${ZERON_ANDROID_LIBS}
 )
 target_include_directories(Sandbox PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${SANDBOX_SHARED_DIR})

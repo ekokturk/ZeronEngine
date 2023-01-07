@@ -1,12 +1,13 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #include <SampleVulkan.h>
+#include <SampleVulkan.h>
 
 #include <GUI/ImGui/ImGuiInstance.h>
 #include <Renderer/Image.h>
 #include <Renderer/Scene/Camera.h>
 #include <Renderer/Scene/Model.h>
-#include <Window/Window.h>
+#include <Platform/Window.h>
 
 #include <Graphics/Buffer.h>
 #include <Graphics/CommandBuffer.h>
@@ -21,7 +22,7 @@
 
 using namespace Zeron;
 
-namespace {
+namespace SampleVulkan {
 
 	struct VertexShaderCBData
 	{
@@ -49,8 +50,12 @@ namespace {
 		std::unique_ptr<PipelineBinding> mBinding;
 	};
 
-	struct WindowContext {
-		std::unique_ptr<Graphics> mGraphics;
+	struct SampleContext {
+		bool mIsRunning = true;
+
+		Window* mWindow;
+
+		Graphics* mGraphics;
 		std::unique_ptr<GraphicsContext> mGraphicsContext;
 		std::unique_ptr<ImGuiInstance> mImGui;
 
@@ -66,33 +71,29 @@ namespace {
 		std::unique_ptr<Image> mImage;
 
 		Camera mCamera;
-		bool isInit = false;
+		bool mIsSuspended = false;
 
 		// Compute
 		std::unique_ptr<CommandBuffer> mComputeCommandBuffer;
 		std::unique_ptr<ShaderProgram> mComputeShader;
 		std::unique_ptr<Pipeline> mComputePipeline;
 
-	} ctx;
+	};
 
 	float cameraSensitivity = 10.f;
 	int instanceM = 10;
 	int instanceN = 10;
-	bool isSuspended = false;
 
-}
-
-bool SampleVulkan::Run(Zeron::Window* window)
-{
-	if(!ctx.isInit) {
-		window->Init();
-		ctx.mGraphics = Graphics::CreateGraphics(GraphicsType::Vulkan);
-		ctx.mGraphics->Init();
-		auto* gfx = ctx.mGraphics.get();
-		ctx.mGraphicsContext = gfx->CreateGraphicsContext();
-		ctx.mGraphicsContext->Init(window->GetSystemHandle(), window->GetSize());
-		ctx.mImGui = std::make_unique<ImGuiInstance>();
-		ctx.mImGui->Init(*gfx, *ctx.mGraphicsContext);
+	SampleInstance::SampleInstance(Zeron::Graphics* graphics, Zeron::Window* window)
+		: mCtx(std::make_unique<SampleContext>())
+	{
+		mCtx->mWindow = window;
+		mCtx->mGraphics = graphics;
+		auto* gfx = mCtx->mGraphics;
+		mCtx->mGraphicsContext = gfx->CreateGraphicsContext();
+		mCtx->mGraphicsContext->Init(mCtx->mWindow->GetSystemHandle(), mCtx->mWindow->GetSize());
+		mCtx->mImGui = std::make_unique<ImGuiInstance>();
+		mCtx->mImGui->Init(*gfx, *mCtx->mGraphicsContext);
 
 		std::vector<VertexInstance> instanceData;
 		for (int i = 0; i < instanceM; ++i) {
@@ -101,182 +102,193 @@ bool SampleVulkan::Run(Zeron::Window* window)
 			}
 		}
 
-		ctx.mInstanceBuffer = gfx->CreateVertexBuffer<VertexInstance>(instanceData);
+		mCtx->mInstanceBuffer = gfx->CreateVertexBuffer<VertexInstance>(instanceData);
 
 		// Compute
-		ctx.mComputeCommandBuffer = gfx->CreateCommandBuffer(1, true);
-		ctx.mComputeShader = gfx->CreateShaderProgram("ComputeTest", "Resources/Shaders", {}, {});
-		ctx.mComputePipeline = gfx->CreatePipeline(ctx.mComputeShader.get());
+		mCtx->mComputeCommandBuffer = gfx->CreateCommandBuffer(1, true);
+		mCtx->mComputeShader = gfx->CreateShaderProgram("ComputeTest", "Resources/Shaders", {}, {});
+		mCtx->mComputePipeline = gfx->CreatePipeline(mCtx->mComputeShader.get());
 
 
-		ctx.mShader = gfx->CreateShaderProgram("Standard", "Resources/Shaders", {
+		mCtx->mShader = gfx->CreateShaderProgram("Standard", "Resources/Shaders", {
 			{"POSITION", VertexFormat::Float3},
 			{"TEXTURE_COORD", VertexFormat::Float2},
 			{"NORMAL", VertexFormat::Float3},
 			{"INSTANCE_POS", VertexFormat::Float3, true, 1},
 			},
-		{
-			{ PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0 },
-			{ PipelineResourceType::Texture, ShaderType::Fragment, 1 },
-			{ PipelineResourceType::Texture, ShaderType::Fragment, 2 },
-			{ PipelineResourceType::Sampler, ShaderType::Fragment, 3 },
-			{ PipelineResourceType::UniformBuffer, ShaderType::Fragment, 4 },
-		}
-		);
+			{
+				{ PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0 },
+				{ PipelineResourceType::Texture, ShaderType::Fragment, 1 },
+				{ PipelineResourceType::Texture, ShaderType::Fragment, 2 },
+				{ PipelineResourceType::Sampler, ShaderType::Fragment, 3 },
+				{ PipelineResourceType::UniformBuffer, ShaderType::Fragment, 4 },
+			}
+			);
 
-		ctx.mPipeline = gfx->CreatePipeline(
-			ctx.mShader.get(),
-			ctx.mGraphicsContext->GetSwapChainRenderPass(),
+		mCtx->mPipeline = gfx->CreatePipeline(
+			mCtx->mShader.get(),
+			mCtx->mGraphicsContext->GetSwapChainRenderPass(),
 			gfx->GetMultiSamplingLevel(),
 			PrimitiveTopology::TriangleList,
 			true,
 			FaceCullMode::Back
 		);
 
-		ctx.mImage = std::make_unique<Image>();
-		ctx.mImage->Load("Resources/Textures/TestHumanoid_CLR.png");
-		ctx.mTexture = gfx->CreateTexture(TextureType::Diffuse, ctx.mImage->GetColorData().data(), ctx.mImage->GetWidth(), ctx.mImage->GetHeight());
+		mCtx->mImage = std::make_unique<Image>();
+		mCtx->mImage->Load("Resources/Textures/TestHumanoid_CLR.png");
+		mCtx->mTexture = gfx->CreateTexture(TextureType::Diffuse, mCtx->mImage->GetColorData().data(), mCtx->mImage->GetWidth(), mCtx->mImage->GetHeight());
 
-		ctx.mSampler = gfx->CreateSampler();
+		mCtx->mSampler = gfx->CreateSampler();
 
-		ctx.mModel = std::make_unique<Model>(*gfx, "Resources/Models/TestHumanoid_Model.fbx", nullptr);
-		for (auto& mesh : ctx.mModel->GetMeshes()) {
+		mCtx->mModel = std::make_unique<Model>(*gfx, "Resources/Models/TestHumanoid_Model.fbx", nullptr);
+		for (auto& mesh : mCtx->mModel->GetMeshes()) {
 			MeshResource res;
 			res.mUniformBuffer = gfx->CreateUniformBuffer<VertexShaderCBData>(VertexShaderCBData{});
 			res.mLightBuffer = gfx->CreateUniformBuffer<PixelShaderCBData>(PixelShaderCBData{});
-			res.mBinding = gfx->CreatePipelineBinding(*ctx.mPipeline, std::vector<BindingHandle>{
+			res.mBinding = gfx->CreatePipelineBinding(*mCtx->mPipeline, std::vector<BindingHandle>{
 				UniformBindingHandle{ res.mUniformBuffer.get() },
-					TextureBindingHandle{ ctx.mTexture.get() },
-					TextureBindingHandle{ ctx.mTexture.get() },
-					SamplerBindingHandle{ ctx.mSampler.get() },
+					TextureBindingHandle{ mCtx->mTexture.get() },
+					TextureBindingHandle{ mCtx->mTexture.get() },
+					SamplerBindingHandle{ mCtx->mSampler.get() },
 					UniformBindingHandle{ res.mLightBuffer.get() },
 			});
-			ctx.mMeshResources.push_back(std::move(res));
+			mCtx->mMeshResources.push_back(std::move(res));
 		}
 
-		ctx.isInit = true;
-
-		ctx.mCamera.SetPosition({ 0.f, 200.f, -400.f });
-		ctx.mCamera.SetFieldOfView(60.f);
+		mCtx->mCamera.SetPosition({ 0.f, 200.f, -400.f });
+		mCtx->mCamera.SetFieldOfView(60.f);
 	}
-		
-	window->Update();
-	ctx.mImGui->NewFrame();
 
-	while (auto e = window->GetNextEvent()) {
-		if (ctx.mImGui->HandleEvent(*e)) {
-			continue;
-		}
+	SampleInstance::~SampleInstance()
+	{
+	}
 
-		if (e->GetID() == WindowEventID::WindowClosed) {
+	bool SampleInstance::Run()
+	{
+		if (!mCtx->mIsRunning) {
 			return false;
 		}
-		else if (e->GetID() == WindowEventID::WindowResized) {
-			auto& procEvnt = static_cast<WindowEvent_WindowResized&>(*e);
-			ctx.mGraphicsContext->ResizeSwapChain(Vec2i(procEvnt.mWidth, procEvnt.mHeight));
-		}
-		else if (e->GetID() == WindowEventID::WindowMinimized) {
-			isSuspended = true;
-		}
-		else if (e->GetID() == WindowEventID::WindowRestored) {
-			isSuspended = false;
-		}
-		else if (e->GetID() == WindowEventID::MouseScroll) {
-			auto& procEvnt = static_cast<WindowEvent_MouseScrolled&>(*e);
-			if(procEvnt.mOffsetY > 0) {
-				ctx.mCamera.Move(ctx.mCamera.GetForwardDir() * cameraSensitivity);
-			} else {
-				ctx.mCamera.Move(-ctx.mCamera.GetForwardDir() * cameraSensitivity);
-			}
 
+		mCtx->mImGui->NewFrame();
+
+		while(mCtx->mWindow->HasSystemEvents()) {
+			SystemEvent e = mCtx->mWindow->GetNextSystemEvent();
+			if (mCtx->mImGui->HandleEvent(e)) {
+				continue;
+			}
+			std::visit(Visitor{
+				[&](const SystemEvent::WindowClosed&) {
+					mCtx->mIsRunning = false;
+				},
+				[&](const SystemEvent::WindowMinimized&) {
+					mCtx->mIsSuspended = true;
+				},
+				[&](const SystemEvent::WindowRestored&) {
+					mCtx->mIsSuspended = false;
+				},
+				[&](const SystemEvent::WindowResized& data) {
+					mCtx->mGraphicsContext->ResizeSwapChain(Vec2i(data.mWidth, data.mHeight));
+				},
+				[&](const SystemEvent::KeyDown& data) {
+					if (data.mCode == KeyCode::W) {
+						mCtx->mCamera.Move(mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+					}
+					if (data.mCode == KeyCode::S) {
+						mCtx->mCamera.Move(-mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+					}
+					if (data.mCode == KeyCode::A) {
+						mCtx->mCamera.Move(-mCtx->mCamera.GetRightDir() * cameraSensitivity);
+					}
+					if (data.mCode == KeyCode::D) {
+						mCtx->mCamera.Move(mCtx->mCamera.GetRightDir() * cameraSensitivity);
+					}
+					if (data.mCode == KeyCode::Q) {
+						mCtx->mCamera.Move(mCtx->mCamera.GetUpDir() * cameraSensitivity);
+					}
+					if (data.mCode == KeyCode::E) {
+						mCtx->mCamera.Move(-mCtx->mCamera.GetUpDir() * cameraSensitivity);
+					}
+					if (data.mCode == KeyCode::Up) {
+						mCtx->mCamera.Rotate({ Math::ToRadians(15.f),0,0 });
+					}
+					if (data.mCode == KeyCode::Down) {
+						mCtx->mCamera.Rotate({ Math::ToRadians(-15.f),0,0 });
+					}
+					if (data.mCode == KeyCode::Left) {
+						mCtx->mCamera.Rotate({ 0,Math::ToRadians(-15.f),0 });
+					}
+					if (data.mCode == KeyCode::Right) {
+						mCtx->mCamera.Rotate({ 0,Math::ToRadians(15.f),0 });
+					}
+					if (data.mCode == KeyCode::RightShift) {
+						mCtx->mCamera.Rotate({ 0,0,Math::ToRadians(-15.f) });
+					}
+					if (data.mCode == KeyCode::RightControl) {
+						mCtx->mCamera.Rotate({ 0,0,Math::ToRadians(15.f) });
+					}
+				},
+				[&](const SystemEvent::MouseScroll& data) {
+					if (data.mOffsetY > 0) {
+						mCtx->mCamera.Move(mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+					}
+					 else {
+					  mCtx->mCamera.Move(-mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+					}
+				},
+				[&](const SystemEvent::MouseMoved&) {},
+
+				[](const auto&) { return; },
+			}, e.GetData());
 		}
-		if (e->GetID() == WindowEventID::KeyDown) {
-			auto& procEvnt = static_cast<WindowEvent_KeyDown&>(*e);
-			if (procEvnt.mCode == KeyCode::W) {
-				ctx.mCamera.Move(ctx.mCamera.GetForwardDir() * cameraSensitivity);
+
+		ImGui::Begin("Debug Window");
+		ImGui::Text("Test");
+		ImGui::Separator();
+		ImGui::End();
+
+
+		const Vec2i& viewportSize = mCtx->mGraphicsContext->GetSwapChainSize();
+
+		mCtx->mCamera.SetViewSize({ static_cast<float>(viewportSize.X), static_cast<float>(viewportSize.Y) });
+		mCtx->mCamera.LookAt({ 0,100,0 });
+
+		mCtx->mImGui->Update(*mCtx->mGraphics);
+		if(!mCtx->mIsSuspended) {
+			//CommandBuffer& cmdCompute = *mCtx->mComputeCommandBuffer;
+			//cmdCompute.Begin();
+			//cmdCompute.SetPipeline(*mCtx->mComputePipeline);
+			//cmdCompute.Dispatch(16, 16, 1);
+			//cmdCompute.End();
+
+			CommandBuffer& cmd = mCtx->mGraphicsContext->BeginCommands();
+			{
+				cmd.Clear(Color::DarkRed);
+				cmd.SetViewport(viewportSize);
+				cmd.SetScissor(viewportSize);
+
+				mCtx->mGraphicsContext->BeginSwapChainRenderPass(cmd);
+				cmd.SetPipeline(*mCtx->mPipeline);
+
+				for (int i = 0; i < mCtx->mModel->GetMeshes().size(); ++i) {
+					auto& mesh = *mCtx->mModel->GetMeshes()[i];
+					VertexShaderCBData ubo = { mCtx->mCamera.GetProjectionMatrix() * mCtx->mCamera.GetViewMatrix() * mesh.GetTransform(),  mesh.GetTransform() };
+					cmd.UpdateBuffer(*mCtx->mMeshResources[i].mUniformBuffer, &ubo, sizeof(ubo));
+					cmd.SetPipelineBinding(*mCtx->mMeshResources[i].mBinding);
+					Buffer* vertexBuff[2] = { mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get() };
+					cmd.SetVertexBuffers(vertexBuff, 2);
+					cmd.SetIndexBuffer(*mesh.GetIndexBuffer());
+					cmd.DrawInstancedIndexed(mesh.GetIndexBuffer()->GetCount(), instanceM * instanceN);
+				}
+
+				mCtx->mImGui->Draw(cmd);
+				mCtx->mGraphicsContext->EndSwapChainRenderPass(cmd);
 			}
-			if (procEvnt.mCode == KeyCode::S) {
-				ctx.mCamera.Move(-ctx.mCamera.GetForwardDir() * cameraSensitivity);
-			}
-			if (procEvnt.mCode == KeyCode::A) {
-				ctx.mCamera.Move(-ctx.mCamera.GetRightDir() * cameraSensitivity);
-			}
-			if (procEvnt.mCode == KeyCode::D) {
-				ctx.mCamera.Move(ctx.mCamera.GetRightDir() * cameraSensitivity);
-			}
-			if (procEvnt.mCode == KeyCode::Q) {
-				ctx.mCamera.Move(ctx.mCamera.GetUpDir() * cameraSensitivity);
-			}
-			if (procEvnt.mCode == KeyCode::E) {
-				ctx.mCamera.Move(-ctx.mCamera.GetUpDir() * cameraSensitivity);
-			}
-			if (procEvnt.mCode == KeyCode::Up) {
-				ctx.mCamera.Rotate({ Math::ToRadians(15.f),0,0 });
-			}
-			if (procEvnt.mCode == KeyCode::Down) {
-				ctx.mCamera.Rotate({ Math::ToRadians(-15.f),0,0 });
-			}
-			if (procEvnt.mCode == KeyCode::Left) {
-				ctx.mCamera.Rotate({ 0,Math::ToRadians(-15.f),0 });
-			}
-			if (procEvnt.mCode == KeyCode::Right) {
-				ctx.mCamera.Rotate({ 0,Math::ToRadians(15.f),0 });
-			}
-			if (procEvnt.mCode == KeyCode::RightShift) {
-				ctx.mCamera.Rotate({ 0,0,Math::ToRadians(-15.f) });
-			}
-			if (procEvnt.mCode == KeyCode::RightControl) {
-				ctx.mCamera.Rotate({ 0,0,Math::ToRadians(15.f) });
-			}
+			mCtx->mGraphicsContext->EndCommands();
+			mCtx->mGraphicsContext->Submit(cmd);
+			mCtx->mGraphicsContext->Present();
 		}
+
+		return mCtx->mIsRunning;
 	}
 
-	ImGui::Begin("Debug Window");
-	ImGui::Text("Test");
-	ImGui::Separator();
-	ImGui::End();
-
-
-	const Vec2i& viewportSize = ctx.mGraphicsContext->GetSwapChainSize();
-
-	ctx.mCamera.SetViewSize({ static_cast<float>(viewportSize.X), static_cast<float>(viewportSize.Y) });
-	ctx.mCamera.LookAt({ 0,100,0 });
-
-	ctx.mImGui->Update(*ctx.mGraphics);
-	if(!isSuspended) {
-		//CommandBuffer& cmdCompute = *ctx.mComputeCommandBuffer;
-		//cmdCompute.Begin();
-		//cmdCompute.SetPipeline(*ctx.mComputePipeline);
-		//cmdCompute.Dispatch(16, 16, 1);
-		//cmdCompute.End();
-
-		CommandBuffer& cmd = ctx.mGraphicsContext->BeginCommands();
-		{
-			cmd.Clear(Color::DarkRed);
-			cmd.SetViewport(viewportSize);
-			cmd.SetScissor(viewportSize);
-
-			ctx.mGraphicsContext->BeginSwapChainRenderPass(cmd);
-			cmd.SetPipeline(*ctx.mPipeline);
-
-			for (int i = 0; i < ctx.mModel->GetMeshes().size(); ++i) {
-				auto& mesh = *ctx.mModel->GetMeshes()[i];
-				VertexShaderCBData ubo = { ctx.mCamera.GetProjectionMatrix() * ctx.mCamera.GetViewMatrix() * mesh.GetTransform(),  mesh.GetTransform() };
-				cmd.UpdateBuffer(*ctx.mMeshResources[i].mUniformBuffer, &ubo, sizeof(ubo));
-				cmd.SetPipelineBinding(*ctx.mMeshResources[i].mBinding);
-				Buffer* vertexBuff[2] = { mesh.GetVertexBuffer(), ctx.mInstanceBuffer.get() };
-				cmd.SetVertexBuffers(vertexBuff, 2);
-				cmd.SetIndexBuffer(*mesh.GetIndexBuffer());
-				cmd.DrawInstancedIndexed(mesh.GetIndexBuffer()->GetCount(), instanceM * instanceN);
-			}
-
-			ctx.mImGui->Draw(cmd);
-			ctx.mGraphicsContext->EndSwapChainRenderPass(cmd);
-		}
-		ctx.mGraphicsContext->EndCommands();
-		ctx.mGraphicsContext->Submit(cmd);
-		ctx.mGraphicsContext->Present();
-	}
-
-	return true;
 }
