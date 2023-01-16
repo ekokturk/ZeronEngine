@@ -3,7 +3,6 @@
 #pragma once
 
 #include <Core/Logger.h>
-#include <Core/SystemHandle.h>
 
 #define ZE_STRING(s) #s
 #define ZE_XSTRING(s) ZE_STRING(s)
@@ -30,8 +29,3 @@
 	ZE_LOGE_LINEINFO("FAILURE!", __VA_ARGS__); \
 	ZE_DEBUG_BREAK(); \
 	std::abort()
-
-namespace Zeron {
-	template<class... Ts> struct Visitor : Ts... { using Ts::operator()...; };
-	template<class... Ts> Visitor(Ts...) -> Visitor<Ts...>;
-}

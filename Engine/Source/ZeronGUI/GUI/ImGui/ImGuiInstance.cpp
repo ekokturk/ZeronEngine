@@ -83,7 +83,7 @@ namespace Zeron
 	{
 		bool handled = false;
 		ImGuiIO& io = mContext->IO;
-		std::visit(Visitor{
+		std::visit(TypeTraits::Visitor{
 			[&](const SystemEvent::WindowFocused&) {
 				io.AddFocusEvent(true);
 			},

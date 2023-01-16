@@ -176,7 +176,7 @@ namespace SampleVulkan {
 			if (mCtx->mImGui->HandleEvent(e)) {
 				continue;
 			}
-			std::visit(Visitor{
+			std::visit(TypeTraits::Visitor{
 				[&](const SystemEvent::WindowClosed&) {
 					mCtx->mIsRunning = false;
 				},

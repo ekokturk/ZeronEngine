@@ -60,7 +60,7 @@ namespace Zeron
 
 	void Window::OnSystemEvent(const SystemEvent& evt)
 	{
-		std::visit(Visitor {
+		std::visit(TypeTraits::Visitor {
 			[&](const SystemEvent::WindowMaximized&) {
 				OnMaximized();
 			},
