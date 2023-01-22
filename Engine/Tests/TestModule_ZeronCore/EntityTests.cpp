@@ -2,7 +2,7 @@
 
 #include <ZeronTestFramework.h>
 
-#include <Core/Entity/EntityManager.h>
+#include <Entity/EntityManager.h>
 
 using namespace ::Zeron;
 

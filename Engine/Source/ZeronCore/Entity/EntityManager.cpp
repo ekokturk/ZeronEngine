@@ -1,7 +1,6 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include "Core/Entity/Entity.h"
-#include <Core/Entity/EntityManager.h>
+#include <Entity/EntityManager.h>
 
 namespace Zeron
 {

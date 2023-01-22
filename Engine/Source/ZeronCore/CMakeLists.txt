@@ -10,8 +10,6 @@ zeron_add_module_dependency(glm)
 # ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBS_PRIVATE "")
 
-set(PCH_CORE "<Core/CorePCH.h>")
-
 if(ANDROID)
 	find_library(ANDROID_LOG_LIB log)
 	list(APPEND MODULE_LIBS_PRIVATE ${ANDROID_LOG_LIB})
@@ -31,5 +29,5 @@ target_link_libraries(ZeronCore
 )
 
 target_precompile_headers(ZeronCore	
-	PUBLIC "<Core/CorePCH.h>"
+	PUBLIC "<Common/PCH.h>"
 )

@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <Core/Entity/Entity.h>
-#include <Core/Entity/ComponentContainer.h>
+#include <Entity/Entity.h>
+#include <Entity/ComponentContainer.h>
 
 namespace Zeron
 {

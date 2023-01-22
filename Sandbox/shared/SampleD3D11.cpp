@@ -2,14 +2,11 @@
 
 #include <SampleD3D11.h>
 
-#include <Core/Math/Mat4.h>
-#include <Core/Math/Vec3.h>
-#include <Core/Types/Color.h>
 #include <GUI/ImGui/ImGuiInstance.h>
+#include <Platform/Window.h>
 #include <Renderer/Image.h>
 #include <Renderer/Scene/Camera.h>
 #include <Renderer/Scene/Model.h>
-#include <Platform/Window.h>
 
 #include <Graphics/Buffer.h>
 #include <Graphics/CommandBuffer.h>

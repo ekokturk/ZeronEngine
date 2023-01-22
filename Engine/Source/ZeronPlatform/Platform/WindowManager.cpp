@@ -24,6 +24,7 @@ namespace Zeron
 
 	WindowManager::~WindowManager() 
 	{
+		_removePendingWindows();
 	}
 
 	Window* WindowManager::RegisterWindow(const WindowConfig& config, WindowAPI defaultType)
