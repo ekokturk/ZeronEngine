@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <Core/Types/Color.h>
-
 namespace Zeron
 {
 	class Image {

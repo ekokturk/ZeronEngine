@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <Core/SystemHandle.h>
+#include <Common/SystemHandle.h>
 #include <Platform/WindowConfig.h>
 #include <Platform/SystemEvent.h>
 

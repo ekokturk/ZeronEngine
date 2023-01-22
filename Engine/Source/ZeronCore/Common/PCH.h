@@ -30,11 +30,11 @@
 #include <variant>
 
 // Zeron Core
-#include <Core/Assert.h>
-#include <Core/Logger.h>
-#include <Core/SystemHandle.h>
-#include <Core/TypeTraits.h>
-#include <Core/Math/Math.h>
-#include <Core/Types/Color.h>
-#include <Core/Types/Enum.h>
-#include <Core/Types/SparseSet.h>
+#include <Common/Assert.h>
+#include <Common/Logger.h>
+#include <Common/SystemHandle.h>
+#include <Common/TypeTraits.h>
+#include <Common/Math/Math.h>
+#include <Common/Types/Color.h>
+#include <Common/Types/Enum.h>
+#include <Common/Types/SparseSet.h>

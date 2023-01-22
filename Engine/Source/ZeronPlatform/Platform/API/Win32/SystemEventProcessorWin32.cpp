@@ -2,7 +2,7 @@
 
 #if ZE_PLATFORM_WIN32
 
-#include <Core/SystemHandle.h>
+#include <Common/SystemHandle.h>
 #include <Platform/SystemEvent.h>
 #include <Platform/API/Win32/PlatformWin32.h>
 #include <Platform/API/Win32/SystemEventProcessorWin32.h>

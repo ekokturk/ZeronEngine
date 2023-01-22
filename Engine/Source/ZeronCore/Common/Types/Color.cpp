@@ -1,6 +1,6 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include <Core/Types/Color.h>
+#include <Common/Types/Color.h>
 
 #include <fmt/format.h>
 

@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <Core/Types/Color.h>
-#include <Core/Types/Enum.h>
+#include <Common/Types/Color.h>
+#include <Common/Types/Enum.h>
 #pragma warning( disable : 4003)
 #include <fmt/core.h>
 #include <fmt/color.h>

@@ -1,6 +1,6 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include <Core/Logger.h>
+#include <Common/Logger.h>
 
 #if ZE_PLATFORM_ANDROID
 #include <android/log.h>

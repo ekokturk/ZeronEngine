@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <Core/Entity/Entity.h>
-#include <Core/Types/SparseSet.h>
+#include <Entity/Entity.h>
+#include <Common/Types/SparseSet.h>
 
 namespace Zeron
 {
