@@ -10,7 +10,7 @@
 			"name": "base",
 			"binaryDir": "${sourceDir}/Build/${presetName}",
 			"cacheVariables": {
-				"CMAKE_CXX_STANDARD": "17",
+				"CMAKE_CXX_STANDARD": "20",
 				"CMAKE_BUILD_TYPE": "Debug"
 			}
 		},
