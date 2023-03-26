@@ -2,6 +2,10 @@
 
 #include <Common/Logger.h>
 
+#include <Common/Time.h>
+#include <fmt/color.h>
+#include <fmt/printf.h>
+
 #if ZE_PLATFORM_ANDROID
 #include <android/log.h>
 #endif
@@ -26,6 +30,14 @@ namespace Zeron
 	Logger::Logger(bool shouldTimestamp)
 		: mShouldTimestamp(shouldTimestamp)
 	{
+#if ZE_PLATFORM_WIN32
+		// Enable console text colors on Windows
+		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		DWORD dwMode = 0;
+		GetConsoleMode(hOut, &dwMode);
+		dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		SetConsoleMode(hOut, dwMode);
+#endif
 	}
 
 	bool Logger::InitLogFile(std::string_view logFilePath)
@@ -46,12 +58,10 @@ namespace Zeron
 		return true;
 	}
 
-	std::string Logger::GetTimeStamp() const 
+	std::string Logger::GetMessageWithTimeStamp(const std::string& message) const
 	{
-		std::time_t time;
-		std::time(&time);
-		const char* format = "[{t:" /*"%Y-%m-%d | "*/ "%H:%M:%S" "}] ";
-		return fmt::format(format, fmt::arg("t", fmt::localtime(time)));
+		const Time::TimeStamp localTime = Time::GetLocalTime();
+		return Util::Format("[{:02}:{:02}:{:02}] {}", localTime.CountHours(), localTime.CountMinutes(), localTime.CountSeconds(), message);
 	}
 
 	void Logger::FlushToFile(const std::string& message)

@@ -26,6 +26,7 @@
 #include <queue>
 #include <set>
 #include <sstream>
+#include <thread>
 #include <unordered_map>
 #include <variant>
 
@@ -33,6 +34,7 @@
 #include <Common/Assert.h>
 #include <Common/Logger.h>
 #include <Common/SystemHandle.h>
+#include <Common/Time.h>
 #include <Common/TypeTraits.h>
 #include <Common/Math/Math.h>
 #include <Common/Types/Color.h>

@@ -2,13 +2,9 @@
 
 #pragma once
 
+#include <Common/Util.h>
 #include <Common/Types/Color.h>
 #include <Common/Types/Enum.h>
-#pragma warning( disable : 4003)
-#include <fmt/core.h>
-#include <fmt/color.h>
-#include <fmt/chrono.h>
-#include <fmt/printf.h>
 
 namespace Zeron {
 	enum LogSink
@@ -29,9 +25,9 @@ namespace Zeron {
 		bool InitLogFile(std::string_view logFilePath);
 		
 		template<typename... Args>
-		void Log(LogSink logSink, Color color, const char* message, Args... args)
+		void Log(LogSink logSink, Color color, std::string_view message, Args&&... args)
 		{
-			const std::string msg = FormatLogMessage(message, args...);
+			const std::string msg = FormatLogMessage(message, std::forward<Args>(args)...);
 			if (!(logSink & LogSink::Console)) {
 				FlushToConsole(msg, color);
 			}
@@ -41,23 +37,23 @@ namespace Zeron {
 		}
 
 		template<typename... Args>
-		void Log(const char* message, Args... args)
+		void Log(std::string_view message, Args&&... args)
 		{
 			Log(LogSink::FileAndConsole, Color::White, message, std::forward<Args>(args)...);
 		}
 
 	protected:
 		template<typename... Args>
-		std::string FormatLogMessage(const char* fmt, Args... args) const
+		std::string FormatLogMessage(std::string_view message, Args&&... args) const
 		{
-			std::string message = fmt::format(fmt, args...) + "\n";
+			const std::string formatted = Util::Format(message, std::forward<Args>(args)...) + "\n";
 			if (mShouldTimestamp) {
-				message = GetTimeStamp() + message;
+				return GetMessageWithTimeStamp(formatted);
 			}
-			return message;
+			return formatted;
 		}
 
-		std::string GetTimeStamp() const;
+		std::string GetMessageWithTimeStamp(const std::string& message) const;
 		void FlushToFile(const std::string& message);
 		void FlushToConsole(const std::string& message, Color color) const;
 
