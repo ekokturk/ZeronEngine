@@ -23,11 +23,28 @@ int main(int argc, char** argv) {
 	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform->CreatePlatformWindow({ "Vulkan", 800, 600, 0, false, Zeron::WindowAPI::Win32 }));
 	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform->CreatePlatformWindow({ "Vulkan", 800, 600, 0, false, Zeron::WindowAPI::Win32 }));
 
+	int frameCount = 0;
+	Zeron::Time::Timer<float, Zeron::Time::Seconds> timer;
+	Zeron::Time::TickTimer ticker(Zeron::Time::Seconds(1.L / 60));
+
 	bool isRunning = true;
-	while(isRunning)
+	while (isRunning)
 	{
+		const uint64_t tickCount = ticker.Tick();
+
+		for(uint64_t i = 0; i < tickCount; ++i) {
+			// Fixed Update
+		}
+		
 		platform->Update();
 		isRunning &= runner.RunAll(Sandbox::SampleRunner::RunCondition::AllSuccess);
+
+		++frameCount;
+		if (timer.hasTimeElapsed(1.f)) {
+			ZE_LOG("{} FPS", frameCount);
+			frameCount = 0;
+			timer.Reset();
+		}
 	}
 
 	return 0;
