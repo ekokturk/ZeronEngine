@@ -44,7 +44,7 @@ namespace Zeron
 #endif
 
 #if ZE_DEBUG
-#define D3D_ASSERT(call) \
+#define ZE_D3D_ASSERT(call) \
 	do { \
 		::Zeron::DebugInfoD3D debugInfo; \
 		(call); \
@@ -54,25 +54,25 @@ namespace Zeron
 		} \
 	} while (0)
 
-#define D3D_ASSERT_RESULT(call, return_type) \
+#define ZE_D3D_ASSERT_RESULT(call, ...) \
 	do { \
 		::Zeron::DebugInfoD3D debugInfo; \
 		const HRESULT result = (call); \
 		if (FAILED(result)) { \
 			ZE_FAIL("{}", debugInfo.GetResultInfo(result).c_str()); \
-			return return_type; \
+			return __VA_ARGS__; \
 		} \
 	} while (0)
 #else
-#define D3D_ASSERT(call) \
+#define ZE_D3D_ASSERT(call) \
 	(call)
 
-#define D3D_ASSERT_RESULT(call, return_type) \
+#define ZE_D3D_ASSERT_RESULT(call, ...) \
 	do { \
 		const HRESULT result = (call); \
 		if (FAILED(result)) { \
 			ZE_LOGE("ERROR Direct3D: code {}", result); \
-			return return_type;\
+			return __VA_ARGS__;\
 		} \
 	} while (0)
 #endif

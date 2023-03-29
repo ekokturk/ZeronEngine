@@ -11,7 +11,7 @@ namespace Zeron
 		: mAdapter(std::move(adapter))
 	{
 		ZeroMemory(&mDesc, sizeof(DXGI_ADAPTER_DESC));
-		D3D_ASSERT_RESULT(mAdapter->GetDesc(&mDesc));
+		ZE_D3D_ASSERT_RESULT(mAdapter->GetDesc(&mDesc));
 
 		mName.reserve(256);
 		std::wcstombs(mName.data(), mDesc.Description, 256);

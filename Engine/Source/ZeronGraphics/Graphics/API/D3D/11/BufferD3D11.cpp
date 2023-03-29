@@ -33,19 +33,19 @@ namespace Zeron
 		ZeroMemory(&bufferData, sizeof(D3D11_SUBRESOURCE_DATA));
 		bufferData.pSysMem = data;
 
-		D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateBuffer(&desc, data ? &bufferData : nullptr, mBuffer.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateBuffer(&desc, data ? &bufferData : nullptr, mBuffer.GetAddressOf()));
 	}
 
 	void BufferD3D11::MapD3D(ID3D11DeviceContext* device)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		D3D_ASSERT_RESULT(device->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		ZE_D3D_ASSERT_RESULT(device->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 		mMappedMemory = mappedResource.pData;
 	}
 
 	void BufferD3D11::UnMapD3D(ID3D11DeviceContext* device)
 	{
-		D3D_ASSERT(device->Unmap(mBuffer.Get(), 0));
+		ZE_D3D_ASSERT(device->Unmap(mBuffer.Get(), 0));
 		mMappedMemory = nullptr;
 	}
 

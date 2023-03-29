@@ -37,10 +37,23 @@ namespace Zeron::Time {
 
 	inline TimeStamp GetLocalTime()
 	{
-		const auto time = std::chrono::zoned_time{ std::chrono::current_zone(), std::chrono::system_clock::now() }.get_local_time();
+		const auto now = std::chrono::system_clock::now();
+#if ZE_COMPILER_CLANG
+		// Clang does not support std::chrono::zoned_time for C++20 yet
+		const auto nowTimeT = std::chrono::system_clock::to_time_t(now);
+		std::tm buf;
+		localtime_r(&nowTimeT, &buf);
+		const CalendarDate ymd{ std::chrono::year(buf.tm_year + 1900), std::chrono::month(buf.tm_mon + 1), std::chrono::day(buf.tm_mday) };
+		const Milliseconds timeInMs = std::chrono::duration_cast<Milliseconds>(Seconds(buf.tm_sec))
+			+ std::chrono::duration_cast<Milliseconds>(std::chrono::minutes(buf.tm_min))
+			+ std::chrono::duration_cast<Milliseconds>(std::chrono::hours(buf.tm_hour));
+		const TimeOfDay tod{ timeInMs };
+#else
+		const auto time = std::chrono::zoned_time{ std::chrono::current_zone(), now }.get_local_time();
 		const auto dayPoint = floor<std::chrono::days>(time);
 		const CalendarDate ymd{ dayPoint };
 		const TimeOfDay tod{ std::chrono::duration_cast<Microseconds>(time - dayPoint) };
+#endif
 		return TimeStamp{ ymd, tod };
 	}
 

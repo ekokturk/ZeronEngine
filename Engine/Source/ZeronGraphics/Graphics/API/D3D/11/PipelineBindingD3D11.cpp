@@ -54,30 +54,30 @@ namespace Zeron
 		for (const auto& buffer : mConstantBuffers) {
 			switch (buffer.mShaderStage) {
 				case ShaderType::Vertex: {
-					D3D_ASSERT(deviceContext->VSSetConstantBuffers(buffer.mSlot, static_cast<UINT>(buffer.mBuffer.size()), buffer.mBuffer.data()));
+					ZE_D3D_ASSERT(deviceContext->VSSetConstantBuffers(buffer.mSlot, static_cast<UINT>(buffer.mBuffer.size()), buffer.mBuffer.data()));
 				} break;
 				case ShaderType::Fragment: {
-					D3D_ASSERT(deviceContext->PSSetConstantBuffers(buffer.mSlot, static_cast<UINT>(buffer.mBuffer.size()), buffer.mBuffer.data()));
+					ZE_D3D_ASSERT(deviceContext->PSSetConstantBuffers(buffer.mSlot, static_cast<UINT>(buffer.mBuffer.size()), buffer.mBuffer.data()));
 				} break;
 			}
 		}
 		for (const auto& sampler : mSamplers) {
 			switch (sampler.mShaderStage) {
 				case ShaderType::Vertex: {
-					D3D_ASSERT(deviceContext->VSSetSamplers(sampler.mSlot, static_cast<UINT>(sampler.mSampler.size()), sampler.mSampler.data()));
+					ZE_D3D_ASSERT(deviceContext->VSSetSamplers(sampler.mSlot, static_cast<UINT>(sampler.mSampler.size()), sampler.mSampler.data()));
 				} break;
 				case ShaderType::Fragment: {
-					D3D_ASSERT(deviceContext->PSSetSamplers(sampler.mSlot, static_cast<UINT>(sampler.mSampler.size()), sampler.mSampler.data()));
+					ZE_D3D_ASSERT(deviceContext->PSSetSamplers(sampler.mSlot, static_cast<UINT>(sampler.mSampler.size()), sampler.mSampler.data()));
 				} break;
 			}
 		}
 		for (const auto& texture : mTextures) {
 			switch (texture.mShaderStage) {
 				case ShaderType::Vertex: {
-					D3D_ASSERT(deviceContext->VSSetShaderResources(texture.mSlot, static_cast<UINT>(texture.mTexture.size()), texture.mTexture.data()));
+					ZE_D3D_ASSERT(deviceContext->VSSetShaderResources(texture.mSlot, static_cast<UINT>(texture.mTexture.size()), texture.mTexture.data()));
 				} break;
 				case ShaderType::Fragment: {
-					D3D_ASSERT(deviceContext->PSSetShaderResources(texture.mSlot, static_cast<UINT>(texture.mTexture.size()), texture.mTexture.data()));
+					ZE_D3D_ASSERT(deviceContext->PSSetShaderResources(texture.mSlot, static_cast<UINT>(texture.mTexture.size()), texture.mTexture.data()));
 				} break;
 			}
 		}
