@@ -33,14 +33,14 @@ namespace Zeron
 		}
 
 		IDXGIAdapter* primaryAdapter = adapters[0].GetAdapterD3D();
-		D3D_ASSERT_RESULT(primaryAdapter->GetParent(__uuidof(IDXGIFactory), &mFactory), false);
+		ZE_D3D_ASSERT_RESULT(primaryAdapter->GetParent(__uuidof(IDXGIFactory), &mFactory), false);
 		ZE_LOG("Using '{}' device for Direct3D 11", adapters[0].GetName());
 
 		UINT creationFlags = 0;
 	#if ZE_DEBUG
 		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	#endif
-		D3D_ASSERT_RESULT(D3D11CreateDevice(
+		ZE_D3D_ASSERT_RESULT(D3D11CreateDevice(
 			primaryAdapter,
 			D3D_DRIVER_TYPE_UNKNOWN,
 			nullptr,
@@ -136,7 +136,7 @@ namespace Zeron
 	{
 		if (mGraphicsAdapters.empty()) {
 			ZE::ComPtr<IDXGIFactory> dxgiFactory;
-			D3D_ASSERT_RESULT(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf())), mGraphicsAdapters);
+			ZE_D3D_ASSERT_RESULT(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf())), mGraphicsAdapters);
 			ZE::ComPtr<IDXGIAdapter>  dxgiAdapter;
 			UINT index = 0;
 			while (SUCCEEDED(dxgiFactory->EnumAdapters(index, &dxgiAdapter))) {

@@ -23,14 +23,14 @@ namespace Zeron
 		desc.FillMode = isSolidFill ? D3D11_FILL_SOLID : D3D11_FILL_WIREFRAME;
 		desc.CullMode = D3D11Helpers::GetCullMode(cullMode);
 		desc.FrontCounterClockwise = FALSE;
-		D3D_ASSERT_RESULT(device->CreateRasterizerState(&desc, mRasterizerState.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(device->CreateRasterizerState(&desc, mRasterizerState.GetAddressOf()));
 
 		D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 		depthStencilDesc.DepthEnable = true;
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL; // All = Stencil ON
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-		D3D_ASSERT_RESULT(device->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(device->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
 
 		D3D11_RENDER_TARGET_BLEND_DESC rtbDesc;
 		ZeroMemory(&rtbDesc, sizeof(D3D11_RENDER_TARGET_BLEND_DESC));
@@ -47,7 +47,7 @@ namespace Zeron
 		D3D11_BLEND_DESC blendDesc;
 		ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
 		blendDesc.RenderTarget[0] = rtbDesc;
-		D3D_ASSERT_RESULT(device->CreateBlendState(&blendDesc, mBlendState.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(device->CreateBlendState(&blendDesc, mBlendState.GetAddressOf()));
 
 		switch (topology) {
 			case PrimitiveTopology::TriangleList: {
@@ -64,18 +64,18 @@ namespace Zeron
 
 	void PipelineD3D11::Apply(ID3D11DeviceContext* deviceContext)
 	{
-		D3D_ASSERT(deviceContext->RSSetState(mRasterizerState.Get()));
-		D3D_ASSERT(deviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0));
-		D3D_ASSERT(deviceContext->OMSetBlendState(mBlendState.Get(), nullptr, UINT32_MAX));
-		//D3D_ASSERT(deviceContext->OMSetBlendState(nullptr, nullptr, UINT32_MAX));
-		D3D_ASSERT(deviceContext->IASetPrimitiveTopology(mPrimitiveTopology));
+		ZE_D3D_ASSERT(deviceContext->RSSetState(mRasterizerState.Get()));
+		ZE_D3D_ASSERT(deviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0));
+		ZE_D3D_ASSERT(deviceContext->OMSetBlendState(mBlendState.Get(), nullptr, UINT32_MAX));
+		//ZE_D3D_ASSERT(deviceContext->OMSetBlendState(nullptr, nullptr, UINT32_MAX));
+		ZE_D3D_ASSERT(deviceContext->IASetPrimitiveTopology(mPrimitiveTopology));
 		ZE_ASSERT(mShader, "D3D11 pipeline shader is not available!");
-		D3D_ASSERT(deviceContext->IASetInputLayout(mShader->GetInputLayoutD3D()));
+		ZE_D3D_ASSERT(deviceContext->IASetInputLayout(mShader->GetInputLayoutD3D()));
 		if (const ShaderD3D11* shaderDx = static_cast<ShaderD3D11*>(mShader->GetShader(ShaderType::Vertex))) {
-			D3D_ASSERT(deviceContext->VSSetShader(static_cast<ID3D11VertexShader*>(shaderDx->GetShaderD3D()), nullptr, 0));
+			ZE_D3D_ASSERT(deviceContext->VSSetShader(static_cast<ID3D11VertexShader*>(shaderDx->GetShaderD3D()), nullptr, 0));
 		}
 		if (const ShaderD3D11* shaderDx = static_cast<ShaderD3D11*>(mShader->GetShader(ShaderType::Fragment))) {
-			D3D_ASSERT(deviceContext->PSSetShader(static_cast<ID3D11PixelShader*>(shaderDx->GetShaderD3D()), nullptr, 0));
+			ZE_D3D_ASSERT(deviceContext->PSSetShader(static_cast<ID3D11PixelShader*>(shaderDx->GetShaderD3D()), nullptr, 0));
 		}
 	}
 

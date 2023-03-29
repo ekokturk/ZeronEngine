@@ -62,7 +62,7 @@ namespace Zeron {
 		if(auto* frameBuffer = static_cast<FrameBufferD3D11*>(mSwapChain->GetFrameBuffer())) {
 			frameBuffer->ReleaseBuffers();
 			mSwapChain->Resize(size);
-			D3D_ASSERT(frameBuffer->CreateBuffers(mDevice, *mSwapChain, mGraphics.GetMultiSamplingLevel()));
+			ZE_D3D_ASSERT(frameBuffer->CreateBuffers(mDevice, *mSwapChain, mGraphics.GetMultiSamplingLevel()));
 		}
 	}
 

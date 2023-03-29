@@ -7,7 +7,7 @@
 #include <Common/Types/Enum.h>
 
 namespace Zeron {
-	enum LogSink
+	enum class LogSink
 	{
 		None = 0,
 		Console = 1 << 1,
@@ -17,22 +17,37 @@ namespace Zeron {
 
 	ZE_ENUM_OPERATIONS(LogSink)
 
+	enum class LogFlags
+	{
+		None = 0,
+		TimeStamp = 1 << 0
+	};
+
+	ZE_ENUM_OPERATIONS(LogFlags)
+	#define ZE_LOG_DEFAULT_FLAGS LogFlags::TimeStamp
+
 	class Logger {
 	public:
-		Logger(bool shouldTimestamp);
+		Logger();
 		virtual ~Logger() = default;
 
 		bool InitLogFile(std::string_view logFilePath);
+
+		void UpdateFlags(LogFlags flags) {
+			mFlags = flags;
+		}
 		
 		template<typename... Args>
-		void Log(LogSink logSink, Color color, std::string_view message, Args&&... args)
+		void Log(LogSink logSink, Color color, Args&&... args)
 		{
-			const std::string msg = FormatLogMessage(message, std::forward<Args>(args)...);
-			if (!(logSink & LogSink::Console)) {
-				FlushToConsole(msg, color);
-			}
-			if (!(logSink & LogSink::File)) {
-				FlushToFile(msg);
+			if constexpr (sizeof...(Args) != 0) {
+				const std::string msg = _formatLogMessage(std::forward<Args>(args)...);
+				if (!(logSink & LogSink::Console)) {
+					_flushToConsole(msg, color);
+				}
+				if (!(logSink & LogSink::File)) {
+					_flushToFile(msg);
+				}
 			}
 		}
 
@@ -44,36 +59,35 @@ namespace Zeron {
 
 	protected:
 		template<typename... Args>
-		std::string FormatLogMessage(std::string_view message, Args&&... args) const
+		std::string _formatLogMessage(std::string_view message, Args&&... args) const
 		{
 			const std::string formatted = Util::Format(message, std::forward<Args>(args)...) + "\n";
-			if (mShouldTimestamp) {
-				return GetMessageWithTimeStamp(formatted);
+			if (!(mFlags & LogFlags::TimeStamp)) {
+				return _getMessageWithTimeStamp(formatted);
 			}
 			return formatted;
 		}
 
-		std::string GetMessageWithTimeStamp(const std::string& message) const;
-		void FlushToFile(const std::string& message);
-		void FlushToConsole(const std::string& message, Color color) const;
+		std::string _getMessageWithTimeStamp(const std::string& message) const;
+		void _flushToFile(const std::string& message);
+		void _flushToConsole(const std::string& message, Color color) const;
 
 		std::ofstream mLogFile;
-		bool mShouldTimestamp;
+		LogFlags mFlags;
 	};
 
-	static Logger& ZELogger() {
-		static Logger logger(true);
-		return logger;
-	}
+	Logger& GlobalLogger();
 }
 
 #ifndef ZERON_LOGGER_DISABLED
-	#define ZE_LOG(...)								::Zeron::ZELogger().Log(::Zeron::LogSink::Console,		  ::Zeron::Color::White,	__VA_ARGS__)
-	#define ZE_LOGI(...)							::Zeron::ZELogger().Log(::Zeron::LogSink::FileAndConsole, ::Zeron::Color::Gray,		__VA_ARGS__)
-	#define ZE_LOGW(...)							::Zeron::ZELogger().Log(::Zeron::LogSink::FileAndConsole, ::Zeron::Color::Yellow,	__VA_ARGS__)
-	#define ZE_LOGE(...)							::Zeron::ZELogger().Log(::Zeron::LogSink::FileAndConsole, ::Zeron::Color::Red,		__VA_ARGS__)
-	#define ZE_LOGC(Sink, Color, Message, ...)		::Zeron::ZELogger().Log(Sink, Color, Message, __VA_ARGS)
+	#define ZE_LOG_FILE(...)						::Zeron::GlobalLogger().InitLogFile(__VA_ARGS__)
+	#define ZE_LOG(...)								::Zeron::GlobalLogger().Log(::Zeron::LogSink::Console,				::Zeron::Color::Gray		__VA_OPT__(,) __VA_ARGS__)
+	#define ZE_LOGI(...)							::Zeron::GlobalLogger().Log(::Zeron::LogSink::FileAndConsole,		::Zeron::Color::White		__VA_OPT__(,) __VA_ARGS__)
+	#define ZE_LOGW(...)							::Zeron::GlobalLogger().Log(::Zeron::LogSink::FileAndConsole,		::Zeron::Color::Yellow		__VA_OPT__(,) __VA_ARGS__)
+	#define ZE_LOGE(...)							::Zeron::GlobalLogger().Log(::Zeron::LogSink::FileAndConsole,		::Zeron::Color::Red			__VA_OPT__(,) __VA_ARGS__)
+	#define ZE_LOGC(Sink, Color, Message, ...)		::Zeron::GlobalLogger().Log(Sink, Color, Message __VA_OPT__(,) __VA_ARGS)
 #else
+	#define ZE_LOG_CONFIG(...)
 	#define ZE_LOG(...)	
 	#define ZE_LOGI(...)
 	#define ZE_LOGW(...)

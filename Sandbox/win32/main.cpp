@@ -9,6 +9,8 @@
 
 int main(int argc, char** argv) {
 
+	ZE_LOG_FILE("debug.txt");
+
 	auto platform = Zeron::Platform::CreatePlatformInstance();
 	auto graphicsD3D11 = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Direct3D11);
 	auto graphicsVulkan = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Vulkan);

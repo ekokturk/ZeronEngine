@@ -47,9 +47,9 @@ namespace Zeron
 		bufferData.pSysMem = data;
 		bufferData.SysMemPitch = mSize.X * sizeof(Color);
 
-		D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateTexture2D(&desc, &bufferData, mTexture.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateTexture2D(&desc, &bufferData, mTexture.GetAddressOf()));
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, desc.Format);
-		D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateShaderResourceView(mTexture.Get(), &srvDesc, mResourceView.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateShaderResourceView(mTexture.Get(), &srvDesc, mResourceView.GetAddressOf()));
 	}
 
 	ID3D11Texture2D* TextureD3D11::GetTextureD3D() const

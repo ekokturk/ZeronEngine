@@ -17,10 +17,30 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
 # ============ COMPILER CONFIG =============
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    add_compile_options("/MP") # Enable parallel builds
+    set(MSVC_MIN_REQUIRED_VERSION 1914)
+    if(MSVC_VERSION LESS ${MSVC_MIN_REQUIRED_VERSION})
+        message(FATAL_ERROR "MSVC compiler version ${MSVC_VERSION} (<${MSVC_MIN_REQUIRED_VERSION}) is not supported!")
+    endif()
+    set(COMPILER_FLAGS 
+        "/MP"                   # Enable parallel builds
+        "/Zc:preprocessor"      # Enable new preprocessor
+        "-DZE_COMPILER_MSVC=1"
+    )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CLANG_MIN_REQUIRED_VERSION "14.0.0")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS ${CLANG_MIN_REQUIRED_VERSION})
+        message(FATAL_ERROR "Clang compiler version ${CMAKE_CXX_COMPILER_VERSION} (<${CLANG_MIN_REQUIRED_VERSION}) is not supported!")
+    endif()
+    set(COMPILER_FLAGS "-DZE_COMPILER_CLANG=1")
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-error=unused-but-set-variable")
+else()
+    message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER_ID} is not supported!")
 endif()
+add_compile_options(
+    ${COMPILER_FLAGS} 
+    $<$<CONFIG:DEBUG>:-DZE_DEBUG=1>
+)
 
 # ============  PLATFORM CONFIG =============
 if(WIN32)
@@ -34,6 +54,8 @@ elseif(ANDROID)
 elseif(UNIX AND NOT APPLE)
     add_compile_definitions(ZE_PLATFORM_LINUX=1)
     set(LINUX ON)
+else()
+    message(FATAL_ERROR "Platform is not supported!")
 endif()
 
 if(WIN32 OR LINUX)

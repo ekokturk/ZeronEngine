@@ -47,7 +47,7 @@ namespace Zeron
 		desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;		// TODO: Investigate behavior
 
-		D3D_ASSERT_RESULT(graphics.GetFactoryD3D()->CreateSwapChain(graphics.GetDeviceD3D(), &desc, &mSwapChain));
+		ZE_D3D_ASSERT_RESULT(graphics.GetFactoryD3D()->CreateSwapChain(graphics.GetDeviceD3D(), &desc, &mSwapChain));
 
 		mFrameBuffer = std::make_unique<FrameBufferD3D11>();
 		mFrameBuffer->CreateBuffers(graphics.GetDeviceD3D(), *this, msaaLevel);
@@ -59,7 +59,7 @@ namespace Zeron
 
 	void SwapChainD3D11::Present()
 	{
-		D3D_ASSERT_RESULT(mSwapChain->Present(mVSyncEnabled, 0));
+		ZE_D3D_ASSERT_RESULT(mSwapChain->Present(mVSyncEnabled, 0));
 	}
 
 	void SwapChainD3D11::SetVSyncEnabled(bool isEnabled)
@@ -77,7 +77,7 @@ namespace Zeron
 		ZE_ASSERT(!mFrameBuffer->GetRenderTargetD3D(), "Render target needs to be released before we resize the swap chain!");
 		ZE_ASSERT(!mFrameBuffer->GetDepthStencilD3D(), "Depth Stencil needs to be released before we resize the swap chain!");
 		_setSize(size);
-		D3D_ASSERT_RESULT(mSwapChain->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+		ZE_D3D_ASSERT_RESULT(mSwapChain->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 	}
 
 	bool SwapChainD3D11::IsVSyncEnabled() const

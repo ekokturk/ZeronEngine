@@ -17,8 +17,8 @@ namespace Zeron
 	void FrameBufferD3D11::CreateBuffers(ID3D11Device* device, SwapChainD3D11& swapChain, MSAALevel msaaLevel)
 	{
 		// Back Buffer
-		D3D_ASSERT_RESULT(swapChain.GetSwapChainD3D()->GetBuffer(0, _uuidof(ID3D11Resource), &mBackBuffer));
-		D3D_ASSERT_RESULT(device->CreateRenderTargetView(mBackBuffer.Get(), nullptr, &mRenderTargetView));
+		ZE_D3D_ASSERT_RESULT(swapChain.GetSwapChainD3D()->GetBuffer(0, _uuidof(ID3D11Resource), &mBackBuffer));
+		ZE_D3D_ASSERT_RESULT(device->CreateRenderTargetView(mBackBuffer.Get(), nullptr, &mRenderTargetView));
 
 		// Depth Buffer
 		const Vec2i size = swapChain.GetSize();
@@ -35,8 +35,8 @@ namespace Zeron
 		depthStencilDesc.CPUAccessFlags = 0;
 		depthStencilDesc.MiscFlags = 0;
 
-		D3D_ASSERT_RESULT(device->CreateTexture2D(&depthStencilDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
-		D3D_ASSERT_RESULT(device->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDepthStencilView.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(device->CreateTexture2D(&depthStencilDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(device->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDepthStencilView.GetAddressOf()));
 	}
 
 	void FrameBufferD3D11::ReleaseBuffers()

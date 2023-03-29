@@ -23,7 +23,7 @@ namespace Zeron
 		if(hasAnisotropicFilter) {
 			samplerDesc.MaxAnisotropy = 8;
 		}
-		D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateSamplerState(&samplerDesc, mSampler.GetAddressOf()));
+		ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateSamplerState(&samplerDesc, mSampler.GetAddressOf()));
 	}
 
 	ID3D11SamplerState* SamplerD3D11::GetSamplerStateD3D() const
