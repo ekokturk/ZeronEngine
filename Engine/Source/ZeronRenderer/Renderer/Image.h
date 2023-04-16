@@ -10,7 +10,7 @@ namespace Zeron
 		Image();
 		~Image();
 
-		bool Load(const std::string& path, ColorChannel channel = ColorChannel::RGBA, bool storeRawData = false);
+		bool Load(const ByteBuffer& buffer, ColorChannel channel = ColorChannel::RGBA, bool storeRawData = false);
 		void Clear();
 
 		const std::vector<Color>& GetColorData() const;
@@ -19,7 +19,6 @@ namespace Zeron
 		int GetWidth() const;
 		int GetHeight() const;
 		int GetByteSize() const;
-		const std::string& GetFilePath() const;
 
 	private:
 		
@@ -27,7 +26,6 @@ namespace Zeron
 		unsigned char* mRawData;
 		ColorChannel mColorChannel;
 		Vec2i mSize;
-		std::string mPath;
 	};
 }
 

@@ -24,6 +24,8 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <optional>
+#include <regex>
 #include <set>
 #include <sstream>
 #include <thread>
@@ -34,11 +36,14 @@
 // Zeron Core
 #include <Common/Assert.h>
 #include <Common/Logger.h>
+#include <Common/Result.h>
 #include <Common/SystemHandle.h>
 #include <Common/Time.h>
 #include <Common/TypeTraits.h>
 #include <Common/Util.h>
 #include <Common/Math/Math.h>
+#include <Common/Types/ByteBuffer.h>
 #include <Common/Types/Color.h>
 #include <Common/Types/Enum.h>
+#include <Common/Types/Path.h>
 #include <Common/Types/SparseSet.h>

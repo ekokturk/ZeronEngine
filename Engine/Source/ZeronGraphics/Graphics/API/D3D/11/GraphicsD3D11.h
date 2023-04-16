@@ -19,10 +19,10 @@ namespace Zeron
 	class GraphicsD3D11 final : public Graphics {
 	public:
 		GraphicsD3D11();
-		~GraphicsD3D11();
-		
+		~GraphicsD3D11() override;
+
 		bool Init() override;
-		
+
 		GraphicsType GetGraphicsType() const override;
 		MSAALevel GetMultiSamplingLevel() const override;
 
@@ -35,12 +35,15 @@ namespace Zeron
 
 		std::unique_ptr<Buffer> CreateBuffer(BufferType type, uint32_t size, uint32_t stride, const void* data, BufferUsageType usage = BufferUsageType::Default) override;
 
-		std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout) override;
-		std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout) override;
+		std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
+			const ByteBuffer& vertexShader = {}, const ByteBuffer& fragmentShader = {}, const ByteBuffer& computeShader = {}) override;
+		std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader,
+			const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout) override;
+		std::string GetCompiledShaderName(const std::string& shaderName, ShaderType type) const override;
 
 		std::unique_ptr<Texture> CreateTexture(TextureType type, const Color& data) override;
 		std::unique_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) override;
-	
+
 		std::unique_ptr<Sampler> CreateSampler(SamplerAddressMode addressMode = SamplerAddressMode::Repeat, bool hasAnisotropicFilter = true) override;
 
 	public:
@@ -50,13 +53,12 @@ namespace Zeron
 		ID3D11Device* GetDeviceD3D() const;
 		ID3D11DeviceContext* GetDeviceContextD3D() const;
 
-		
 	private:
 		ZE::ComPtr<IDXGIFactory> mFactory;
 		std::vector<GraphicsAdapterD3D11> mGraphicsAdapters;
 		ZE::ComPtr<ID3D11Device> mDevice;
 		ZE::ComPtr<ID3D11DeviceContext> mDeviceContext;
-		
+
 		std::shared_ptr<GraphicsContextD3D11> mImmediateContext;
 	};
 }

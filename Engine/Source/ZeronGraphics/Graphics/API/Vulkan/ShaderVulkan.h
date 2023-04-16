@@ -15,24 +15,24 @@ namespace Zeron
 
 	class ShaderVulkan final : public Shader {
 	public:
-
-		ShaderVulkan(GraphicsVulkan& graphics, ShaderType type, std::vector<std::byte>&& buffer);
-		~ShaderVulkan() = default;
+		ShaderVulkan(GraphicsVulkan& graphics, ShaderType type, const ByteBuffer& buffer);
+		~ShaderVulkan() override = default;
 
 		// Vulkan API
 		const vk::PipelineShaderStageCreateInfo& GetPipelineStageInfoVK() const;
 
 	protected:
-		std::vector<std::byte> mBuffer;
+		ByteBuffer mBuffer;
 		vk::UniqueShaderModule mShader;
 		vk::PipelineShaderStageCreateInfo mPipelineStageInfo;
 	};
 
 	class ShaderProgramVulkan final : public ShaderProgram {
 	public:
-		ShaderProgramVulkan(GraphicsVulkan& graphics, const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout);
+		ShaderProgramVulkan(GraphicsVulkan& graphics, const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
+			const ByteBuffer& vertexShader = {}, const ByteBuffer& fragmentShader = {}, const ByteBuffer& computeShader = {});
 		ShaderProgramVulkan(GraphicsVulkan& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout);
-		~ShaderProgramVulkan() = default;
+		~ShaderProgramVulkan() override = default;
 
 		// ShaderProgram
 		Shader* GetShader(ShaderType type) const override;
@@ -44,7 +44,7 @@ namespace Zeron
 	private:
 		void _createVertexInputDesc();
 		vk::Format _getVertexAttributeFormat(VertexFormat format) const;
-		std::vector<std::byte> _readShaderFile(const std::filesystem::path& path) const;
+		ByteBuffer _readShaderFile(const std::filesystem::path& path) const;
 
 		std::shared_ptr<ShaderVulkan> mVertexShader;
 		std::shared_ptr<ShaderVulkan> mFragmentShader;

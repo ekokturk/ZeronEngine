@@ -14,7 +14,7 @@ namespace Zeron
 	class PlatformWin32 : public Platform
 	{
 	public:
-		PlatformWin32(const PlatformConfig& config);
+		PlatformWin32();
 		~PlatformWin32();
 
 		Window* CreatePlatformWindow(const WindowConfig& config) override;

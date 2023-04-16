@@ -60,7 +60,7 @@ namespace Zeron {
 		if(mWindowGLFW) {
 			glfwDestroyWindow(mWindowGLFW);
 			mWindowGLFWCount--;
-			ZE_ASSERT(mWindowGLFWCount >= 0, "Invalid SDL window count!");
+			ZE_ASSERT(mWindowGLFWCount >= 0, "Invalid GLFW window count!");
 		}
 
 		if(mWindowGLFWCount == 0) {

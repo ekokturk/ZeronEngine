@@ -201,9 +201,6 @@ namespace TestModule_ZeronPlatform {
 	#if ZE_WINDOW_GLFW
 	    INSTANTIATE_TEST_SUITE_P(WindowAPI_GLFW, WindowTest, ::testing::Values(WindowAPI::GLFW));
     #endif
-    #if ZE_WINDOW_SDL
-        INSTANTIATE_TEST_SUITE_P(WindowAPI_SDL, WindowTest, ::testing::Values(WindowAPI::SDL));
-    #endif
     #if ZE_WINDOW_WIN32
         INSTANTIATE_TEST_SUITE_P(WindowAPI_Win32, WindowTest, ::testing::Values(WindowAPI::Win32));
     #endif

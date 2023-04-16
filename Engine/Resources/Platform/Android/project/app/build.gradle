@@ -9,7 +9,6 @@ android {
         versionCode 1
         versionName "1.0"
         ndk {
-            
             abiFilters '@CMAKE_ANDROID_ARCH_ABI@'
         }
     }
@@ -23,12 +22,11 @@ android {
     sourceSets {
         main {
             java.srcDirs    += ['src/main/java/']
-            java.srcDirs    += ['@ZERON_JAVA_DEPENDENCY_DIR@']
-
+            
             jniLibs.srcDirs += ['src/main/libs/']
 
-            // jni.srcDirs     += ['@CMAKE_SOURCE_DIR@']
-            // assets.srcDirs += ['']
+            resources.srcDirs += ['@ZERON_ENGINE_DIR@']
+            resources.srcDirs += [@ZERON_APP_DIR@]
         }
     }
     ndkVersion '@ANDROID_NDK_VERSION@'
@@ -41,6 +39,8 @@ preBuild.dependsOn buildNative
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+	implementation 'androidx.core:core:1.7.0'
+	implementation 'androidx.games:games-activity:2.0.0'
     testImplementation 'junit:junit:4.12'
 }

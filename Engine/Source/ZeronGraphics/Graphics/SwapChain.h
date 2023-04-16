@@ -6,7 +6,7 @@ namespace Zeron
 {
 	class FrameBuffer;
 	class Window;
-	
+
 	class SwapChain {
 	public:
 		SwapChain(const Vec2i& size, uint32_t bufferCount);
@@ -23,7 +23,8 @@ namespace Zeron
 
 	protected:
 		void _setSize(const Vec2i& size);
-	
+		void _setBufferCount(uint32_t count);
+
 	private:
 		Vec2i mSize;
 		uint32_t mBufferCount;

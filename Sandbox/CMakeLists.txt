@@ -30,9 +30,15 @@ if(MSVC)
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     cmake_path(GET CMAKE_BINARY_DIR PARENT_PATH BUILD_DIR)
+    set(COMPILE_COMMANDS_FILE "${CMAKE_BINARY_DIR}/compile_commands.json")
+    set(COMPILE_COMMANDS_SYMLINK "${BUILD_DIR}/compile_commands.json")
+
+    if(NOT IS_SYMLINK ${COMPILE_COMMANDS_SYMLINK})
+        file(REMOVE ${COMPILE_COMMANDS_SYMLINK})
+    endif()
 
     execute_process(COMMAND cmake -E create_symlink
-        "${CMAKE_BINARY_DIR}/compile_commands.json"
-        "${BUILD_DIR}/compile_commands.json"
+        ${COMPILE_COMMANDS_FILE}
+        ${COMPILE_COMMANDS_SYMLINK}
     )
 endif()

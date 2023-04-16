@@ -11,7 +11,7 @@ namespace Zeron
 	class PlatformLinux : public Platform
 	{
 	public:
-		PlatformLinux(const PlatformConfig& config);
+		PlatformLinux();
 		~PlatformLinux();
 
 		Window* CreatePlatformWindow(const WindowConfig& config) override;

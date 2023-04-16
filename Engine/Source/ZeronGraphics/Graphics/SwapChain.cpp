@@ -26,4 +26,9 @@ namespace Zeron
 		ZE_ASSERT(mSize != Vec2i::ZERO, "Swapchain cannot have zero size!");
 		mSize = size;
 	}
+
+	void SwapChain::_setBufferCount(uint32_t count)
+	{
+		mBufferCount = count;
+	}
 }

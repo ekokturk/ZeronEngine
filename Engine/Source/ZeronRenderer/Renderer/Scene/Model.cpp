@@ -16,10 +16,10 @@
 
 namespace Zeron
 {
-	Model::Model(Graphics& graphics, const std::string& modelPath, std::unique_ptr<Buffer> uniformBuffer)
+	Model::Model(Graphics& graphics, const ByteBuffer& modelData, std::unique_ptr<Buffer> uniformBuffer)
 		: mConstantBuffer(std::move(uniformBuffer))
 	{
-		LoadModel(graphics, modelPath);
+		LoadModel(graphics, modelData);
 	}
 
 	std::vector<std::unique_ptr<Mesh>>& Model::GetMeshes()
@@ -32,10 +32,10 @@ namespace Zeron
 		return mMeshList;
 	}
 
-	bool Model::LoadModel(Graphics& graphics, const std::string& modelPath)
+	bool Model::LoadModel(Graphics& graphics, const ByteBuffer& modelData)
 	{
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded );
+		const aiScene* scene = importer.ReadFileFromMemory(modelData.data(), modelData.size(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded );
 		if(scene) {
 			ProcessNode(graphics, scene->mRootNode, scene, {});
 			return true;
@@ -127,9 +127,9 @@ namespace Zeron
 				aiString path;
 				material->GetTexture(aiType, i, &path);
 				std::filesystem::path filePath(path.C_Str());
-				Image texture;
-				texture.Load(filePath.string());
-				materialTextures.emplace_back(graphics.CreateTexture(type, texture.GetColorData().data(), texture.GetWidth(), texture.GetHeight()));
+				//Image texture;
+				//texture.Load(filePath.string());
+				//materialTextures.emplace_back(graphics.CreateTexture(type, texture.GetColorData().data(), texture.GetWidth(), texture.GetHeight()));
 			}
 		}
 

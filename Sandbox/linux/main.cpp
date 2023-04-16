@@ -2,27 +2,31 @@
 
 #include <SampleVulkan.h>
 
-#include <Platform/Window.h>
-#include <Platform/Platform.h>
+#include <Platform/API/Linux/PlatformLinux.h>
+
 #include <Graphics/Graphics.h>
+#include <Platform/EntryPoint.h>
+#include <Platform/Platform.h>
+#include <Platform/Window.h>
 
-int main(int argc, char** argv) {
+bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args) {
 
-	auto platform = Zeron::Platform::CreatePlatformInstance();
 	auto graphicsVulkan = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Vulkan);
 
 	graphicsVulkan->Init();
 
 	Sandbox::SampleRunner runner;
-	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform->CreatePlatformWindow({ "Vulkan - GLFW", 800, 600, 0, false, Zeron::WindowAPI::GLFW }));
-	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform->CreatePlatformWindow({ "Vulkan - SDL", 800, 600, 0, false, Zeron::WindowAPI::SDL }));
+	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform.CreatePlatformWindow({ "Vulkan - GLFW", 800, 600, 0, false, Zeron::WindowAPI::GLFW }));
+	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform.CreatePlatformWindow({ "Vulkan - GLFW", 800, 600, 0, false, Zeron::WindowAPI::GLFW }));
 
 	bool isRunning = true;
 	while(isRunning)
 	{
-		platform->Update();
+		platform.Update();
 		isRunning &= runner.RunAll(Sandbox::SampleRunner::RunCondition::SingleSuccess);
 	}
 
-	return 0;
+	return true;
 }
+
+ZERON_DECLARE_ENTRY_POINT(SandboxMain)

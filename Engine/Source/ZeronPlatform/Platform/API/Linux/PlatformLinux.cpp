@@ -8,8 +8,8 @@
 
 namespace Zeron {
 
-	PlatformLinux::PlatformLinux(const PlatformConfig& config)
-		: Platform(config)
+	PlatformLinux::PlatformLinux()
+		: Platform()
 	{
 	}
 
@@ -19,7 +19,7 @@ namespace Zeron {
 
 	Window* PlatformLinux::CreatePlatformWindow(const WindowConfig& config)
 	{
-		return mWindowManager->RegisterWindow(config, WindowAPI::SDL);
+		return mWindowManager->RegisterWindow(config, WindowAPI::GLFW);
 	}
 }
 

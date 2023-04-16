@@ -7,28 +7,12 @@
 #include <Platform/Window.h>
 #include <Platform/WindowManager.h>
 
-#include <Platform/API/Win32/PlatformWin32.h>
-#include <Platform/API/Linux/PlatformLinux.h>
-#include <Platform/API/Android/PlatformAndroid.h>
+#include <Platform/FileSystem.h>
+#include <Platform/API/Shared/FileSystemHandlerStandard.h>
 
-namespace Zeron {
-
-	std::unique_ptr<Platform> Platform::CreatePlatformInstance(const PlatformConfig& config)
-	{
-#if ZE_PLATFORM_WIN32
-		return std::make_unique<PlatformWin32>(config);
-#elif ZE_PLATFORM_LINUX
-		return std::make_unique<PlatformLinux>(config);
-#elif ZE_PLATFORM_ANDROID
-		return std::make_unique<PlatformAndroid>(config);
-#else
-		ZE_FAIL("Platform not implemented");
-		return nullptr;
-#endif
-	}
-
-	Platform::Platform(const PlatformConfig& config)
-		: mConfig(config)
+namespace Zeron
+{
+	Platform::Platform()
 	{
 		mWindowManager = std::make_unique<WindowManager>([this](const auto& evt, const auto& ctx) {
 			_dispatchEvents(evt, ctx);
@@ -43,15 +27,36 @@ namespace Zeron {
 	{
 	}
 
+	bool Platform::Init()
+	{
+		// TODO: Move this to implementation
+		mFileSystem = std::make_unique<FileSystemHandlerStandard>();
+		return true;
+	}
+
 	void Platform::Update()
 	{
 		mWindowManager->Update();
-
 	}
 
 	bool Platform::IsExiting() const
 	{
 		return false;
+	}
+
+	IFileSystemHandler& Platform::GetFileSystem()
+	{
+		return *mFileSystem;
+	}
+
+	const IFileSystemHandler& Platform::GetFileSystem() const
+	{
+		return *mFileSystem;
+	}
+
+	Window* Platform::GetMainWindow() const
+	{
+		return mWindowManager->GetMainWindow();
 	}
 
 	WindowManager* Platform::GetWindowManager() const

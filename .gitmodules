@@ -19,9 +19,6 @@
 [submodule "STB - Image Loading Library"]
 	path = Engine/ThirdParty/stb/.submodule
 	url = https://github.com/nothings/stb.git
-[submodule "SLD2 - Multi-platform Window Library"]
-	path = Engine/ThirdParty/SDL2/.submodule
-	url = https://github.com/libsdl-org/SDL.git
 [submodule "Vulkan-Headers - Vulkan CPP Headers"]
 	path = Engine/ThirdParty/Vulkan-Headers/.submodule
 	url = https://github.com/KhronosGroup/Vulkan-Headers.git

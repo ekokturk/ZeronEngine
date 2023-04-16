@@ -3,9 +3,9 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/VulkanCommon.h>
 #include <Graphics/GraphicsTypes.h>
 #include <Graphics/SwapChain.h>
+#include <Graphics/API/Vulkan/VulkanCommon.h>
 
 namespace Zeron
 {
@@ -41,8 +41,8 @@ namespace Zeron
 		void Present(GraphicsVulkan& graphics, vk::Semaphore semaphore);
 
 	private:
+		void _initSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
 		void _createSwapChain(GraphicsVulkan& graphics, vk::SwapchainKHR oldSwapChain);
-		void _createFrameBuffers(GraphicsVulkan& graphics);
 
 		vk::UniqueSurfaceKHR mSurface;
 		vk::UniqueSwapchainKHR mSwapChain;
@@ -52,6 +52,7 @@ namespace Zeron
 		std::unique_ptr<TextureVulkan> mSamplingTexture;
 
 		SystemHandle mSystemHandle;
+		uint32_t mPreferredFrameCount;
 		uint32_t mCurrentFrameIndex;
 
 		std::vector<std::unique_ptr<FrameBufferVulkan>> mSwapChainFrameBuffers;

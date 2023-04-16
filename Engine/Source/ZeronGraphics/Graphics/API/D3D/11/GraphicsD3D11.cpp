@@ -27,7 +27,7 @@ namespace Zeron
 	bool GraphicsD3D11::Init()
 	{
 		const auto& adapters = GetAdapters();
-		if(adapters.empty()) {
+		if (adapters.empty()) {
 			ZE_FAIL("No graphics adapter found for Direct3D!");
 			return false;
 		}
@@ -37,9 +37,9 @@ namespace Zeron
 		ZE_LOG("Using '{}' device for Direct3D 11", adapters[0].GetName());
 
 		UINT creationFlags = 0;
-	#if ZE_DEBUG
+		#if ZE_DEBUG
 		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-	#endif
+		#endif
 		ZE_D3D_ASSERT_RESULT(D3D11CreateDevice(
 			primaryAdapter,
 			D3D_DRIVER_TYPE_UNKNOWN,
@@ -88,7 +88,7 @@ namespace Zeron
 	}
 
 	std::unique_ptr<Pipeline> GraphicsD3D11::CreatePipeline(ShaderProgram* shader, RenderPass* renderPass,
-	                                                        MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode)
+		MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode)
 	{
 		return std::make_unique<PipelineD3D11>(*this, static_cast<ShaderProgramD3D11*>(shader),
 			renderPass, samplingLevel, topology, isSolidFill, cullMode);
@@ -104,10 +104,10 @@ namespace Zeron
 		return std::make_unique<BufferD3D11>(*this, type, size, stride, data, usage);
 	}
 
-	std::unique_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(const std::string& shaderName,
-		const std::string& shaderDirectory, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
+	std::unique_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
+		const ByteBuffer& vertexShader, const ByteBuffer& fragmentShader, const ByteBuffer& computeShader)
 	{
-		return std::make_unique<ShaderProgramD3D11>(*this, shaderName, shaderDirectory, vertexLayout, resourceLayout);
+		return std::make_unique<ShaderProgramD3D11>(*this, shaderName, vertexLayout, resourceLayout, vertexShader, fragmentShader, computeShader);
 	}
 
 	std::unique_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(const std::string& shaderName,
@@ -115,6 +115,18 @@ namespace Zeron
 		const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
 	{
 		return std::make_unique<ShaderProgramD3D11>(*this, shaderName, vertexShader, fragmentShader, vertexLayout, resourceLayout);
+	}
+
+	std::string GraphicsD3D11::GetCompiledShaderName(const std::string& shaderName, ShaderType type) const
+	{
+		switch (type) {
+			case ShaderType::Vertex: return {shaderName + ".vert.cso"};
+			case ShaderType::Fragment: return {shaderName + ".frag.cso"};
+			case ShaderType::Compute: return {shaderName + ".comp.cso"};
+			default:
+				ZE_FAIL("Vulkan compiled shader name is not implemented!");
+		}
+		return shaderName;
 	}
 
 	std::unique_ptr<Texture> GraphicsD3D11::CreateTexture(TextureType type, const Color& data)
@@ -137,7 +149,7 @@ namespace Zeron
 		if (mGraphicsAdapters.empty()) {
 			ZE::ComPtr<IDXGIFactory> dxgiFactory;
 			ZE_D3D_ASSERT_RESULT(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf())), mGraphicsAdapters);
-			ZE::ComPtr<IDXGIAdapter>  dxgiAdapter;
+			ZE::ComPtr<IDXGIAdapter> dxgiAdapter;
 			UINT index = 0;
 			while (SUCCEEDED(dxgiFactory->EnumAdapters(index, &dxgiAdapter))) {
 				mGraphicsAdapters.emplace_back(GraphicsAdapterD3D11(dxgiAdapter));

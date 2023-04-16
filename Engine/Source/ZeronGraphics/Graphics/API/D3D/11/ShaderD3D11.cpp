@@ -6,10 +6,9 @@
 #include <d3d11.h>
 #include <d3dcommon.h>
 #include <d3dcompiler.h>
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
 #include <Graphics/VertexLayout.h>
-
+#include <Graphics/API/D3D/DebugInfoD3D.h>
+#include <Graphics/API/D3D/11/GraphicsD3D11.h>
 
 namespace Zeron
 {
@@ -21,11 +20,13 @@ namespace Zeron
 			case ShaderType::Vertex: {
 				ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateVertexShader(mShaderBuffer->GetBufferPointer(),
 					mShaderBuffer->GetBufferSize(), nullptr, reinterpret_cast<ID3D11VertexShader**>(mShader.GetAddressOf())));
-			} break;
+			}
+			break;
 			case ShaderType::Fragment: {
 				ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreatePixelShader(mShaderBuffer->GetBufferPointer(),
 					mShaderBuffer->GetBufferSize(), nullptr, reinterpret_cast<ID3D11PixelShader**>(mShader.GetAddressOf())));
-			} break;
+			}
+			break;
 		}
 	}
 
@@ -43,18 +44,19 @@ namespace Zeron
 		return mShaderBuffer.Get();
 	}
 
-	ShaderProgramD3D11::ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::string& shaderDirectory, 
-		const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
+	ShaderProgramD3D11::ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
+		const ByteBuffer& vertexShader, const ByteBuffer& fragmentShader, const ByteBuffer& computeShader)
 		: ShaderProgram(shaderName, vertexLayout, resourceLayout)
 	{
 		ZE::ComPtr<ID3DBlob> buffer;
-		const auto shaderPath = std::filesystem::path(shaderDirectory);
-		if(const auto filePath = shaderPath / (shaderName + ".vert.cso"); std::filesystem::exists(filePath)) {
-			ZE_D3D_ASSERT_RESULT(D3DReadFileToBlob(filePath.wstring().c_str(), buffer.GetAddressOf()));
+		if (!vertexShader.empty()) {
+			ZE_D3D_ASSERT_RESULT(D3DCreateBlob(vertexShader.size(), buffer.GetAddressOf()));
+			std::memcpy(buffer->GetBufferPointer(), vertexShader.data(), vertexShader.size());
 			mVertexShader = std::make_unique<ShaderD3D11>(graphics, ShaderType::Vertex, buffer);
 		}
-		if(const auto filePath = shaderPath / (shaderName + ".frag.cso"); std::filesystem::exists(filePath)) {
-			ZE_D3D_ASSERT_RESULT(D3DReadFileToBlob(filePath.wstring().c_str(), buffer.GetAddressOf()));
+		if (!fragmentShader.empty()) {
+			ZE_D3D_ASSERT_RESULT(D3DCreateBlob(fragmentShader.size(), buffer.GetAddressOf()));
+			std::memcpy(buffer->GetBufferPointer(), fragmentShader.data(), fragmentShader.size());
 			mFragmentShader = std::make_unique<ShaderD3D11>(graphics, ShaderType::Fragment, buffer);
 		}
 		_createInputLayout(graphics);
@@ -106,7 +108,7 @@ namespace Zeron
 		uint32_t offset = 0;
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutD3D;
 		for (const auto& e : layout.GetElements()) {
-			if(currentSlot < e.mSlot) {
+			if (currentSlot < e.mSlot) {
 				currentSlot = e.mSlot;
 				offset = 0;
 			}
@@ -127,11 +129,11 @@ namespace Zeron
 	DXGI_FORMAT ShaderProgramD3D11::_getVertexFormatD3D(VertexFormat format) const
 	{
 		switch (format) {
-		case VertexFormat::Float2: return DXGI_FORMAT_R32G32_FLOAT;
-		case VertexFormat::Float3: return DXGI_FORMAT_R32G32B32_FLOAT;
-		case VertexFormat::Color: return DXGI_FORMAT_R8G8B8A8_UNORM;
-		case VertexFormat::Unknown:
-		default: ZE_FAIL("D3D11 vertex input format is not supported!");
+			case VertexFormat::Float2: return DXGI_FORMAT_R32G32_FLOAT;
+			case VertexFormat::Float3: return DXGI_FORMAT_R32G32B32_FLOAT;
+			case VertexFormat::Color: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case VertexFormat::Unknown:
+			default: ZE_FAIL("D3D11 vertex input format is not supported!");
 		}
 		return DXGI_FORMAT_UNKNOWN;
 	}

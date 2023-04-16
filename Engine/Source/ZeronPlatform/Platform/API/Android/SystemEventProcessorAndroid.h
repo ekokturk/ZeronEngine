@@ -2,22 +2,21 @@
 
 #pragma once
 
-#if ZE_WINDOW_SDL
+#if ZE_PLATFORM_ANDROID
 
 #include <Platform/SystemEventProcessor.h>
 
-struct SDL_Window;
-
 namespace Zeron
 {
-	class WindowSDL;
+	class WindowAndroid;
 	class Platform;
 
-	class SystemEventProcessorSDL : public SystemEventProcessor {
+	class SystemEventProcessorAndroid : public SystemEventProcessor {
 	public:
-		SystemEventProcessorSDL(DispatchFn dispatchCallback, ContextFn contextCallback);
+		SystemEventProcessorAndroid(DispatchFn dispatchCallback, ContextFn contextCallback);
 
 		void ProcessEvents() override;
+
 	};
 }
 

@@ -14,8 +14,8 @@ namespace Zeron
 	{
 		Null,
 		GLFW,
-		SDL,
-		Win32
+		Win32,
+		Android
 	};
 
 	struct WindowConfig

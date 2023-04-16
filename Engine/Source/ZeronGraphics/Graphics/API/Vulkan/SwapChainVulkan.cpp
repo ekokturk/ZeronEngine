@@ -1,6 +1,5 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include <Graphics/API/Vulkan/VulkanHelpers.h>
 #if ZE_GRAPHICS_VULKAN
 #include <Graphics/API/Vulkan/SwapChainVulkan.h>
 
@@ -8,6 +7,7 @@
 #include <Graphics/API/Vulkan/GraphicsVulkan.h>
 #include <Graphics/API/Vulkan/RenderPassVulkan.h>
 #include <Graphics/API/Vulkan/TextureVulkan.h>
+#include <Graphics/API/Vulkan/VulkanHelpers.h>
 
 namespace Zeron
 {
@@ -15,16 +15,16 @@ namespace Zeron
 		: SwapChain(size, 3)
 		, mSurface(std::move(surface))
 		, mSystemHandle(systemHandle)
+		, mPreferredFrameCount(GetFrameCount())
 		, mCurrentFrameIndex(0)
-		, mColorFormat(vk::Format::eB8G8R8A8Unorm)
+		, mColorFormat(vk::Format::eUndefined)
 		, mColorSpace(vk::ColorSpaceKHR::eSrgbNonlinear)
 		, mDepthFormat(vk::Format::eD32Sfloat)
 		, mPresentMode(vk::PresentModeKHR::eFifo)
 	{
 		const vk::PhysicalDevice& physicalDevice = graphics.GetPrimaryAdapterVK();
 
-		const std::vector<vk::SurfaceFormatKHR> formats = physicalDevice.getSurfaceFormatsKHR(*mSurface);
-		ZE_ASSERT(std::find(formats.begin(), formats.end(), mColorFormat) != formats.end(), "Vulkan couldn't find compatible surface format for swap chain!");
+		_initSurfaceFormat(physicalDevice.getSurfaceFormatsKHR(*mSurface));
 
 		std::vector<vk::PresentModeKHR> availableModes = physicalDevice.getSurfacePresentModesKHR(*mSurface);
 		ZE_ASSERT(std::find(availableModes.begin(), availableModes.end(), mPresentMode) != availableModes.end(), "Vulkan swap chain presentation mode is not supported!");
@@ -36,16 +36,21 @@ namespace Zeron
 			: (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit) ? vk::CompositeAlphaFlagBitsKHR::eInherit
 			: vk::CompositeAlphaFlagBitsKHR::eOpaque;
 
-		ZE_ASSERT(GetFrameCount() >= surfaceCapabilities.minImageCount, "Vulkan swap chain must have minimun {} frames!", surfaceCapabilities.minImageCount);
-		if(surfaceCapabilities.maxImageCount != 0) {
-			ZE_ASSERT(GetFrameCount() <= surfaceCapabilities.maxImageCount, "Vulkan swap chain must have maximum {} frames!", surfaceCapabilities.maxImageCount);
+		// Determine preferred frame buffer count
+		const uint32_t minImageCount = surfaceCapabilities.minImageCount;
+		const uint32_t maxImageCount = surfaceCapabilities.maxImageCount;
+		mPreferredFrameCount = minImageCount + 1;
+		if (maxImageCount > 0 && minImageCount > maxImageCount) {
+			mPreferredFrameCount = maxImageCount;
+		}
+		if (surfaceCapabilities.maxImageCount != 0) {
+			ZE_ASSERT(mPreferredFrameCount <= surfaceCapabilities.maxImageCount, "Vulkan swap chain must have maximum {} frames!", surfaceCapabilities.maxImageCount);
 		}
 
 		mSwapChainRenderPass = std::make_unique<RenderPassVulkan>(graphics, mColorFormat, mDepthFormat, VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel()));
 		mPreDepthRenderPass = std::make_unique<RenderPassVulkan>(graphics, vk::Format::eUndefined, mDepthFormat, VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel()));
 
 		_createSwapChain(graphics, nullptr);
-		_createFrameBuffers(graphics);
 	}
 
 	SwapChainVulkan::~SwapChainVulkan()
@@ -100,7 +105,7 @@ namespace Zeron
 	vk::Extent2D SwapChainVulkan::GetExtendVK() const
 	{
 		const Vec2i& size = GetSize();
-		return vk::Extent2D { static_cast<uint32_t>(size.X), static_cast<uint32_t>(size.Y) };
+		return vk::Extent2D{static_cast<uint32_t>(size.X), static_cast<uint32_t>(size.Y)};
 	}
 
 	void SwapChainVulkan::AcquireNextFrame(const vk::Device& device, vk::Semaphore semaphore)
@@ -115,7 +120,6 @@ namespace Zeron
 		graphics.GetDeviceVK().waitIdle();
 		_setSize(size);
 		_createSwapChain(graphics, *mSwapChain);
-		_createFrameBuffers(graphics);
 	}
 
 	void SwapChainVulkan::Present(GraphicsVulkan& graphics, vk::Semaphore semaphore)
@@ -137,11 +141,34 @@ namespace Zeron
 		else if (presentResult != vk::Result::eSuccess) {
 			ZE_VK_ASSERT(presentResult, "Unable to present Vulkan swap chain image!");
 		}
+	}
 
+	void SwapChainVulkan::_initSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+	{
+		ZE_ASSERT(!availableFormats.empty(), "Vulkan couldn't find any compatible surface formats!");
+
+		const vk::SurfaceFormatKHR& defaultFormat = availableFormats[0];
+		if (availableFormats.size() == 1 && defaultFormat.format == vk::Format::eUndefined) {
+			mColorFormat = vk::Format::eR8G8B8Unorm;
+			mColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
+			return;
+		}
+		// Search for preferred format
+		for (const vk::SurfaceFormatKHR& availableFormat : availableFormats) {
+			if (availableFormat.format == vk::Format::eR8G8B8Unorm) {
+				mColorFormat = availableFormat.format;
+				mColorSpace = availableFormat.colorSpace;
+				return;
+			}
+		}
+		mColorFormat = defaultFormat.format;
+		mColorSpace = defaultFormat.colorSpace;
 	}
 
 	void SwapChainVulkan::_createSwapChain(GraphicsVulkan& graphics, vk::SwapchainKHR oldSwapChain)
 	{
+		// ----- CREATE SWAP CHAIN
+
 		if (oldSwapChain) {
 			mColorTextures.clear();
 			mDepthTexture = nullptr;
@@ -157,7 +184,7 @@ namespace Zeron
 		vk::SwapchainCreateInfoKHR swapChainCreateInfo(
 			vk::SwapchainCreateFlagsKHR(),
 			*mSurface,
-			GetFrameCount(),
+			mPreferredFrameCount,
 			mColorFormat,
 			mColorSpace,
 			GetExtendVK(),
@@ -176,28 +203,32 @@ namespace Zeron
 		const uint32_t graphicsQueueIndex = graphics.GetGraphicsQueueFamilyIndexVK();
 		const uint32_t presentQueueIndex = graphics.GetPresentQueueFamilyIndexVK();
 		if (presentQueueIndex != graphicsQueueIndex) {
-			const std::array<uint32_t, 2> queueIndices{ graphicsQueueIndex, presentQueueIndex };
+			const std::array<uint32_t, 2> queueIndices{graphicsQueueIndex, presentQueueIndex};
 			swapChainCreateInfo.queueFamilyIndexCount = 2;
 			swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
 			swapChainCreateInfo.pQueueFamilyIndices = queueIndices.data();
 		}
 
 		mSwapChain = graphics.GetDeviceVK().createSwapchainKHRUnique(swapChainCreateInfo);
-	}
 
-	void SwapChainVulkan::_createFrameBuffers(GraphicsVulkan& graphics)
-	{
+		// ----- CREATE FRAME BUFFERS
+
 		const vk::SampleCountFlagBits sampling = VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel());
-		for (const vk::Image colorTexture : graphics.GetDeviceVK().getSwapchainImagesKHR(*mSwapChain)) {
-			mColorTextures.emplace_back(TextureVulkan(colorTexture, GetSize(), mColorFormat, sampling));
+		const std::vector<vk::Image> swapChainImages = graphics.GetDeviceVK().getSwapchainImagesKHR(*mSwapChain);
+		// We need to adjust frame buffer count if it's not the preferred amount
+		if (GetFrameCount() != swapChainImages.size()) {
+			_setBufferCount(static_cast<uint32_t>(swapChainImages.size()));
+		}
+		for (const vk::Image colorTexture : swapChainImages) {
+			mColorTextures.emplace_back(colorTexture, GetSize(), mColorFormat, sampling);
 		}
 
 		// Create shared image wrappers
-		mDepthTexture = graphics.CreateTextureVK(GetSize(), mDepthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, 
+		mDepthTexture = graphics.CreateTextureVK(GetSize(), mDepthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
 			sampling, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
-		if(sampling != vk::SampleCountFlagBits::e1) {
-			mSamplingTexture = graphics.CreateTextureVK(GetSize(), mColorFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment, 
+		if (sampling != vk::SampleCountFlagBits::e1) {
+			mSamplingTexture = graphics.CreateTextureVK(GetSize(), mColorFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
 				sampling, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
 		}
 

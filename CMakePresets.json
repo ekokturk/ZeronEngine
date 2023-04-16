@@ -7,7 +7,7 @@
 	},
 	"configurePresets": [
 		{
-			"name": "base",
+			"name": "Base",
 			"binaryDir": "${sourceDir}/Build/${presetName}",
 			"cacheVariables": {
 				"CMAKE_CXX_STANDARD": "20",
@@ -15,10 +15,29 @@
 			}
 		},
 		{
+			"name": "Android_Base",
+			"generator": "Ninja",
+			"inherits": [ "Base"],
+			"cacheVariables": {
+				"CMAKE_SYSTEM_NAME": "Android",
+				"CMAKE_SYSTEM_VERSION": "24",
+				"CMAKE_ANDROID_STL_TYPE": "c++_shared",
+				"UNIFY_OUTPUT_DIR": "ON",
+				"CMAKE_CXX_FLAGS": "-fPIC",
+				"CMAKE_C_FLAGS": "-fPIC"
+			},
+			"toolchainFile": "Engine/Tools/CMake/ZeronAndroidToolchain.cmake",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			}
+		},
+		{
 			"name": "Win32_x64",
 			"displayName": "Windows Desktop 64-bit",
 			"generator": "Visual Studio 17 2022",
-			"inherits": [ "base"],
+			"inherits": [ "Base"],
 			"architecture": {
 				"value": "x64",
 				"strategy": "set"
@@ -38,7 +57,7 @@
 			"name": "Linux",
 			"displayName": "Linux",
 			"generator": "Ninja",
-			"inherits": [ "base"],
+			"inherits": [ "Base"],
 			"cacheVariables": {
 				"CMAKE_C_COMPILER": "clang",
 				"CMAKE_CXX_COMPILER": "clang++",
@@ -62,20 +81,17 @@
 		{
 			"name": "Android_x86-64",
 			"displayName": "Android x86_64",
-			"generator": "Ninja",
-			"inherits": [ "base"],
+			"inherits": [ "Android_Base"],
 			"cacheVariables": {
-				"CMAKE_SYSTEM_NAME": "Android",
-				"CMAKE_SYSTEM_VERSION": "21",
-				"CMAKE_ANDROID_ARCH_ABI": "x86_64",
-				"CMAKE_ANDROID_STL_TYPE": "c++_shared",
-				"UNIFY_OUTPUT_DIR": "ON"
-			},
-			"toolchainFile": "Engine/Tools/CMake/ZeronAndroidToolchain.cmake",
-			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
+				"CMAKE_ANDROID_ARCH_ABI": "x86_64"
+			}
+		},
+		{
+			"name": "Android_arm64-v8a",
+			"displayName": "Android arm64-v8a",
+			"inherits": [ "Android_Base"],
+			"cacheVariables": {
+				"CMAKE_ANDROID_ARCH_ABI": "arm64-v8a"
 			}
 		}
 	],

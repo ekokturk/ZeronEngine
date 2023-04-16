@@ -3,10 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/VulkanCommon.h>
-#include <Graphics/API/Vulkan/GraphicsAdapterVulkan.h>
 #include <Graphics/Graphics.h>
 #include <Graphics/GraphicsTypes.h>
+#include <Graphics/API/Vulkan/GraphicsAdapterVulkan.h>
+#include <Graphics/API/Vulkan/VulkanCommon.h>
 
 namespace Zeron
 {
@@ -18,10 +18,10 @@ namespace Zeron
 	class GraphicsVulkan final : public Graphics {
 	public:
 		GraphicsVulkan();
-		~GraphicsVulkan();
-		
+		~GraphicsVulkan() override;
+
 		bool Init() override;
-		
+
 		GraphicsType GetGraphicsType() const override;
 		MSAALevel GetMultiSamplingLevel() const override;
 
@@ -34,10 +34,11 @@ namespace Zeron
 
 		std::unique_ptr<Buffer> CreateBuffer(BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage = BufferUsageType::Default) override;
 
-		std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::string& shaderDirectory, 
+		std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
+			const ByteBuffer& vertexShader = {}, const ByteBuffer& fragmentShader = {}, const ByteBuffer& computeShader = {}) override;
+		std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader,
 			const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout) override;
-		std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, 
-			const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout) override;
+		std::string GetCompiledShaderName(const std::string& shaderName, ShaderType type) const override;
 
 		std::unique_ptr<Texture> CreateTexture(TextureType type, const Color& data) override;
 		std::unique_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) override;
