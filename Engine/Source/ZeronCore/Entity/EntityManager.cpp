@@ -22,16 +22,24 @@ namespace Zeron
 
 	void EntityManager::RemoveEntity(Entity entity)
 	{
-		ZE_ASSERT(std::all_of(mComponentPoolMap.cbegin(), mComponentPoolMap.cend(), 
-			[&entity](auto&& container) { return container.second->Has(entity.GetId()); }), "Expected entity components to be removed");
+		ZE_ASSERT(
+			std::all_of(
+				mComponentPoolMap.cbegin(),
+				mComponentPoolMap.cend(),
+				[&entity](auto&& container) {
+					return container.second->Has(entity.GetId());
+				}
+			),
+			"Expected entity components to be removed"
+		);
 		if (entity.GetId() < mEntityPool.size()) {
 			Entity& foundEntity = mEntityPool[entity.GetId()];
-			if(!foundEntity.isValid() || entity != foundEntity) {
+			if (!foundEntity.isValid() || entity != foundEntity) {
 				return;
 			}
 			foundEntity = Entity(Entity::INVALID_ID, Entity::INVALID_VERSION);
 			mFreeEntities.push_back(entity);
 		}
 	}
-	
+
 }

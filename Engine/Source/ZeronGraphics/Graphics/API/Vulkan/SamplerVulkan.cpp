@@ -1,10 +1,11 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/SamplerVulkan.h>
 
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
-#include <Graphics/API/Vulkan/VulkanHelpers.h>
+#	include <Graphics/API/Vulkan/SamplerVulkan.h>
+
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
 namespace Zeron
 {
@@ -28,12 +29,12 @@ namespace Zeron
 			vk::CompareOp::eNever,
 			0.0f,
 			0.0f,
-			//static_cast<float>(GetMipLevelVK()),
+			// static_cast<float>(GetMipLevelVK()),
 			vk::BorderColor::eIntOpaqueBlack,
 			VK_FALSE
 		);
 
-		mSampler =  graphics.GetDeviceVK().createSamplerUnique(info);
+		mSampler = graphics.GetDeviceVK().createSamplerUnique(info);
 	}
 
 	vk::Sampler& SamplerVulkan::GetSamplerVK()

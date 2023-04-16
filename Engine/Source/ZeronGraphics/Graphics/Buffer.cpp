@@ -9,6 +9,5 @@ namespace Zeron
 		, mCount(count)
 		, mStride(stride)
 		, mUsage(usage)
-	{
-	}
+	{}
 }

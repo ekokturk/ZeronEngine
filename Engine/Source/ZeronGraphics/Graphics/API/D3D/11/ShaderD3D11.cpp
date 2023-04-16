@@ -1,14 +1,16 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include <Graphics/API/D3D/11/ShaderD3D11.h>
 
 #if ZE_GRAPHICS_D3D
-#include <d3d11.h>
-#include <d3dcommon.h>
-#include <d3dcompiler.h>
-#include <Graphics/VertexLayout.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
+
+#	include <Graphics/API/D3D/11/ShaderD3D11.h>
+
+#	include <d3d11.h>
+#	include <d3dcommon.h>
+#	include <d3dcompiler.h>
+#	include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
+#	include <Graphics/VertexLayout.h>
 
 namespace Zeron
 {
@@ -18,21 +20,19 @@ namespace Zeron
 	{
 		switch (mType) {
 			case ShaderType::Vertex: {
-				ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateVertexShader(mShaderBuffer->GetBufferPointer(),
-					mShaderBuffer->GetBufferSize(), nullptr, reinterpret_cast<ID3D11VertexShader**>(mShader.GetAddressOf())));
-			}
-			break;
+				ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateVertexShader(
+					mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, reinterpret_cast<ID3D11VertexShader**>(mShader.GetAddressOf())
+				));
+			} break;
 			case ShaderType::Fragment: {
-				ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreatePixelShader(mShaderBuffer->GetBufferPointer(),
-					mShaderBuffer->GetBufferSize(), nullptr, reinterpret_cast<ID3D11PixelShader**>(mShader.GetAddressOf())));
-			}
-			break;
+				ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreatePixelShader(
+					mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, reinterpret_cast<ID3D11PixelShader**>(mShader.GetAddressOf())
+				));
+			} break;
 		}
 	}
 
-	ShaderD3D11::~ShaderD3D11()
-	{
-	}
+	ShaderD3D11::~ShaderD3D11() {}
 
 	ID3D11DeviceChild* ShaderD3D11::GetShaderD3D() const
 	{
@@ -44,8 +44,10 @@ namespace Zeron
 		return mShaderBuffer.Get();
 	}
 
-	ShaderProgramD3D11::ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
-		const ByteBuffer& vertexShader, const ByteBuffer& fragmentShader, const ByteBuffer& computeShader)
+	ShaderProgramD3D11::ShaderProgramD3D11(
+		GraphicsD3D11& graphics, const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout, const ByteBuffer& vertexShader,
+		const ByteBuffer& fragmentShader, const ByteBuffer& computeShader
+	)
 		: ShaderProgram(shaderName, vertexLayout, resourceLayout)
 	{
 		ZE::ComPtr<ID3DBlob> buffer;
@@ -62,8 +64,10 @@ namespace Zeron
 		_createInputLayout(graphics);
 	}
 
-	ShaderProgramD3D11::ShaderProgramD3D11(GraphicsD3D11& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader,
-		const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
+	ShaderProgramD3D11::ShaderProgramD3D11(
+		GraphicsD3D11& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader,
+		const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout
+	)
 		: ShaderProgram(shaderName, vertexLayout, resourceLayout)
 	{
 		mVertexShader = std::static_pointer_cast<ShaderD3D11>(vertexShader);
@@ -71,9 +75,7 @@ namespace Zeron
 		_createInputLayout(graphics);
 	}
 
-	ShaderProgramD3D11::~ShaderProgramD3D11()
-	{
-	}
+	ShaderProgramD3D11::~ShaderProgramD3D11() {}
 
 	Shader* ShaderProgramD3D11::GetShader(ShaderType type) const
 	{
@@ -94,9 +96,16 @@ namespace Zeron
 	{
 		if (mVertexShader) {
 			const std::vector<D3D11_INPUT_ELEMENT_DESC> desc = _getVertexLayoutD3D(mVertexLayout);
-			ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateInputLayout(desc.data(),
-				static_cast<UINT>(mVertexLayout.GetElements().size()), mVertexShader->GetShaderBufferD3D()->GetBufferPointer(),
-				static_cast<UINT>(mVertexShader->GetShaderBufferD3D()->GetBufferSize()), mInputLayout.GetAddressOf()), false);
+			ZE_D3D_ASSERT_RESULT(
+				graphics.GetDeviceD3D()->CreateInputLayout(
+					desc.data(),
+					static_cast<UINT>(mVertexLayout.GetElements().size()),
+					mVertexShader->GetShaderBufferD3D()->GetBufferPointer(),
+					static_cast<UINT>(mVertexShader->GetShaderBufferD3D()->GetBufferSize()),
+					mInputLayout.GetAddressOf()
+				),
+				false
+			);
 			return true;
 		}
 		return false;

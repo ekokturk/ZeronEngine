@@ -4,13 +4,12 @@
 
 #if ZE_PLATFORM_LINUX
 
-#include <Platform/Platform.h>
+#	include <Platform/Platform.h>
 
 namespace Zeron
 {
-	class PlatformLinux : public Platform
-	{
-	public:
+	class PlatformLinux : public Platform {
+	  public:
 		PlatformLinux();
 		~PlatformLinux();
 

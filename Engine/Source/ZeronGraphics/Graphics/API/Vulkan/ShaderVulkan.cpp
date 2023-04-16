@@ -1,11 +1,12 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/ShaderVulkan.h>
 
-#include <Graphics/VertexLayout.h>
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
-#include <Graphics/API/Vulkan/VulkanHelpers.h>
+#	include <Graphics/API/Vulkan/ShaderVulkan.h>
+
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/VulkanHelpers.h>
+#	include <Graphics/VertexLayout.h>
 
 namespace Zeron
 {
@@ -13,11 +14,7 @@ namespace Zeron
 		: Shader(type)
 		, mBuffer(buffer)
 	{
-		const vk::ShaderModuleCreateInfo createInfo(
-			vk::ShaderModuleCreateFlags(),
-			mBuffer.size(),
-			reinterpret_cast<uint32_t*>(mBuffer.data())
-		);
+		const vk::ShaderModuleCreateInfo createInfo(vk::ShaderModuleCreateFlags(), mBuffer.size(), reinterpret_cast<uint32_t*>(mBuffer.data()));
 		mShader = graphics.GetDeviceVK().createShaderModuleUnique(createInfo);
 
 		mPipelineStageInfo.flags = vk::PipelineShaderStageCreateFlags();
@@ -31,8 +28,10 @@ namespace Zeron
 		return mPipelineStageInfo;
 	}
 
-	ShaderProgramVulkan::ShaderProgramVulkan(GraphicsVulkan& graphics, const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
-		const ByteBuffer& vertexShader, const ByteBuffer& fragmentShader, const ByteBuffer& computeShader)
+	ShaderProgramVulkan::ShaderProgramVulkan(
+		GraphicsVulkan& graphics, const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout, const ByteBuffer& vertexShader,
+		const ByteBuffer& fragmentShader, const ByteBuffer& computeShader
+	)
 		: ShaderProgram(shaderName, vertexLayout, resourceLayout)
 	{
 		if (!vertexShader.empty()) {
@@ -47,7 +46,10 @@ namespace Zeron
 		_createVertexInputDesc();
 	}
 
-	ShaderProgramVulkan::ShaderProgramVulkan(GraphicsVulkan& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
+	ShaderProgramVulkan::ShaderProgramVulkan(
+		GraphicsVulkan& graphics, const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader,
+		const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout
+	)
 		: ShaderProgram(shaderName, vertexLayout, resourceLayout)
 	{
 		mVertexShader = std::static_pointer_cast<ShaderVulkan>(vertexShader);
@@ -83,11 +85,7 @@ namespace Zeron
 
 	vk::PipelineVertexInputStateCreateInfo ShaderProgramVulkan::GetVertexInputDescriptionVK() const
 	{
-		return {
-			vk::PipelineVertexInputStateCreateFlags(),
-			mBindingDescList,
-			mAttributeDescList
-		};
+		return { vk::PipelineVertexInputStateCreateFlags(), mBindingDescList, mAttributeDescList };
 	}
 
 	void ShaderProgramVulkan::_createVertexInputDesc()
@@ -100,23 +98,12 @@ namespace Zeron
 			const vk::VertexInputRate inputRate = element.mIsInstanced ? vk::VertexInputRate::eInstance : vk::VertexInputRate::eVertex;
 
 			if (mBindingDescList.size() == element.mSlot) {
-				mBindingDescList.emplace_back(
-					element.mSlot,
-					0,
-					inputRate
-				);
+				mBindingDescList.emplace_back(element.mSlot, 0, inputRate);
 			}
 			auto& bindingDesc = mBindingDescList[element.mSlot];
 			ZE_ASSERT(bindingDesc.inputRate == inputRate, "Vulkan vertex element input rate does not match the bindings description!");
 
-			mAttributeDescList.emplace_back(
-				vk::VertexInputAttributeDescription(
-					i,
-					element.mSlot,
-					format,
-					bindingDesc.stride
-				)
-			);
+			mAttributeDescList.emplace_back(vk::VertexInputAttributeDescription(i, element.mSlot, format, bindingDesc.stride));
 			bindingDesc.stride += VertexLayout::GetVertexFormatSize(element.mFormat);
 		}
 	}

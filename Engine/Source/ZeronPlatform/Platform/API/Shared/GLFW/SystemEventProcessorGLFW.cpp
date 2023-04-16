@@ -2,18 +2,17 @@
 
 #if ZE_WINDOW_GLFW
 
-#include <Platform/API/Shared/GLFW/SystemEventProcessorGLFW.h>
+#	include <Platform/API/Shared/GLFW/SystemEventProcessorGLFW.h>
 
-#include <GLFW/glfw3.h>
-#include <Platform/API/Shared/GLFW/GLFWHelpers.h>
-#include <Platform/API/Shared/GLFW/WindowGLFW.h>
+#	include <GLFW/glfw3.h>
+#	include <Platform/API/Shared/GLFW/GLFWHelpers.h>
+#	include <Platform/API/Shared/GLFW/WindowGLFW.h>
 
 namespace Zeron
 {
 	SystemEventProcessorGLFW::SystemEventProcessorGLFW(DispatchFn dispatchCallback, ContextFn contextCallback)
 		: SystemEventProcessor(std::move(dispatchCallback), std::move(contextCallback))
-	{
-	}
+	{}
 
 	void SystemEventProcessorGLFW::ProcessEvents()
 	{
@@ -22,7 +21,7 @@ namespace Zeron
 
 	void SystemEventProcessorGLFW::registerEventCallbacks(WindowGLFW* window)
 	{
-		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(window->GetApiHandle());
+		auto glfwWindow = static_cast<GLFWwindow*>(window->GetApiHandle());
 
 		// ------------------------ WINDOW EVENTS --------------------------
 		// WINDOW RESIZE
@@ -76,19 +75,19 @@ namespace Zeron
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
 			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
 			switch (isFocused) {
-			case GLFW_TRUE: {
-				processor->Dispatch({ SystemEvent::WindowFocused{} }, ctx);
-			} break;
-			case GLFW_FALSE: {
-				processor->Dispatch({ SystemEvent::WindowUnfocused{} }, ctx);
-			} break;
-			default:;
+				case GLFW_TRUE: {
+					processor->Dispatch({ SystemEvent::WindowFocused{} }, ctx);
+				} break;
+				case GLFW_FALSE: {
+					processor->Dispatch({ SystemEvent::WindowUnfocused{} }, ctx);
+				} break;
+				default:;
 			}
 		});
 
-		//glfwSetFramebufferSizeCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int scaleX, int scaleY) {
+		// glfwSetFramebufferSizeCallback(mWindowGLFW, [](GLFWwindow* windowGLFW, int scaleX, int scaleY) {
 		//	WindowGLFW* window = _getUserPointerGLFW(windowGLFW);
-		//});
+		// });
 
 		// ------------------------ MOUSE EVENTS ---------------------------
 		// MOUSE BUTTON PRESSED
@@ -96,13 +95,13 @@ namespace Zeron
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
 			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
 			switch (actionType) {
-			case GLFW_PRESS: {
-				processor->Dispatch({ SystemEvent::MouseButtonDown{ GLFWHelpers::GetMouseCode(buttonIndex) } }, ctx);
-			} break;
-			case GLFW_RELEASE: {
-				processor->Dispatch({ SystemEvent::MouseButtonUp{ GLFWHelpers::GetMouseCode(buttonIndex) } }, ctx);
-			} break;
-			default:;
+				case GLFW_PRESS: {
+					processor->Dispatch({ SystemEvent::MouseButtonDown{ GLFWHelpers::GetMouseCode(buttonIndex) } }, ctx);
+				} break;
+				case GLFW_RELEASE: {
+					processor->Dispatch({ SystemEvent::MouseButtonUp{ GLFWHelpers::GetMouseCode(buttonIndex) } }, ctx);
+				} break;
+				default:;
 			}
 		});
 

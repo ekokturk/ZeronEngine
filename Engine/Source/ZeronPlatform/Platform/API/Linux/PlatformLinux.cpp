@@ -2,20 +2,18 @@
 
 #if ZE_PLATFORM_LINUX
 
-#include <Platform/API/Linux/PlatformLinux.h>
+#	include <Platform/API/Linux/PlatformLinux.h>
 
-#include <Platform/WindowManager.h>
+#	include <Platform/WindowManager.h>
 
-namespace Zeron {
+namespace Zeron
+{
 
 	PlatformLinux::PlatformLinux()
 		: Platform()
-	{
-	}
+	{}
 
-	PlatformLinux::~PlatformLinux()
-	{
-	}
+	PlatformLinux::~PlatformLinux() {}
 
 	Window* PlatformLinux::CreatePlatformWindow(const WindowConfig& config)
 	{

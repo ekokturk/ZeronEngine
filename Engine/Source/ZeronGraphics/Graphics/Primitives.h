@@ -4,11 +4,10 @@
 
 namespace Zeron
 {
-	struct Vertex
-	{
-		 Vec3 mPosition;
-		 Vec2 mTextureCoord;
-		 Vec3 mNormal;
+	struct Vertex {
+		Vec3 mPosition;
+		Vec2 mTextureCoord;
+		Vec3 mNormal;
 	};
 
 	struct VertexInstance {

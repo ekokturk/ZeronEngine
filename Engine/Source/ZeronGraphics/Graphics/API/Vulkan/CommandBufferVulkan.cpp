@@ -1,15 +1,16 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/CommandBufferVulkan.h>
 
-#include <Graphics/API/Vulkan/BufferVulkan.h>
-#include <Graphics/API/Vulkan/FrameBufferVulkan.h>
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
-#include <Graphics/API/Vulkan/PipelineVulkan.h>
-#include <Graphics/API/Vulkan/PipelineBindingVulkan.h>
-#include <Graphics/API/Vulkan/RenderPassVulkan.h>
-#include <Graphics/API/Vulkan/TextureVulkan.h>
+#	include <Graphics/API/Vulkan/CommandBufferVulkan.h>
+
+#	include <Graphics/API/Vulkan/BufferVulkan.h>
+#	include <Graphics/API/Vulkan/FrameBufferVulkan.h>
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/PipelineBindingVulkan.h>
+#	include <Graphics/API/Vulkan/PipelineVulkan.h>
+#	include <Graphics/API/Vulkan/RenderPassVulkan.h>
+#	include <Graphics/API/Vulkan/TextureVulkan.h>
 
 namespace Zeron
 {
@@ -22,21 +23,14 @@ namespace Zeron
 		, mCurrentFrameBuffer(nullptr)
 		, mCurrentPipeline(nullptr)
 	{
-		const vk::CommandBufferAllocateInfo allocateInfo(
-			*mCommandPool,
-			vk::CommandBufferLevel::ePrimary,
-			count
-		);
+		const vk::CommandBufferAllocateInfo allocateInfo(*mCommandPool, vk::CommandBufferLevel::ePrimary, count);
 		mCommandBufferList = graphics.GetDeviceVK().allocateCommandBuffersUnique(allocateInfo);
 	}
 
 	void CommandBufferVulkan::Begin()
 	{
 		_acquireNextBuffer();
-		const vk::CommandBufferBeginInfo beginInfo {
-			vk::CommandBufferUsageFlagBits::eOneTimeSubmit,
-			nullptr
-		};
+		const vk::CommandBufferBeginInfo beginInfo{ vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr };
 		_getCurrent().reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 		_getCurrent().begin(beginInfo);
 	}
@@ -52,12 +46,8 @@ namespace Zeron
 		ZE_ASSERT(mScissor.extent.width <= extent.width && mScissor.extent.height <= extent.height, "Vulkan render pass has to be within frame buffer extent!");
 
 		const vk::RenderPassBeginInfo beginInfo(
-			mCurrentRenderPass->GetRenderPassVK(),
-			mCurrentFrameBuffer->GetFrameBufferVK(),
-			mScissor,
-			static_cast<uint32_t>(mClearValue.size()),
-			mClearValue.data()
-		);                    
+			mCurrentRenderPass->GetRenderPassVK(), mCurrentFrameBuffer->GetFrameBufferVK(), mScissor, static_cast<uint32_t>(mClearValue.size()), mClearValue.data()
+		);
 		_getCurrent().beginRenderPass(&beginInfo, vk::SubpassContents::eInline);
 	}
 
@@ -76,31 +66,21 @@ namespace Zeron
 	void CommandBufferVulkan::Clear(Color color)
 	{
 		mClearValue = {
-			vk::ClearDepthStencilValue { 1.0f, 0 },
-			vk::ClearColorValue(std::array<float,4>{ color.normR(), color.normG(), color.normB(), color.normA() }),
+			vk::ClearDepthStencilValue{ 1.0f, 0 },
+			vk::ClearColorValue(std::array<float, 4>{ color.normR(), color.normG(), color.normB(), color.normA() }),
 		};
 	}
 
 	void CommandBufferVulkan::SetScissor(const Vec2i& extent, const Vec2i& offset)
 	{
-		mScissor = vk::Rect2D(
-			{ offset.X, offset.Y },
-			{ static_cast<uint32_t>(extent.X), static_cast<uint32_t>(extent.Y) }
-		);
+		mScissor = vk::Rect2D({ offset.X, offset.Y }, { static_cast<uint32_t>(extent.X), static_cast<uint32_t>(extent.Y) });
 		_getCurrent().setScissor(0, 1, &mScissor);
 	}
 
 	void CommandBufferVulkan::SetViewport(const Vec2i& size, const Vec2i& position)
 	{
 		// Flipping viewport to correct axises
-		const vk::Viewport info(
-			static_cast<float>(position.X),
-			static_cast<float>(position.Y + size.Y),
-			static_cast<float>(size.X),
-			static_cast<float>(-size.Y),
-			0.0f,
-			1.0f
-		);
+		const vk::Viewport info(static_cast<float>(position.X), static_cast<float>(position.Y + size.Y), static_cast<float>(size.X), static_cast<float>(-size.Y), 0.0f, 1.0f);
 		_getCurrent().setViewport(0, 1, &info);
 	}
 
@@ -121,7 +101,7 @@ namespace Zeron
 			index,
 			static_cast<uint32_t>(descriptorSets.size()),
 			vk::uniqueToRaw(descriptorSets).data(),
-			0, 
+			0,
 			nullptr
 		);
 	}
@@ -136,7 +116,7 @@ namespace Zeron
 	void CommandBufferVulkan::SetVertexBuffers(Buffer** vb, uint32_t count, uint32_t slot)
 	{
 		std::vector<vk::Buffer> buffers(count);
-		std::vector <vk::DeviceSize> offsets(count);
+		std::vector<vk::DeviceSize> offsets(count);
 		for (uint32_t i = 0; i < count; ++i) {
 			auto* bufferVk = static_cast<BufferVulkan*>(vb[i]);
 			ZE_ASSERT(bufferVk->GetBufferType() == BufferType::Vertex, "Vulkan command expected vertex buffer!");
@@ -222,7 +202,7 @@ namespace Zeron
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 
-		if(oldLayout == vk::ImageLayout::eUndefined) {
+		if (oldLayout == vk::ImageLayout::eUndefined) {
 			if (newLayout == vk::ImageLayout::eColorAttachmentOptimal) {
 				barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
 				_setImageMemoryBarrierVK(barrier, vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eColorAttachmentOutput);
@@ -280,4 +260,3 @@ namespace Zeron
 }
 
 #endif
-

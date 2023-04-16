@@ -1,29 +1,27 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #ifdef ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/11/CommandBufferD3D11.h>
 
-#include <d3d11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
-#include <Graphics/API/D3D/11/BufferD3D11.h>
-#include <Graphics/API/D3D/11/FrameBufferD3D11.h>
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
-#include <Graphics/API/D3D/11/PipelineBindingD3D11.h>
-#include <Graphics/API/D3D/11/PipelineD3D11.h>
-#include <Graphics/API/D3D/11/ShaderD3D11.h>
+#	include <Graphics/API/D3D/11/CommandBufferD3D11.h>
+
+#	include <d3d11.h>
+#	include <Graphics/API/D3D/11/BufferD3D11.h>
+#	include <Graphics/API/D3D/11/FrameBufferD3D11.h>
+#	include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/11/PipelineBindingD3D11.h>
+#	include <Graphics/API/D3D/11/PipelineD3D11.h>
+#	include <Graphics/API/D3D/11/ShaderD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {
 	CommandBufferD3D11::CommandBufferD3D11(GraphicsD3D11& graphics)
 		: mDeviceContext(graphics.GetDeviceContextD3D())
-		, mClearColor({0.f, 0.f, 0.f, 1.f})
+		, mClearColor({ 0.f, 0.f, 0.f, 1.f })
 		, mFrameBuffer(nullptr)
-	{
-	}
+	{}
 
-	void CommandBufferD3D11::Begin()
-	{
-	}
+	void CommandBufferD3D11::Begin() {}
 
 	void CommandBufferD3D11::BeginRenderPass(FrameBuffer* frameBuffer, RenderPass* renderPass)
 	{
@@ -35,13 +33,9 @@ namespace Zeron
 		ZE_D3D_ASSERT(mDeviceContext->ClearDepthStencilView(mFrameBuffer->GetDepthStencilD3D(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0));
 	}
 
-	void CommandBufferD3D11::EndRenderPass()
-	{
-	}
+	void CommandBufferD3D11::EndRenderPass() {}
 
-	void CommandBufferD3D11::End()
-	{
-	}
+	void CommandBufferD3D11::End() {}
 
 	void CommandBufferD3D11::Clear(Color color)
 	{
@@ -96,7 +90,7 @@ namespace Zeron
 		std::vector<ID3D11Buffer*> arr(count);
 		std::vector<uint32_t> stride(count);
 		std::vector<uint32_t> offset(count);
-		for(uint32_t i = 0; i < count; ++i) {
+		for (uint32_t i = 0; i < count; ++i) {
 			const BufferD3D11* bufferDx = static_cast<BufferD3D11*>(vb[i]);
 			ZE_ASSERT(bufferDx->GetBufferType() == BufferType::Vertex, "Invalid buffer type!");
 			arr[i] = bufferDx->GetBufferD3D();
@@ -111,7 +105,8 @@ namespace Zeron
 		ZE_ASSERT(ib.GetBufferType() == BufferType::Index, "Invalid D3D11  buffer type!");
 		ZE_ASSERT(ib.GetStride() == 2 || ib.GetStride() == 4, "Unsupported D3D11 index buffer stride!");
 		const auto& bufferDx = static_cast<BufferD3D11&>(ib);
-		ZE_D3D_ASSERT(mDeviceContext->IASetIndexBuffer(bufferDx.GetBufferD3D(), ib.GetStride() == 2 ? DXGI_FORMAT::DXGI_FORMAT_R16_UINT : DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0));
+		ZE_D3D_ASSERT(mDeviceContext->IASetIndexBuffer(bufferDx.GetBufferD3D(), ib.GetStride() == 2 ? DXGI_FORMAT::DXGI_FORMAT_R16_UINT : DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0)
+		);
 	}
 
 	void CommandBufferD3D11::CopyBuffer(Buffer& source, Buffer& destination)
@@ -121,7 +116,9 @@ namespace Zeron
 
 	void CommandBufferD3D11::UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule)
 	{
-		ZE_ASSERT((buff.GetCount() - offset) * buff.GetStride() >= sizeBytes, "D3D11 buffer size {} does not match for update data size {}!", buff.GetSizeInBytes(), sizeBytes);
+		ZE_ASSERT(
+			(buff.GetCount() - offset) * buff.GetStride() >= sizeBytes, "D3D11 buffer size {} does not match for update data size {}!", buff.GetSizeInBytes(), sizeBytes
+		);
 		auto& buffDx = static_cast<BufferD3D11&>(buff);
 		buffDx.UpdateD3D(mDeviceContext, data, sizeBytes, offset, updateRule);
 	}

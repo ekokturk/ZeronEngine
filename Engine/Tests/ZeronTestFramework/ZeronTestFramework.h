@@ -4,11 +4,11 @@
 
 #include <gtest/gtest.h>
 
-namespace ZeronTestFramework {
+namespace ZeronTestFramework
+{
 
-	class TestRunner
-	{
-	public:
+	class TestRunner {
+	  public:
 		TestRunner();
 		virtual ~TestRunner() = default;
 
@@ -18,7 +18,7 @@ namespace ZeronTestFramework {
 
 		int GetErrorCode() const { return mErrorCode; }
 
-	protected:
+	  protected:
 		virtual void OnInit(int argc, char** argv) {}
 		virtual void OnRun() {}
 		virtual void OnDestroy() {}
@@ -27,11 +27,12 @@ namespace ZeronTestFramework {
 	};
 }
 
-#define ZE_GENERATE_DEFAULT_TEST_RUNNER() \
-int main(int argc, char** argv) { \
-	::ZeronTestFramework::TestRunner runner; \
-	runner.Init(argc, argv); \
-	runner.Run(); \
-	runner.Destroy(); \
-	return runner.GetErrorCode(); \
-}
+#define ZE_GENERATE_DEFAULT_TEST_RUNNER()        \
+	int main(int argc, char** argv)              \
+	{                                            \
+		::ZeronTestFramework::TestRunner runner; \
+		runner.Init(argc, argv);                 \
+		runner.Run();                            \
+		runner.Destroy();                        \
+		return runner.GetErrorCode();            \
+	}

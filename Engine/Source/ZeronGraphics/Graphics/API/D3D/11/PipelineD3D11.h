@@ -3,9 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/Pipeline.h>
 
-#include <Graphics/API/D3D/DXGI.h>
+#	include <Graphics/API/D3D/DXGI.h>
+#	include <Graphics/GraphicsTypes.h>
+#	include <Graphics/Pipeline.h>
 
 struct ID3D11DepthStencilState;
 struct ID3D11Device;
@@ -23,22 +24,17 @@ namespace Zeron
 	class SwapChainD3D11;
 
 	class PipelineD3D11 : public Pipeline {
-	public:
+	  public:
 		PipelineD3D11(
-			GraphicsD3D11& graphics,
-			ShaderProgramD3D11* shader,
-			RenderPass* renderPass,
-			MSAALevel samplingLevel,
-			PrimitiveTopology topology = PrimitiveTopology::TriangleList,
-			bool isSolidFill = true,
-			FaceCullMode cullMode = FaceCullMode::Back
+			GraphicsD3D11& graphics, ShaderProgramD3D11* shader, RenderPass* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology = PrimitiveTopology::TriangleList,
+			bool isSolidFill = true, FaceCullMode cullMode = FaceCullMode::Back
 		);
 
 		// D3D11 API
 		void Apply(ID3D11DeviceContext* deviceContext);
 		ShaderProgramD3D11* GetShaderProgramD3D() const;
 
-	private:
+	  private:
 		ShaderProgramD3D11* mShader;
 
 		D3D_PRIMITIVE_TOPOLOGY mPrimitiveTopology;

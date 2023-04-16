@@ -1,16 +1,16 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/GraphicsAdapterVulkan.h>
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
+
+#	include <Graphics/API/Vulkan/GraphicsAdapterVulkan.h>
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 
 namespace Zeron
 {
 	GraphicsAdapterVulkan::GraphicsAdapterVulkan(vk::PhysicalDevice physicalDevice)
 		: mPhysicalDevice(physicalDevice)
 		, mProperties(physicalDevice.getProperties())
-	{
-	}
+	{}
 
 	const char* GraphicsAdapterVulkan::GetName() const
 	{

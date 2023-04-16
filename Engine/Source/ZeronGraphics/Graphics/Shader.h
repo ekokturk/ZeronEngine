@@ -14,18 +14,18 @@ namespace Zeron
 	class GraphicsContext;
 
 	class Shader {
-	public:
+	  public:
 		Shader(ShaderType type);
 		virtual ~Shader();
 
 		ShaderType GetType() const;
 
-	protected:
+	  protected:
 		ShaderType mType;
 	};
 
 	class ShaderProgram {
-	public:
+	  public:
 		ShaderProgram(const std::string& name, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout);
 		virtual ~ShaderProgram();
 
@@ -34,8 +34,8 @@ namespace Zeron
 		const ResourceLayout& GetResourceLayout() const;
 
 		virtual Shader* GetShader(ShaderType type) const = 0;
-	
-	protected:
+
+	  protected:
 		std::string mName;
 		VertexLayout mVertexLayout;
 		ResourceLayout mResourceLayout;

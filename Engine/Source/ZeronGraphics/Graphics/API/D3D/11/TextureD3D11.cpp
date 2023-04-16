@@ -1,19 +1,21 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include <Graphics/API/D3D/11/TextureD3D11.h>
 
 #if ZE_GRAPHICS_D3D
-#include <d3d11.h>
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
+
+#	include <Graphics/API/D3D/11/TextureD3D11.h>
+
+#	include <d3d11.h>
+#	include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {
 	TextureD3D11::TextureD3D11(GraphicsD3D11& graphics, TextureType type, const Color* data, uint32_t width, uint32_t height)
 		: Texture(type)
-		, mSize{ static_cast<int>(width),static_cast<int>(height) }
+		, mSize{ static_cast<int>(width), static_cast<int>(height) }
 	{
-		if(!data) {
+		if (!data) {
 			const Color notFoundColor = Color::Pink;
 			InitTexture_(graphics, &notFoundColor);
 		}

@@ -4,7 +4,8 @@
 
 namespace Zeron
 {
-	enum class FileSystemError {
+	enum class FileSystemError
+	{
 		Unknown = 0,
 		NoFileFound
 	};
@@ -15,11 +16,9 @@ namespace Zeron
 		constexpr std::string_view ToString(const FileSystemError c)
 		{
 			switch (c) {
-				case FileSystemError::NoFileFound:
-					return "FileSystemError: Unable to find the file";
+				case FileSystemError::NoFileFound: return "FileSystemError: Unable to find the file";
 				case FileSystemError::Unknown:
-				default:
-					return "FileSystemError: Unknown error";
+				default: return "FileSystemError: Unknown error";
 			}
 		}
 	}

@@ -3,9 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/DXGI.h>
-#include <Graphics/Buffer.h>
-#include <Graphics/GraphicsTypes.h>
+
+#	include <Graphics/API/D3D/DXGI.h>
+#	include <Graphics/Buffer.h>
+#	include <Graphics/GraphicsTypes.h>
 
 struct ID3D11Buffer;
 struct ID3D11DeviceContext;
@@ -17,7 +18,7 @@ namespace Zeron
 	class GraphicsD3D11;
 
 	class BufferD3D11 : public Buffer {
-	public:
+	  public:
 		BufferD3D11(GraphicsD3D11& graphics, BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage);
 
 		// D3D11 API
@@ -25,8 +26,8 @@ namespace Zeron
 		void UnMapD3D(ID3D11DeviceContext* device);
 		void UpdateD3D(ID3D11DeviceContext* device, const void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule);
 		ID3D11Buffer* GetBufferD3D() const;
-	
-	protected:
+
+	  protected:
 		D3D11_USAGE _getUsageFlagD3D() const;
 		UINT _getCpuAccessFlagD3D() const;
 

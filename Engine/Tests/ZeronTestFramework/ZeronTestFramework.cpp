@@ -2,12 +2,11 @@
 
 #include <ZeronTestFramework.h>
 
-namespace ZeronTestFramework {
-	
+namespace ZeronTestFramework
+{
 	TestRunner::TestRunner()
 		: mErrorCode(0)
-	{
-	}
+	{}
 
 	void TestRunner::Init(int argc, char** argv)
 	{

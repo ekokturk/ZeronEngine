@@ -8,17 +8,18 @@
 
 struct ANativeWindow;
 
-namespace Zeron {
+namespace Zeron
+{
 	class SystemEventProcessor;
 
 	class WindowAndroid final : public Window {
-	public:
+	  public:
 		WindowAndroid(const WindowConfig& config, ANativeWindow* nativeWindow);
 		~WindowAndroid();
 
 		void SetVisible() override;
 		void SetHidden() override;
-		
+
 		void SetMinimized() override;
 		void SetMaximized() override;
 		void SetRestored() override;
@@ -31,13 +32,13 @@ namespace Zeron {
 		void SetSize(int width, int height) override;
 		void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
 		void SetScreenPosition(int posX, int posY) override;
-		
+
 		void SetClipCursor(bool shouldClip) override;
 
 		void* GetApiHandle() const override;
 		SystemHandle GetSystemHandle() const override;
 
-	private:
+	  private:
 		ANativeWindow* mNativeWindow;
 	};
 

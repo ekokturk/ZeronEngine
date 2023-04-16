@@ -7,13 +7,13 @@
 namespace Zeron
 {
 	class Texture {
-	public:
+	  public:
 		Texture(TextureType type);
 		virtual ~Texture() = default;
 
 		TextureType GetTextureType() const;
-	
-	private:
+
+	  private:
 		TextureType mType = TextureType::Invalid;
 	};
 }

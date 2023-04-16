@@ -4,10 +4,7 @@
 
 namespace Zeron
 {
-	Light::Light()
-	{
-		
-	}
+	Light::Light() {}
 
 	Light::Light(Graphics& graphics)
 	{

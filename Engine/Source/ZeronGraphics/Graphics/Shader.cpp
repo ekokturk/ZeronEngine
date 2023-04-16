@@ -6,13 +6,9 @@ namespace Zeron
 {
 	Shader::Shader(ShaderType type)
 		: mType(type)
-	{
+	{}
 
-	}
-
-	Shader::~Shader()
-	{
-	}
+	Shader::~Shader() {}
 
 	ShaderType Shader::GetType() const
 	{
@@ -23,12 +19,9 @@ namespace Zeron
 		: mName(name)
 		, mVertexLayout(vertexLayout)
 		, mResourceLayout(resourceLayout)
-	{
-	}
+	{}
 
-	ShaderProgram::~ShaderProgram()
-	{
-	}
+	ShaderProgram::~ShaderProgram() {}
 
 	const std::string& ShaderProgram::GetShaderName() const
 	{

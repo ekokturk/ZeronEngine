@@ -1,13 +1,14 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/PipelineBindingVulkan.h>
 
-#include <Graphics/API/Vulkan/BufferVulkan.h>
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
-#include <Graphics/API/Vulkan/PipelineVulkan.h>
-#include <Graphics/API/Vulkan/SamplerVulkan.h>
-#include <Graphics/API/Vulkan/TextureVulkan.h>
+#	include <Graphics/API/Vulkan/PipelineBindingVulkan.h>
+
+#	include <Graphics/API/Vulkan/BufferVulkan.h>
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/PipelineVulkan.h>
+#	include <Graphics/API/Vulkan/SamplerVulkan.h>
+#	include <Graphics/API/Vulkan/TextureVulkan.h>
 
 namespace Zeron
 {
@@ -37,11 +38,9 @@ namespace Zeron
 			{ vk::DescriptorType::eSampler, samplerCount },
 			{ vk::DescriptorType::eSampledImage, textureCount },
 		});
-		mDescriptorSets = device.allocateDescriptorSetsUnique(vk::DescriptorSetAllocateInfo(
-			*mDescriptorPool,
-			descriptorSetLayouts.size(),
-			vk::uniqueToRaw(descriptorSetLayouts).data()
-		));
+		mDescriptorSets = device.allocateDescriptorSetsUnique(
+			vk::DescriptorSetAllocateInfo(*mDescriptorPool, descriptorSetLayouts.size(), vk::uniqueToRaw(descriptorSetLayouts).data())
+		);
 		ZE_ASSERT(mDescriptorSets.size() == descriptorSetLayouts.size(), "Vulkan descriptor sets should match pipeline layout!");
 
 		for (size_t i = 0; i < resources.size(); ++i) {
@@ -56,7 +55,8 @@ namespace Zeron
 						writeSets.emplace_back(
 							*mDescriptorSets[resource.mSet], resource.mBinding, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfoList.back(), nullptr
 						);
-					} else {
+					}
+					else {
 						ZE_FAIL("Vulkan pipeline resource binding was expected to be a uniform buffer!");
 					}
 				} break;
@@ -67,7 +67,8 @@ namespace Zeron
 						writeSets.emplace_back(
 							*mDescriptorSets[resource.mSet], resource.mBinding, 0, 1, vk::DescriptorType::eSampler, &samplerInfoList.back(), nullptr, nullptr
 						);
-					} else {
+					}
+					else {
 						ZE_FAIL("Vulkan pipeline resource binding was expected to be a sampler!");
 					}
 				} break;
@@ -103,22 +104,25 @@ namespace Zeron
 
 	void PipelineBindingVulkan::_countBindings(const std::vector<BindingHandle>& bindings, uint32_t& uniformBuffer, uint32_t& sampler, uint32_t& texture) const
 	{
-		for(const auto& binding : bindings) {
-			std::visit([&uniformBuffer, &sampler, &texture](auto&& arg) {
-				using T = std::decay_t<decltype(arg)>;
-				if constexpr (std::is_same_v<T, UniformBindingHandle>) {
-					++uniformBuffer;
-				}
-				else if constexpr (std::is_same_v<T, SamplerBindingHandle>) {
-					++sampler;
-				}
-				else if constexpr (std::is_same_v<T, TextureBindingHandle>) {
-					++texture;
-				}
-				else {
-					// static_assert(std::always_false_v<T>, "non-exhaustive visitor!");
-				}
-			}, binding);
+		for (const auto& binding : bindings) {
+			std::visit(
+				[&uniformBuffer, &sampler, &texture](auto&& arg) {
+					using T = std::decay_t<decltype(arg)>;
+					if constexpr (std::is_same_v<T, UniformBindingHandle>) {
+						++uniformBuffer;
+					}
+					else if constexpr (std::is_same_v<T, SamplerBindingHandle>) {
+						++sampler;
+					}
+					else if constexpr (std::is_same_v<T, TextureBindingHandle>) {
+						++texture;
+					}
+					else {
+						// static_assert(std::always_false_v<T>, "non-exhaustive visitor!");
+					}
+				},
+				binding
+			);
 		}
 	}
 }

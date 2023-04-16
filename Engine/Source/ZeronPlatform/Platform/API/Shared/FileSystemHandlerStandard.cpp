@@ -16,7 +16,7 @@ namespace Zeron
 			fs.close();
 			return std::move(data);
 		}
-		return {FileSystemError::NoFileFound};
+		return { FileSystemError::NoFileFound };
 	}
 
 	Result<std::string, FileSystemError> FileSystemHandlerStandard::ReadTextFile(const Path& file)
@@ -29,7 +29,7 @@ namespace Zeron
 			fs.close();
 			return std::move(data);
 		}
-		return {FileSystemError::NoFileFound};
+		return { FileSystemError::NoFileFound };
 	}
 
 	bool FileSystemHandlerStandard::WriteBinaryFile(const Path& file, const ByteBuffer& data)

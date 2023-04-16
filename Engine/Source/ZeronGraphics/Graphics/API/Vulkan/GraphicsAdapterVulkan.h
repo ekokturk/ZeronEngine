@@ -3,15 +3,16 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/GraphicsAdapter.h>
-#include <Graphics/API/Vulkan/VulkanCommon.h>
+
+#	include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/GraphicsAdapter.h>
 
 namespace Zeron
 {
 	class GraphicsVulkan;
 
 	class GraphicsAdapterVulkan final : public GraphicsAdapter {
-	public:
+	  public:
 		GraphicsAdapterVulkan(vk::PhysicalDevice physicalDevice);
 
 		const char* GetName() const override;
@@ -21,7 +22,7 @@ namespace Zeron
 		vk::PhysicalDevice& GetPhysicalDeviceVK();
 		const vk::PhysicalDeviceProperties& GetPropertiesVK() const;
 
-	private:
+	  private:
 		vk::PhysicalDevice mPhysicalDevice;
 		vk::PhysicalDeviceProperties mProperties;
 	};

@@ -3,9 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/PipelineBinding.h>
 
-#include <Graphics/API/D3D/DXGI.h>
+#	include <Graphics/PipelineBinding.h>
+
+#	include <Graphics/API/D3D/DXGI.h>
 
 struct ID3D11Buffer;
 struct ID3D11DeviceContext;
@@ -26,13 +27,13 @@ namespace Zeron
 			std::vector<ID3D11ShaderResourceView*> mTexture;
 		};
 
-	public:
+	  public:
 		PipelineBindingD3D11(GraphicsD3D11& graphics, PipelineD3D11& pipeline, const std::vector<BindingHandle>& bindings);
 
 		// D3D11 API
 		void Apply(ID3D11DeviceContext* deviceContext);
 
-	private:
+	  private:
 		std::vector<BindingD3D> mConstantBuffers;
 		std::vector<BindingD3D> mTextures;
 		std::vector<BindingD3D> mSamplers;

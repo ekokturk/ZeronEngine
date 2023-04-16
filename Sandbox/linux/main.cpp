@@ -9,8 +9,8 @@
 #include <Platform/Platform.h>
 #include <Platform/Window.h>
 
-bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args) {
-
+bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args)
+{
 	auto graphicsVulkan = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Vulkan);
 
 	graphicsVulkan->Init();
@@ -20,8 +20,7 @@ bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args) 
 	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform.CreatePlatformWindow({ "Vulkan - GLFW", 800, 600, 0, false, Zeron::WindowAPI::GLFW }));
 
 	bool isRunning = true;
-	while(isRunning)
-	{
+	while (isRunning) {
 		platform.Update();
 		isRunning &= runner.RunAll(Sandbox::SampleRunner::RunCondition::SingleSuccess);
 	}

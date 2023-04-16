@@ -1,6 +1,7 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #pragma once
+
 #include <Graphics/GraphicsTypes.h>
 
 namespace Zeron
@@ -14,9 +15,9 @@ namespace Zeron
 	class SwapChain;
 	class Texture;
 	class Window;
-	
+
 	class GraphicsContext {
-	public:
+	  public:
 		virtual ~GraphicsContext() = default;
 
 		virtual void Init(SystemHandle systemHandle, const Vec2i& size) = 0;

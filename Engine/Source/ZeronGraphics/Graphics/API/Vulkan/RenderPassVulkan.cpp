@@ -1,9 +1,10 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/RenderPassVulkan.h>
 
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/RenderPassVulkan.h>
+
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 
 namespace Zeron
 {
@@ -82,7 +83,7 @@ namespace Zeron
 			nullptr
 		);
 
-		//const vk::SubpassDependency subpassDependency{
+		// const vk::SubpassDependency subpassDependency{
 		//	0,
 		//	0,
 		//	vk::PipelineStageFlagBits::eColorAttachmentOutput,
@@ -90,20 +91,14 @@ namespace Zeron
 		//	vk::AccessFlags(),
 		//	vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite,
 		//	vk::DependencyFlags()
-		//}; 
+		// };
 
-		const vk::RenderPassCreateInfo createInfo(
-			vk::RenderPassCreateFlags(),
-			attachmentDescriptions,
-			subpass
-		);
+		const vk::RenderPassCreateInfo createInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass);
 
 		mRenderPass = graphics.GetDeviceVK().createRenderPassUnique(createInfo);
 	}
 
-	RenderPassVulkan::~RenderPassVulkan()
-	{
-	}
+	RenderPassVulkan::~RenderPassVulkan() {}
 
 	vk::RenderPass& RenderPassVulkan::GetRenderPassVK()
 	{
@@ -112,4 +107,3 @@ namespace Zeron
 }
 
 #endif
-

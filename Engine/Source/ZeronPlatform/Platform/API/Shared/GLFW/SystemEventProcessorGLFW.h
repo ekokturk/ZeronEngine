@@ -4,7 +4,7 @@
 
 #if ZE_WINDOW_GLFW
 
-#include <Platform/SystemEventProcessor.h>
+#	include <Platform/SystemEventProcessor.h>
 
 struct GLFWwindow;
 
@@ -14,13 +14,13 @@ namespace Zeron
 	class Platform;
 
 	class SystemEventProcessorGLFW : public SystemEventProcessor {
-	public:
+	  public:
 		SystemEventProcessorGLFW(DispatchFn dispatchCallback, ContextFn contextCallback);
 
 		void ProcessEvents() override;
 
 		void registerEventCallbacks(WindowGLFW* window);
-		
+
 		static SystemEventProcessorGLFW* GetUserPointer(GLFWwindow* glfwWindow);
 
 		SystemEvent::Context GetEventContext(GLFWwindow* glfwWindow) const;

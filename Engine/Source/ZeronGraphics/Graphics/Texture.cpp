@@ -6,8 +6,7 @@ namespace Zeron
 {
 	Texture::Texture(TextureType type)
 		: mType(type)
-	{
-	}
+	{}
 
 	TextureType Texture::GetTextureType() const
 	{

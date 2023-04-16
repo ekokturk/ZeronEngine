@@ -2,13 +2,12 @@
 
 #include <Platform/Platform.h>
 
+#include <Platform/API/Shared/FileSystemHandlerStandard.h>
+#include <Platform/FileSystem.h>
 #include <Platform/SystemEvent.h>
 #include <Platform/SystemEventProcessor.h>
 #include <Platform/Window.h>
 #include <Platform/WindowManager.h>
-
-#include <Platform/FileSystem.h>
-#include <Platform/API/Shared/FileSystemHandlerStandard.h>
 
 namespace Zeron
 {
@@ -19,13 +18,9 @@ namespace Zeron
 		});
 	}
 
-	Platform::~Platform()
-	{
-	}
+	Platform::~Platform() {}
 
-	void Platform::_dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx)
-	{
-	}
+	void Platform::_dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx) {}
 
 	bool Platform::Init()
 	{

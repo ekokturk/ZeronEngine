@@ -4,8 +4,8 @@
 
 #include <chrono>
 
-namespace Zeron::Time {
-
+namespace Zeron::Time
+{
 	using Clock = std::conditional_t<std::chrono::high_resolution_clock::is_steady, std::chrono::high_resolution_clock, std::chrono::steady_clock>;
 	using TimePoint = Clock::time_point;
 
@@ -13,23 +13,18 @@ namespace Zeron::Time {
 	using Milliseconds = std::chrono::duration<long double, std::milli>;
 	using Microseconds = std::chrono::duration<long double, std::micro>;
 	using Nanoseconds = std::chrono::duration<long double, std::nano>;
-	template<typename T> concept SecondsUnit = std::is_same_v<T, Seconds> || std::is_same_v<T, Milliseconds> || std::is_same_v<T, Microseconds> || std::is_same_v<T, Nanoseconds>;
+	template <typename T> concept SecondsUnit = std::is_same_v<T, Seconds> || std::is_same_v<T, Milliseconds> || std::is_same_v<T, Microseconds> ||
+		std::is_same_v<T, Nanoseconds>;
 
 	using CalendarDate = std::chrono::year_month_day;
 	using TimeOfDay = std::chrono::hh_mm_ss<Microseconds>;
 
 	struct TimeStamp {
-		int CountSeconds() const{
-			return static_cast<int>(mTime.seconds().count());
-		}
+		int CountSeconds() const { return static_cast<int>(mTime.seconds().count()); }
 
-		int CountMinutes() const {
-			return mTime.minutes().count();
-		}
+		int CountMinutes() const { return mTime.minutes().count(); }
 
-		int CountHours() const {
-			return mTime.hours().count();
-		}
+		int CountHours() const { return mTime.hours().count(); }
 
 		CalendarDate mDate{ floor<std::chrono::days>(std::chrono::system_clock::time_point()) };
 		TimeOfDay mTime{ Microseconds::zero() };
@@ -44,9 +39,8 @@ namespace Zeron::Time {
 		std::tm buf;
 		localtime_r(&nowTimeT, &buf);
 		const CalendarDate ymd{ std::chrono::year(buf.tm_year + 1900), std::chrono::month(buf.tm_mon + 1), std::chrono::day(buf.tm_mday) };
-		const Milliseconds timeInMs = std::chrono::duration_cast<Milliseconds>(Seconds(buf.tm_sec))
-			+ std::chrono::duration_cast<Milliseconds>(std::chrono::minutes(buf.tm_min))
-			+ std::chrono::duration_cast<Milliseconds>(std::chrono::hours(buf.tm_hour));
+		const Milliseconds timeInMs = std::chrono::duration_cast<Milliseconds>(Seconds(buf.tm_sec)) +
+			std::chrono::duration_cast<Milliseconds>(std::chrono::minutes(buf.tm_min)) + std::chrono::duration_cast<Milliseconds>(std::chrono::hours(buf.tm_hour));
 		const TimeOfDay tod{ timeInMs };
 #else
 		const auto time = std::chrono::zoned_time{ std::chrono::current_zone(), now }.get_local_time();
@@ -62,39 +56,32 @@ namespace Zeron::Time {
 		return Clock::now();
 	}
 
-	template<typename T, SecondsUnit Precision = Milliseconds>
+	template <typename T, SecondsUnit Precision = Milliseconds>
 	T CalculateElapsedTime(TimePoint now, TimePoint then)
 	{
 		return static_cast<T>(std::chrono::duration_cast<Precision>(now - then).count());
 	}
 
-	template<typename T = float, SecondsUnit Precision = Milliseconds>
+	template <typename T = float, SecondsUnit Precision = Milliseconds>
 	class Timer {
 		static_assert(std::is_arithmetic_v<T>);
-	public:
-		void Reset() {
-			mTimePoint = Now();
-		}
 
-		TimePoint GetStartTime() const {
-			return mTimePoint;
-		}
-		
-		T GetElapsedTime() const {
-			return CalculateElapsedTime<T, Precision>(Now(), mTimePoint);
-		}
+	  public:
+		void Reset() { mTimePoint = Now(); }
 
-		bool hasTimeElapsed(T expectedTime) {
-			return GetElapsedTime() > expectedTime;
-		}
+		TimePoint GetStartTime() const { return mTimePoint; }
 
-	private:
+		T GetElapsedTime() const { return CalculateElapsedTime<T, Precision>(Now(), mTimePoint); }
+
+		bool hasTimeElapsed(T expectedTime) { return GetElapsedTime() > expectedTime; }
+
+	  private:
 		TimePoint mTimePoint = Now();
 	};
 
 
 	class TickTimer {
-	public:
+	  public:
 		using TickType = uint64_t;
 
 		TickTimer(Milliseconds tickRate, Milliseconds maxDeltaTime = Milliseconds(250))
@@ -104,16 +91,17 @@ namespace Zeron::Time {
 			, mMaxDeltaTime(maxDeltaTime)
 			, mLastDeltaTime(0)
 			, mLastTick(Now())
-			, mAlpha(0) {
-		}
+			, mAlpha(0)
+		{}
 
-		TickType Tick() {
+		TickType Tick()
+		{
 			const TickType oldTickCount = mTickCount;
 			const TimePoint now = Now();
 			mLastDeltaTime = std::chrono::duration_cast<Milliseconds>(now - mLastTick);
 			mLastTick = now;
 
-			const Milliseconds deltaTime =  mLastDeltaTime > mMaxDeltaTime ? mMaxDeltaTime : mLastDeltaTime;
+			const Milliseconds deltaTime = mLastDeltaTime > mMaxDeltaTime ? mMaxDeltaTime : mLastDeltaTime;
 			mAccumulated += deltaTime;
 
 			// TODO: Timescale
@@ -126,23 +114,15 @@ namespace Zeron::Time {
 			return mTickCount - oldTickCount;
 		}
 
-		TickType GetTickCount() const {
-			return mTickCount;
-		}
+		TickType GetTickCount() const { return mTickCount; }
 
-		Milliseconds GetTickRate() const {
-			return mTickRate;
-		}
+		Milliseconds GetTickRate() const { return mTickRate; }
 
-		Milliseconds LastDeltaTime() const {
-			return mLastDeltaTime;
-		}
+		Milliseconds LastDeltaTime() const { return mLastDeltaTime; }
 
-		double GetAlpha() const {
-			return mAlpha;
-		}
+		double GetAlpha() const { return mAlpha; }
 
-	private:
+	  private:
 		TickType mTickCount;
 		Milliseconds mTickRate;
 		Milliseconds mAccumulated;

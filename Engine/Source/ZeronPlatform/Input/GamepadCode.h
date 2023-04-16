@@ -4,9 +4,6 @@
 
 namespace Zeron
 {
-	struct GamepadCode
-	{
-		
-	};
+	struct GamepadCode {};
 
 }

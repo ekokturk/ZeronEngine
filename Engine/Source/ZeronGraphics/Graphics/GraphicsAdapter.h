@@ -5,7 +5,7 @@
 namespace Zeron
 {
 	class GraphicsAdapter {
-	public:
+	  public:
 		virtual ~GraphicsAdapter() = default;
 
 		virtual const char* GetName() const = 0;

@@ -4,14 +4,14 @@
 
 #if ZE_PLATFORM_ANDROID
 
-#include <Platform/API/Shared/FileSystemHandlerStandard.h>
+#	include <Platform/API/Shared/FileSystemHandlerStandard.h>
 
 struct AAssetManager;
 
 namespace Zeron
 {
 	class FileSystemHandlerAndroid : public FileSystemHandlerStandard {
-	public:
+	  public:
 		FileSystemHandlerAndroid(AAssetManager* assetManager);
 		~FileSystemHandlerAndroid();
 
@@ -19,7 +19,8 @@ namespace Zeron
 		Result<std::string, FileSystemError> ReadTextFile(const Path& file) override;
 		bool WriteBinaryFile(const Path& file, const ByteBuffer& data) override;
 		bool WriteTextFile(const Path& file, const std::string& data) override;
-	private:
+
+	  private:
 		AAssetManager* mAssetManager;
 	};
 }

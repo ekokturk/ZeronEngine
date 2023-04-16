@@ -3,7 +3,8 @@
 #pragma once
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/CommandBuffer.h>
+
+#	include <Graphics/CommandBuffer.h>
 
 struct ID3D11DeviceContext;
 
@@ -14,7 +15,7 @@ namespace Zeron
 	class SwapChainD3D11;
 
 	class CommandBufferD3D11 : public CommandBuffer {
-	public:
+	  public:
 		CommandBufferD3D11(GraphicsD3D11& graphics);
 		~CommandBufferD3D11() = default;
 
@@ -45,7 +46,7 @@ namespace Zeron
 
 		uint32_t GetBufferCount() const override;
 
-	private:
+	  private:
 		ID3D11DeviceContext* mDeviceContext;
 
 		std::array<float, 4> mClearColor;

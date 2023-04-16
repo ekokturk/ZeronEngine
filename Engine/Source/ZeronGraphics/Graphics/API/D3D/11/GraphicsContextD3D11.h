@@ -3,9 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_D3D
-#include <d3d11.h>
-#include <Graphics/API/D3D/DXGI.h>
-#include <Graphics/GraphicsContext.h>
+
+#	include <d3d11.h>
+#	include <Graphics/API/D3D/DXGI.h>
+#	include <Graphics/GraphicsContext.h>
 
 struct ID3D11DepthStencilState;
 struct ID3D11Device;
@@ -24,7 +25,7 @@ namespace Zeron
 	class Texture;
 
 	class GraphicsContextD3D11 final : public GraphicsContext {
-	public:
+	  public:
 		GraphicsContextD3D11(GraphicsD3D11& graphics);
 		~GraphicsContextD3D11() = default;
 
@@ -45,7 +46,7 @@ namespace Zeron
 
 		uint32_t GetMaxFramesInFlight() const override;
 
-	private:
+	  private:
 		GraphicsD3D11& mGraphics;
 
 		std::unique_ptr<SwapChainD3D11> mSwapChain;

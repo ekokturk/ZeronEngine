@@ -3,13 +3,14 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/VulkanCommon.h>
-#include <Graphics/GraphicsTypes.h>
+
+#	include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/GraphicsTypes.h>
 
 namespace Zeron
 {
 	class VulkanHelpers {
-	public:
+	  public:
 		// Zeron -> Vulkan
 		static vk::SampleCountFlagBits GetMultiSamplingLevel(MSAALevel level);
 		static vk::PrimitiveTopology GetPrimitiveTopology(PrimitiveTopology topology);

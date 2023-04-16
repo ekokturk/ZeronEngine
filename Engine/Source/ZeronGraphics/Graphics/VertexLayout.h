@@ -4,7 +4,8 @@
 
 namespace Zeron
 {
-	enum class VertexFormat {
+	enum class VertexFormat
+	{
 		Unknown,
 		Float2,
 		Float3,
@@ -12,8 +13,7 @@ namespace Zeron
 	};
 
 	class VertexLayout {
-	public:
-		
+	  public:
 		struct Element {
 			std::string mName;
 			VertexFormat mFormat = VertexFormat::Unknown;
@@ -25,10 +25,8 @@ namespace Zeron
 		const std::vector<Element>& GetElements() const;
 
 		static uint32_t GetVertexFormatSize(VertexFormat format);
-	
-	private:
+
+	  private:
 		std::vector<Element> mElements;
 	};
 }
-
-

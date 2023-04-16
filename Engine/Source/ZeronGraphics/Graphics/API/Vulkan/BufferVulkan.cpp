@@ -1,10 +1,11 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/BufferVulkan.h>
 
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
-#include <Graphics/API/Vulkan/VulkanHelpers.h>
+#	include <Graphics/API/Vulkan/BufferVulkan.h>
+
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
 namespace Zeron
 {
@@ -17,14 +18,7 @@ namespace Zeron
 
 		const vk::BufferUsageFlagBits typeFlag = VulkanHelpers::GetBufferType(GetBufferType());
 		const vk::BufferUsageFlagBits usageFlag = _getUsageFlagVK();
-		const vk::BufferCreateInfo bufferInfo(
-			vk::BufferCreateFlags(),
-			GetSizeInBytes(),
-			typeFlag | usageFlag,
-			vk::SharingMode::eExclusive,
-			0,
-			nullptr
-		);
+		const vk::BufferCreateInfo bufferInfo(vk::BufferCreateFlags(), GetSizeInBytes(), typeFlag | usageFlag, vk::SharingMode::eExclusive, 0, nullptr);
 		mBuffer = device.createBufferUnique(bufferInfo);
 
 		const vk::MemoryPropertyFlags memoryProps = _getMemoryFlagVK();
@@ -55,18 +49,17 @@ namespace Zeron
 	{
 		ZE_ASSERT((GetCount() - offset) * GetStride() >= sizeBytes, "Vulkan buffer update of {} bytes at {} overflowed!", sizeBytes, offset);
 		ZE_ASSERT(GetUsageType() == BufferUsageType::Dynamic || GetUsageType() == BufferUsageType::Staging, "Vulkan buffer memory is not accessible by CPU!");
-		if(!mMappedMemory) {
+		if (!mMappedMemory) {
 			MapVK(device);
 		}
 		const uint32_t memOffset = GetStride() * offset;
-		unsigned char* offsetMemory = static_cast<unsigned char*>(mMappedMemory);
+		auto offsetMemory = static_cast<unsigned char*>(mMappedMemory);
 		if (mMappedMemory) {
 			std::memcpy(&offsetMemory[memOffset], data, sizeBytes);
 			if (updateRule == BufferUpdateRule::UnmapMemory) {
 				UnMapVK(device);
 			}
 		}
-
 	}
 
 	vk::Buffer& BufferVulkan::GetBufferVK()
@@ -77,21 +70,21 @@ namespace Zeron
 	vk::MemoryPropertyFlags BufferVulkan::_getMemoryFlagVK() const
 	{
 		switch (GetUsageType()) {
-		case BufferUsageType::Default: return vk::MemoryPropertyFlagBits::eDeviceLocal;
-		case BufferUsageType::Staging: return vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-		case BufferUsageType::Dynamic: return vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-		case BufferUsageType::Immutable:;
-		default: ZE_FAIL("Vulkan buffer doesn't support usage type!");
+			case BufferUsageType::Default: return vk::MemoryPropertyFlagBits::eDeviceLocal;
+			case BufferUsageType::Staging: return vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+			case BufferUsageType::Dynamic: return vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+			case BufferUsageType::Immutable:;
+			default: ZE_FAIL("Vulkan buffer doesn't support usage type!");
 		}
 	}
 
-	vk::BufferUsageFlagBits BufferVulkan::_getUsageFlagVK() const 
+	vk::BufferUsageFlagBits BufferVulkan::_getUsageFlagVK() const
 	{
 		switch (GetUsageType()) {
 			case BufferUsageType::Default: return vk::BufferUsageFlagBits::eTransferDst;
 			case BufferUsageType::Staging: return vk::BufferUsageFlagBits::eTransferSrc;
 			case BufferUsageType::Dynamic: return vk::BufferUsageFlagBits::eTransferDst;
-			case BufferUsageType::Immutable: ;
+			case BufferUsageType::Immutable:;
 			default: ZE_FAIL("Vulkan buffer doesn't support usage type!");
 		}
 	}

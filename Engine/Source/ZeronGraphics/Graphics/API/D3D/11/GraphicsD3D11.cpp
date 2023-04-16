@@ -1,22 +1,23 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
 
-#include <Graphics/Primitives.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
-#include <Graphics/API/D3D/11/BufferD3D11.h>
-#include <Graphics/API/D3D/11/CommandBufferD3D11.h>
-#include <Graphics/API/D3D/11/D3D11Helpers.h>
-#include <Graphics/API/D3D/11/GraphicsContextD3D11.h>
-#include <Graphics/API/D3D/11/PipelineBindingD3D11.h>
-#include <Graphics/API/D3D/11/PipelineD3D11.h>
-#include <Graphics/API/D3D/11/SamplerD3D11.h>
-#include <Graphics/API/D3D/11/ShaderD3D11.h>
-#include <Graphics/API/D3D/11/SwapChainD3D11.h>
-#include <Graphics/API/D3D/11/TextureD3D11.h>
+#	include <Graphics/API/D3D/11/GraphicsD3D11.h>
 
-#include <d3d11.h>
+#	include <Graphics/API/D3D/11/BufferD3D11.h>
+#	include <Graphics/API/D3D/11/CommandBufferD3D11.h>
+#	include <Graphics/API/D3D/11/D3D11Helpers.h>
+#	include <Graphics/API/D3D/11/GraphicsContextD3D11.h>
+#	include <Graphics/API/D3D/11/PipelineBindingD3D11.h>
+#	include <Graphics/API/D3D/11/PipelineD3D11.h>
+#	include <Graphics/API/D3D/11/SamplerD3D11.h>
+#	include <Graphics/API/D3D/11/ShaderD3D11.h>
+#	include <Graphics/API/D3D/11/SwapChainD3D11.h>
+#	include <Graphics/API/D3D/11/TextureD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
+#	include <Graphics/Primitives.h>
+
+#	include <d3d11.h>
 
 namespace Zeron
 {
@@ -37,21 +38,12 @@ namespace Zeron
 		ZE_LOG("Using '{}' device for Direct3D 11", adapters[0].GetName());
 
 		UINT creationFlags = 0;
-		#if ZE_DEBUG
+#	if ZE_DEBUG
 		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-		#endif
-		ZE_D3D_ASSERT_RESULT(D3D11CreateDevice(
-			primaryAdapter,
-			D3D_DRIVER_TYPE_UNKNOWN,
-			nullptr,
-			creationFlags,
-			nullptr,
-			0,
-			D3D11_SDK_VERSION,
-			&mDevice,
-			nullptr,
-			&mDeviceContext
-		), false);
+#	endif
+		ZE_D3D_ASSERT_RESULT(
+			D3D11CreateDevice(primaryAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, creationFlags, nullptr, 0, D3D11_SDK_VERSION, &mDevice, nullptr, &mDeviceContext), false
+		);
 
 		ZE_LOGI("Graphics API: Direct3D 11");
 
@@ -87,11 +79,11 @@ namespace Zeron
 		return nullptr;
 	}
 
-	std::unique_ptr<Pipeline> GraphicsD3D11::CreatePipeline(ShaderProgram* shader, RenderPass* renderPass,
-		MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode)
+	std::unique_ptr<Pipeline> GraphicsD3D11::CreatePipeline(
+		ShaderProgram* shader, RenderPass* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode
+	)
 	{
-		return std::make_unique<PipelineD3D11>(*this, static_cast<ShaderProgramD3D11*>(shader),
-			renderPass, samplingLevel, topology, isSolidFill, cullMode);
+		return std::make_unique<PipelineD3D11>(*this, static_cast<ShaderProgramD3D11*>(shader), renderPass, samplingLevel, topology, isSolidFill, cullMode);
 	}
 
 	std::unique_ptr<PipelineBinding> GraphicsD3D11::CreatePipelineBinding(Pipeline& pipeline, const std::vector<BindingHandle>& bindingList)
@@ -104,15 +96,18 @@ namespace Zeron
 		return std::make_unique<BufferD3D11>(*this, type, size, stride, data, usage);
 	}
 
-	std::unique_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
-		const ByteBuffer& vertexShader, const ByteBuffer& fragmentShader, const ByteBuffer& computeShader)
+	std::unique_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(
+		const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout, const ByteBuffer& vertexShader,
+		const ByteBuffer& fragmentShader, const ByteBuffer& computeShader
+	)
 	{
 		return std::make_unique<ShaderProgramD3D11>(*this, shaderName, vertexLayout, resourceLayout, vertexShader, fragmentShader, computeShader);
 	}
 
-	std::unique_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(const std::string& shaderName,
-		const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader,
-		const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
+	std::unique_ptr<ShaderProgram> GraphicsD3D11::CreateShaderProgram(
+		const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout,
+		const ResourceLayout& resourceLayout
+	)
 	{
 		return std::make_unique<ShaderProgramD3D11>(*this, shaderName, vertexShader, fragmentShader, vertexLayout, resourceLayout);
 	}
@@ -120,11 +115,10 @@ namespace Zeron
 	std::string GraphicsD3D11::GetCompiledShaderName(const std::string& shaderName, ShaderType type) const
 	{
 		switch (type) {
-			case ShaderType::Vertex: return {shaderName + ".vert.cso"};
-			case ShaderType::Fragment: return {shaderName + ".frag.cso"};
-			case ShaderType::Compute: return {shaderName + ".comp.cso"};
-			default:
-				ZE_FAIL("Vulkan compiled shader name is not implemented!");
+			case ShaderType::Vertex: return { shaderName + ".vert.cso" };
+			case ShaderType::Fragment: return { shaderName + ".frag.cso" };
+			case ShaderType::Compute: return { shaderName + ".comp.cso" };
+			default: ZE_FAIL("Vulkan compiled shader name is not implemented!");
 		}
 		return shaderName;
 	}

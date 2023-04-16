@@ -3,8 +3,9 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/VulkanCommon.h>
-#include <Graphics/FrameBuffer.h>
+
+#	include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/FrameBuffer.h>
 
 namespace Zeron
 {
@@ -14,8 +15,10 @@ namespace Zeron
 	class SwapChainVulkan;
 
 	class FrameBufferVulkan final : public FrameBuffer {
-	public:
-		FrameBufferVulkan(GraphicsVulkan& graphics, vk::Extent2D extent, RenderPassVulkan& renderPass, TextureVulkan* colorView, TextureVulkan* depthView, TextureVulkan* samplingView);
+	  public:
+		FrameBufferVulkan(
+			GraphicsVulkan& graphics, vk::Extent2D extent, RenderPassVulkan& renderPass, TextureVulkan* colorView, TextureVulkan* depthView, TextureVulkan* samplingView
+		);
 		~FrameBufferVulkan();
 
 		void CreateBuffers(vk::PhysicalDevice& adapter, vk::Device& device, SwapChainVulkan& swapChain);
@@ -25,7 +28,7 @@ namespace Zeron
 		vk::Framebuffer& GetFrameBufferVK();
 		const vk::Extent2D& GetExtentVK() const;
 
-	private:
+	  private:
 		vk::UniqueFramebuffer mFrameBuffer;
 
 		// TODO: Remove this?

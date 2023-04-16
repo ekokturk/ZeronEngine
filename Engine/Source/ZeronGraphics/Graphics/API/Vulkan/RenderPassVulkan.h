@@ -3,22 +3,23 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/RenderPass.h>
-#include <Graphics/API/Vulkan/VulkanCommon.h>
+
+#	include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/RenderPass.h>
 
 namespace Zeron
 {
 	class GraphicsVulkan;
 
 	class RenderPassVulkan final : public RenderPass {
-	public:
+	  public:
 		RenderPassVulkan(GraphicsVulkan& graphics, vk::Format colorFormat, vk::Format depthFormat, vk::SampleCountFlagBits sampling);
 		~RenderPassVulkan();
 
 		// Vulkan
 		vk::RenderPass& GetRenderPassVK();
 
-	private:
+	  private:
 		vk::UniqueRenderPass mRenderPass;
 	};
 

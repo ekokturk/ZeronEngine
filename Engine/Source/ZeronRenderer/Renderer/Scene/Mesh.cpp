@@ -4,22 +4,18 @@
 
 #include <Graphics/Buffer.h>
 #include <Graphics/Graphics.h>
-#include <Graphics/GraphicsContext.h> 
+#include <Graphics/GraphicsContext.h>
 
 namespace Zeron
 {
-	Mesh::Mesh(Graphics& graphics, const std::vector<Vertex>& vertices, 
-		const std::vector<uint32_t>& indices, 
-		const Mat4& transform)
+	Mesh::Mesh(Graphics& graphics, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const Mat4& transform)
 	{
 		mVertexBuffer = graphics.CreateVertexBuffer<Vertex>(vertices);
 		mIndexBuffer = graphics.CreateIndexBuffer(indices);
 		mTransform = transform;
 	}
 
-	Mesh::~Mesh()
-	{
-	}
+	Mesh::~Mesh() {}
 
 	const Mat4& Mesh::GetTransform() const
 	{

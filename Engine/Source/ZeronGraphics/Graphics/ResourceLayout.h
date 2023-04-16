@@ -7,7 +7,7 @@
 namespace Zeron
 {
 	class ResourceLayout {
-	public:
+	  public:
 		struct Element {
 			PipelineResourceType mType;
 			ShaderType mShaderStage;
@@ -15,11 +15,13 @@ namespace Zeron
 			uint32_t mSet = 0;
 		};
 
-		ResourceLayout(const std::initializer_list<Element>& elements): mResourceList(elements) {}
+		ResourceLayout(const std::initializer_list<Element>& elements)
+			: mResourceList(elements)
+		{}
 
 		const std::vector<Element>& GetResources() const { return mResourceList; }
 
-	private:
+	  private:
 		std::vector<Element> mResourceList;
 	};
 

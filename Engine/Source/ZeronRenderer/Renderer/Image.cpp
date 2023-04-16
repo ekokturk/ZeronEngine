@@ -8,10 +8,9 @@
 namespace Zeron
 {
 	Image::Image()
-		: mColorChannel(ColorChannel::None)
-		, mRawData(nullptr)
-	{
-	}
+		: mRawData(nullptr)
+		, mColorChannel(ColorChannel::None)
+	{}
 
 	Image::~Image()
 	{
@@ -21,24 +20,24 @@ namespace Zeron
 	bool Image::Load(const ByteBuffer& buffer, ColorChannel channel, bool storeRawData)
 	{
 		const int desiredChannel = static_cast<int>(channel);
-		if(desiredChannel > 4 || desiredChannel < 1) {
+		if (desiredChannel > 4 || desiredChannel < 1) {
 			ZE_FAIL("Requested invalid color channel");
 			return false;
 		}
-		
+
 		Clear();
 		int fileChannels = 0;
-		stbi_uc* data = stbi_load_from_memory(reinterpret_cast<stbi_uc const*>(buffer.data()), buffer.size(), &mSize.X, &mSize.Y, &fileChannels, desiredChannel);
+		stbi_uc* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(buffer.data()), buffer.size(), &mSize.X, &mSize.Y, &fileChannels, desiredChannel);
 		ZE_ASSERT(fileChannels >= desiredChannel, "Image does not contain the desired color channel!");
-		
-		if(!data) {
+
+		if (!data) {
 			ZE_LOGE("Unable to load image data");
 			return false;
 		}
 
 		// We either use raw byte data or RGBA CSolor for the loaded image
 		mColorChannel = channel;
-		if(storeRawData) {
+		if (storeRawData) {
 			mRawData = data;
 		}
 		else {
@@ -46,7 +45,7 @@ namespace Zeron
 			for (int j = 0; j < mSize.Y; ++j) {
 				for (int i = 0; i < mSize.X; ++i) {
 					const int index = desiredChannel * i + desiredChannel * mSize.X * j;
-					switch (mColorChannel) { 
+					switch (mColorChannel) {
 						case ColorChannel::Gray: {
 							mData.emplace_back(data[index], data[index], data[index]);
 						} break;
@@ -102,8 +101,6 @@ namespace Zeron
 
 	int Image::GetByteSize() const
 	{
-		return mRawData ?
-			mSize.X * mSize.Y * static_cast<int>(mColorChannel) :
-			static_cast<int>(mData.size()) * 4;
+		return mRawData ? mSize.X * mSize.Y * static_cast<int>(mColorChannel) : static_cast<int>(mData.size()) * 4;
 	}
 }

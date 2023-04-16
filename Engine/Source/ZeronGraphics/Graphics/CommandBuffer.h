@@ -12,7 +12,7 @@ namespace Zeron
 	class FrameBuffer;
 
 	class CommandBuffer {
-	public:
+	  public:
 		virtual ~CommandBuffer() = default;
 
 		virtual void Begin() = 0;
@@ -36,7 +36,9 @@ namespace Zeron
 		virtual void Draw(uint32_t vertexCount, uint32_t vertexStart = 0) = 0;
 		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexStart = 0, uint32_t vertexStart = 0) = 0;
 		virtual void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart = 0, uint32_t instanceStart = 0) = 0;
-		virtual void DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t indexStart = 0, uint32_t baseVertexLocation = 0, uint32_t instanceStart = 0) = 0;
+		virtual void DrawInstancedIndexed(
+			uint32_t indexCount, uint32_t instanceCount, uint32_t indexStart = 0, uint32_t baseVertexLocation = 0, uint32_t instanceStart = 0
+		) = 0;
 
 		virtual void Dispatch(uint32_t countX, uint32_t countY, uint32_t countZ) = 0;
 

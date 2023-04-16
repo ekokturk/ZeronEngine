@@ -6,7 +6,7 @@
 
 namespace Zeron
 {
-	template<typename T>
+	template <typename T>
 	using TMat3 = glm::tmat3x3<T, glm::highp>;
 
 	using Mat3 = TMat3<float>;

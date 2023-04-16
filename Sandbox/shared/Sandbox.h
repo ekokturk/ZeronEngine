@@ -7,22 +7,24 @@
 namespace Sandbox
 {
 	class ISampleInstance {
-	public:
+	  public:
 		virtual ~ISampleInstance() = default;
 		virtual bool Run() = 0;
 	};
 
 	class SampleRunner {
-	public:
-		enum class RunCondition {
+	  public:
+		enum class RunCondition
+		{
 			AllSuccess,
 			SingleSuccess
 		};
 
-		bool RunAll(RunCondition condition = RunCondition::AllSuccess) {
+		bool RunAll(RunCondition condition = RunCondition::AllSuccess)
+		{
 			size_t successCount = mSamples.size();
-			for(auto& sample : mSamples) {
-				if(!sample->Run()) {
+			for (auto& sample : mSamples) {
+				if (!sample->Run()) {
 					--successCount;
 				}
 			}
@@ -33,12 +35,13 @@ namespace Sandbox
 			}
 		}
 
-		template<typename T, typename... Args>
-		void AddSample(Args... args){
+		template <typename T, typename... Args>
+		void AddSample(Args... args)
+		{
 			mSamples.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
 		}
 
-	private:
+	  private:
 		std::vector<std::unique_ptr<ISampleInstance>> mSamples;
 	};
 

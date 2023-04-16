@@ -6,11 +6,17 @@
 
 using namespace ::Zeron;
 
-namespace TestModule_ZeronCore::EntityTests {
-
-	struct Comp1 { int prop = 0; };
-	struct Comp2 { float prop = 0.f; };
-	struct Comp3 { std::string prop = "0"; };
+namespace TestModule_ZeronCore::EntityTests
+{
+	struct Comp1 {
+		int prop = 0;
+	};
+	struct Comp2 {
+		float prop = 0.f;
+	};
+	struct Comp3 {
+		std::string prop = "0";
+	};
 
 	std::array<Entity, 4> InitEntitiesWithComponentsFixture(EntityManager& manager)
 	{
@@ -36,7 +42,7 @@ namespace TestModule_ZeronCore::EntityTests {
 		EntityManager manager;
 		const Entity e1 = manager.CreateEntity();
 		EXPECT_TRUE(manager.HasEntity(e1));
-        const Entity e2 = manager.CreateEntity();
+		const Entity e2 = manager.CreateEntity();
 		EXPECT_TRUE(manager.HasEntity(e2));
 
 		manager.RemoveEntity(e1);
@@ -55,7 +61,9 @@ namespace TestModule_ZeronCore::EntityTests {
 		EXPECT_TRUE(manager.HasEntity(e1));
 
 		struct Comp1 {};
-		struct Comp2 { int prop = 0; };
+		struct Comp2 {
+			int prop = 0;
+		};
 
 		// Add
 		manager.AddComponent<Comp1>(e1);
@@ -115,12 +123,12 @@ namespace TestModule_ZeronCore::EntityTests {
 		ASSERT_FLOAT_EQ(2.f, manager.GetComponent<Comp2>(ent[1]).prop);
 		ASSERT_EQ("2", manager.GetComponent<Comp3>(ent[1]).prop);
 
-		 triggerCount = 0;
-		 manager.ForEach<Comp1, Comp2, Comp3>([&](Entity entity) {
-		 	++triggerCount;
-		 	ASSERT_EQ(ent[1], entity);
-		 });
-		 ASSERT_EQ(1, triggerCount);
+		triggerCount = 0;
+		manager.ForEach<Comp1, Comp2, Comp3>([&](Entity entity) {
+			++triggerCount;
+			ASSERT_EQ(ent[1], entity);
+		});
+		ASSERT_EQ(1, triggerCount);
 	}
 
 	TEST(EntityManagerTests, CreateEntitiesWithComponents_ForEachWithSomeComponents_CallbacksValid)
@@ -244,4 +252,3 @@ namespace TestModule_ZeronCore::EntityTests {
 		ASSERT_EQ("1", manager.GetComponent<Comp3>(ent[2]).prop);
 	}
 }
-

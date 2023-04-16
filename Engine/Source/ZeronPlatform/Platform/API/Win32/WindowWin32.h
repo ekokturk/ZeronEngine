@@ -9,17 +9,18 @@
 // TODO: Joystick Control
 // TODO: Display Management
 
-namespace Zeron {
+namespace Zeron
+{
 	class SystemEventProcessor;
 
 	class WindowWin32 final : public Window {
-	public:
+	  public:
 		WindowWin32(const WindowConfig& config, WNDPROC wndProc, void* userData = nullptr);
 		~WindowWin32();
 
 		void SetVisible() override;
 		void SetHidden() override;
-		
+
 		void SetMinimized() override;
 		void SetMaximized() override;
 		void SetRestored() override;
@@ -32,7 +33,7 @@ namespace Zeron {
 		void SetSize(int width, int height) override;
 		void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) override;
 		void SetScreenPosition(int posX, int posY) override;
-		
+
 		void SetClipCursor(bool shouldClip) override;
 
 		void* GetApiHandle() const override;
@@ -46,7 +47,7 @@ namespace Zeron {
 		const Vec2i& GetSizeMax() const;
 		const Vec2i& GetSizeMin() const;
 
-	private:
+	  private:
 		void _onFullScreenChangedBorderless() override;
 		void _onFullScreenChangedMonitor() override;
 

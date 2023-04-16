@@ -11,24 +11,24 @@ namespace Zeron
 	class Sampler;
 
 	class UniformBindingHandle {
-	public:
+	  public:
 		Buffer* mBuffer;
 	};
 
 	class SamplerBindingHandle {
-	public:
+	  public:
 		Sampler* mSampler;
 	};
 
 	class TextureBindingHandle {
-	public:
+	  public:
 		Texture* mTexture;
 	};
 
 	using BindingHandle = std::variant<UniformBindingHandle, SamplerBindingHandle, TextureBindingHandle>;
 
 	class PipelineBinding {
-	public:
+	  public:
 		virtual ~PipelineBinding() = default;
 	};
 }

@@ -23,7 +23,7 @@ namespace Zeron
 	class Texture;
 
 	class Graphics {
-	public:
+	  public:
 		static std::unique_ptr<Graphics> CreateGraphics(GraphicsType api);
 
 		virtual ~Graphics() = default;
@@ -36,16 +36,23 @@ namespace Zeron
 		virtual std::unique_ptr<CommandBuffer> CreateCommandBuffer(uint32_t count = 1, bool isCompute = false) = 0;
 
 		virtual std::unique_ptr<Pipeline> CreatePipeline(ShaderProgram* shader) = 0;
-		virtual std::unique_ptr<Pipeline> CreatePipeline(ShaderProgram* shader, RenderPass* renderPass, MSAALevel samplingLevel,
-			PrimitiveTopology topology = PrimitiveTopology::TriangleList, bool isSolidFill = true, FaceCullMode cullMode = FaceCullMode::Back) = 0;
+		virtual std::unique_ptr<Pipeline> CreatePipeline(
+			ShaderProgram* shader, RenderPass* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology = PrimitiveTopology::TriangleList, bool isSolidFill = true,
+			FaceCullMode cullMode = FaceCullMode::Back
+		) = 0;
 		virtual std::unique_ptr<PipelineBinding> CreatePipelineBinding(Pipeline& pipeline, const std::vector<BindingHandle>& bindingList) = 0;
 
 		virtual std::unique_ptr<Buffer> CreateBuffer(BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage = BufferUsageType::Default) = 0;
 
-		virtual std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
-			const ByteBuffer& vertexShader = {}, const ByteBuffer& fragmentShader = {}, const ByteBuffer& computeShader = {}) = 0;
-		virtual std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout) = 0;
-		virtual std::string  GetCompiledShaderName(const std::string& shaderName, ShaderType type) const = 0;
+		virtual std::unique_ptr<ShaderProgram> CreateShaderProgram(
+			const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout, const ByteBuffer& vertexShader = {},
+			const ByteBuffer& fragmentShader = {}, const ByteBuffer& computeShader = {}
+		) = 0;
+		virtual std::unique_ptr<ShaderProgram> CreateShaderProgram(
+			const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout,
+			const ResourceLayout& resourceLayout
+		) = 0;
+		virtual std::string GetCompiledShaderName(const std::string& shaderName, ShaderType type) const = 0;
 
 		virtual std::unique_ptr<Texture> CreateTexture(TextureType type, const Color& data) = 0;
 		virtual std::unique_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) = 0;

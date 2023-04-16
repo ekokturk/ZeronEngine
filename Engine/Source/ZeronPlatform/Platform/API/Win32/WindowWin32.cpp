@@ -2,9 +2,10 @@
 
 #if ZE_WINDOW_WIN32
 
-#include <Platform/API/Win32/WindowWin32.h>
+#	include <Platform/API/Win32/WindowWin32.h>
 
-namespace Zeron {
+namespace Zeron
+{
 	LRESULT CALLBACK WndProcRouter(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	uint32_t WindowWin32::mWindowIdCounter = 0;
@@ -33,16 +34,15 @@ namespace Zeron {
 			ZE_FAIL("Win32 window class wasn't registered!");
 		}
 
-		const Vec2i screenCenter = { GetSystemMetrics(SM_CXSCREEN) / 2 - mSize.X ,
-		 GetSystemMetrics(SM_CYSCREEN) / 2 - mSize.Y };
+		const Vec2i screenCenter = { GetSystemMetrics(SM_CXSCREEN) / 2 - mSize.X, GetSystemMetrics(SM_CYSCREEN) / 2 - mSize.Y };
 
 		const RECT rect = GetAdjustedRect(screenCenter, mSize);
 
 		mHwnd = CreateWindowEx(
-			0,                              // Optional window styles.
-			mWindowClassName.c_str(),            // Window class
-			mName.c_str(),					// Window text
-			WS_OVERLAPPEDWINDOW,            // Window style
+			0,						   // Optional window styles.
+			mWindowClassName.c_str(),  // Window class
+			mName.c_str(),			   // Window text
+			WS_OVERLAPPEDWINDOW,	   // Window style
 			rect.left,
 			rect.top,
 			rect.right - rect.left,
@@ -64,7 +64,7 @@ namespace Zeron {
 
 		++mWindowIdCounter;
 	}
-	
+
 	WindowWin32::~WindowWin32()
 	{
 		SetWindowLongPtr(mHwnd, GWLP_USERDATA, NULL);
@@ -102,29 +102,25 @@ namespace Zeron {
 	void WindowWin32::SetSize(int width, int height)
 	{
 		if (!IsFullScreen()) {
-			const RECT rect = GetAdjustedRect(mPos, {width, height});
-			SetWindowPos(mHwnd, HWND_TOP, 
-				rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 
-				SWP_NOMOVE | SWP_NOOWNERZORDER);
+			const RECT rect = GetAdjustedRect(mPos, { width, height });
+			SetWindowPos(mHwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOOWNERZORDER);
 		}
 	}
 
 	void WindowWin32::SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight)
 	{
 		if (minWidth < maxWidth && minHeight < maxHeight) {
-			mSizeMin = { minWidth , minHeight };
-			mSizeMax = { maxWidth , maxHeight };
+			mSizeMin = { minWidth, minHeight };
+			mSizeMax = { maxWidth, maxHeight };
 			SetSize(mSize.X, mSize.Y);
 		}
 	}
 
 	void WindowWin32::SetScreenPosition(int posX, int posY)
 	{
-		if(!IsFullScreen()) {
-			const RECT rect = GetAdjustedRect({posX, posY}, mSize);
-			SetWindowPos(mHwnd, HWND_TOP, 
-				rect.left, rect.top, rect.right - rect.left,rect.bottom - rect.top,
-				SWP_NOSIZE | SWP_NOOWNERZORDER);
+		if (!IsFullScreen()) {
+			const RECT rect = GetAdjustedRect({ posX, posY }, mSize);
+			SetWindowPos(mHwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOSIZE | SWP_NOOWNERZORDER);
 		}
 	}
 
@@ -156,13 +152,11 @@ namespace Zeron {
 		else {
 			const RECT rect = GetAdjustedRect(mPosPrev, mSizePrev);
 			SetWindowLongPtr(mHwnd, GWL_STYLE, WS_VISIBLE | WS_OVERLAPPEDWINDOW);
-			SetWindowPos(mHwnd, nullptr, rect.left, rect.top, rect.right - rect.left,rect.bottom - rect.top, SWP_FRAMECHANGED);
+			SetWindowPos(mHwnd, nullptr, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_FRAMECHANGED);
 		}
 	}
 
-	void WindowWin32::_onFullScreenChangedMonitor()
-	{
-	}
+	void WindowWin32::_onFullScreenChangedMonitor() {}
 
 	void* WindowWin32::GetApiHandle() const
 	{
