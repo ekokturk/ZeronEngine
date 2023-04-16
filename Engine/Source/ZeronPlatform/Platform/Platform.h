@@ -6,36 +6,36 @@
 
 namespace Zeron
 {
+	class IFileSystemHandler;
 	class SystemEvent;
 	class SystemEventProcessor;
 	struct WindowConfig;
 	class WindowManager;
 	class Window;
 
-	struct PlatformConfig {
-	};
-
-	class Platform
-	{
+	class Platform {
 	public:
-		static std::unique_ptr<Platform> CreatePlatformInstance(const PlatformConfig& config = {});
-
 		virtual ~Platform();
 
-		void Update();
-
-		virtual Window* CreatePlatformWindow(const WindowConfig& config) = 0;
-
+		virtual bool Init();
+		virtual void Update();
 		bool IsExiting() const;
+
+		// Filesystem
+		IFileSystemHandler& GetFileSystem();
+		const IFileSystemHandler& GetFileSystem() const;
+
+		// Window
+		virtual Window* GetMainWindow() const;
+		virtual Window* CreatePlatformWindow(const WindowConfig& config) = 0;
 		WindowManager* GetWindowManager() const;
 
 	protected:
-		Platform(const PlatformConfig& config = {});
+		Platform();
 
 		void _dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx);
 
-		const PlatformConfig mConfig;
 		std::unique_ptr<WindowManager> mWindowManager;
-
+		std::unique_ptr<IFileSystemHandler> mFileSystem;
 	};
 }

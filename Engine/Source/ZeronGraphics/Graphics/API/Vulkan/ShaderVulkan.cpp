@@ -9,9 +9,9 @@
 
 namespace Zeron
 {
-	ShaderVulkan::ShaderVulkan(GraphicsVulkan& graphics, ShaderType type, std::vector<std::byte>&& buffer)
+	ShaderVulkan::ShaderVulkan(GraphicsVulkan& graphics, ShaderType type, const ByteBuffer& buffer)
 		: Shader(type)
-		, mBuffer(std::move(buffer))
+		, mBuffer(buffer)
 	{
 		const vk::ShaderModuleCreateInfo createInfo(
 			vk::ShaderModuleCreateFlags(),
@@ -31,18 +31,18 @@ namespace Zeron
 		return mPipelineStageInfo;
 	}
 
-	ShaderProgramVulkan::ShaderProgramVulkan(GraphicsVulkan& graphics, const std::string& shaderName, const std::string& shaderDirectory, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
+	ShaderProgramVulkan::ShaderProgramVulkan(GraphicsVulkan& graphics, const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
+		const ByteBuffer& vertexShader, const ByteBuffer& fragmentShader, const ByteBuffer& computeShader)
 		: ShaderProgram(shaderName, vertexLayout, resourceLayout)
 	{
-		const auto shaderPath = std::filesystem::path(shaderDirectory);
-		if (const auto filePath = shaderPath / (shaderName + ".vert.spv"); std::filesystem::exists(filePath)) {
-			mVertexShader = std::make_unique<ShaderVulkan>(graphics, ShaderType::Vertex, _readShaderFile(filePath));
+		if (!vertexShader.empty()) {
+			mVertexShader = std::make_unique<ShaderVulkan>(graphics, ShaderType::Vertex, vertexShader);
 		}
-		if (const auto filePath = shaderPath / (shaderName + ".frag.spv"); std::filesystem::exists(filePath)) {
-			mFragmentShader = std::make_unique<ShaderVulkan>(graphics, ShaderType::Fragment, _readShaderFile(filePath));
+		if (!fragmentShader.empty()) {
+			mFragmentShader = std::make_unique<ShaderVulkan>(graphics, ShaderType::Fragment, fragmentShader);
 		}
-		if (const auto filePath = shaderPath / (shaderName + ".comp.spv"); std::filesystem::exists(filePath)) {
-			mComputeShader = std::make_unique<ShaderVulkan>(graphics, ShaderType::Compute, _readShaderFile(filePath));
+		if (!computeShader.empty()) {
+			mComputeShader = std::make_unique<ShaderVulkan>(graphics, ShaderType::Compute, computeShader);
 		}
 		_createVertexInputDesc();
 	}
@@ -58,10 +58,10 @@ namespace Zeron
 	Shader* ShaderProgramVulkan::GetShader(ShaderType type) const
 	{
 		switch (type) {
-		case ShaderType::Vertex: return mVertexShader.get();
-		case ShaderType::Fragment: return mFragmentShader.get();
-		case ShaderType::Compute: return mComputeShader.get();
-		default: ZE_FAIL("Shader type is not supported by Vulkan!");
+			case ShaderType::Vertex: return mVertexShader.get();
+			case ShaderType::Fragment: return mFragmentShader.get();
+			case ShaderType::Compute: return mComputeShader.get();
+			default: ZE_FAIL("Shader type is not supported by Vulkan!");
 		}
 		return nullptr;
 	}
@@ -69,7 +69,7 @@ namespace Zeron
 	std::vector<vk::PipelineShaderStageCreateInfo> ShaderProgramVulkan::GetPipelineStageInfoVK() const
 	{
 		std::vector<vk::PipelineShaderStageCreateInfo> output;
-		if(mVertexShader) {
+		if (mVertexShader) {
 			output.push_back(mVertexShader->GetPipelineStageInfoVK());
 		}
 		if (mFragmentShader) {
@@ -111,10 +111,10 @@ namespace Zeron
 
 			mAttributeDescList.emplace_back(
 				vk::VertexInputAttributeDescription(
-				i,
-				element.mSlot,
-				format,
-				bindingDesc.stride
+					i,
+					element.mSlot,
+					format,
+					bindingDesc.stride
 				)
 			);
 			bindingDesc.stride += VertexLayout::GetVertexFormatSize(element.mFormat);
@@ -125,27 +125,12 @@ namespace Zeron
 	{
 		switch (format) {
 			case VertexFormat::Float2: return vk::Format::eR32G32Sfloat;
-			case VertexFormat::Float3: return  vk::Format::eR32G32B32Sfloat;
-			case VertexFormat::Color: return  vk::Format::eR8G8B8A8Unorm;
+			case VertexFormat::Float3: return vk::Format::eR32G32B32Sfloat;
+			case VertexFormat::Color: return vk::Format::eR8G8B8A8Unorm;
 			case VertexFormat::Unknown:
 			default: ZE_FAIL("Vulkan vertex attribute format is not supported!");
 		}
 		return vk::Format::eUndefined;
-	}
-
-	std::vector<std::byte> ShaderProgramVulkan::_readShaderFile(const std::filesystem::path& path) const
-	{
-		std::ifstream ifs(path, std::ios::binary | std::ios::ate);
-		ZE_ASSERT(ifs, "Error opening Vulkan shader file!");
-		const std::streampos end = ifs.tellg();
-		ifs.seekg(0, std::ios::beg);
-		const uint32_t size = static_cast<uint32_t>(end - ifs.tellg());
-		if (size == 0) {
-			return {};
-		}
-		std::vector<std::byte> buffer(size);
-		ZE_ASSERT(ifs.read(reinterpret_cast<char*>(buffer.data()), buffer.size()), "Error reading Vulkan shader file!");
-		return buffer;
 	}
 }
 #endif

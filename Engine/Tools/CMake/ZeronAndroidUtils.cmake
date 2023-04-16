@@ -1,11 +1,4 @@
-macro(zeron_set_android_libs libList)
-    # find_library(ANDROID_LOG_LIB log) # We add this for ZeronCore
-    find_library(ANDROID_DL_LIB NAMES libdl dl)
-    find_library(ANDROID_LIBRARY_LIB android)
-    set(${libList} ${ANDROID_DL_LIB} ${ANDROID_LOG_LIB} ${ANDROID_LIBRARY_LIB})
-endmacro()
-
-macro(zeron_target_android_package target packageName appName)
+macro(zeron_target_android_package target packageName appName appSourceDir)
     # Target
     if(NOT TARGET ${target})
         message(FATAL_ERROR "ZERON - ERROR: Invalid target for Android!")
@@ -26,16 +19,13 @@ macro(zeron_target_android_package target packageName appName)
         set(ZERON_ANDROID_PACKAGE_NAME ${packageName})
     endif()
 
-    # SDL is required for Android
-    get_property(ZERON_JAVA_DEPENDENCY_DIR GLOBAL PROPERTY SDL_JAVA_DIR)
-
     # Get template Android project directory
     get_property(ZERON_ANDROID_PROJECT_DIR GLOBAL PROPERTY ZERON_ANDROID_PROJECT_DIR)
     if(NOT DEFINED ZERON_ANDROID_PROJECT_DIR)
         message(FATAL_ERROR "ZERON - ERROR: Unable to locate template Zeron Android project directory!")
     endif()
 
-    set(ZERON_ANDROID_PACKAGE_DIR               ${CMAKE_BINARY_DIR}/AndroidProject/)
+    set(ZERON_ANDROID_PACKAGE_DIR               ${CMAKE_BINARY_DIR}/AndroidProject)
     set(ZERON_ANDROID_PACKAGE_MAIN_DIR          ${ZERON_ANDROID_PACKAGE_DIR}/app/src/main)
 
     set(ZERON_ANDROID_PROJECT_MAIN_DIR          ${ZERON_ANDROID_PROJECT_DIR}/app/src/main/)
@@ -62,7 +52,15 @@ macro(zeron_target_android_package target packageName appName)
     file(COPY ${ZERON_ANDROID_PROJECT_RESOURCE_DIR}/mipmap-xhdpi    DESTINATION ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/res)
     file(COPY ${ZERON_ANDROID_PROJECT_RESOURCE_DIR}/mipmap-xxhdpi   DESTINATION ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/res)
 
+    # Asset directory for external files
+    file(MAKE_DIRECTORY ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/assets)
+    set_property(GLOBAL PROPERTY ZERON_BUILD_ASSETS_DIR ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/assets)
+
     file(COPY ${ZERON_ANDROID_PROJECT_DIR}/app/proguard-rules.pro   DESTINATION ${ZERON_ANDROID_PACKAGE_DIR}/app)
+
+    if(EXISTS ${appSourceDir})
+        set(ZERON_APP_DIR "\'${appSourceDir}\'")
+    endif()
 
     # Copy configured package files
     configure_file(${ZERON_ANDROID_PROJECT_DIR}/app/build.gradle 
@@ -74,12 +72,21 @@ macro(zeron_target_android_package target packageName appName)
     configure_file(${ZERON_ANDROID_PROJECT_MAIN_DIR}/res/values/strings.xml 
                 ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/res/values/strings.xml @ONLY)
 
-    configure_file(${ZERON_ANDROID_PROJECT_MAIN_DIR}/java/com.zeronengine.application/ZeronActivity.java 
+    configure_file(${ZERON_ANDROID_PROJECT_MAIN_DIR}/res/values/themes.xml 
+                ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/res/values/themes.xml @ONLY)
+
+    configure_file(${ZERON_ANDROID_PROJECT_MAIN_DIR}/java/com.application/AppActivity.java 
                 ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/java/${ZERON_ANDROID_PACKAGE_NAME}/${ZERON_ANDROID_TARGET}Activity.java @ONLY)
 
+    file(COPY ${ZERON_ANDROID_PROJECT_MAIN_DIR}/java/com.zeron.engine/ DESTINATION ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/java/com.zeron.engine/)
+
     # Copy libraries
+    get_property(EXTRA_ANDROID_LIBS GLOBAL PROPERTY ZERON_ANDROID_EXTRA_LIBS)
     file(GLOB_RECURSE ANDROID_STL_LIB ${ANDROID_STL_LIB_DIR}/lib${CMAKE_ANDROID_STL_TYPE}.*)
     file(COPY ${ANDROID_STL_LIB} DESTINATION ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/jniLibs/${CMAKE_ANDROID_ARCH_ABI})
+    foreach(extraLib ${EXTRA_ANDROID_LIBS})
+        file(COPY ${extraLib} DESTINATION ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/jniLibs/${CMAKE_ANDROID_ARCH_ABI})
+    endforeach()
 
     add_custom_command(TARGET Sandbox POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/libs

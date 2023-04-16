@@ -6,8 +6,6 @@
 
 #include <Platform/API/Shared/GLFW/SystemEventProcessorGLFW.h>
 #include <Platform/API/Shared/GLFW/WindowGLFW.h>
-#include <Platform/API/Shared/SDL/SystemEventProcessorSDL.h>
-#include <Platform/API/Shared/SDL/WindowSDL.h>
 #include <Platform/API/Win32/SystemEventProcessorWin32.h>
 #include <Platform/API/Win32/WindowWin32.h>
 
@@ -59,13 +57,6 @@ namespace Zeron
 					std::move(dispatchCallback), std::move(contextCallback));
 				window = std::make_unique<WindowGLFW>(config, proc);
 				static_cast<SystemEventProcessorGLFW*>(proc)->registerEventCallbacks(static_cast<WindowGLFW*>(window.get()));
-			} break;
-			#endif
-			#if ZE_WINDOW_SDL
-			case WindowAPI::SDL: {
-				mEventProcessorList.Add<SystemEventProcessorSDL>(static_cast<size_t>(WindowAPI::SDL), 
-					std::move(dispatchCallback), std::move(contextCallback));
-				window = std::make_unique<WindowSDL>(config);
 			} break;
 			#endif
 			case WindowAPI::Null:

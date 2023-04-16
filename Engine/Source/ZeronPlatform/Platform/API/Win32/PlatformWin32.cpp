@@ -13,8 +13,8 @@
 
 namespace Zeron {
 
-	PlatformWin32::PlatformWin32(const PlatformConfig& config)
-		: Platform(config)
+	PlatformWin32::PlatformWin32()
+		: Platform()
 	{
 	}
 

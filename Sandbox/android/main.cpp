@@ -1,30 +1,28 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
+#include "Platform/CommandLineArgs.h"
 #include <SampleVulkan.h>
 
-#include <Platform/Window.h>
+#include <Platform/EntryPoint.h>
 #include <Platform/Platform.h>
 #include <Graphics/Graphics.h>
 
 using namespace Zeron;
 
-__attribute__ ((visibility("default"))) 
-int main(int argc, char** argv) {
+bool ZeronMain(Platform& platform, const CommandLineArgs& args) {
 
-	auto platform = Zeron::Platform::CreatePlatformInstance();
 	auto graphicsVulkan = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Vulkan);
-
 	graphicsVulkan->Init();
-
+	
 	Sandbox::SampleRunner runner;
-	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform->CreatePlatformWindow({ "Vulkan - SDL", 800, 600, 0, false, Zeron::WindowAPI::SDL }));
+	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform.GetMainWindow());
 
 	bool isRunning = true;
-	while(isRunning)
-	{
-		platform->Update();
-		isRunning &= runner.RunAll(Sandbox::SampleRunner::RunCondition::SingleSuccess);
+	while(isRunning) {
+		platform.Update();
+		runner.RunAll(Sandbox::SampleRunner::RunCondition::SingleSuccess);
 	}
-
-	return 0;
+	return true;
 }
+
+ZERON_DECLARE_ENTRY_POINT(ZeronMain)

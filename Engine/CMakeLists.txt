@@ -2,8 +2,12 @@
 
 message("ZERON - Generating: Zeron Engine")
 
-SET(ZERON_CMAKE_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/Tools/CMake" CACHE INTERNAL "Zeron CMake utilities")
+set(ZERON_ENGINE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Zeron Engine Directory")
+set(ZERON_CMAKE_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/Tools/CMake" CACHE INTERNAL "Zeron CMake utilities")
 include("${ZERON_CMAKE_UTILS}/ZeronMacros.cmake")
+if(ANDROID)
+    include("${ZERON_CMAKE_UTILS}/ZeronAndroidUtils.cmake")
+endif()
 
 if(UNIFY_OUTPUT_DIR)
     zeron_set_output_directory("")

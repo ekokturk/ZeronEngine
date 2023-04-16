@@ -8,6 +8,7 @@ set(ANDROID_NDK ${CMAKE_ANDROID_NDK} CACHE INTERNAL "Android NDK directory")
 
 
 set(ANDROID_STL_LIB_DIR ${CMAKE_ANDROID_NDK}/sources/cxx-stl/llvm-libc++/libs/${CMAKE_ANDROID_ARCH_ABI})
+set(ANDROID_STL_INCLUDE_DIR ${CMAKE_ANDROID_NDK}/sources/cxx-stl/llvm-libc++/include)
 if(NOT EXISTS ${ANDROID_STL_LIB_DIR})
     message(FATAL_ERROR "Zeron - C++ STL libraries directory cannot be found!")
 endif()

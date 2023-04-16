@@ -1,13 +1,13 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #include <SampleVulkan.h>
-#include <SampleVulkan.h>
 
 #include <GUI/ImGui/ImGuiInstance.h>
+#include <Platform/FileSystem.h>
+#include <Platform/Window.h>
 #include <Renderer/Image.h>
 #include <Renderer/Scene/Camera.h>
 #include <Renderer/Scene/Model.h>
-#include <Platform/Window.h>
 
 #include <Graphics/Buffer.h>
 #include <Graphics/CommandBuffer.h>
@@ -22,16 +22,14 @@
 
 using namespace Zeron;
 
-namespace SampleVulkan {
-
-	struct VertexShaderCBData
-	{
+namespace SampleVulkan
+{
+	struct VertexShaderCBData {
 		Mat4 mViewModelProjectionMatrix;
 		Mat4 mWorldMatrix;
 	};
 
-	struct PixelShaderCBData
-	{
+	struct PixelShaderCBData {
 		//float mAlpha = 1.f;
 		Vec3 mAmbientLightColor = Vec3::ONE;
 		float mAmbientLightStrength = 1.f;
@@ -77,7 +75,6 @@ namespace SampleVulkan {
 		std::unique_ptr<CommandBuffer> mComputeCommandBuffer;
 		std::unique_ptr<ShaderProgram> mComputeShader;
 		std::unique_ptr<Pipeline> mComputePipeline;
-
 	};
 
 	float cameraSensitivity = 10.f;
@@ -98,32 +95,36 @@ namespace SampleVulkan {
 		std::vector<VertexInstance> instanceData;
 		for (int i = 0; i < instanceM; ++i) {
 			for (int j = 0; j < instanceN; ++j) {
-				instanceData.emplace_back(VertexInstance{ {i * 10.f, j * 10.f, 0 } });
+				instanceData.emplace_back(VertexInstance{{i * 10.f, j * 10.f, 0}});
 			}
 		}
 
 		mCtx->mInstanceBuffer = gfx->CreateVertexBuffer<VertexInstance>(instanceData);
 
 		// Compute
-		mCtx->mComputeCommandBuffer = gfx->CreateCommandBuffer(1, true);
-		mCtx->mComputeShader = gfx->CreateShaderProgram("ComputeTest", "Resources/Shaders", {}, {});
-		mCtx->mComputePipeline = gfx->CreatePipeline(mCtx->mComputeShader.get());
+		//mCtx->mComputeCommandBuffer = gfx->CreateCommandBuffer(1, true);
+		//mCtx->mComputeShader = gfx->CreateShaderProgram("ComputeTest", "Resources/Shaders", {}, {});
+		//mCtx->mComputePipeline = gfx->CreatePipeline(mCtx->mComputeShader.get());
 
-
-		mCtx->mShader = gfx->CreateShaderProgram("Standard", "Resources/Shaders", {
-			{"POSITION", VertexFormat::Float3},
-			{"TEXTURE_COORD", VertexFormat::Float2},
-			{"NORMAL", VertexFormat::Float3},
-			{"INSTANCE_POS", VertexFormat::Float3, true, 1},
+		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", ShaderType::Vertex));
+		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", ShaderType::Fragment));
+		mCtx->mShader = gfx->CreateShaderProgram("Standard",
+			{
+				{"POSITION", VertexFormat::Float3},
+				{"TEXTURE_COORD", VertexFormat::Float2},
+				{"NORMAL", VertexFormat::Float3},
+				{"INSTANCE_POS", VertexFormat::Float3, true, 1},
 			},
 			{
-				{ PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0 },
-				{ PipelineResourceType::Texture, ShaderType::Fragment, 1 },
-				{ PipelineResourceType::Texture, ShaderType::Fragment, 2 },
-				{ PipelineResourceType::Sampler, ShaderType::Fragment, 3 },
-				{ PipelineResourceType::UniformBuffer, ShaderType::Fragment, 4 },
-			}
-			);
+				{PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0},
+				{PipelineResourceType::Texture, ShaderType::Fragment, 1},
+				{PipelineResourceType::Texture, ShaderType::Fragment, 2},
+				{PipelineResourceType::Sampler, ShaderType::Fragment, 3},
+				{PipelineResourceType::UniformBuffer, ShaderType::Fragment, 4},
+			},
+			vertexShaderBuffer.Value(),
+			fragmentShaderBuffer.Value()
+		);
 
 		mCtx->mPipeline = gfx->CreatePipeline(
 			mCtx->mShader.get(),
@@ -135,27 +136,29 @@ namespace SampleVulkan {
 		);
 
 		mCtx->mImage = std::make_unique<Image>();
-		mCtx->mImage->Load("Resources/Textures/TestHumanoid_CLR.png");
+		auto imageBuffer = FileSystem::ReadBinaryFile("Resources/Textures/TestHumanoid_CLR.png");
+		mCtx->mImage->Load(imageBuffer.Value());
 		mCtx->mTexture = gfx->CreateTexture(TextureType::Diffuse, mCtx->mImage->GetColorData().data(), mCtx->mImage->GetWidth(), mCtx->mImage->GetHeight());
 
 		mCtx->mSampler = gfx->CreateSampler();
 
-		mCtx->mModel = std::make_unique<Model>(*gfx, "Resources/Models/TestHumanoid_Model.fbx", nullptr);
+		auto modelBuffer = FileSystem::ReadBinaryFile("Resources/Models/TestHumanoid_Model.fbx");
+		mCtx->mModel = std::make_unique<Model>(*gfx, modelBuffer.Value(), nullptr);
 		for (auto& mesh : mCtx->mModel->GetMeshes()) {
 			MeshResource res;
 			res.mUniformBuffer = gfx->CreateUniformBuffer<VertexShaderCBData>(VertexShaderCBData{});
 			res.mLightBuffer = gfx->CreateUniformBuffer<PixelShaderCBData>(PixelShaderCBData{});
 			res.mBinding = gfx->CreatePipelineBinding(*mCtx->mPipeline, std::vector<BindingHandle>{
-				UniformBindingHandle{ res.mUniformBuffer.get() },
-					TextureBindingHandle{ mCtx->mTexture.get() },
-					TextureBindingHandle{ mCtx->mTexture.get() },
-					SamplerBindingHandle{ mCtx->mSampler.get() },
-					UniformBindingHandle{ res.mLightBuffer.get() },
+				UniformBindingHandle{res.mUniformBuffer.get()},
+				TextureBindingHandle{mCtx->mTexture.get()},
+				TextureBindingHandle{mCtx->mTexture.get()},
+				SamplerBindingHandle{mCtx->mSampler.get()},
+				UniformBindingHandle{res.mLightBuffer.get()},
 			});
 			mCtx->mMeshResources.push_back(std::move(res));
 		}
 
-		mCtx->mCamera.SetPosition({ 0.f, 200.f, -400.f });
+		mCtx->mCamera.SetPosition({0.f, 200.f, -400.f});
 		mCtx->mCamera.SetFieldOfView(60.f);
 	}
 
@@ -171,7 +174,7 @@ namespace SampleVulkan {
 
 		mCtx->mImGui->NewFrame();
 
-		while(mCtx->mWindow->HasSystemEvents()) {
+		while (mCtx->mWindow->HasSystemEvents()) {
 			SystemEvent e = mCtx->mWindow->GetNextSystemEvent();
 			if (mCtx->mImGui->HandleEvent(e)) {
 				continue;
@@ -209,33 +212,34 @@ namespace SampleVulkan {
 						mCtx->mCamera.Move(-mCtx->mCamera.GetUpDir() * cameraSensitivity);
 					}
 					if (data.mCode == KeyCode::Up) {
-						mCtx->mCamera.Rotate({ Math::ToRadians(15.f),0,0 });
+						mCtx->mCamera.Rotate({Math::ToRadians(15.f), 0, 0});
 					}
 					if (data.mCode == KeyCode::Down) {
-						mCtx->mCamera.Rotate({ Math::ToRadians(-15.f),0,0 });
+						mCtx->mCamera.Rotate({Math::ToRadians(-15.f), 0, 0});
 					}
 					if (data.mCode == KeyCode::Left) {
-						mCtx->mCamera.Rotate({ 0,Math::ToRadians(-15.f),0 });
+						mCtx->mCamera.Rotate({0, Math::ToRadians(-15.f), 0});
 					}
 					if (data.mCode == KeyCode::Right) {
-						mCtx->mCamera.Rotate({ 0,Math::ToRadians(15.f),0 });
+						mCtx->mCamera.Rotate({0, Math::ToRadians(15.f), 0});
 					}
 					if (data.mCode == KeyCode::RightShift) {
-						mCtx->mCamera.Rotate({ 0,0,Math::ToRadians(-15.f) });
+						mCtx->mCamera.Rotate({0, 0, Math::ToRadians(-15.f)});
 					}
 					if (data.mCode == KeyCode::RightControl) {
-						mCtx->mCamera.Rotate({ 0,0,Math::ToRadians(15.f) });
+						mCtx->mCamera.Rotate({0, 0, Math::ToRadians(15.f)});
 					}
 				},
 				[&](const SystemEvent::MouseScroll& data) {
 					if (data.mOffsetY > 0) {
 						mCtx->mCamera.Move(mCtx->mCamera.GetForwardDir() * cameraSensitivity);
 					}
-					 else {
-					  mCtx->mCamera.Move(-mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+					else {
+						mCtx->mCamera.Move(-mCtx->mCamera.GetForwardDir() * cameraSensitivity);
 					}
 				},
-				[&](const SystemEvent::MouseMoved&) {},
+				[&](const SystemEvent::MouseMoved&) {
+				},
 
 				[](const auto&) { return; },
 			}, e.GetData());
@@ -249,11 +253,11 @@ namespace SampleVulkan {
 
 		const Vec2i& viewportSize = mCtx->mGraphicsContext->GetSwapChainSize();
 
-		mCtx->mCamera.SetViewSize({ static_cast<float>(viewportSize.X), static_cast<float>(viewportSize.Y) });
-		mCtx->mCamera.LookAt({ 0,100,0 });
+		mCtx->mCamera.SetViewSize({static_cast<float>(viewportSize.X), static_cast<float>(viewportSize.Y)});
+		mCtx->mCamera.LookAt({0, 100, 0});
 
 		mCtx->mImGui->Update(*mCtx->mGraphics);
-		if(!mCtx->mIsSuspended) {
+		if (!mCtx->mIsSuspended) {
 			//CommandBuffer& cmdCompute = *mCtx->mComputeCommandBuffer;
 			//cmdCompute.Begin();
 			//cmdCompute.SetPipeline(*mCtx->mComputePipeline);
@@ -271,10 +275,10 @@ namespace SampleVulkan {
 
 				for (int i = 0; i < mCtx->mModel->GetMeshes().size(); ++i) {
 					auto& mesh = *mCtx->mModel->GetMeshes()[i];
-					VertexShaderCBData ubo = { mCtx->mCamera.GetProjectionMatrix() * mCtx->mCamera.GetViewMatrix() * mesh.GetTransform(),  mesh.GetTransform() };
+					VertexShaderCBData ubo = {mCtx->mCamera.GetProjectionMatrix() * mCtx->mCamera.GetViewMatrix() * mesh.GetTransform(), mesh.GetTransform()};
 					cmd.UpdateBuffer(*mCtx->mMeshResources[i].mUniformBuffer, &ubo, sizeof(ubo));
 					cmd.SetPipelineBinding(*mCtx->mMeshResources[i].mBinding);
-					Buffer* vertexBuff[2] = { mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get() };
+					Buffer* vertexBuff[2] = {mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get()};
 					cmd.SetVertexBuffers(vertexBuff, 2);
 					cmd.SetIndexBuffer(*mesh.GetIndexBuffer());
 					cmd.DrawInstancedIndexed(mesh.GetIndexBuffer()->GetCount(), instanceM * instanceN);
@@ -290,5 +294,4 @@ namespace SampleVulkan {
 
 		return mCtx->mIsRunning;
 	}
-
 }

@@ -34,5 +34,5 @@
 
 #define ZE_FAIL(...) \
 	ZE_LOGE(__VA_ARGS__); \
-	ZE_DEBUG_ERROR("FAILURE!" ZE_LINE_INFO()); \
+	ZE_DEBUG_ERROR("FAILURE!"); \
 	std::abort()

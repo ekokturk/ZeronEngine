@@ -14,7 +14,7 @@ namespace Zeron {
 	
 	GraphicsContextVulkan::GraphicsContextVulkan(GraphicsVulkan& graphics)
 		: mGraphics(graphics)
-		, mMaxFramesInFlight(2)
+		, mMaxFramesInFlight(1)
 		, mCurrentFrameInFlight(0)
 	{
 	}

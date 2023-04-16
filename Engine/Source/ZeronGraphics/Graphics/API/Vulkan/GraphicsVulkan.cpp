@@ -30,25 +30,25 @@ namespace Zeron
 		mAppInfo = vk::ApplicationInfo("AppName", 1, "Zeron Engine", 1, VK_API_VERSION_1_1);
 
 		mExtensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);
-#if ZE_PLATFORM_WIN32
+		#if ZE_PLATFORM_WIN32
 		mExtensions.emplace_back("VK_KHR_win32_surface");
-#elif ZE_PLATFORM_LINUX
+		#elif ZE_PLATFORM_LINUX
 		mExtensions.emplace_back("VK_KHR_xlib_surface");
-#elif ZE_PLATFORM_ANDROID
+		#elif ZE_PLATFORM_ANDROID
 		mExtensions.emplace_back("VK_KHR_android_surface");
-#endif
-#if ZE_DEBUG
-	#if ZE_PLATFORM_ANDROID
+		#endif
+		#if ZE_DEBUG
+		#if ZE_PLATFORM_ANDROID
 		mExtensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-	#else
+		#else
 		mExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-	#endif
-#endif
+		#endif
+		#endif
 	}
 
 	GraphicsVulkan::~GraphicsVulkan()
 	{
-		if(mDevice) {
+		if (mDevice) {
 			mDevice.waitIdle();
 			mDevice.destroy();
 		}
@@ -57,7 +57,7 @@ namespace Zeron
 
 	bool GraphicsVulkan::Init()
 	{
-		if(!_initInstance()) {
+		if (!_initInstance()) {
 			ZE_LOGE("Vulkan: Couldn't create instance!");
 			return false;
 		}
@@ -96,7 +96,7 @@ namespace Zeron
 	}
 
 	std::unique_ptr<Pipeline> GraphicsVulkan::CreatePipeline(ShaderProgram* shader, RenderPass* renderPass,
-	                                                         MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode)
+		MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode)
 	{
 		ZE_ASSERT(shader, "Vulkan pipeline requires a valid shader program!");
 		ZE_ASSERT(renderPass, "Vulkan pipeline requires a valid render pass!");
@@ -122,9 +122,9 @@ namespace Zeron
 		if (usage == BufferUsageType::Dynamic || usage == BufferUsageType::Staging) {
 			return std::make_unique<BufferVulkan>(*this, type, count, stride, data, usage);
 		}
-		std::unique_ptr<BufferVulkan> deviceLocalBuffer = std::make_unique<BufferVulkan>(*this, type, count, stride, nullptr, usage);
-		if(data) {
-			std::unique_ptr<BufferVulkan> stagingBuffer = std::make_unique<BufferVulkan>(*this, BufferType::Undefined, count, stride, data, BufferUsageType::Staging);
+		auto deviceLocalBuffer = std::make_unique<BufferVulkan>(*this, type, count, stride, nullptr, usage);
+		if (data) {
+			auto stagingBuffer = std::make_unique<BufferVulkan>(*this, BufferType::Undefined, count, stride, data, BufferUsageType::Staging);
 			SubmitSingleUseCommandBufferVK([&](CommandBufferVulkan& cmd) {
 				cmd.CopyBuffer(*stagingBuffer, *deviceLocalBuffer);
 			});
@@ -132,16 +132,28 @@ namespace Zeron
 		return deviceLocalBuffer;
 	}
 
-	std::unique_ptr<ShaderProgram> GraphicsVulkan::CreateShaderProgram(const std::string& shaderName, const std::string& shaderDirectory,
-		const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
+	std::unique_ptr<ShaderProgram> GraphicsVulkan::CreateShaderProgram(const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout,
+		const ByteBuffer& vertexShader, const ByteBuffer& fragmentShader, const ByteBuffer& computeShader)
 	{
-		return std::make_unique<ShaderProgramVulkan>(*this, shaderName, shaderDirectory, vertexLayout, resourceLayout);
+		return std::make_unique<ShaderProgramVulkan>(*this, shaderName, vertexLayout, resourceLayout, vertexShader, fragmentShader, computeShader);
 	}
 
 	std::unique_ptr<ShaderProgram> GraphicsVulkan::CreateShaderProgram(const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader,
 		const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout)
 	{
 		return std::make_unique<ShaderProgramVulkan>(*this, shaderName, vertexShader, fragmentShader, vertexLayout, resourceLayout);
+	}
+
+	std::string GraphicsVulkan::GetCompiledShaderName(const std::string& shaderName, ShaderType type) const
+	{
+		switch (type) {
+			case ShaderType::Vertex: return {shaderName + ".vert.spv"};
+			case ShaderType::Fragment: return {shaderName + ".frag.spv"};
+			case ShaderType::Compute: return {shaderName + ".comp.spv"};
+			default:
+				ZE_FAIL("Vulkan compiled shader name is not implemented!");
+		}
+		return shaderName;
 	}
 
 	std::unique_ptr<Texture> GraphicsVulkan::CreateTexture(TextureType type, const Color& data)
@@ -165,11 +177,13 @@ namespace Zeron
 	}
 
 	std::unique_ptr<TextureVulkan> GraphicsVulkan::CreateTextureVK(const Vec2i& size, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage,
-	                                                               vk::SampleCountFlagBits sampling, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, const Color* data)
+		vk::SampleCountFlagBits sampling, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, const Color* data)
 	{
 		auto texture = std::make_unique<TextureVulkan>(*this, size, format, tiling, usage, sampling);
-		const std::unique_ptr<BufferVulkan> stagingBuffer = data ? std::make_unique<BufferVulkan>(*this, BufferType::Undefined, static_cast<uint32_t>(size.X * size.Y), 
-			static_cast<uint32_t>(sizeof(Color)), data, BufferUsageType::Staging) : nullptr;
+		const std::unique_ptr<BufferVulkan> stagingBuffer = data ?
+			                                                    std::make_unique<BufferVulkan>(*this, BufferType::Undefined, static_cast<uint32_t>(size.X * size.Y),
+				                                                    static_cast<uint32_t>(sizeof(Color)), data, BufferUsageType::Staging) :
+			                                                    nullptr;
 		const vk::ImageLayout oldLayoutModified = data ? vk::ImageLayout::eTransferDstOptimal : oldLayout;
 		SubmitSingleUseCommandBufferVK([&](CommandBufferVulkan& cmd) {
 			if (data) {
@@ -246,7 +260,7 @@ namespace Zeron
 
 	void GraphicsVulkan::_initSupportedValidationLayers()
 	{
-#if ZE_DEBUG
+		#if ZE_DEBUG
 		const char* expectedLayers[] = {
 			"VK_LAYER_KHRONOS_validation"
 		};
@@ -260,7 +274,7 @@ namespace Zeron
 			auto result = std::find_if(
 				supportedLayers.begin(), supportedLayers.end(), [&expectedLayer](const vk::LayerProperties& prop) {
 					return std::strcmp(expectedLayer, prop.layerName) == 0;
-			});
+				});
 			if (result != supportedLayers.end()) {
 				mValidationLayers.emplace_back(expectedLayer);
 			}
@@ -268,7 +282,7 @@ namespace Zeron
 				ZE_LOGE("Vulkan was not able to find validation layer '{}'!", expectedLayer);
 			}
 		}
-#endif
+		#endif
 	}
 
 	std::vector<GraphicsAdapterVulkan> GraphicsVulkan::_getGraphicsAdapters() const
@@ -287,7 +301,7 @@ namespace Zeron
 		vkCmd.Begin();
 		commands(vkCmd);
 		vkCmd.End();
-		vk::UniqueFence fence = mDevice.createFenceUnique({ vk::FenceCreateFlags() });
+		vk::UniqueFence fence = mDevice.createFenceUnique({vk::FenceCreateFlags()});
 		const vk::SubmitInfo submitInfo(
 			0,
 			nullptr,
@@ -307,12 +321,12 @@ namespace Zeron
 		VulkanInstance::LoadProc();
 
 		_initSupportedValidationLayers();
-		if(!_verifyExtensions()) {
+		if (!_verifyExtensions()) {
 			ZE_FAIL("Couldn't find requested Vulkan extension among supported extensions!");
 			return false;
 		}
 		std::vector<const char*> validationLayers(mValidationLayers.size());
-		std::transform(mValidationLayers.begin(), mValidationLayers.end(), validationLayers.begin(), [](const std::string& s){ return s.c_str(); });
+		std::transform(mValidationLayers.begin(), mValidationLayers.end(), validationLayers.begin(), [](const std::string& s) { return s.c_str(); });
 		std::vector<const char*> extensions(mExtensions.size());
 		std::transform(mExtensions.begin(), mExtensions.end(), extensions.begin(), [](const std::string& s) { return s.c_str(); });
 
@@ -339,7 +353,7 @@ namespace Zeron
 
 		// Try to find a discrete GPU
 		const auto itr = std::find_if(adapters.begin(), adapters.end(), [](const GraphicsAdapterVulkan& adapter) {
-				return adapter.IsDiscreteAdapter();
+			return adapter.IsDiscreteAdapter();
 		});
 		if (itr != adapters.end()) {
 			mAdapter = std::make_unique<GraphicsAdapterVulkan>(*itr);
@@ -348,7 +362,7 @@ namespace Zeron
 			mAdapter = std::make_unique<GraphicsAdapterVulkan>(adapters[0]);
 		}
 
-		if(!mAdapter->HasSwapChainSupport()) {
+		if (!mAdapter->HasSwapChainSupport()) {
 			ZE_FAIL("Physical device does not have swap chain support!");
 			return false;
 		}
@@ -365,13 +379,13 @@ namespace Zeron
 		const vk::PhysicalDevice& adapter = mAdapter->GetPhysicalDeviceVK();
 		std::vector<vk::QueueFamilyProperties> queueFamilies = adapter.getQueueFamilyProperties();
 		// Find graphics queue family that can present
-		for(uint32_t i = 0; i < queueFamilies.size(); ++i) {
+		for (uint32_t i = 0; i < queueFamilies.size(); ++i) {
 			vk::QueueFamilyProperties& props = queueFamilies[i];
-			if(props.queueCount > 0 && (props.queueFlags & vk::QueueFlagBits::eGraphics)) {
-				if(mGraphicsQueueFamilyIndex == UINT_MAX) {
+			if (props.queueCount > 0 && (props.queueFlags & vk::QueueFlagBits::eGraphics)) {
+				if (mGraphicsQueueFamilyIndex == UINT_MAX) {
 					mGraphicsQueueFamilyIndex = i;
 				}
-				if (adapter.getSurfaceSupportKHR(i, surface)){
+				if (adapter.getSurfaceSupportKHR(i, surface)) {
 					mGraphicsQueueFamilyIndex = i;
 					mPresentQueueFamilyIndex = i;
 					break;
@@ -391,7 +405,7 @@ namespace Zeron
 				}
 			}
 		}
-		if(mPresentQueueFamilyIndex == UINT_MAX) {
+		if (mPresentQueueFamilyIndex == UINT_MAX) {
 			ZE_FAIL("Couldn't find required Vulkan presentation queue family!");
 			return false;
 		}
@@ -402,14 +416,14 @@ namespace Zeron
 			if (props.queueCount > 0 && (props.queueFlags & vk::QueueFlagBits::eCompute)) {
 				mComputeQueueFamilyIndex = i;
 				// Find a dedicated compute queue
-				if((props.queueFlags & vk::QueueFlagBits::eGraphics) != vk::QueueFlagBits::eGraphics) {
+				if ((props.queueFlags & vk::QueueFlagBits::eGraphics) != vk::QueueFlagBits::eGraphics) {
 					break;
 				}
 			}
 		}
 
 		const float queuePriority = 1.f;
-		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos {
+		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos{
 			{
 				vk::DeviceQueueCreateFlags(),
 				mGraphicsQueueFamilyIndex,
@@ -425,7 +439,7 @@ namespace Zeron
 				&queuePriority
 			);
 		}
-		if(mComputeQueueFamilyIndex != mGraphicsQueueFamilyIndex) {
+		if (mComputeQueueFamilyIndex != mGraphicsQueueFamilyIndex) {
 			queueCreateInfos.emplace_back(
 				vk::DeviceQueueCreateFlags(),
 				mComputeQueueFamilyIndex,
@@ -436,7 +450,7 @@ namespace Zeron
 
 		vk::PhysicalDeviceFeatures features{};
 		// Shader based multi-sampling
-		if(adapter.getFeatures().sampleRateShading) {
+		if (adapter.getFeatures().sampleRateShading) {
 			features.sampleRateShading = true;
 		}
 		// Anisotropic Filtering
@@ -444,7 +458,7 @@ namespace Zeron
 			features.samplerAnisotropy = true;
 		}
 
-		std::vector<const char*> extensionNames{ VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		std::vector<const char*> extensionNames{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 		const vk::DeviceCreateInfo deviceCreateInfo(
 			vk::DeviceCreateFlags(),
 			static_cast<uint32_t>(queueCreateInfos.size()),
@@ -485,9 +499,9 @@ namespace Zeron
 	{
 		ZE_ASSERT(!poolSizeList.empty(), "Expected atleast one Vulkan descriptor pool size!");
 		const auto maxPool = std::max_element(poolSizeList.begin(), poolSizeList.end(),
-		[](const vk::DescriptorPoolSize& lhs, const vk::DescriptorPoolSize& rhs){
+			[](const vk::DescriptorPoolSize& lhs, const vk::DescriptorPoolSize& rhs) {
 				return lhs.descriptorCount < rhs.descriptorCount;
-		});
+			});
 		const vk::DescriptorPoolCreateInfo info(
 			vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
 			maxPool->descriptorCount,
@@ -511,7 +525,7 @@ namespace Zeron
 	MSAALevel GraphicsVulkan::_getMaxMultiSampleLevel()
 	{
 		const vk::PhysicalDeviceProperties props = GetPrimaryAdapterVK().getProperties();
-		const vk::SampleCountFlags sampleCountMask { props.limits.framebufferColorSampleCounts };
+		const vk::SampleCountFlags sampleCountMask{props.limits.framebufferColorSampleCounts};
 		if (vk::SampleCountFlagBits::e8 & sampleCountMask) {
 			return MSAALevel::x8;
 		}
@@ -527,6 +541,5 @@ namespace Zeron
 		ZE_FAIL("Vulkan multi-sampling anti aliasing level is not supported!");
 		return MSAALevel::Disabled;
 	}
-
 }
 #endif

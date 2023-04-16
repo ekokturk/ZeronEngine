@@ -5,8 +5,12 @@ function(zeron_compile_shaders target outputDir)
         message(FATAL_ERROR "Vulkan SPIR-V compiler glslc was not found!")
     endif()
 
-    # TODO: Add sub folder support for this
-    set(_outShaderDir ${CMAKE_CURRENT_BINARY_DIR}/${outputDir})
+    get_property(build_assets GLOBAL PROPERTY ZERON_BUILD_ASSETS_DIR)
+    if(NOT EXISTS ${build_assets})
+        set(build_assets ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
+
+    set(_outShaderDir ${build_assets}/${outputDir})
 
     # Find helper headers in the shader directories
     # We need to do this so they can be associated with source files
