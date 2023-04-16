@@ -20,10 +20,10 @@ namespace Zeron
 	class GraphicsContext;
 
 	class ImGuiRenderer final {
-	public:
+	  public:
 		ImGuiRenderer();
 		~ImGuiRenderer();
-		
+
 		bool Init(ImGuiContext& ctx, Graphics& graphics, GraphicsContext& graphicsContext);
 		void NewFrame(ImGuiContext& ctx);
 		void Update(ImGuiContext& ctx, Graphics& graphics);
@@ -32,7 +32,7 @@ namespace Zeron
 
 		ImVec2 GetDisplaySize() const;
 
-	private:
+	  private:
 		struct ViewParams {
 			Vec2 mScale;
 			Vec2 mTranslation;
@@ -52,5 +52,3 @@ namespace Zeron
 		std::unique_ptr<PipelineBinding> mBinding;
 	};
 }
-
-

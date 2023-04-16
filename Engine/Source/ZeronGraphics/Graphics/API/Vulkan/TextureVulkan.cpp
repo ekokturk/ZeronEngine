@@ -1,13 +1,16 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/TextureVulkan.h>
 
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/TextureVulkan.h>
+
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 
 namespace Zeron
 {
-	TextureVulkan::TextureVulkan(GraphicsVulkan& graphics, const Vec2i& size, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::SampleCountFlagBits sampling)
+	TextureVulkan::TextureVulkan(
+		GraphicsVulkan& graphics, const Vec2i& size, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::SampleCountFlagBits sampling
+	)
 		// TODO: Implement generic texture types
 		: Texture(TextureType::Invalid)
 		, mSize(size)
@@ -18,32 +21,19 @@ namespace Zeron
 
 		// Create Image
 		const vk::Extent3D extent(size.X, size.Y, 1);
-		const vk::ImageCreateInfo imageCreateInfo(
-			vk::ImageCreateFlags(),
-			vk::ImageType::e2D,
-			format,
-			extent,
-			GetMipLevelVK(),
-			1,
-			mSampling,
-			tiling,
-			usage
-		);
+		const vk::ImageCreateInfo imageCreateInfo(vk::ImageCreateFlags(), vk::ImageType::e2D, format, extent, GetMipLevelVK(), 1, mSampling, tiling, usage);
 		mOwnedImage = device.createImageUnique(imageCreateInfo);
 		mImage = *mOwnedImage;
 
 		// Allocate Image memory
 		const vk::MemoryRequirements memoryRequirements = device.getImageMemoryRequirements(*mOwnedImage);
 		const uint32_t memoryTypeIndex = graphics.GetMemoryTypeIndexVK(memoryRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal);
-		const vk::MemoryAllocateInfo info(
-			memoryRequirements.size,
-			memoryTypeIndex
-		);
+		const vk::MemoryAllocateInfo info(memoryRequirements.size, memoryTypeIndex);
 		mOwnedImageMemory = device.allocateMemoryUnique(info);
 		device.bindImageMemory(*mOwnedImage, mOwnedImageMemory.get(), 0);
 
 		// Only create default resources for sampled textures
-		if((usage & vk::ImageUsageFlagBits::eSampled) == vk::ImageUsageFlagBits::eSampled) {
+		if ((usage & vk::ImageUsageFlagBits::eSampled) == vk::ImageUsageFlagBits::eSampled) {
 			mImageView = CreateImageView(device, vk::ImageAspectFlagBits::eColor);
 		}
 	}
@@ -86,27 +76,11 @@ namespace Zeron
 
 	vk::UniqueImageView TextureVulkan::CreateImageView(const vk::Device& device, vk::ImageAspectFlags flags)
 	{
-		const vk::ImageSubresourceRange rangeInfo(
-			flags,
-			0,
-			GetMipLevelVK(),
-			0,
-			1
-		);
-
-		const vk::ImageViewCreateInfo createInfo( 
-			vk::ImageViewCreateFlags(),
-			GetImageVK(),
-			vk::ImageViewType::e2D,
-			GetFormatVK(),
-			vk::ComponentMapping(),
-			rangeInfo
-		);
-
+		const vk::ImageSubresourceRange rangeInfo(flags, 0, GetMipLevelVK(), 0, 1);
+		const vk::ImageViewCreateInfo createInfo(vk::ImageViewCreateFlags(), GetImageVK(), vk::ImageViewType::e2D, GetFormatVK(), vk::ComponentMapping(), rangeInfo);
 		return device.createImageViewUnique(createInfo);
 	}
 
 }
 
 #endif
-

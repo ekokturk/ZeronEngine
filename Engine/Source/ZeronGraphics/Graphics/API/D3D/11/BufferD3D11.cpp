@@ -1,12 +1,13 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/11/BufferD3D11.h>
 
-#include <d3d11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
-#include <Graphics/API/D3D/11/D3D11Helpers.h>
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/11/BufferD3D11.h>
+
+#	include <d3d11.h>
+#	include <Graphics/API/D3D/11/D3D11Helpers.h>
+#	include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {
@@ -57,7 +58,7 @@ namespace Zeron
 			MapD3D(device);
 		}
 		const uint32_t memOffset = GetStride() * offset;
-		unsigned char* offsetMemory = static_cast<unsigned char*>(mMappedMemory);
+		auto offsetMemory = static_cast<unsigned char*>(mMappedMemory);
 		if (mMappedMemory) {
 			CopyMemory(&offsetMemory[memOffset], data, sizeBytes);
 			if (updateRule == BufferUpdateRule::UnmapMemory || updateRule == BufferUpdateRule::KeepMappedMemoryIfAllowed) {
@@ -76,7 +77,7 @@ namespace Zeron
 		switch (GetUsageType()) {
 			case BufferUsageType::Default: return D3D11_USAGE::D3D11_USAGE_DEFAULT;
 			case BufferUsageType::Staging: return D3D11_USAGE::D3D11_USAGE_STAGING;
-			case BufferUsageType::Dynamic:  return D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+			case BufferUsageType::Dynamic: return D3D11_USAGE::D3D11_USAGE_DYNAMIC;
 			case BufferUsageType::Immutable: return D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
 			default: ZE_FAIL("D3D11 buffer usage type is not supported!");
 		}

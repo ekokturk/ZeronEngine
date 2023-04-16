@@ -2,14 +2,10 @@
 
 #pragma once
 
-#include <Graphics/GraphicsTypes.h>
-
 namespace Zeron
 {
 	class Pipeline {
-	public:
-
+	  public:
 		virtual ~Pipeline() = default;
-	private:
 	};
 }

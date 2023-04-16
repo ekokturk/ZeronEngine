@@ -4,7 +4,7 @@
 
 #if ZE_PLATFORM_ANDROID
 
-#include <Platform/Platform.h>
+#	include <Platform/Platform.h>
 
 struct android_app;
 
@@ -13,7 +13,7 @@ namespace Zeron
 	class WindowAndroid;
 
 	class PlatformAndroid : public Platform {
-	public:
+	  public:
 		PlatformAndroid(android_app* app);
 		~PlatformAndroid();
 
@@ -26,8 +26,8 @@ namespace Zeron
 		// Android API
 		void onAppCmd(int cmd);
 		static KeyCode GetKeyCode(int keyCode);
-		
-	private:
+
+	  private:
 		void _processEvents();
 		void _handleInputEvents();
 		void _initDirectories();

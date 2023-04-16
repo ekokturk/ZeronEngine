@@ -5,7 +5,7 @@
 namespace Zeron
 {
 	class RenderPass {
-	public:
+	  public:
 		virtual ~RenderPass() = default;
 	};
 }

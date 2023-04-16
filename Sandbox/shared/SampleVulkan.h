@@ -4,7 +4,8 @@
 
 #include <Sandbox.h>
 
-namespace Zeron {
+namespace Zeron
+{
 	class Graphics;
 	class Window;
 }
@@ -14,13 +15,12 @@ namespace SampleVulkan
 	struct SampleContext;
 
 	class SampleInstance : public Sandbox::ISampleInstance {
-	public:
+	  public:
 		SampleInstance(Zeron::Graphics* graphics, Zeron::Window* window);
-		~SampleInstance();
+		~SampleInstance() override;
 		bool Run() override;
-	private:
+
+	  private:
 		std::unique_ptr<SampleContext> mCtx;
 	};
 }
-
-

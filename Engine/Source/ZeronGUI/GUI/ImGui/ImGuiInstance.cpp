@@ -13,8 +13,7 @@ namespace Zeron
 
 	ImGuiInstance::ImGuiInstance()
 		: mContext(ImGui::CreateContext())
-	{
-	}
+	{}
 
 	ImGuiInstance::~ImGuiInstance()
 	{
@@ -83,58 +82,61 @@ namespace Zeron
 	{
 		bool handled = false;
 		ImGuiIO& io = mContext->IO;
-		std::visit(TypeTraits::Visitor{
-			[&](const SystemEvent::WindowFocused&) {
-				io.AddFocusEvent(true);
-			},
-			[&](const SystemEvent::WindowUnfocused&) {
-				io.AddFocusEvent(false);
-			},
-			[&](const SystemEvent::KeyDown& data) {
-				if (io.WantCaptureKeyboard) {
-					handled = _onKey(data.mCode, true);
-				}
-			},
-			[&](const SystemEvent::KeyUp& data) {
-				if (io.WantCaptureKeyboard) {
-					handled = _onKey(data.mCode, false);
-				}
-			},
-			[&](const SystemEvent::TextChar& data) {
-				if (io.WantTextInput) {
-					io.AddInputCharacter(data.mCharacter);
-					handled = true;
-				}
-			},
-			[&](const SystemEvent::MouseButtonDown& data) {
-				if (const int mouseButton = data.mCode;
-					mouseButton < static_cast<int>(std::size(io.MouseDown))) {
-					io.MouseDown[mouseButton] = true;
-					if (mContext->HoveredWindow) {
+		std::visit(
+			TypeTraits::Visitor{
+				[&](const SystemEvent::WindowFocused&) {
+					io.AddFocusEvent(true);
+				},
+				[&](const SystemEvent::WindowUnfocused&) {
+					io.AddFocusEvent(false);
+				},
+				[&](const SystemEvent::KeyDown& data) {
+					if (io.WantCaptureKeyboard) {
+						handled = _onKey(data.mCode, true);
+					}
+				},
+				[&](const SystemEvent::KeyUp& data) {
+					if (io.WantCaptureKeyboard) {
+						handled = _onKey(data.mCode, false);
+					}
+				},
+				[&](const SystemEvent::TextChar& data) {
+					if (io.WantTextInput) {
+						io.AddInputCharacter(data.mCharacter);
 						handled = true;
 					}
-				}
-			},
-			[&](const SystemEvent::MouseButtonUp& data) {
-				if (const int mouseButton = data.mCode;
-					mouseButton < static_cast<int>(std::size(io.MouseDown))) {
-					io.MouseDown[mouseButton] = false;
+				},
+				[&](const SystemEvent::MouseButtonDown& data) {
+					if (const int mouseButton = data.mCode; mouseButton < static_cast<int>(std::size(io.MouseDown))) {
+						io.MouseDown[mouseButton] = true;
+						if (mContext->HoveredWindow) {
+							handled = true;
+						}
+					}
+				},
+				[&](const SystemEvent::MouseButtonUp& data) {
+					if (const int mouseButton = data.mCode; mouseButton < static_cast<int>(std::size(io.MouseDown))) {
+						io.MouseDown[mouseButton] = false;
+						if (mContext->HoveredWindow) {
+							handled = true;
+						}
+					}
+				},
+				[&](const SystemEvent::MouseScroll& data) {
 					if (mContext->HoveredWindow) {
+						io.MouseWheel += data.mOffsetY;
 						handled = true;
 					}
-				}
+				},
+				[&](const SystemEvent::MouseMoved& data) {
+					io.MousePos = ImVec2(static_cast<float>(data.mPosX), static_cast<float>(data.mPosY));
+				},
+				[](const auto&) {
+					return;
+				},
 			},
-			[&](const SystemEvent::MouseScroll& data) {
-				if (mContext->HoveredWindow) {
-					io.MouseWheel += data.mOffsetY;
-					handled = true;
-				}
-			},
-			[&](const SystemEvent::MouseMoved& data) {
-				io.MousePos = ImVec2(static_cast<float>(data.mPosX),static_cast<float>(data.mPosY));
-			},
-			[](const auto&) { return; },
-		}, evt.GetData());
+			evt.GetData()
+		);
 
 		return handled;
 	}

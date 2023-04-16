@@ -1,22 +1,18 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/FrameBufferVulkan.h>
 
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
-#include <Graphics/API/Vulkan/RenderPassVulkan.h>
-#include <Graphics/API/Vulkan/SwapChainVulkan.h>
-#include <Graphics/API/Vulkan/TextureVulkan.h>
+#	include <Graphics/API/Vulkan/FrameBufferVulkan.h>
+
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/RenderPassVulkan.h>
+#	include <Graphics/API/Vulkan/SwapChainVulkan.h>
+#	include <Graphics/API/Vulkan/TextureVulkan.h>
 
 namespace Zeron
 {
 	FrameBufferVulkan::FrameBufferVulkan(
-		GraphicsVulkan& graphics, 
-		vk::Extent2D extent, 
-		RenderPassVulkan& renderPass, 
-		TextureVulkan* colorTexture, 
-		TextureVulkan* depthTexture,
-		TextureVulkan* samplingTexture
+		GraphicsVulkan& graphics, vk::Extent2D extent, RenderPassVulkan& renderPass, TextureVulkan* colorTexture, TextureVulkan* depthTexture, TextureVulkan* samplingTexture
 	)
 		: mRenderPass(renderPass)
 		, mExtent(extent)
@@ -38,32 +34,19 @@ namespace Zeron
 			attachments.push_back(*mColorImageView);
 		}
 
-		const vk::FramebufferCreateInfo info(
-			vk::FramebufferCreateFlags(),
-			mRenderPass.GetRenderPassVK(),
-			attachments,
-			mExtent.width,
-			mExtent.height,
-			1
-		);
+		const vk::FramebufferCreateInfo info(vk::FramebufferCreateFlags(), mRenderPass.GetRenderPassVK(), attachments, mExtent.width, mExtent.height, 1);
 		mFrameBuffer = device.createFramebufferUnique(info);
 	}
 
-	FrameBufferVulkan::~FrameBufferVulkan()
-	{
-	}
+	FrameBufferVulkan::~FrameBufferVulkan() {}
 
-	void FrameBufferVulkan::CreateBuffers(vk::PhysicalDevice& adapter, vk::Device& device, SwapChainVulkan& swapChain)
-	{
-	}
+	void FrameBufferVulkan::CreateBuffers(vk::PhysicalDevice& adapter, vk::Device& device, SwapChainVulkan& swapChain) {}
 
-	void FrameBufferVulkan::ReleaseBuffers()
-	{
-	}
+	void FrameBufferVulkan::ReleaseBuffers() {}
 
 	vk::Framebuffer& FrameBufferVulkan::GetFrameBufferVK()
 	{
-        return *mFrameBuffer;
+		return *mFrameBuffer;
 	}
 
 	const vk::Extent2D& FrameBufferVulkan::GetExtentVK() const

@@ -3,9 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/GraphicsTypes.h>
-#include <Graphics/SwapChain.h>
-#include <Graphics/API/Vulkan/VulkanCommon.h>
+
+#	include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/GraphicsTypes.h>
+#	include <Graphics/SwapChain.h>
 
 namespace Zeron
 {
@@ -16,7 +17,7 @@ namespace Zeron
 	class GraphicsVulkan;
 
 	class SwapChainVulkan final : public SwapChain {
-	public:
+	  public:
 		SwapChainVulkan(GraphicsVulkan& graphics, SystemHandle systemHandle, const Vec2i& size, vk::UniqueSurfaceKHR surface);
 		~SwapChainVulkan();
 
@@ -40,7 +41,7 @@ namespace Zeron
 		void Recreate(GraphicsVulkan& graphics, const Vec2i& size);
 		void Present(GraphicsVulkan& graphics, vk::Semaphore semaphore);
 
-	private:
+	  private:
 		void _initSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
 		void _createSwapChain(GraphicsVulkan& graphics, vk::SwapchainKHR oldSwapChain);
 

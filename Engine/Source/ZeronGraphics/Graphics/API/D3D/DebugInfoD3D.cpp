@@ -3,7 +3,7 @@
 #include <Graphics/API/D3D/DebugInfoD3D.h>
 
 #if ZE_GRAPHICS_D3D
-#if ZE_DEBUG
+#	if ZE_DEBUG
 
 namespace Zeron
 {
@@ -15,22 +15,20 @@ namespace Zeron
 		if (!mIsInitialized) {
 			// https://walbourn.github.io/dxgi-debug-device/
 			// Load dxgidubug library to get DXGIGetDebugInterface
-			typedef HRESULT(WINAPI* LPDXGIGETDEBUGINTERFACE)(REFIID, void**);
+			using LPDXGIGETDEBUGINTERFACE = HRESULT(WINAPI*)(REFIID, void**);
 			const HMODULE dxgiDebug = LoadLibraryEx("dxgidebug.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 			if (dxgiDebug) {
-				auto dxgiGetDebugInterface = static_cast<LPDXGIGETDEBUGINTERFACE>(
-					reinterpret_cast<void*>(GetProcAddress(dxgiDebug, "DXGIGetDebugInterface")));
-				if (SUCCEEDED(dxgiGetDebugInterface(IID_PPV_ARGS(mInfoQueue.GetAddressOf()))))
-				{
+				auto dxgiGetDebugInterface = static_cast<LPDXGIGETDEBUGINTERFACE>(reinterpret_cast<void*>(GetProcAddress(dxgiDebug, "DXGIGetDebugInterface")));
+				if (SUCCEEDED(dxgiGetDebugInterface(IID_PPV_ARGS(mInfoQueue.GetAddressOf())))) {
 					mInfoFlags = DXGI_DEBUG_ALL;
 
 					// -- If we need to breakpoint errors
-					//dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
-					//dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+					// dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+					// dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
 					mIsInitialized = true;
 					return;
 				}
-				//FreeLibrary(dxgidebug);
+				// FreeLibrary(dxgidebug);
 				ZE_FAIL("Direct3D Debug Message Queue is not initialized properly!");
 			}
 			ZE_FAIL("DXGI debug library 'dxgidebug.dll' could not be loaded!");
@@ -46,8 +44,7 @@ namespace Zeron
 	{
 		const UINT64 end = mInfoQueue->GetNumStoredMessages(mInfoFlags);
 		std::string messageOutput;
-		for (auto i = startIndex; i < end; i++)
-		{
+		for (auto i = startIndex; i < end; i++) {
 			SIZE_T messagesLength;
 			mInfoQueue->GetMessageA(mInfoFlags, i, nullptr, &messagesLength);
 			auto bytes = std::make_unique<byte[]>(messagesLength);
@@ -61,8 +58,7 @@ namespace Zeron
 
 	DebugInfoD3D::DebugInfoD3D()
 		: mMessageIndex(D3DGlobalInfoQueue().GetMessageCount())
-	{
-	}
+	{}
 
 	std::string DebugInfoD3D::GetErrorMessage() const
 	{
@@ -76,9 +72,9 @@ namespace Zeron
 		const _com_error err(result);
 		description << "  DESCRIPTION: " << err.ErrorMessage();
 		description << "\n  ERROR INFO: ";
-		description << GetErrorMessage(); \
+		description << GetErrorMessage();
 		return description.str();
 	}
 }
-#endif
+#	endif
 #endif

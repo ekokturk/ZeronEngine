@@ -2,12 +2,11 @@
 
 #pragma once
 
-#include <Graphics/GraphicsTypes.h>
 
-namespace Zeron {
-
+namespace Zeron
+{
 	class Sampler {
-	public:
+	  public:
 		virtual ~Sampler() = default;
 	};
 }

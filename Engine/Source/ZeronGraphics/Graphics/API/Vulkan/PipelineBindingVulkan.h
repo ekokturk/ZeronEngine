@@ -3,10 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/PipelineBinding.h>
 
-#include <Graphics/GraphicsTypes.h>
-#include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/GraphicsTypes.h>
+#	include <Graphics/PipelineBinding.h>
 
 namespace Zeron
 {
@@ -18,7 +18,7 @@ namespace Zeron
 	class GraphicsVulkan;
 
 	class PipelineBindingVulkan final : public PipelineBinding {
-	public:
+	  public:
 		PipelineBindingVulkan(GraphicsVulkan& graphics, PipelineVulkan& pipeline, const std::vector<BindingHandle>& bindings);
 
 		uint32_t GetBindingSetCount() const;
@@ -26,7 +26,7 @@ namespace Zeron
 		// Vulkan API
 		const std::vector<vk::UniqueDescriptorSet>& GetDescriptorSets() const;
 
-	private:
+	  private:
 		void _countBindings(const std::vector<BindingHandle>& bindings, uint32_t& uniformBuffer, uint32_t& sampler, uint32_t& texture) const;
 
 		vk::UniqueDescriptorPool mDescriptorPool;

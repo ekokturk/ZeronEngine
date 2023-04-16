@@ -4,7 +4,7 @@
 
 #if ZE_PLATFORM_ANDROID
 
-#include <Platform/SystemEventProcessor.h>
+#	include <Platform/SystemEventProcessor.h>
 
 namespace Zeron
 {
@@ -12,11 +12,10 @@ namespace Zeron
 	class Platform;
 
 	class SystemEventProcessorAndroid : public SystemEventProcessor {
-	public:
+	  public:
 		SystemEventProcessorAndroid(DispatchFn dispatchCallback, ContextFn contextCallback);
 
 		void ProcessEvents() override;
-
 	};
 }
 

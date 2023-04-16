@@ -2,11 +2,11 @@
 
 #pragma once
 
-namespace Zeron {
-
-	template<typename ValueType, typename SizeType, SizeType DefaultEmptyValue = 0>
+namespace Zeron
+{
+	template <typename ValueType, typename SizeType, SizeType DefaultEmptyValue = 0>
 	class SparseSet {
-	public:
+	  public:
 		static_assert(std::is_unsigned_v<SizeType>, "Expected an unsigned size value");
 
 		using DenseList = std::vector<ValueType>;
@@ -15,20 +15,11 @@ namespace Zeron {
 		using ConstIterator = typename DenseList::const_iterator;
 		static constexpr SizeType EMPTY_ENTRY = std::numeric_limits<SizeType>::max();
 
-		ValueType& operator[](SizeType index)
-		{
-			return Get(index);
-		}
+		ValueType& operator[](SizeType index) { return Get(index); }
 
-		std::vector<ValueType>& GetData()
-		{
-			return mDenseList;
-		}
+		std::vector<ValueType>& GetData() { return mDenseList; }
 
-		const std::vector<ValueType>& GetData() const
-		{
-			return mDenseList;
-		}
+		const std::vector<ValueType>& GetData() const { return mDenseList; }
 
 		ValueType& Get(SizeType index)
 		{
@@ -46,22 +37,19 @@ namespace Zeron {
 
 		ValueType* TryGet(SizeType index)
 		{
-			if(index < mSparseList.size() && mSparseList[index] != DefaultEmptyValue) {
+			if (index < mSparseList.size() && mSparseList[index] != DefaultEmptyValue) {
 				return &mDenseList[mSparseList[index]];
 			}
 			return nullptr;
 		}
 
-		bool Contains(SizeType index) const {
-			return index < mSparseList.size() && mSparseList[index] != DefaultEmptyValue;
-		}
+		bool Contains(SizeType index) const { return index < mSparseList.size() && mSparseList[index] != DefaultEmptyValue; }
 
-		size_t GetSize() const {
-			return mDenseList.size();
-		}
+		size_t GetSize() const { return mDenseList.size(); }
 
-		void Add(SizeType index, ValueType val) {
-			if(mSparseList.size() <= index) {
+		void Add(SizeType index, ValueType val)
+		{
+			if (mSparseList.size() <= index) {
 				mSparseList.resize(index + 1, DefaultEmptyValue);
 			}
 			ZE_ASSERT(mSparseList[index] == DefaultEmptyValue, "Index should be empty");
@@ -69,34 +57,25 @@ namespace Zeron {
 			mSparseList[index] = mDenseList.size() - 1;
 		}
 
-		void Remove(SizeType index) {
+		void Remove(SizeType index)
+		{
 			ZE_ASSERT(Contains(index), "Unable to find the index");
 			std::swap(mDenseList[mSparseList[index]], mDenseList[mDenseList.size() - 1]);
 			mDenseList.pop_back();
 			mSparseList[index] = DefaultEmptyValue;
 		}
 
-		Iterator begin() {
-			return mDenseList.begin();
-		}
+		Iterator begin() { return mDenseList.begin(); }
 
-		Iterator end() {
-			return mDenseList.end();
-		}
+		Iterator end() { return mDenseList.end(); }
 
-		ConstIterator cbegin() const {
-			return mDenseList.cbegin();
-		}
+		ConstIterator cbegin() const { return mDenseList.cbegin(); }
 
-		ConstIterator cend() const {
-			return mDenseList.cend();
-		}
+		ConstIterator cend() const { return mDenseList.cend(); }
 
-	private:
+	  private:
 		DenseList mDenseList;
 		SparseList mSparseList;
 	};
 
 }
-
-

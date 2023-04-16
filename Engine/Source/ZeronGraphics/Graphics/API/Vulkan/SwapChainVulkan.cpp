@@ -1,13 +1,14 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/API/Vulkan/SwapChainVulkan.h>
 
-#include <Graphics/API/Vulkan/FrameBufferVulkan.h>
-#include <Graphics/API/Vulkan/GraphicsVulkan.h>
-#include <Graphics/API/Vulkan/RenderPassVulkan.h>
-#include <Graphics/API/Vulkan/TextureVulkan.h>
-#include <Graphics/API/Vulkan/VulkanHelpers.h>
+#	include <Graphics/API/Vulkan/SwapChainVulkan.h>
+
+#	include <Graphics/API/Vulkan/FrameBufferVulkan.h>
+#	include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/RenderPassVulkan.h>
+#	include <Graphics/API/Vulkan/TextureVulkan.h>
+#	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
 namespace Zeron
 {
@@ -30,11 +31,12 @@ namespace Zeron
 		ZE_ASSERT(std::find(availableModes.begin(), availableModes.end(), mPresentMode) != availableModes.end(), "Vulkan swap chain presentation mode is not supported!");
 
 		const vk::SurfaceCapabilitiesKHR surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(*mSurface);
-		mSurfaceTransform = (surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity) ? vk::SurfaceTransformFlagBitsKHR::eIdentity : surfaceCapabilities.currentTransform;
-		mCompositeAlpha = (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePreMultiplied) ? vk::CompositeAlphaFlagBitsKHR::ePreMultiplied
-			: (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePostMultiplied) ? vk::CompositeAlphaFlagBitsKHR::ePostMultiplied
-			: (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit) ? vk::CompositeAlphaFlagBitsKHR::eInherit
-			: vk::CompositeAlphaFlagBitsKHR::eOpaque;
+		mSurfaceTransform = (surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity) ? vk::SurfaceTransformFlagBitsKHR::eIdentity :
+																													 surfaceCapabilities.currentTransform;
+		mCompositeAlpha = (surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePreMultiplied) ? vk::CompositeAlphaFlagBitsKHR::ePreMultiplied :
+			(surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePostMultiplied)				? vk::CompositeAlphaFlagBitsKHR::ePostMultiplied :
+			(surfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit)						? vk::CompositeAlphaFlagBitsKHR::eInherit :
+																														  vk::CompositeAlphaFlagBitsKHR::eOpaque;
 
 		// Determine preferred frame buffer count
 		const uint32_t minImageCount = surfaceCapabilities.minImageCount;
@@ -47,28 +49,26 @@ namespace Zeron
 			ZE_ASSERT(mPreferredFrameCount <= surfaceCapabilities.maxImageCount, "Vulkan swap chain must have maximum {} frames!", surfaceCapabilities.maxImageCount);
 		}
 
-		mSwapChainRenderPass = std::make_unique<RenderPassVulkan>(graphics, mColorFormat, mDepthFormat, VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel()));
-		mPreDepthRenderPass = std::make_unique<RenderPassVulkan>(graphics, vk::Format::eUndefined, mDepthFormat, VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel()));
+		mSwapChainRenderPass = std::make_unique<RenderPassVulkan>(
+			graphics, mColorFormat, mDepthFormat, VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel())
+		);
+		mPreDepthRenderPass = std::make_unique<RenderPassVulkan>(
+			graphics, vk::Format::eUndefined, mDepthFormat, VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel())
+		);
 
 		_createSwapChain(graphics, nullptr);
 	}
 
-	SwapChainVulkan::~SwapChainVulkan()
-	{
-	}
+	SwapChainVulkan::~SwapChainVulkan() {}
 
 	void SwapChainVulkan::Present()
 	{
 		// We handle presentation through Render Context
 	}
 
-	void SwapChainVulkan::SetVSyncEnabled(bool isEnabled)
-	{
-	}
+	void SwapChainVulkan::SetVSyncEnabled(bool isEnabled) {}
 
-	void SwapChainVulkan::SetRefreshRate(uint16_t rate)
-	{
-	}
+	void SwapChainVulkan::SetRefreshRate(uint16_t rate) {}
 
 	bool SwapChainVulkan::IsVSyncEnabled() const
 	{
@@ -105,7 +105,7 @@ namespace Zeron
 	vk::Extent2D SwapChainVulkan::GetExtendVK() const
 	{
 		const Vec2i& size = GetSize();
-		return vk::Extent2D{static_cast<uint32_t>(size.X), static_cast<uint32_t>(size.Y)};
+		return vk::Extent2D{ static_cast<uint32_t>(size.X), static_cast<uint32_t>(size.Y) };
 	}
 
 	void SwapChainVulkan::AcquireNextFrame(const vk::Device& device, vk::Semaphore semaphore)
@@ -124,14 +124,7 @@ namespace Zeron
 
 	void SwapChainVulkan::Present(GraphicsVulkan& graphics, vk::Semaphore semaphore)
 	{
-		const vk::PresentInfoKHR presentInfo(
-			1,
-			&semaphore,
-			1,
-			&mSwapChain.get(),
-			&mCurrentFrameIndex,
-			nullptr
-		);
+		const vk::PresentInfoKHR presentInfo(1, &semaphore, 1, &mSwapChain.get(), &mCurrentFrameIndex, nullptr);
 
 		const vk::Result presentResult = graphics.GetPresentQueueVK().presentKHR(&presentInfo);
 		if (presentResult == vk::Result::eSuboptimalKHR || presentResult == vk::Result::eErrorOutOfDateKHR) {
@@ -203,7 +196,7 @@ namespace Zeron
 		const uint32_t graphicsQueueIndex = graphics.GetGraphicsQueueFamilyIndexVK();
 		const uint32_t presentQueueIndex = graphics.GetPresentQueueFamilyIndexVK();
 		if (presentQueueIndex != graphicsQueueIndex) {
-			const std::array<uint32_t, 2> queueIndices{graphicsQueueIndex, presentQueueIndex};
+			const std::array<uint32_t, 2> queueIndices{ graphicsQueueIndex, presentQueueIndex };
 			swapChainCreateInfo.queueFamilyIndexCount = 2;
 			swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
 			swapChainCreateInfo.pQueueFamilyIndices = queueIndices.data();
@@ -224,16 +217,32 @@ namespace Zeron
 		}
 
 		// Create shared image wrappers
-		mDepthTexture = graphics.CreateTextureVK(GetSize(), mDepthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
-			sampling, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+		mDepthTexture = graphics.CreateTextureVK(
+			GetSize(),
+			mDepthFormat,
+			vk::ImageTiling::eOptimal,
+			vk::ImageUsageFlagBits::eDepthStencilAttachment,
+			sampling,
+			vk::ImageLayout::eUndefined,
+			vk::ImageLayout::eDepthStencilAttachmentOptimal
+		);
 
 		if (sampling != vk::SampleCountFlagBits::e1) {
-			mSamplingTexture = graphics.CreateTextureVK(GetSize(), mColorFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
-				sampling, vk::ImageLayout::eUndefined, vk::ImageLayout::eColorAttachmentOptimal);
+			mSamplingTexture = graphics.CreateTextureVK(
+				GetSize(),
+				mColorFormat,
+				vk::ImageTiling::eOptimal,
+				vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
+				sampling,
+				vk::ImageLayout::eUndefined,
+				vk::ImageLayout::eColorAttachmentOptimal
+			);
 		}
 
 		for (TextureVulkan& colorTexture : mColorTextures) {
-			mSwapChainFrameBuffers.emplace_back(std::make_unique<FrameBufferVulkan>(graphics, GetExtendVK(), *mSwapChainRenderPass, &colorTexture, mDepthTexture.get(), mSamplingTexture.get()));
+			mSwapChainFrameBuffers.emplace_back(
+				std::make_unique<FrameBufferVulkan>(graphics, GetExtendVK(), *mSwapChainRenderPass, &colorTexture, mDepthTexture.get(), mSamplingTexture.get())
+			);
 		}
 
 		mPreDepthFrameBuffer = std::make_unique<FrameBufferVulkan>(graphics, GetExtendVK(), *mPreDepthRenderPass, nullptr, mDepthTexture.get(), nullptr);

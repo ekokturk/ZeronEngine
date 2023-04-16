@@ -14,7 +14,7 @@ namespace Zeron
 	class Window;
 
 	class Platform {
-	public:
+	  public:
 		virtual ~Platform();
 
 		virtual bool Init();
@@ -30,7 +30,7 @@ namespace Zeron
 		virtual Window* CreatePlatformWindow(const WindowConfig& config) = 0;
 		WindowManager* GetWindowManager() const;
 
-	protected:
+	  protected:
 		Platform();
 
 		void _dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx);

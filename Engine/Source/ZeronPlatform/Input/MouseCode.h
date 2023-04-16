@@ -4,9 +4,9 @@
 
 namespace Zeron
 {
-	struct MouseCode
-	{
-		enum Type : uint8_t {
+	struct MouseCode {
+		enum Type : uint8_t
+		{
 			LeftButton = 0,
 			RightButton,
 			MiddleButton,
@@ -26,19 +26,19 @@ namespace Zeron
 		MouseCode(Type button);
 		MouseCode(int button);
 
-		operator Type() const							{ return mType; }
-		operator const int() const						{ return static_cast<int>(mType); }
-		bool operator ==(const MouseCode& other) const	{ return mType == other.mType; }
-		bool operator !=(const MouseCode& other) const	{ return mType != other.mType; }
-		bool operator ==(const Type& other) const		{ return mType == other; }
-		bool operator !=(const Type& other) const		{ return mType != other; }
-		
-		MouseCode& operator =(const MouseCode& other) = default;
-		
+		operator Type() const { return mType; }
+		operator const int() const { return static_cast<int>(mType); }
+		bool operator==(const MouseCode& other) const { return mType == other.mType; }
+		bool operator!=(const MouseCode& other) const { return mType != other.mType; }
+		bool operator==(const Type& other) const { return mType == other; }
+		bool operator!=(const Type& other) const { return mType != other; }
+
+		MouseCode& operator=(const MouseCode& other) = default;
+
 		// Get human readable string name of the mouse code
 		const char* ToString() const;
 
-	private:
+	  private:
 		Type mType;
 	};
 }

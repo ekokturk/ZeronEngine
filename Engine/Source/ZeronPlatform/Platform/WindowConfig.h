@@ -6,8 +6,8 @@ namespace Zeron
 {
 	enum class FullScreenType : uint8_t
 	{
-		Borderless,		// Borderless Fullscreen Window
-		Monitor			// Display is adjusted to window
+		Borderless,	 // Borderless Fullscreen Window
+		Monitor		 // Display is adjusted to window
 	};
 
 	enum class WindowAPI : uint8_t
@@ -18,8 +18,7 @@ namespace Zeron
 		Android
 	};
 
-	struct WindowConfig
-	{
+	struct WindowConfig {
 		std::string mName = "Zeron Engine";
 		int mWidth = 800;
 		int mHeight = 600;

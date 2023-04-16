@@ -6,8 +6,7 @@ namespace Zeron
 {
 	VertexLayout::VertexLayout(const std::initializer_list<Element>& elements)
 		: mElements(elements)
-	{
-	}
+	{}
 
 	const std::vector<VertexLayout::Element>& VertexLayout::GetElements() const
 	{

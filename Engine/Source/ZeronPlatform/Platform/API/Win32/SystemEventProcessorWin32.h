@@ -4,7 +4,7 @@
 
 #if ZE_PLATFORM_WIN32
 
-#include <Platform/SystemEventProcessor.h>
+#	include <Platform/SystemEventProcessor.h>
 
 namespace Zeron
 {
@@ -12,7 +12,7 @@ namespace Zeron
 	class Platform;
 
 	class SystemEventProcessorWin32 : public SystemEventProcessor {
-	public:
+	  public:
 		SystemEventProcessorWin32(DispatchFn dispatchCallback, ContextFn contextCallback);
 
 		void ProcessEvents() override;

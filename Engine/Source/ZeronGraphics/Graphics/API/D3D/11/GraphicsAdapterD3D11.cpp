@@ -1,9 +1,11 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include <Graphics/API/D3D/11/GraphicsAdapterD3D11.h>
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/DebugInfoD3D.h>
+
+#	include <Graphics/API/D3D/11/GraphicsAdapterD3D11.h>
+
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {

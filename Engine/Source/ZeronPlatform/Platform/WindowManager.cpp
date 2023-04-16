@@ -20,7 +20,7 @@ namespace Zeron
 		mWindowList.reserve(8);
 	}
 
-	WindowManager::~WindowManager() 
+	WindowManager::~WindowManager()
 	{
 		_removePendingWindows();
 	}
@@ -44,21 +44,23 @@ namespace Zeron
 			return SystemEvent::Context{ GetWindowByHandle(handle) };
 		};
 		switch (windowType) {
-			#if ZE_WINDOW_WIN32
+#if ZE_WINDOW_WIN32
 			case WindowAPI::Win32: {
-				SystemEventProcessor* proc = mEventProcessorList.Add<SystemEventProcessorWin32>(static_cast<size_t>(WindowAPI::Win32), 
-					std::move(dispatchCallback), std::move(contextCallback));
+				SystemEventProcessor* proc = mEventProcessorList.Add<SystemEventProcessorWin32>(
+					static_cast<size_t>(WindowAPI::Win32), std::move(dispatchCallback), std::move(contextCallback)
+				);
 				window = std::make_unique<WindowWin32>(config, &SystemEventProcessorWin32::WndProcRouter, proc);
 			} break;
-			#endif
-			#if ZE_WINDOW_GLFW
+#endif
+#if ZE_WINDOW_GLFW
 			case WindowAPI::GLFW: {
-				SystemEventProcessor* proc = mEventProcessorList.Add<SystemEventProcessorGLFW>(static_cast<size_t>(WindowAPI::GLFW), 
-					std::move(dispatchCallback), std::move(contextCallback));
+				SystemEventProcessor* proc = mEventProcessorList.Add<SystemEventProcessorGLFW>(
+					static_cast<size_t>(WindowAPI::GLFW), std::move(dispatchCallback), std::move(contextCallback)
+				);
 				window = std::make_unique<WindowGLFW>(config, proc);
 				static_cast<SystemEventProcessorGLFW*>(proc)->registerEventCallbacks(static_cast<WindowGLFW*>(window.get()));
 			} break;
-			#endif
+#endif
 			case WindowAPI::Null:
 			default: ZE_FAIL("Window API is not supported by this platform");
 		}
@@ -88,7 +90,7 @@ namespace Zeron
 
 	void WindowManager::ForEachWindow(std::function<void(Window&)> callback)
 	{
-		for(auto& window : mWindowList) {
+		for (auto& window : mWindowList) {
 			callback(*window);
 		}
 	}
@@ -127,9 +129,16 @@ namespace Zeron
 				}
 			}
 
-			mWindowList.erase(std::remove_if(mWindowList.begin(), mWindowList.end(), [this](const std::unique_ptr<Window>& ownedWindow) {
-				return mWindowsToRemove.count(ownedWindow.get()) > 0;
-				}), mWindowList.end());
+			mWindowList.erase(
+				std::remove_if(
+					mWindowList.begin(),
+					mWindowList.end(),
+					[this](const std::unique_ptr<Window>& ownedWindow) {
+						return mWindowsToRemove.count(ownedWindow.get()) > 0;
+					}
+				),
+				mWindowList.end()
+			);
 			mWindowsToRemove = {};
 		}
 

@@ -1,10 +1,11 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/11/D3D11Helpers.h>
 
-#include <d3d11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
+#	include <Graphics/API/D3D/11/D3D11Helpers.h>
+
+#	include <d3d11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {
@@ -23,7 +24,7 @@ namespace Zeron
 	D3D11_CULL_MODE D3D11Helpers::GetCullMode(FaceCullMode cullMode)
 	{
 		switch (cullMode) {
-		case FaceCullMode::None: return D3D11_CULL_MODE::D3D11_CULL_NONE;
+			case FaceCullMode::None: return D3D11_CULL_MODE::D3D11_CULL_NONE;
 			case FaceCullMode::Back: return D3D11_CULL_MODE::D3D11_CULL_BACK;
 			case FaceCullMode::Front: return D3D11_CULL_MODE::D3D11_CULL_FRONT;
 			case FaceCullMode::FrontAndBack:;

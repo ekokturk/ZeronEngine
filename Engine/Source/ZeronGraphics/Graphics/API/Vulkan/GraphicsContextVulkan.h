@@ -3,9 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/GraphicsContext.h>
 
-#include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/GraphicsContext.h>
+
 
 namespace Zeron
 {
@@ -18,7 +19,7 @@ namespace Zeron
 	class GraphicsVulkan;
 
 	class GraphicsContextVulkan final : public GraphicsContext {
-	public:
+	  public:
 		GraphicsContextVulkan(GraphicsVulkan& graphics);
 		~GraphicsContextVulkan();
 
@@ -39,7 +40,7 @@ namespace Zeron
 
 		uint32_t GetMaxFramesInFlight() const override;
 
-	private:
+	  private:
 		vk::Semaphore& _getCurrentRenderCompleteSemaphore();
 		vk::Semaphore& _getCurrentPresentReadySemaphore();
 		vk::Fence& _getCurrentGraphicsFence();

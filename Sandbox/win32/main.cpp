@@ -20,10 +20,10 @@ bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args)
 	graphicsVulkan->Init();
 
 	Sandbox::SampleRunner runner;
-	runner.AddSample<SampleD3D11::SampleInstance>(graphicsD3D11.get(), platform.CreatePlatformWindow({"D3D11 - Win32", 800, 600, 0, false, Zeron::WindowAPI::Win32}));
-	runner.AddSample<SampleD3D11::SampleInstance>(graphicsD3D11.get(), platform.CreatePlatformWindow({"D3D11 - GLFW", 800, 600, 0, false, Zeron::WindowAPI::GLFW}));
-	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform.CreatePlatformWindow({"Vulkan - GLFW", 800, 600, 0, false, Zeron::WindowAPI::GLFW}));
-	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform.CreatePlatformWindow({"Vulkan - Win32", 800, 600, 0, false, Zeron::WindowAPI::Win32}));
+	runner.AddSample<SampleD3D11::SampleInstance>(graphicsD3D11.get(), platform.CreatePlatformWindow({ "D3D11 - Win32", 800, 600, 0, false, Zeron::WindowAPI::Win32 }));
+	runner.AddSample<SampleD3D11::SampleInstance>(graphicsD3D11.get(), platform.CreatePlatformWindow({ "D3D11 - GLFW", 800, 600, 0, false, Zeron::WindowAPI::GLFW }));
+	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform.CreatePlatformWindow({ "Vulkan - GLFW", 800, 600, 0, false, Zeron::WindowAPI::GLFW }));
+	runner.AddSample<SampleVulkan::SampleInstance>(graphicsVulkan.get(), platform.CreatePlatformWindow({ "Vulkan - Win32", 800, 600, 0, false, Zeron::WindowAPI::Win32 }));
 
 	int frameCount = 0;
 	Zeron::Time::Timer<float, Zeron::Time::Seconds> timer;

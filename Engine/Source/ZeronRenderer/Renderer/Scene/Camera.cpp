@@ -6,7 +6,7 @@ namespace Zeron
 {
 	Camera::Camera()
 		: mFOV(90.f)
-		, mViewSize{4.f, 3.f}
+		, mViewSize{ 4.f, 3.f }
 		, mClip{ 0.01f, 10000.f }
 		, mProjectionType(ProjectionType::Perspective)
 	{
@@ -19,21 +19,18 @@ namespace Zeron
 		, mViewSize(viewSize)
 		, mClip(clipStart, clipEnd)
 		, mProjectionType(ProjectionType::Orthographic)
-	{
-	}
+	{}
 
 	Camera::Camera(float fovDegrees, const Vec2& viewSize, float clipStart, float clipEnd)
 		: mFOV(fovDegrees)
 		, mViewSize(viewSize)
 		, mProjectionType(ProjectionType::Perspective)
 	{
-		SetClipPositions(clipStart, clipEnd); // Updates projection
+		SetClipPositions(clipStart, clipEnd);  // Updates projection
 		UpdateView_();
 	}
 
-	Camera::~Camera()
-	{
-	}
+	Camera::~Camera() {}
 
 	void Camera::Move(const Vec3& posStep)
 	{
@@ -49,7 +46,7 @@ namespace Zeron
 
 	void Camera::LookAt(const Vec3& target)
 	{
-		if(mPos == target) {
+		if (mPos == target) {
 			return;
 		}
 		float pitch = 0.f;
@@ -62,7 +59,7 @@ namespace Zeron
 		if (!Math::EqualsNear(direction.X, 0.f)) {
 			yaw = atan(direction.X / direction.Z);
 		}
-		if(direction.Z > 0.f) {
+		if (direction.Z > 0.f) {
 			yaw += Math::PI<float>();
 		}
 		SetRotation({ pitch, yaw, 0.f });
@@ -94,8 +91,7 @@ namespace Zeron
 
 	void Camera::SetClipPositions(float clipStart, float clipEnd)
 	{
-		mClip = { std::min(clipStart, clipEnd),
-			std::max(clipStart, clipEnd) };
+		mClip = { std::min(clipStart, clipEnd), std::max(clipStart, clipEnd) };
 		UpdateProjection_();
 	}
 
@@ -162,8 +158,8 @@ namespace Zeron
 
 	void Camera::UpdateProjection_()
 	{
-		if(mProjectionType == ProjectionType::Orthographic) {
-			mProjectionMatrix = Math::Orthographic(-mViewSize.X / 2, mViewSize.X/2, -mViewSize.Y/2, mViewSize.Y/2, mClip.X, mClip.Y);
+		if (mProjectionType == ProjectionType::Orthographic) {
+			mProjectionMatrix = Math::Orthographic(-mViewSize.X / 2, mViewSize.X / 2, -mViewSize.Y / 2, mViewSize.Y / 2, mClip.X, mClip.Y);
 		}
 		else {
 			mProjectionMatrix = Math::Perspective(Math::ToRadians(mFOV), mViewSize.X / mViewSize.Y, mClip.X, mClip.Y);

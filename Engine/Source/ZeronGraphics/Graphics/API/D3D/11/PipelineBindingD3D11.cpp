@@ -1,16 +1,17 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #ifdef ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/11/PipelineBindingD3D11.h>
 
-#include <d3d11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
-#include <Graphics/API/D3D/11/BufferD3D11.h>
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
-#include <Graphics/API/D3D/11/PipelineD3D11.h>
-#include <Graphics/API/D3D/11/SamplerD3D11.h>
-#include <Graphics/API/D3D/11/ShaderD3D11.h>
-#include <Graphics/API/D3D/11/TextureD3D11.h>
+#	include <Graphics/API/D3D/11/PipelineBindingD3D11.h>
+
+#	include <d3d11.h>
+#	include <Graphics/API/D3D/11/BufferD3D11.h>
+#	include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/11/PipelineD3D11.h>
+#	include <Graphics/API/D3D/11/SamplerD3D11.h>
+#	include <Graphics/API/D3D/11/ShaderD3D11.h>
+#	include <Graphics/API/D3D/11/TextureD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {
@@ -43,7 +44,7 @@ namespace Zeron
 						mTextures.push_back({ resource.mBinding, resource.mShaderStage, {}, {}, { textureDx->GetResourceViewD3D() } });
 					}
 				} break;
-				case PipelineResourceType::DynamicUniformBuffer: ;
+				case PipelineResourceType::DynamicUniformBuffer:;
 				default: ZE_FAIL("D3D11 pipeline bindings is not supported!");
 			}
 		}
@@ -81,6 +82,6 @@ namespace Zeron
 				} break;
 			}
 		}
-	} 
+	}
 }
 #endif

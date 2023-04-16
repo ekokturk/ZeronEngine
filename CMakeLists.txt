@@ -11,9 +11,12 @@ option(ZERON_TESTS          "Enable the Zeron tests"                        ON)
 option(BUILD_SHARED_LIBS    "Build shared libraries"                        ON)
 option(UNIFY_OUTPUT_DIR     "Build binary outputs into the same directory"  OFF)
 
+# ============ GENERAL CONFIG =============
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "PredefinedTargets")
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
 # ============ COMPILER CONFIG =============
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

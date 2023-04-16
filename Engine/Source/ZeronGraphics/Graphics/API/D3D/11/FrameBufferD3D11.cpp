@@ -1,18 +1,18 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
-#include <Graphics/API/D3D/11/FrameBufferD3D11.h>
 
 #ifdef ZE_GRAPHICS_D3D
-#include <d3d11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
-#include <Graphics/API/D3D/11/D3D11Helpers.h>
-#include <Graphics/API/D3D/11/SwapChainD3D11.h>
+
+#	include <Graphics/API/D3D/11/FrameBufferD3D11.h>
+
+#	include <d3d11.h>
+#	include <Graphics/API/D3D/11/D3D11Helpers.h>
+#	include <Graphics/API/D3D/11/SwapChainD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {
-	FrameBufferD3D11::FrameBufferD3D11()
-	{
-	}
+	FrameBufferD3D11::FrameBufferD3D11() {}
 
 	void FrameBufferD3D11::CreateBuffers(ID3D11Device* device, SwapChainD3D11& swapChain, MSAALevel msaaLevel)
 	{

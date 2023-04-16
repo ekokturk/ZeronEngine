@@ -4,8 +4,8 @@
 
 // Platform
 #if ZE_PLATFORM_WIN32
-#define NOMINMAX
-#include <Windows.h>
+#	define NOMINMAX
+#	include <Windows.h>
 #endif
 
 // STL
@@ -23,8 +23,8 @@
 #include <limits>
 #include <map>
 #include <memory>
-#include <queue>
 #include <optional>
+#include <queue>
 #include <regex>
 #include <set>
 #include <sstream>
@@ -36,14 +36,14 @@
 // Zeron Core
 #include <Common/Assert.h>
 #include <Common/Logger.h>
+#include <Common/Math/Math.h>
 #include <Common/Result.h>
 #include <Common/SystemHandle.h>
 #include <Common/Time.h>
-#include <Common/TypeTraits.h>
-#include <Common/Util.h>
-#include <Common/Math/Math.h>
 #include <Common/Types/ByteBuffer.h>
 #include <Common/Types/Color.h>
 #include <Common/Types/Enum.h>
 #include <Common/Types/Path.h>
 #include <Common/Types/SparseSet.h>
+#include <Common/TypeTraits.h>
+#include <Common/Util.h>

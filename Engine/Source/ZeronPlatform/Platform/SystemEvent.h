@@ -1,6 +1,7 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #pragma once
+
 #include <Input/KeyCode.h>
 #include <Input/MouseCode.h>
 
@@ -8,14 +9,13 @@ namespace Zeron
 {
 	class Window;
 
-	class SystemEvent
-	{
-	public:
+	class SystemEvent {
+	  public:
 		struct Context {
 			Window* mWindow = nullptr;
 		};
 
-		// ----- Window Events ----- 
+		// ----- Window Events -----
 		struct WindowCreated {};
 		struct WindowClosed {};
 		struct WindowFocused {};
@@ -43,7 +43,7 @@ namespace Zeron
 			const bool mIsVisible = false;
 		};
 
-		// ----- Key Events ----- 
+		// ----- Key Events -----
 		struct KeyDown {
 			KeyCode mCode;
 		};
@@ -54,7 +54,7 @@ namespace Zeron
 			const unsigned char mCharacter = 0;
 		};
 
-		// ----- Mouse Events ----- 
+		// ----- Mouse Events -----
 		struct MouseEnter {};
 		struct MouseExit {};
 		struct MouseButtonDown {
@@ -75,19 +75,17 @@ namespace Zeron
 		struct Invalid {};
 
 		using Types = std::variant<
-			WindowCreated, WindowClosed, WindowFocused, WindowUnfocused, WindowSizeChanged, WindowResizeStarted,
-			WindowResized, WindowMoved, WindowMinimized, WindowMaximized, WindowRestored, WindowVisibilityChanged,
-			KeyDown, KeyUp, TextChar,
-			MouseEnter, MouseExit, MouseButtonDown, MouseButtonUp, MouseScroll, MouseMoved,
-			Invalid
-		>;
+			WindowCreated, WindowClosed, WindowFocused, WindowUnfocused, WindowSizeChanged, WindowResizeStarted, WindowResized, WindowMoved, WindowMinimized, WindowMaximized,
+			WindowRestored, WindowVisibilityChanged, KeyDown, KeyUp, TextChar, MouseEnter, MouseExit, MouseButtonDown, MouseButtonUp, MouseScroll, MouseMoved, Invalid>;
 
 		SystemEvent() = default;
-		SystemEvent(Types data) : mData(data) {}
+		SystemEvent(Types data)
+			: mData(data)
+		{}
 
 		const Types& GetData() const { return mData; };
 
-	private:
+	  private:
 		Types mData = Invalid{};
 	};
 }

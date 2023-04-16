@@ -3,15 +3,15 @@
 #pragma once
 
 #include <Common/SystemHandle.h>
-#include <Platform/WindowConfig.h>
 #include <Platform/SystemEvent.h>
+#include <Platform/WindowConfig.h>
 
 namespace Zeron
 {
 	class SystemEvent;
 
 	class Window {
-	public:
+	  public:
 		Window(const WindowConfig& config, WindowAPI api);
 		virtual ~Window() = default;
 
@@ -33,7 +33,7 @@ namespace Zeron
 		virtual void SetSizeLimits(int minWidth, int maxWidth, int minHeight, int maxHeight) = 0;
 		virtual void SetAspectRatio(int numerator, int denominator) = 0;
 		virtual void SetScreenPosition(int posX, int posY) = 0;
-		
+
 		virtual void SetClipCursor(bool shouldClip) = 0;
 
 		void SetFullScreen(bool isFullScreen);
@@ -47,28 +47,28 @@ namespace Zeron
 		SystemEvent GetNextSystemEvent();
 		void FlushEvents();
 
-		const std::string& GetName() const			{ return mName; }
-		unsigned int GetID() const					{ return mID; }
-		int GetWidth() const						{ return mSize.X; }
-		int GetHeight() const						{ return mSize.Y; }
-		const Vec2i& GetSize() const				{ return mSize; }
-		const Vec2i& GetSizePrev() const			{ return mSizePrev; }
-		const Vec2i& GetPos() const					{ return mPos; }
-		const Vec2i& GetPosPrev() const				{ return mPosPrev; }
-		bool IsFullScreen() const					{ return mIsFullScreen; }
-		bool IsMinimized() const					{ return mIsMinimized; }
-		bool IsMaximized() const					{ return mIsMaximized; }
-		bool IsFocused() const						{ return mIsFocused; }
-		bool IsHovered() const						{ return mIsHovered; }
-		bool IsHidden() const						{ return mIsHidden; }
-		bool IsResizing() const						{ return mIsResizing; }
-		bool IsClosing() const						{ return mIsClosing; }
-		WindowAPI GetWindowType() const				{ return mWindowType; }
-		FullScreenType GetFullScreenType() const	{ return mFullScreenType; }
+		const std::string& GetName() const { return mName; }
+		unsigned int GetID() const { return mID; }
+		int GetWidth() const { return mSize.X; }
+		int GetHeight() const { return mSize.Y; }
+		const Vec2i& GetSize() const { return mSize; }
+		const Vec2i& GetSizePrev() const { return mSizePrev; }
+		const Vec2i& GetPos() const { return mPos; }
+		const Vec2i& GetPosPrev() const { return mPosPrev; }
+		bool IsFullScreen() const { return mIsFullScreen; }
+		bool IsMinimized() const { return mIsMinimized; }
+		bool IsMaximized() const { return mIsMaximized; }
+		bool IsFocused() const { return mIsFocused; }
+		bool IsHovered() const { return mIsHovered; }
+		bool IsHidden() const { return mIsHidden; }
+		bool IsResizing() const { return mIsResizing; }
+		bool IsClosing() const { return mIsClosing; }
+		WindowAPI GetWindowType() const { return mWindowType; }
+		FullScreenType GetFullScreenType() const { return mFullScreenType; }
 
 		Vec2i GetCenter() const;
 
-	protected:
+	  protected:
 		void OnSizeChanged(int width, int height);
 		void OnPositionChanged(int posX, int posY);
 		void OnHoverChanged(bool isHovered);
@@ -78,10 +78,10 @@ namespace Zeron
 		void OnMinimized();
 		void OnMaximized();
 
-		virtual void _onFullScreenChangedBorderless() {};
-		virtual void _onFullScreenChangedMonitor() {};
-	
-	protected:
+		virtual void _onFullScreenChangedBorderless(){};
+		virtual void _onFullScreenChangedMonitor(){};
+
+	  protected:
 		std::string mName;
 		int mID;
 		Vec2i mSize;

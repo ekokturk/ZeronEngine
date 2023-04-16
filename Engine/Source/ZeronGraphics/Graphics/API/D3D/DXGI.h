@@ -2,13 +2,12 @@
 
 #pragma once
 
-#include <wrl.h>
 #include <comdef.h>
 #include <dxgi.h>
+#include <wrl.h>
 
-namespace Zeron {
-	namespace ZE {
-		template <typename T>
-		using ComPtr = ::Microsoft::WRL::ComPtr<T>;
-	}
+namespace Zeron::ZE
+{
+	template <typename T>
+	using ComPtr = ::Microsoft::WRL::ComPtr<T>;
 }

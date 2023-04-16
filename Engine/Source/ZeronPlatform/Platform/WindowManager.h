@@ -10,7 +10,7 @@ namespace Zeron
 	class Window;
 
 	class WindowManager {
-	public:
+	  public:
 		WindowManager(SystemEventProcessor::DispatchFn onSystemEvent);
 		~WindowManager();
 
@@ -24,7 +24,7 @@ namespace Zeron
 		Window* GetWindowByHandle(const SystemHandle& handle);
 		uint32_t GetWindowCount(WindowAPI type) const;
 
-	private:
+	  private:
 		void _removePendingWindows();
 
 		UniqueSystemEventProcessorList mEventProcessorList;

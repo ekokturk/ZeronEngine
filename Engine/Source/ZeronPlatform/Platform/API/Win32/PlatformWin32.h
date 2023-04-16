@@ -4,16 +4,15 @@
 
 #if ZE_PLATFORM_WIN32
 
-#include <Platform/Platform.h>
+#	include <Platform/Platform.h>
 
-#include <Input/KeyCode.h>
-#include <Input/MouseCode.h>
+#	include <Input/KeyCode.h>
+#	include <Input/MouseCode.h>
 
 namespace Zeron
 {
-	class PlatformWin32 : public Platform
-	{
-	public:
+	class PlatformWin32 : public Platform {
+	  public:
 		PlatformWin32();
 		~PlatformWin32();
 

@@ -5,7 +5,7 @@
 namespace Zeron
 {
 	class FrameBuffer {
-	public:
+	  public:
 		virtual ~FrameBuffer() = default;
 	};
 }

@@ -6,11 +6,10 @@ namespace Zeron
 {
 	template <typename E>
 	class ErrorResult {
-	public:
+	  public:
 		ErrorResult(E&& value)
 			: mError(std::move(value))
-		{
-		}
+		{}
 
 		E&& ErrorValue()
 		{
@@ -19,7 +18,7 @@ namespace Zeron
 			return std::move(val);
 		}
 
-	private:
+	  private:
 		E mError;
 	};
 
@@ -27,28 +26,24 @@ namespace Zeron
 	class Result {
 		using ErrorType = ErrorResult<E>;
 
-	public:
+	  public:
 		Result(V&& value)
 			: mValue(std::move(value))
-		{
-		}
+		{}
 
 		template <std::enable_if<!std::is_same_v<V, E>>>
 		Result(E&& error)
 			: mError(std::move(error))
-		{
-		}
+		{}
 
 		Result(ErrorType&& error)
 			: mError(std::move(error.ErrorValue()))
-		{
-		}
+		{}
 
 		Result(Result&& other) noexcept
 			: mValue(std::move(other.mValue))
 			, mError(std::move(other.mError))
-		{
-		}
+		{}
 
 		Result& operator=(Result&& other) noexcept
 		{
@@ -82,7 +77,7 @@ namespace Zeron
 		bool HasValue() const { return mValue.has_value(); }
 		bool HasError() const { return mError.has_value(); }
 
-	private:
+	  private:
 		std::optional<V> mValue;
 		std::optional<E> mError;
 	};

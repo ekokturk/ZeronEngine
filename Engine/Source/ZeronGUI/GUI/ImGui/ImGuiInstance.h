@@ -17,7 +17,7 @@ namespace Zeron
 	struct WindowEvent;
 
 	class ImGuiInstance {
-	public:
+	  public:
 		ImGuiInstance();
 		~ImGuiInstance();
 
@@ -27,7 +27,7 @@ namespace Zeron
 		void Update(Graphics& graphics);
 		void Draw(CommandBuffer& cmd) const;
 
-	private:
+	  private:
 		bool _onKey(KeyCode::Type code, bool isPressed) const;
 
 		ImGuiContext* mContext;
@@ -37,5 +37,3 @@ namespace Zeron
 		std::chrono::high_resolution_clock::time_point mTime;
 	};
 }
-
-

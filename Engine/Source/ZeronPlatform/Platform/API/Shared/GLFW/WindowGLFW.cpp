@@ -1,13 +1,14 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_WINDOW_GLFW
-#include <Platform/API/Shared/GLFW/WindowGLFW.h>
 
-#include <Platform/API/Shared/GLFW/GLFWHelpers.h>
-#include <GLFW/glfw3.h>
+#	include <Platform/API/Shared/GLFW/WindowGLFW.h>
 
-namespace Zeron {
+#	include <GLFW/glfw3.h>
+#	include <Platform/API/Shared/GLFW/GLFWHelpers.h>
 
+namespace Zeron
+{
 	int WindowGLFW::mWindowGLFWCount = 0;
 
 	WindowGLFW::WindowGLFW(const WindowConfig& config, void* userData)
@@ -31,16 +32,10 @@ namespace Zeron {
 		}
 
 		// const int initRefreshRate = videoMode ? videoMode->refreshRate : mRefreshRate;
-		//glfwWindowHint(GLFW_REFRESH_RATE, initRefreshRate);
+		// glfwWindowHint(GLFW_REFRESH_RATE, initRefreshRate);
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		mWindowGLFW = glfwCreateWindow(
-			mSize.X,
-			mSize.Y,
-			mName.c_str(),
-			mMonitorGLFW,
-			nullptr
-		);
+		mWindowGLFW = glfwCreateWindow(mSize.X, mSize.Y, mName.c_str(), mMonitorGLFW, nullptr);
 
 		if (!mWindowGLFW) {
 			ZE_FAIL("GLFW window was not created!");
@@ -57,20 +52,20 @@ namespace Zeron {
 
 	WindowGLFW::~WindowGLFW()
 	{
-		if(mWindowGLFW) {
+		if (mWindowGLFW) {
 			glfwDestroyWindow(mWindowGLFW);
 			mWindowGLFWCount--;
 			ZE_ASSERT(mWindowGLFWCount >= 0, "Invalid GLFW window count!");
 		}
 
-		if(mWindowGLFWCount == 0) {
+		if (mWindowGLFWCount == 0) {
 			glfwTerminate();
 		}
 	}
 
 	void WindowGLFW::Update()
 	{
-		//ClearEventQueue();
+		// ClearEventQueue();
 		if (glfwWindowShouldClose(mWindowGLFW)) {
 			return;
 		}
@@ -86,8 +81,8 @@ namespace Zeron {
 		}
 
 		// Queue blocked until resizing is over so we send the final size with the event
-		if(mIsResizing) {
-			OnSystemEvent({ SystemEvent::WindowResized{ mSize.X, mSize.Y } } );
+		if (mIsResizing) {
+			OnSystemEvent({ SystemEvent::WindowResized{ mSize.X, mSize.Y } });
 			mIsResizing = false;
 		}
 	}
@@ -103,7 +98,7 @@ namespace Zeron {
 		glfwHideWindow(mWindowGLFW);
 		mIsHidden = true;
 	}
-	
+
 	void WindowGLFW::SetName(const std::string& name)
 	{
 		mName = name;
@@ -167,7 +162,7 @@ namespace Zeron {
 
 	void WindowGLFW::_onFullScreenChangedMonitor()
 	{
-		if(mIsFullScreen) {
+		if (mIsFullScreen) {
 			GLFWmonitor* monitor = FindCurrentMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 			glfwSetWindowAttrib(mWindowGLFW, GLFW_RESIZABLE, GLFW_FALSE);
@@ -190,8 +185,8 @@ namespace Zeron {
 	{
 		return mWindowGLFW;
 	}
-	
-	SystemHandle WindowGLFW::GetSystemHandle()  const
+
+	SystemHandle WindowGLFW::GetSystemHandle() const
 	{
 		return GLFWHelpers::GetPlatformWindowHandle(mWindowGLFW);
 	}

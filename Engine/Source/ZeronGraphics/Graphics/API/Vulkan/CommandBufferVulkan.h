@@ -3,9 +3,10 @@
 #pragma once
 
 #if ZE_GRAPHICS_VULKAN
-#include <Graphics/CommandBuffer.h>
-#include <Graphics/GraphicsTypes.h>
-#include <Graphics/API/Vulkan/VulkanCommon.h>
+
+#	include <Graphics/API/Vulkan/VulkanCommon.h>
+#	include <Graphics/CommandBuffer.h>
+#	include <Graphics/GraphicsTypes.h>
 
 namespace Zeron
 {
@@ -28,7 +29,7 @@ namespace Zeron
 	 */
 
 	class CommandBufferVulkan final : public CommandBuffer {
-	public:
+	  public:
 		CommandBufferVulkan(GraphicsVulkan& graphics, uint32_t count, bool isCompute);
 		~CommandBufferVulkan() = default;
 
@@ -66,7 +67,7 @@ namespace Zeron
 		void ApplyImageTransitionLayoutVK(TextureVulkan& texture, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 		void CopyBufferToTextureVK(BufferVulkan& source, TextureVulkan& destination);
 
-	private:
+	  private:
 		vk::Device& mDevice;
 
 		vk::CommandBuffer& _getCurrent();

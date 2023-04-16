@@ -7,7 +7,7 @@
 namespace Zeron
 {
 	class IFileSystemHandler {
-	public:
+	  public:
 		virtual ~IFileSystemHandler() = default;
 		virtual Result<ByteBuffer, FileSystemError> ReadBinaryFile(const Path& file) = 0;
 		virtual Result<std::string, FileSystemError> ReadTextFile(const Path& file) = 0;

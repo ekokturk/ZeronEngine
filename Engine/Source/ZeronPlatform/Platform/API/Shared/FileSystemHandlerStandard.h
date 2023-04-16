@@ -7,7 +7,7 @@
 namespace Zeron
 {
 	class FileSystemHandlerStandard : public IFileSystemHandler {
-	public:
+	  public:
 		Result<ByteBuffer, FileSystemError> ReadBinaryFile(const Path& file) override;
 		Result<std::string, FileSystemError> ReadTextFile(const Path& file) override;
 		bool WriteBinaryFile(const Path& file, const ByteBuffer& data) override;

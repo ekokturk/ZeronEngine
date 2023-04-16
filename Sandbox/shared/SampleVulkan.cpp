@@ -30,7 +30,7 @@ namespace SampleVulkan
 	};
 
 	struct PixelShaderCBData {
-		//float mAlpha = 1.f;
+		// float mAlpha = 1.f;
 		Vec3 mAmbientLightColor = Vec3::ONE;
 		float mAmbientLightStrength = 1.f;
 
@@ -95,44 +95,40 @@ namespace SampleVulkan
 		std::vector<VertexInstance> instanceData;
 		for (int i = 0; i < instanceM; ++i) {
 			for (int j = 0; j < instanceN; ++j) {
-				instanceData.emplace_back(VertexInstance{{i * 10.f, j * 10.f, 0}});
+				instanceData.emplace_back(VertexInstance{ { i * 10.f, j * 10.f, 0 } });
 			}
 		}
 
 		mCtx->mInstanceBuffer = gfx->CreateVertexBuffer<VertexInstance>(instanceData);
 
 		// Compute
-		//mCtx->mComputeCommandBuffer = gfx->CreateCommandBuffer(1, true);
-		//mCtx->mComputeShader = gfx->CreateShaderProgram("ComputeTest", "Resources/Shaders", {}, {});
-		//mCtx->mComputePipeline = gfx->CreatePipeline(mCtx->mComputeShader.get());
+		// mCtx->mComputeCommandBuffer = gfx->CreateCommandBuffer(1, true);
+		// mCtx->mComputeShader = gfx->CreateShaderProgram("ComputeTest", "Resources/Shaders", {}, {});
+		// mCtx->mComputePipeline = gfx->CreatePipeline(mCtx->mComputeShader.get());
 
 		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", ShaderType::Vertex));
 		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", ShaderType::Fragment));
-		mCtx->mShader = gfx->CreateShaderProgram("Standard",
+		mCtx->mShader = gfx->CreateShaderProgram(
+			"Standard",
 			{
-				{"POSITION", VertexFormat::Float3},
-				{"TEXTURE_COORD", VertexFormat::Float2},
-				{"NORMAL", VertexFormat::Float3},
-				{"INSTANCE_POS", VertexFormat::Float3, true, 1},
+				{ "POSITION", VertexFormat::Float3 },
+				{ "TEXTURE_COORD", VertexFormat::Float2 },
+				{ "NORMAL", VertexFormat::Float3 },
+				{ "INSTANCE_POS", VertexFormat::Float3, true, 1 },
 			},
 			{
-				{PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0},
-				{PipelineResourceType::Texture, ShaderType::Fragment, 1},
-				{PipelineResourceType::Texture, ShaderType::Fragment, 2},
-				{PipelineResourceType::Sampler, ShaderType::Fragment, 3},
-				{PipelineResourceType::UniformBuffer, ShaderType::Fragment, 4},
+				{ PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0 },
+				{ PipelineResourceType::Texture, ShaderType::Fragment, 1 },
+				{ PipelineResourceType::Texture, ShaderType::Fragment, 2 },
+				{ PipelineResourceType::Sampler, ShaderType::Fragment, 3 },
+				{ PipelineResourceType::UniformBuffer, ShaderType::Fragment, 4 },
 			},
 			vertexShaderBuffer.Value(),
 			fragmentShaderBuffer.Value()
 		);
 
 		mCtx->mPipeline = gfx->CreatePipeline(
-			mCtx->mShader.get(),
-			mCtx->mGraphicsContext->GetSwapChainRenderPass(),
-			gfx->GetMultiSamplingLevel(),
-			PrimitiveTopology::TriangleList,
-			true,
-			FaceCullMode::Back
+			mCtx->mShader.get(), mCtx->mGraphicsContext->GetSwapChainRenderPass(), gfx->GetMultiSamplingLevel(), PrimitiveTopology::TriangleList, true, FaceCullMode::Back
 		);
 
 		mCtx->mImage = std::make_unique<Image>();
@@ -148,23 +144,24 @@ namespace SampleVulkan
 			MeshResource res;
 			res.mUniformBuffer = gfx->CreateUniformBuffer<VertexShaderCBData>(VertexShaderCBData{});
 			res.mLightBuffer = gfx->CreateUniformBuffer<PixelShaderCBData>(PixelShaderCBData{});
-			res.mBinding = gfx->CreatePipelineBinding(*mCtx->mPipeline, std::vector<BindingHandle>{
-				UniformBindingHandle{res.mUniformBuffer.get()},
-				TextureBindingHandle{mCtx->mTexture.get()},
-				TextureBindingHandle{mCtx->mTexture.get()},
-				SamplerBindingHandle{mCtx->mSampler.get()},
-				UniformBindingHandle{res.mLightBuffer.get()},
-			});
+			res.mBinding = gfx->CreatePipelineBinding(
+				*mCtx->mPipeline,
+				std::vector<BindingHandle>{
+					UniformBindingHandle{ res.mUniformBuffer.get() },
+					TextureBindingHandle{ mCtx->mTexture.get() },
+					TextureBindingHandle{ mCtx->mTexture.get() },
+					SamplerBindingHandle{ mCtx->mSampler.get() },
+					UniformBindingHandle{ res.mLightBuffer.get() },
+				}
+			);
 			mCtx->mMeshResources.push_back(std::move(res));
 		}
 
-		mCtx->mCamera.SetPosition({0.f, 200.f, -400.f});
+		mCtx->mCamera.SetPosition({ 0.f, 200.f, -400.f });
 		mCtx->mCamera.SetFieldOfView(60.f);
 	}
 
-	SampleInstance::~SampleInstance()
-	{
-	}
+	SampleInstance::~SampleInstance() {}
 
 	bool SampleInstance::Run()
 	{
@@ -179,70 +176,74 @@ namespace SampleVulkan
 			if (mCtx->mImGui->HandleEvent(e)) {
 				continue;
 			}
-			std::visit(TypeTraits::Visitor{
-				[&](const SystemEvent::WindowClosed&) {
-					mCtx->mIsRunning = false;
-				},
-				[&](const SystemEvent::WindowMinimized&) {
-					mCtx->mIsSuspended = true;
-				},
-				[&](const SystemEvent::WindowRestored&) {
-					mCtx->mIsSuspended = false;
-				},
-				[&](const SystemEvent::WindowResized& data) {
-					mCtx->mGraphicsContext->ResizeSwapChain(Vec2i(data.mWidth, data.mHeight));
-				},
-				[&](const SystemEvent::KeyDown& data) {
-					if (data.mCode == KeyCode::W) {
-						mCtx->mCamera.Move(mCtx->mCamera.GetForwardDir() * cameraSensitivity);
-					}
-					if (data.mCode == KeyCode::S) {
-						mCtx->mCamera.Move(-mCtx->mCamera.GetForwardDir() * cameraSensitivity);
-					}
-					if (data.mCode == KeyCode::A) {
-						mCtx->mCamera.Move(-mCtx->mCamera.GetRightDir() * cameraSensitivity);
-					}
-					if (data.mCode == KeyCode::D) {
-						mCtx->mCamera.Move(mCtx->mCamera.GetRightDir() * cameraSensitivity);
-					}
-					if (data.mCode == KeyCode::Q) {
-						mCtx->mCamera.Move(mCtx->mCamera.GetUpDir() * cameraSensitivity);
-					}
-					if (data.mCode == KeyCode::E) {
-						mCtx->mCamera.Move(-mCtx->mCamera.GetUpDir() * cameraSensitivity);
-					}
-					if (data.mCode == KeyCode::Up) {
-						mCtx->mCamera.Rotate({Math::ToRadians(15.f), 0, 0});
-					}
-					if (data.mCode == KeyCode::Down) {
-						mCtx->mCamera.Rotate({Math::ToRadians(-15.f), 0, 0});
-					}
-					if (data.mCode == KeyCode::Left) {
-						mCtx->mCamera.Rotate({0, Math::ToRadians(-15.f), 0});
-					}
-					if (data.mCode == KeyCode::Right) {
-						mCtx->mCamera.Rotate({0, Math::ToRadians(15.f), 0});
-					}
-					if (data.mCode == KeyCode::RightShift) {
-						mCtx->mCamera.Rotate({0, 0, Math::ToRadians(-15.f)});
-					}
-					if (data.mCode == KeyCode::RightControl) {
-						mCtx->mCamera.Rotate({0, 0, Math::ToRadians(15.f)});
-					}
-				},
-				[&](const SystemEvent::MouseScroll& data) {
-					if (data.mOffsetY > 0) {
-						mCtx->mCamera.Move(mCtx->mCamera.GetForwardDir() * cameraSensitivity);
-					}
-					else {
-						mCtx->mCamera.Move(-mCtx->mCamera.GetForwardDir() * cameraSensitivity);
-					}
-				},
-				[&](const SystemEvent::MouseMoved&) {
-				},
+			std::visit(
+				TypeTraits::Visitor{
+					[&](const SystemEvent::WindowClosed&) {
+						mCtx->mIsRunning = false;
+					},
+					[&](const SystemEvent::WindowMinimized&) {
+						mCtx->mIsSuspended = true;
+					},
+					[&](const SystemEvent::WindowRestored&) {
+						mCtx->mIsSuspended = false;
+					},
+					[&](const SystemEvent::WindowResized& data) {
+						mCtx->mGraphicsContext->ResizeSwapChain(Vec2i(data.mWidth, data.mHeight));
+					},
+					[&](const SystemEvent::KeyDown& data) {
+						if (data.mCode == KeyCode::W) {
+							mCtx->mCamera.Move(mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+						}
+						if (data.mCode == KeyCode::S) {
+							mCtx->mCamera.Move(-mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+						}
+						if (data.mCode == KeyCode::A) {
+							mCtx->mCamera.Move(-mCtx->mCamera.GetRightDir() * cameraSensitivity);
+						}
+						if (data.mCode == KeyCode::D) {
+							mCtx->mCamera.Move(mCtx->mCamera.GetRightDir() * cameraSensitivity);
+						}
+						if (data.mCode == KeyCode::Q) {
+							mCtx->mCamera.Move(mCtx->mCamera.GetUpDir() * cameraSensitivity);
+						}
+						if (data.mCode == KeyCode::E) {
+							mCtx->mCamera.Move(-mCtx->mCamera.GetUpDir() * cameraSensitivity);
+						}
+						if (data.mCode == KeyCode::Up) {
+							mCtx->mCamera.Rotate({ Math::ToRadians(15.f), 0, 0 });
+						}
+						if (data.mCode == KeyCode::Down) {
+							mCtx->mCamera.Rotate({ Math::ToRadians(-15.f), 0, 0 });
+						}
+						if (data.mCode == KeyCode::Left) {
+							mCtx->mCamera.Rotate({ 0, Math::ToRadians(-15.f), 0 });
+						}
+						if (data.mCode == KeyCode::Right) {
+							mCtx->mCamera.Rotate({ 0, Math::ToRadians(15.f), 0 });
+						}
+						if (data.mCode == KeyCode::RightShift) {
+							mCtx->mCamera.Rotate({ 0, 0, Math::ToRadians(-15.f) });
+						}
+						if (data.mCode == KeyCode::RightControl) {
+							mCtx->mCamera.Rotate({ 0, 0, Math::ToRadians(15.f) });
+						}
+					},
+					[&](const SystemEvent::MouseScroll& data) {
+						if (data.mOffsetY > 0) {
+							mCtx->mCamera.Move(mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+						}
+						else {
+							mCtx->mCamera.Move(-mCtx->mCamera.GetForwardDir() * cameraSensitivity);
+						}
+					},
+					[&](const SystemEvent::MouseMoved&) {},
 
-				[](const auto&) { return; },
-			}, e.GetData());
+					[](const auto&) {
+						return;
+					},
+				},
+				e.GetData()
+			);
 		}
 
 		ImGui::Begin("Debug Window");
@@ -253,16 +254,16 @@ namespace SampleVulkan
 
 		const Vec2i& viewportSize = mCtx->mGraphicsContext->GetSwapChainSize();
 
-		mCtx->mCamera.SetViewSize({static_cast<float>(viewportSize.X), static_cast<float>(viewportSize.Y)});
-		mCtx->mCamera.LookAt({0, 100, 0});
+		mCtx->mCamera.SetViewSize({ static_cast<float>(viewportSize.X), static_cast<float>(viewportSize.Y) });
+		mCtx->mCamera.LookAt({ 0, 100, 0 });
 
 		mCtx->mImGui->Update(*mCtx->mGraphics);
 		if (!mCtx->mIsSuspended) {
-			//CommandBuffer& cmdCompute = *mCtx->mComputeCommandBuffer;
-			//cmdCompute.Begin();
-			//cmdCompute.SetPipeline(*mCtx->mComputePipeline);
-			//cmdCompute.Dispatch(16, 16, 1);
-			//cmdCompute.End();
+			// CommandBuffer& cmdCompute = *mCtx->mComputeCommandBuffer;
+			// cmdCompute.Begin();
+			// cmdCompute.SetPipeline(*mCtx->mComputePipeline);
+			// cmdCompute.Dispatch(16, 16, 1);
+			// cmdCompute.End();
 
 			CommandBuffer& cmd = mCtx->mGraphicsContext->BeginCommands();
 			{
@@ -275,10 +276,10 @@ namespace SampleVulkan
 
 				for (int i = 0; i < mCtx->mModel->GetMeshes().size(); ++i) {
 					auto& mesh = *mCtx->mModel->GetMeshes()[i];
-					VertexShaderCBData ubo = {mCtx->mCamera.GetProjectionMatrix() * mCtx->mCamera.GetViewMatrix() * mesh.GetTransform(), mesh.GetTransform()};
+					VertexShaderCBData ubo = { mCtx->mCamera.GetProjectionMatrix() * mCtx->mCamera.GetViewMatrix() * mesh.GetTransform(), mesh.GetTransform() };
 					cmd.UpdateBuffer(*mCtx->mMeshResources[i].mUniformBuffer, &ubo, sizeof(ubo));
 					cmd.SetPipelineBinding(*mCtx->mMeshResources[i].mBinding);
-					Buffer* vertexBuff[2] = {mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get()};
+					Buffer* vertexBuff[2] = { mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get() };
 					cmd.SetVertexBuffers(vertexBuff, 2);
 					cmd.SetIndexBuffer(*mesh.GetIndexBuffer());
 					cmd.DrawInstancedIndexed(mesh.GetIndexBuffer()->GetCount(), instanceM * instanceN);

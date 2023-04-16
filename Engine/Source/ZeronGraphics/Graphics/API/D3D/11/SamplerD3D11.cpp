@@ -1,11 +1,12 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #if ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/11/SamplerD3D11.h>
 
-#include <d3d11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/11/SamplerD3D11.h>
+
+#	include <d3d11.h>
+#	include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
 
 namespace Zeron
 {
@@ -20,7 +21,7 @@ namespace Zeron
 		samplerDesc.ComparisonFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_NEVER;
 		samplerDesc.MinLOD = 0;
 		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-		if(hasAnisotropicFilter) {
+		if (hasAnisotropicFilter) {
 			samplerDesc.MaxAnisotropy = 8;
 		}
 		ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateSamplerState(&samplerDesc, mSampler.GetAddressOf()));

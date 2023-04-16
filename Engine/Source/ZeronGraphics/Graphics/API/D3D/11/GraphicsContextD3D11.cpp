@@ -2,19 +2,21 @@
 
 
 #ifdef ZE_GRAPHICS_D3D
-#include <Graphics/API/D3D/11/GraphicsContextD3D11.h>
 
-#include <Graphics/API/D3D/11/CommandBufferD3D11.h>
-#include <Graphics/API/D3D/11/BufferD3D11.h>
-#include <Graphics/API/D3D/11/GraphicsD3D11.h>
-#include <Graphics/API/D3D/11/FrameBufferD3D11.h>
-#include <Graphics/API/D3D/11/ShaderD3D11.h>
-#include <Graphics/API/D3D/11/SwapChainD3D11.h>
-#include <Graphics/API/D3D/11/TextureD3D11.h>
-#include <Graphics/API/D3D/DebugInfoD3D.h>
+#	include <Graphics/API/D3D/11/GraphicsContextD3D11.h>
 
-namespace Zeron {
-	
+#	include <Graphics/API/D3D/11/BufferD3D11.h>
+#	include <Graphics/API/D3D/11/CommandBufferD3D11.h>
+#	include <Graphics/API/D3D/11/FrameBufferD3D11.h>
+#	include <Graphics/API/D3D/11/GraphicsD3D11.h>
+#	include <Graphics/API/D3D/11/ShaderD3D11.h>
+#	include <Graphics/API/D3D/11/SwapChainD3D11.h>
+#	include <Graphics/API/D3D/11/TextureD3D11.h>
+#	include <Graphics/API/D3D/DebugInfoD3D.h>
+
+namespace Zeron
+{
+
 	GraphicsContextD3D11::GraphicsContextD3D11(GraphicsD3D11& graphics)
 		: mGraphics(graphics)
 		, mDevice(graphics.GetDeviceD3D())
@@ -35,22 +37,16 @@ namespace Zeron {
 		return *mCommandBuffer;
 	}
 
-	void GraphicsContextD3D11::EndCommands()
-	{
-	}
+	void GraphicsContextD3D11::EndCommands() {}
 
-	void GraphicsContextD3D11::Submit(CommandBuffer& cmd)
-	{
-	}
+	void GraphicsContextD3D11::Submit(CommandBuffer& cmd) {}
 
 	void GraphicsContextD3D11::BeginSwapChainRenderPass(CommandBuffer& cmd) const
 	{
 		cmd.BeginRenderPass(mSwapChain->GetFrameBuffer());
 	}
 
-	void GraphicsContextD3D11::EndSwapChainRenderPass(CommandBuffer& cmd) const
-	{
-	}
+	void GraphicsContextD3D11::EndSwapChainRenderPass(CommandBuffer& cmd) const {}
 
 	void GraphicsContextD3D11::Present()
 	{
@@ -59,7 +55,7 @@ namespace Zeron {
 
 	void GraphicsContextD3D11::ResizeSwapChain(const Vec2i& size)
 	{
-		if(auto* frameBuffer = static_cast<FrameBufferD3D11*>(mSwapChain->GetFrameBuffer())) {
+		if (auto* frameBuffer = static_cast<FrameBufferD3D11*>(mSwapChain->GetFrameBuffer())) {
 			frameBuffer->ReleaseBuffers();
 			mSwapChain->Resize(size);
 			ZE_D3D_ASSERT(frameBuffer->CreateBuffers(mDevice, *mSwapChain, mGraphics.GetMultiSamplingLevel()));

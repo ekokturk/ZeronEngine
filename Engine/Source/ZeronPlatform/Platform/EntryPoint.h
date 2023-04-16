@@ -6,20 +6,20 @@
 #include <Platform/FileSystem.h>
 
 #if ZE_PLATFORM_WIN32
-#include <Platform/API/Win32/PlatformWin32.h>
+#	include <Platform/API/Win32/PlatformWin32.h>
 using EntryPlatform = ::Zeron::PlatformWin32;
 #elif ZE_PLATFORM_LINUX
-	#include <Platform/API/Linux/PlatformLinux.h>
-	using EntryPlatform = ::Zeron::PlatformLinux;
+#	include <Platform/API/Linux/PlatformLinux.h>
+using EntryPlatform = ::Zeron::PlatformLinux;
 #elif ZE_PLATFORM_ANDROID
-	#include <game-activity/native_app_glue/android_native_app_glue.h>
-	#include <Platform/API/Android/PlatformAndroid.h>
-	using EntryPlatform = ::Zeron::PlatformAndroid;
+#	include <game-activity/native_app_glue/android_native_app_glue.h>
+#	include <Platform/API/Android/PlatformAndroid.h>
+using EntryPlatform = ::Zeron::PlatformAndroid;
 #endif
 
 namespace Zeron
 {
-	using EntryPointFn = bool(*)(Platform&, const CommandLineArgs&);
+	using EntryPointFn = bool (*)(Platform&, const CommandLineArgs&);
 
 	struct EntryPoint {
 		template <typename... PlatformArgs>
@@ -36,26 +36,29 @@ namespace Zeron
 	};
 }
 
-#define ZERON_WIN32_ENTRY_POINT(fn)														\
-	int main(int argc, char** argv) {													\
-		::Zeron::CommandLineArgs cmdArgs;												\
-		cmdArgs.Process(argc, argv);													\
-		auto platform = std::make_unique<EntryPlatform>();								\
-		::Zeron::EntryPoint::Main(*platform, cmdArgs, fn);								\
+#define ZERON_WIN32_ENTRY_POINT(fn)                        \
+	int main(int argc, char** argv)                        \
+	{                                                      \
+		::Zeron::CommandLineArgs cmdArgs;                  \
+		cmdArgs.Process(argc, argv);                       \
+		auto platform = std::make_unique<EntryPlatform>(); \
+		::Zeron::EntryPoint::Main(*platform, cmdArgs, fn); \
 	}
 
-#define ZERON_LINUX_ENTRY_POINT(fn)														\
-	int main(int argc, char** argv) {													\
-		::Zeron::CommandLineArgs cmdArgs;												\
-		cmdArgs.Process(argc, argv);													\
-		auto platform = std::make_unique<EntryPlatform>();								\
-		::Zeron::EntryPoint::Main(*platform, cmdArgs, fn);								\
+#define ZERON_LINUX_ENTRY_POINT(fn)                        \
+	int main(int argc, char** argv)                        \
+	{                                                      \
+		::Zeron::CommandLineArgs cmdArgs;                  \
+		cmdArgs.Process(argc, argv);                       \
+		auto platform = std::make_unique<EntryPlatform>(); \
+		::Zeron::EntryPoint::Main(*platform, cmdArgs, fn); \
 	}
 
-#define ZERON_ANDROID_ENTRY_POINT(fn)													\
-	void android_main(android_app* app) {												\
-		auto platform = std::make_unique<EntryPlatform>(app);							\
-		::Zeron::EntryPoint::Main(*platform, ::Zeron::CommandLineArgs{}, fn);			\
+#define ZERON_ANDROID_ENTRY_POINT(fn)                                         \
+	void android_main(android_app* app)                                       \
+	{                                                                         \
+		auto platform = std::make_unique<EntryPlatform>(app);                 \
+		::Zeron::EntryPoint::Main(*platform, ::Zeron::CommandLineArgs{}, fn); \
 	}
 
 #if ZE_PLATFORM_WIN32

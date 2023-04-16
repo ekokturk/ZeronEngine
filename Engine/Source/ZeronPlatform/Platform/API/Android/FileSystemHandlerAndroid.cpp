@@ -2,20 +2,17 @@
 
 #if ZE_PLATFORM_ANDROID
 
-#include <Platform/API/Android/FileSystemHandlerAndroid.h>
+#	include <Platform/API/Android/FileSystemHandlerAndroid.h>
 
-#include <android/asset_manager.h>
+#	include <android/asset_manager.h>
 
 namespace Zeron
 {
-	FileSystemHandlerAndroid::FileSystemHandlerAndroid(AAssetManager* assetManager) 
+	FileSystemHandlerAndroid::FileSystemHandlerAndroid(AAssetManager* assetManager)
 		: mAssetManager(assetManager)
-	{
-	}
+	{}
 
-	FileSystemHandlerAndroid::~FileSystemHandlerAndroid() 
-	{
-	}
+	FileSystemHandlerAndroid::~FileSystemHandlerAndroid() {}
 
 	Result<ByteBuffer, FileSystemError> FileSystemHandlerAndroid::ReadBinaryFile(const Path& file)
 	{

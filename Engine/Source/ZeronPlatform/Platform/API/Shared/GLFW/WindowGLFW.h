@@ -4,17 +4,17 @@
 
 #if ZE_WINDOW_GLFW
 
-#include <Platform/Window.h>
+#	include <Platform/Window.h>
 
 class EventDispatcher;
 struct GLFWcursor;
 struct GLFWmonitor;
 struct GLFWwindow;
 
-namespace Zeron {
-	
+namespace Zeron
+{
 	class WindowGLFW final : public Window {
-	public:
+	  public:
 		WindowGLFW(const WindowConfig& windowProps, void* userData = nullptr);
 		~WindowGLFW();
 
@@ -22,14 +22,14 @@ namespace Zeron {
 
 		void SetVisible() override;
 		void SetHidden() override;
-		
+
 		void SetMinimized() override;
 		void SetMaximized() override;
 		void SetRestored() override;
 
 		void SetFocused() override;
 		void SetAttention() override;
-		
+
 		void SetName(const std::string& name) override;
 		void SetAspectRatio(int numerator, int denominator) override;
 		void SetSize(int width, int height) override;
@@ -40,12 +40,12 @@ namespace Zeron {
 
 		void* GetApiHandle() const override;
 		SystemHandle GetSystemHandle() const override;
-		
+
 		bool IsCursorClipped() const { return mIsCursorClipped; }
 
 		GLFWmonitor* FindCurrentMonitor() const;
 
-	private:
+	  private:
 		void _onFullScreenChangedBorderless() override;
 		void _onFullScreenChangedMonitor() override;
 

@@ -5,8 +5,7 @@
 namespace Zeron
 {
 	class Image {
-	public:
-
+	  public:
 		Image();
 		~Image();
 
@@ -15,18 +14,15 @@ namespace Zeron
 
 		const std::vector<Color>& GetColorData() const;
 		const unsigned char* GetRawData() const;
-		
+
 		int GetWidth() const;
 		int GetHeight() const;
 		int GetByteSize() const;
 
-	private:
-		
+	  private:
 		std::vector<Color> mData;
 		unsigned char* mRawData;
 		ColorChannel mColorChannel;
 		Vec2i mSize;
 	};
 }
-
-

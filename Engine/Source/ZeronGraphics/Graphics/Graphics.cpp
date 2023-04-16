@@ -2,10 +2,9 @@
 
 #include <Graphics/Graphics.h>
 
-#include <Graphics/Buffer.h>
-
 #include <Graphics/API/D3D/11/GraphicsD3D11.h>
 #include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#include <Graphics/Buffer.h>
 
 namespace Zeron
 {

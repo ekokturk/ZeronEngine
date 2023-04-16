@@ -8,7 +8,7 @@ namespace Zeron
 	class Window;
 
 	class SwapChain {
-	public:
+	  public:
 		SwapChain(const Vec2i& size, uint32_t bufferCount);
 		virtual ~SwapChain() = default;
 
@@ -21,11 +21,11 @@ namespace Zeron
 		virtual bool IsVSyncEnabled() const = 0;
 		virtual FrameBuffer* GetFrameBuffer() const = 0;
 
-	protected:
+	  protected:
 		void _setSize(const Vec2i& size);
 		void _setBufferCount(uint32_t count);
 
-	private:
+	  private:
 		Vec2i mSize;
 		uint32_t mBufferCount;
 	};
