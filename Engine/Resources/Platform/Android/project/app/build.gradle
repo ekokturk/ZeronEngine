@@ -21,12 +21,11 @@ android {
 
     sourceSets {
         main {
-            java.srcDirs    += ['src/main/java/']
-            
-            jniLibs.srcDirs += ['src/main/libs/']
+            java.srcDirs += ['src/main/java/']
+            java.srcDirs += ['@ZERON_ENGINE_DIR@/Source']
+            java.srcDirs += [@ZERON_APP_DIR@]
 
-            resources.srcDirs += ['@ZERON_ENGINE_DIR@']
-            resources.srcDirs += [@ZERON_APP_DIR@]
+            jniLibs.srcDirs += ['src/main/libs/']
         }
     }
     ndkVersion '@ANDROID_NDK_VERSION@'

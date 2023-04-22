@@ -1,47 +1,37 @@
 {
-	"version": 3,
+	"version": 5,
 	"cmakeMinimumRequired": {
 		"major": 3,
-		"minor": 22,
-		"patch": 3
+		"minor": 24,
+		"patch": 0
 	},
 	"configurePresets": [
 		{
 			"name": "Base",
-			"binaryDir": "${sourceDir}/Build/${presetName}",
 			"cacheVariables": {
-				"CMAKE_CXX_STANDARD": "20",
-				"CMAKE_BUILD_TYPE": "Debug"
-			}
-		},
-		{
-			"name": "Android_Base",
-			"generator": "Ninja",
-			"inherits": [ "Base"],
-			"cacheVariables": {
-				"CMAKE_SYSTEM_NAME": "Android",
-				"CMAKE_SYSTEM_VERSION": "24",
-				"CMAKE_ANDROID_STL_TYPE": "c++_shared",
-				"UNIFY_OUTPUT_DIR": "ON",
-				"CMAKE_CXX_FLAGS": "-fPIC",
-				"CMAKE_C_FLAGS": "-fPIC"
+				"CMAKE_CXX_STANDARD": "20"
 			},
-			"toolchainFile": "Engine/Tools/CMake/ZeronAndroidToolchain.cmake",
-			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
-			}
+			"hidden": true
 		},
 		{
-			"name": "Win32_x64",
+			"name": "Debug",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			},
+			"hidden": true
+		},
+		{
+			"name": "Release",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release"
+			},
+			"hidden": true
+		},
+		{
+			"name": "WindowsBase",
 			"displayName": "Windows Desktop 64-bit",
 			"generator": "Visual Studio 17 2022",
 			"inherits": [ "Base"],
-			"architecture": {
-				"value": "x64",
-				"strategy": "set"
-			},
 			"cacheVariables": {
 				"CMAKE_C_COMPILER": "cl",
 				"CMAKE_CXX_COMPILER": "cl",
@@ -51,10 +41,33 @@
 				"type": "equals",
 				"lhs": "${hostSystemName}",
 				"rhs": "Windows"
+			},
+			"hidden": true
+		},
+		{
+			"name": "Win32_x64",
+			"displayName": "Win32 x64",
+			"binaryDir": "${sourceDir}/Build/Win32_x64",
+			"inherits": [ "WindowsBase"],
+			"architecture": {
+				"value": "x64",
+				"strategy": "set"
 			}
 		},
 		{
-			"name": "Linux",
+			"name": "Win32_x64_Debug",
+			"displayName": "Win32 x64 Debug",
+			"inherits": [ "Debug", "Win32_x64"],
+			"hidden": true
+		},
+		{
+			"name": "Win32_x64_Release",
+			"displayName": "Win32 x64 Release",
+			"inherits": [ "Release", "Win32_x64"],
+			"hidden": true
+		},
+		{
+			"name": "LinuxBase",
 			"displayName": "Linux",
 			"generator": "Ninja",
 			"inherits": [ "Base"],
@@ -76,31 +89,105 @@
 				"type": "equals",
 				"lhs": "${hostSystemName}",
 				"rhs": "Linux"
-			}
+			},
+			"hidden": true
+		},
+		{
+			"name": "Linux_x64",
+			"displayName": "Linux x64",
+			"binaryDir": "${sourceDir}/Build/Linux_x64",
+			"inherits": [ "LinuxBase"],
+			"architecture": {
+				"value": "x64",
+				"strategy": "external"
+			},
+			"hidden": true
+		},
+		{
+			"name": "Linux_x64_Debug",
+			"displayName": "Linux x64 Debug",
+			"inherits": [ "Debug", "Linux_x64"]
+		},
+		{
+			"name": "Linux_x64_Release",
+			"displayName": "Linux x64 Release",
+			"inherits": [ "Release", "Linux_x64"]
+		},
+		{
+			"name": "AndroidBase",
+			"generator": "Ninja",
+			"inherits": [ "Base" ],
+			"cacheVariables": {
+				"CMAKE_SYSTEM_NAME": "Android",
+				"CMAKE_SYSTEM_VERSION": "24",
+				"CMAKE_ANDROID_STL_TYPE": "c++_shared",
+				"UNIFY_OUTPUT_DIR": "ON",
+				"CMAKE_CXX_FLAGS": "-fPIC",
+				"CMAKE_C_FLAGS": "-fPIC"
+			},
+			"toolchainFile": "Engine/Tools/CMake/ZeronAndroidToolchain.cmake",
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"hidden": true
 		},
 		{
 			"name": "Android_x86-64",
 			"displayName": "Android x86_64",
-			"inherits": [ "Android_Base"],
+			"binaryDir": "${sourceDir}/Build/Android_x86-64",
+			"inherits": [ "AndroidBase"],
 			"cacheVariables": {
 				"CMAKE_ANDROID_ARCH_ABI": "x86_64"
-			}
+			},
+			"hidden": true
+		},
+		{
+			"name": "Android_x86-64_Debug",
+			"displayName": "Android x86_64 Debug",
+			"inherits": [ "Debug", "Android_x86-64" ]
+		},
+		{
+			"name": "Android_x86-64_Release",
+			"displayName": "Android x86_64 Release",
+			"inherits": [ "Release", "Android_x86-64" ]
 		},
 		{
 			"name": "Android_arm64-v8a",
 			"displayName": "Android arm64-v8a",
-			"inherits": [ "Android_Base"],
+			"binaryDir": "${sourceDir}/Build/Android_arm64-v8a",
+			"inherits": [ "AndroidBase"],
 			"cacheVariables": {
 				"CMAKE_ANDROID_ARCH_ABI": "arm64-v8a"
-			}
+			},
+			"hidden": true
+		},
+		{
+			"name": "Android_arm64-v8a_Debug",
+			"displayName": "Android arm64-v8a Debug",
+			"inherits": [ "Debug", "Android_arm64-v8a" ]
+		},
+		{
+			"name": "Android_arm64-v8a_Release",
+			"displayName": "Android arm64-v8a Release",
+			"inherits": [ "Release", "Android_arm64-v8a" ]
 		}
 	],
 	"buildPresets": [
+		{
+			"name": "Win32_x64_Debug",
+			"displayName": "Debug",
+			"configurePreset": "Win32_x64_Debug",
+			"configuration": "Debug"
+		},
+		{
+			"name": "Win32_x64_Release",
+			"displayName": "Release",
+			"configurePreset": "Win32_x64_Release",
+			"configuration": "Release"
+		}
 	],
 	"testPresets": [
-		{
-			"name": "Linux-Test",
-			"configurePreset": "Linux"
-		}
 	]
 }

@@ -1,6 +1,6 @@
 # Copyright (C) Eser Kokturk. All Rights Reserved.
 
-cmake_minimum_required(VERSION 3.22.3)
+cmake_minimum_required(VERSION 3.24.0)
 
 # ============ PROJECT ============
 
@@ -29,6 +29,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         "/Zc:preprocessor"      # Enable new preprocessor
         "-DZE_COMPILER_MSVC=1"
     )
+    set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CLANG_MIN_REQUIRED_VERSION "14.0.0")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS ${CLANG_MIN_REQUIRED_VERSION})
