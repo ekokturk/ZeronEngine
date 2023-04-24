@@ -14,7 +14,7 @@
 #	include <Graphics/API/D3D/11/TextureD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 
 	GraphicsContextD3D11::GraphicsContextD3D11(GraphicsD3D11& graphics)

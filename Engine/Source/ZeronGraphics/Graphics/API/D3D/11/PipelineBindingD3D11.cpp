@@ -13,7 +13,7 @@
 #	include <Graphics/API/D3D/11/TextureD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	PipelineBindingD3D11::PipelineBindingD3D11(GraphicsD3D11& graphics, PipelineD3D11& pipeline, const std::vector<BindingHandle>& bindings)
 	{

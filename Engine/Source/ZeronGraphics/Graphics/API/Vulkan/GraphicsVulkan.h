@@ -9,7 +9,7 @@
 #	include <Graphics/Graphics.h>
 #	include <Graphics/GraphicsTypes.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class SwapChainVulkan;
 	class CommandBufferVulkan;

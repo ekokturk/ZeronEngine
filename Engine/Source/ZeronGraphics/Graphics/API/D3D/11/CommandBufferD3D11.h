@@ -8,7 +8,7 @@
 
 struct ID3D11DeviceContext;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class FrameBufferD3D11;
 	class GraphicsD3D11;

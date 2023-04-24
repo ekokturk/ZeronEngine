@@ -10,7 +10,7 @@
 #	include <Graphics/API/Vulkan/SwapChainVulkan.h>
 #	include <Graphics/API/Vulkan/TextureVulkan.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	GraphicsContextVulkan::GraphicsContextVulkan(GraphicsVulkan& graphics)
 		: mGraphics(graphics)

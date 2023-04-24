@@ -14,7 +14,7 @@ struct ID3D11Device;
 struct ID3D11RenderTargetView;
 struct ID3D11Texture2D;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsD3D11;
 	class SwapChainD3D11;
@@ -30,11 +30,11 @@ namespace Zeron
 		ID3D11DepthStencilView* GetDepthStencilD3D() const;
 
 	  private:
-		ZE::ComPtr<ID3D11RenderTargetView> mRenderTargetView;
-		ZE::ComPtr<ID3D11Texture2D> mBackBuffer;
+		Gfx::ComPtr<ID3D11RenderTargetView> mRenderTargetView;
+		Gfx::ComPtr<ID3D11Texture2D> mBackBuffer;
 
-		ZE::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
-		ZE::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
+		Gfx::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
+		Gfx::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
 	};
 }
 #endif

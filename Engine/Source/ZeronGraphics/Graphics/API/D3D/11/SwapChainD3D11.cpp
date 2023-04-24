@@ -11,7 +11,7 @@
 #	include <Graphics/API/D3D/11/GraphicsD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	SwapChainD3D11::SwapChainD3D11(GraphicsD3D11& graphics, SystemHandle systemHandle, const Vec2i& size)
 		: SwapChain(size, 2)

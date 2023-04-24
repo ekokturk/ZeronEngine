@@ -9,7 +9,7 @@
 #	include <Graphics/API/Vulkan/SwapChainVulkan.h>
 #	include <Graphics/API/Vulkan/TextureVulkan.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	FrameBufferVulkan::FrameBufferVulkan(
 		GraphicsVulkan& graphics, vk::Extent2D extent, RenderPassVulkan& renderPass, TextureVulkan* colorTexture, TextureVulkan* depthTexture, TextureVulkan* samplingTexture

@@ -16,7 +16,7 @@
 
 namespace Zeron
 {
-	Model::Model(Graphics& graphics, const ByteBuffer& modelData, std::unique_ptr<Buffer> uniformBuffer)
+	Model::Model(Gfx::Graphics& graphics, const ByteBuffer& modelData, std::unique_ptr<Gfx::Buffer> uniformBuffer)
 		: mConstantBuffer(std::move(uniformBuffer))
 	{
 		LoadModel(graphics, modelData);
@@ -32,7 +32,7 @@ namespace Zeron
 		return mMeshList;
 	}
 
-	bool Model::LoadModel(Graphics& graphics, const ByteBuffer& modelData)
+	bool Model::LoadModel(Gfx::Graphics& graphics, const ByteBuffer& modelData)
 	{
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFileFromMemory(modelData.data(), modelData.size(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
@@ -44,7 +44,7 @@ namespace Zeron
 		return false;
 	}
 
-	void Model::ProcessNode(Graphics& graphics, aiNode* node, const aiScene* scene, const Mat4& parentTransform)
+	void Model::ProcessNode(Gfx::Graphics& graphics, aiNode* node, const aiScene* scene, const Mat4& parentTransform)
 	{
 		const aiMatrix4x4& m = node->mTransformation;
 		const Mat4 transformation = parentTransform * Mat4{ m.a1, m.b1, m.c1, m.d1, m.a2, m.b2, m.c2, m.d2, m.a3, m.b3, m.c3, m.d3, m.a4, m.b4, m.c4, m.d4 };
@@ -59,13 +59,13 @@ namespace Zeron
 		}
 	}
 
-	std::unique_ptr<Mesh> Model::ProcessMesh(Graphics& graphics, aiMesh* meshNode, const aiScene* scene, const Mat4& transform)
+	std::unique_ptr<Mesh> Model::ProcessMesh(Gfx::Graphics& graphics, aiMesh* meshNode, const aiScene* scene, const Mat4& transform)
 	{
-		std::vector<Vertex> vertices;
+		std::vector<Gfx::Vertex> vertices;
 		std::vector<uint32_t> indices;
 
 		for (unsigned i = 0; i < meshNode->mNumVertices; ++i) {
-			Vertex vertex;
+			Gfx::Vertex vertex;
 			vertex.mPosition = { meshNode->mVertices[i].x, meshNode->mVertices[i].y, meshNode->mVertices[i].z };
 			vertex.mNormal = { meshNode->mNormals[i].x, meshNode->mNormals[i].y, meshNode->mNormals[i].z };
 
@@ -92,19 +92,19 @@ namespace Zeron
 		return std::make_unique<Mesh>(graphics, vertices, indices, transform);
 	}
 
-	std::vector<std::shared_ptr<Texture>> Model::LoadMaterialTextures(Graphics& graphics, const aiScene* scene, aiMaterial* material, TextureType type)
+	std::vector<std::shared_ptr<Gfx::Texture>> Model::LoadMaterialTextures(Gfx::Graphics& graphics, const aiScene* scene, aiMaterial* material, Gfx::TextureType type)
 	{
-		std::vector<std::shared_ptr<Texture>> materialTextures;
+		std::vector<std::shared_ptr<Gfx::Texture>> materialTextures;
 		aiTextureType aiType = aiTextureType::aiTextureType_UNKNOWN;
 		switch (type) {
-			case TextureType::Diffuse: aiType = aiTextureType_DIFFUSE; break;
-			case TextureType::Normal: aiType = aiTextureType_NORMALS; break;
+			case Gfx::TextureType::Diffuse: aiType = aiTextureType_DIFFUSE; break;
+			case Gfx::TextureType::Normal: aiType = aiTextureType_NORMALS; break;
 		}
 		const uint32_t textureCount = material->GetTextureCount(aiType);
 		if (textureCount == 0) {
 			aiColor3D aiColor(0.f);
 			switch (type) {
-				case TextureType::Diffuse: {
+				case Gfx::TextureType::Diffuse: {
 					material->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 					if (aiColor.IsBlack()) {
 						materialTextures.emplace_back(graphics.CreateTexture(type, Color::Pink));

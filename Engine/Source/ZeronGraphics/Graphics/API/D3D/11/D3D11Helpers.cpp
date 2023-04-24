@@ -7,7 +7,7 @@
 #	include <d3d11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	D3D11_BIND_FLAG D3D11Helpers::GetBufferType(BufferType bufferType)
 	{

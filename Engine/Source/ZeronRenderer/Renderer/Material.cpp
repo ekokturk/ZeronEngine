@@ -4,7 +4,7 @@
 
 namespace Zeron
 {
-	void Material::Bind(GraphicsContext& context)
+	void Material::Bind(Gfx::GraphicsContext& context)
 	{
 		// TODO: Update Layout
 		// TODO: Bind Shader

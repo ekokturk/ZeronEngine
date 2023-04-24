@@ -6,7 +6,7 @@
 #include <dxgi.h>
 #include <wrl.h>
 
-namespace Zeron::ZE
+namespace Zeron::Gfx
 {
 	template <typename T>
 	using ComPtr = ::Microsoft::WRL::ComPtr<T>;

@@ -9,7 +9,7 @@
 #	include <Graphics/API/D3D/11/GraphicsD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	BufferD3D11::BufferD3D11(GraphicsD3D11& graphics, BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage)
 		: Buffer(type, count, stride, usage)

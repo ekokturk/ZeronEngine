@@ -46,22 +46,22 @@ namespace SampleD3D11
 		bool mIsRunning = true;
 
 		Window* mWindow;
-		Graphics* mGraphics;
+		Gfx::Graphics* mGraphics;
 
-		std::unique_ptr<GraphicsContext> mGraphicsContext;
+		std::unique_ptr<Gfx::GraphicsContext> mGraphicsContext;
 		std::unique_ptr<ImGuiInstance> mImGui;
 
 		std::unique_ptr<Model> mModel;
 		std::unique_ptr<Image> mImage;
 
-		std::unique_ptr<Sampler> mSampler;
-		std::unique_ptr<Buffer> mInstanceBuffer;
-		std::unique_ptr<Buffer> mPerObjectBuffer;
-		std::unique_ptr<Buffer> mLightBuffer;
-		std::unique_ptr<ShaderProgram> mShader;
-		std::unique_ptr<Texture> mTexture;
-		std::unique_ptr<Pipeline> mPipeline;
-		std::unique_ptr<PipelineBinding> mPipelineBinding;
+		std::unique_ptr<Gfx::Sampler> mSampler;
+		std::unique_ptr<Gfx::Buffer> mInstanceBuffer;
+		std::unique_ptr<Gfx::Buffer> mPerObjectBuffer;
+		std::unique_ptr<Gfx::Buffer> mLightBuffer;
+		std::unique_ptr<Gfx::ShaderProgram> mShader;
+		std::unique_ptr<Gfx::Texture> mTexture;
+		std::unique_ptr<Gfx::Pipeline> mPipeline;
+		std::unique_ptr<Gfx::PipelineBinding> mPipelineBinding;
 
 		Camera mCamera;
 	};
@@ -71,7 +71,7 @@ namespace SampleD3D11
 	int instanceM = 10;
 	int instanceN = 10;
 
-	SampleInstance::SampleInstance(Zeron::Graphics* graphics, Zeron::Window* window)
+	SampleInstance::SampleInstance(Zeron::Gfx::Graphics* graphics, Zeron::Window* window)
 		: mCtx(std::make_unique<SampleContext>())
 	{
 		mCtx->mWindow = window;
@@ -85,36 +85,36 @@ namespace SampleD3D11
 		mCtx->mCamera.SetPosition({ 0.f, 200, -400.f });
 		mCtx->mCamera.SetFieldOfView(60.f);
 
-		std::vector<VertexInstance> instanceData;
+		std::vector<Gfx::VertexInstance> instanceData;
 		for (int i = 0; i < instanceM; ++i) {
 			for (int j = 0; j < instanceN; ++j) {
-				instanceData.emplace_back(VertexInstance{ { i * 10.f, j * 10.f, 0 } });
+				instanceData.emplace_back(Gfx::VertexInstance{ { i * 10.f, j * 10.f, 0 } });
 			}
 		}
-		mCtx->mInstanceBuffer = gfx->CreateVertexBuffer<VertexInstance>(instanceData);
+		mCtx->mInstanceBuffer = gfx->CreateVertexBuffer<Gfx::VertexInstance>(instanceData);
 
 		VertexShaderCBData vertexCB;
 		mCtx->mSampler = gfx->CreateSampler();
 		mCtx->mPerObjectBuffer = gfx->CreateUniformBuffer<VertexShaderCBData>(vertexCB);
 		pixelCB.mAmbientLightColor = { 1.f, 1.f, 1.f };
 
-		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", ShaderType::Vertex));
-		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", ShaderType::Fragment));
+		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", Gfx::ShaderType::Vertex));
+		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", Gfx::ShaderType::Fragment));
 		mCtx->mLightBuffer = gfx->CreateUniformBuffer<PixelShaderCBData>(pixelCB);
 		mCtx->mShader = gfx->CreateShaderProgram(
 			"Standard",
 			{
-				{ "POSITION", VertexFormat::Float3 },
-				{ "TEXTURE_COORD", VertexFormat::Float2 },
-				{ "NORMAL", VertexFormat::Float3 },
-				{ "INSTANCE_POS", VertexFormat::Float3, true, 1 },
+				{ "POSITION", Gfx::VertexFormat::Float3 },
+				{ "TEXTURE_COORD", Gfx::VertexFormat::Float2 },
+				{ "NORMAL", Gfx::VertexFormat::Float3 },
+				{ "INSTANCE_POS", Gfx::VertexFormat::Float3, true, 1 },
 			},
 			{
-				{ PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0 },
-				{ PipelineResourceType::Texture, ShaderType::Fragment, 1 },
-				{ PipelineResourceType::Texture, ShaderType::Fragment, 2 },
-				{ PipelineResourceType::Sampler, ShaderType::Fragment, 3 },
-				{ PipelineResourceType::UniformBuffer, ShaderType::Fragment, 4 },
+				{ Gfx::PipelineResourceType::UniformBuffer, Gfx::ShaderType::Vertex, 0 },
+				{ Gfx::PipelineResourceType::Texture, Gfx::ShaderType::Fragment, 1 },
+				{ Gfx::PipelineResourceType::Texture, Gfx::ShaderType::Fragment, 2 },
+				{ Gfx::PipelineResourceType::Sampler, Gfx::ShaderType::Fragment, 3 },
+				{ Gfx::PipelineResourceType::UniformBuffer, Gfx::ShaderType::Fragment, 4 },
 			},
 			vertexShaderBuffer.Value(),
 			fragmentShaderBuffer.Value()
@@ -123,19 +123,19 @@ namespace SampleD3D11
 		mCtx->mImage = std::make_unique<Image>();
 		auto imageBuffer = FileSystem::ReadBinaryFile("Resources/Textures/TestHumanoid_CLR.png");
 		mCtx->mImage->Load(imageBuffer.Value());
-		mCtx->mTexture = gfx->CreateTexture(TextureType::Diffuse, mCtx->mImage->GetColorData().data(), mCtx->mImage->GetWidth(), mCtx->mImage->GetHeight());
+		mCtx->mTexture = gfx->CreateTexture(Gfx::TextureType::Diffuse, mCtx->mImage->GetColorData().data(), mCtx->mImage->GetWidth(), mCtx->mImage->GetHeight());
 
 		auto modelBuffer = FileSystem::ReadBinaryFile("Resources/Models/TestHumanoid_Model.fbx");
 		mCtx->mModel = std::make_unique<Model>(*gfx, modelBuffer.Value(), nullptr);
-		mCtx->mPipeline = gfx->CreatePipeline(mCtx->mShader.get(), nullptr, MSAALevel::x8, PrimitiveTopology::TriangleList, true, FaceCullMode::Back);
+		mCtx->mPipeline = gfx->CreatePipeline(mCtx->mShader.get(), nullptr, Gfx::MSAALevel::x8, Gfx::PrimitiveTopology::TriangleList, true, Gfx::FaceCullMode::Back);
 		mCtx->mPipelineBinding = gfx->CreatePipelineBinding(
 			*mCtx->mPipeline,
 			{
-				UniformBindingHandle{ mCtx->mPerObjectBuffer.get() },
-				TextureBindingHandle{ mCtx->mTexture.get() },
-				TextureBindingHandle{ mCtx->mTexture.get() },
-				SamplerBindingHandle{ mCtx->mSampler.get() },
-				UniformBindingHandle{ mCtx->mLightBuffer.get() },
+				Gfx::UniformBindingHandle{ mCtx->mPerObjectBuffer.get() },
+				Gfx::TextureBindingHandle{ mCtx->mTexture.get() },
+				Gfx::TextureBindingHandle{ mCtx->mTexture.get() },
+				Gfx::SamplerBindingHandle{ mCtx->mSampler.get() },
+				Gfx::UniformBindingHandle{ mCtx->mLightBuffer.get() },
 			}
 		);
 	}
@@ -150,7 +150,7 @@ namespace SampleD3D11
 
 		ImGuiInstance& imgui = *mCtx->mImGui;
 		Camera& camera = mCtx->mCamera;
-		GraphicsContext* context = mCtx->mGraphicsContext.get();
+		Gfx::GraphicsContext* context = mCtx->mGraphicsContext.get();
 
 		imgui.NewFrame();
 
@@ -278,7 +278,7 @@ namespace SampleD3D11
 			camera.LookAt({ 0, 100, 0 });
 		}
 
-		CommandBuffer& cmd = context->BeginCommands();
+		Gfx::CommandBuffer& cmd = context->BeginCommands();
 		{
 			cmd.Clear(Color::DarkRed);
 			cmd.SetViewport(viewportSize);
@@ -295,7 +295,7 @@ namespace SampleD3D11
 				buffer[1] = mesh.GetTransform();
 				cmd.UpdateBuffer(*mCtx->mPerObjectBuffer, &buffer, sizeof(buffer));
 				cmd.SetPipelineBinding(*mCtx->mPipelineBinding, 0);
-				Buffer* vertexBuff[2] = { mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get() };
+				Gfx::Buffer* vertexBuff[2] = { mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get() };
 				cmd.SetVertexBuffers(vertexBuff, 2);
 				cmd.SetIndexBuffer(*mesh.GetIndexBuffer());
 				cmd.DrawInstancedIndexed(mesh.GetIndexBuffer()->GetCount(), instanceM * instanceN);

@@ -20,7 +20,7 @@
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	GraphicsVulkan::GraphicsVulkan()
 		: mDevice(nullptr)

@@ -11,8 +11,12 @@ struct ImGuiContext;
 // TODO: Modify Cursor Type (e.g. drag arrow)
 namespace Zeron
 {
+	namespace Gfx
+	{
+		class Graphics;
+	}
+
 	class SystemEvent;
-	class Graphics;
 	class Window;
 	struct WindowEvent;
 
@@ -21,11 +25,11 @@ namespace Zeron
 		ImGuiInstance();
 		~ImGuiInstance();
 
-		bool Init(Graphics& graphics, GraphicsContext& graphicsContext);
+		bool Init(Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext);
 		bool HandleEvent(const SystemEvent& evt) const;
 		void NewFrame();
-		void Update(Graphics& graphics);
-		void Draw(CommandBuffer& cmd) const;
+		void Update(Gfx::Graphics& graphics);
+		void Draw(Gfx::CommandBuffer& cmd) const;
 
 	  private:
 		bool _onKey(KeyCode::Type code, bool isPressed) const;

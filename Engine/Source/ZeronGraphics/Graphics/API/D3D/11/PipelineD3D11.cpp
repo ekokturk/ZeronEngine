@@ -10,7 +10,7 @@
 #	include <Graphics/API/D3D/11/ShaderD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	PipelineD3D11::PipelineD3D11(
 		GraphicsD3D11& graphics, ShaderProgramD3D11* shader, RenderPass* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill,

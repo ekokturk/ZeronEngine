@@ -11,7 +11,7 @@ using namespace Zeron;
 
 bool ZeronMain(Platform& platform, const CommandLineArgs& args)
 {
-	auto graphicsVulkan = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Vulkan);
+	auto graphicsVulkan = Zeron::Gfx::Graphics::CreateGraphics(Zeron::Gfx::GraphicsType::Vulkan);
 	graphicsVulkan->Init();
 
 	Sandbox::SampleRunner runner;

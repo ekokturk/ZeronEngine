@@ -4,7 +4,7 @@
 
 #	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	vk::SampleCountFlagBits VulkanHelpers::GetMultiSamplingLevel(MSAALevel level)
 	{

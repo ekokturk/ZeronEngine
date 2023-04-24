@@ -10,7 +10,7 @@
 #		include <dxgidebug.h>
 #		include <Graphics/API/D3D/DXGI.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class DebugInfoQueueD3D {
 	  public:
@@ -22,7 +22,7 @@ namespace Zeron
 		std::string GetMessages(UINT64 startIndex = 0) const;
 
 	  private:
-		ZE::ComPtr<IDXGIInfoQueue> mInfoQueue;
+		Gfx::ComPtr<IDXGIInfoQueue> mInfoQueue;
 		GUID mInfoFlags;
 		bool mIsInitialized;
 	};
@@ -48,7 +48,7 @@ namespace Zeron
 #	if ZE_DEBUG
 #		define ZE_D3D_ASSERT(call)                                       \
 			do {                                                          \
-				::Zeron::DebugInfoD3D debugInfo;                          \
+				::Zeron::Gfx::DebugInfoD3D debugInfo;                     \
 				(call);                                                   \
 				const std::string errorMsg = debugInfo.GetErrorMessage(); \
 				if (!errorMsg.empty()) {                                  \
@@ -59,7 +59,7 @@ namespace Zeron
 
 #		define ZE_D3D_ASSERT_RESULT(call, ...)                             \
 			do {                                                            \
-				::Zeron::DebugInfoD3D debugInfo;                            \
+				::Zeron::Gfx::DebugInfoD3D debugInfo;                       \
 				const HRESULT result = (call);                              \
 				if (FAILED(result)) {                                       \
 					ZE_FAIL("{}", debugInfo.GetResultInfo(result).c_str()); \

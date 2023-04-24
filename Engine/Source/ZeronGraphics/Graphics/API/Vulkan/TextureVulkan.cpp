@@ -6,7 +6,7 @@
 
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	TextureVulkan::TextureVulkan(
 		GraphicsVulkan& graphics, const Vec2i& size, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::SampleCountFlagBits sampling

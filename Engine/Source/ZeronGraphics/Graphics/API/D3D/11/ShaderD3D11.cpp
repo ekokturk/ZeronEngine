@@ -12,9 +12,9 @@
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 #	include <Graphics/VertexLayout.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
-	ShaderD3D11::ShaderD3D11(GraphicsD3D11& graphics, ShaderType type, const ZE::ComPtr<ID3D10Blob>& buffer)
+	ShaderD3D11::ShaderD3D11(GraphicsD3D11& graphics, ShaderType type, const Gfx::ComPtr<ID3D10Blob>& buffer)
 		: Shader(type)
 		, mShaderBuffer(buffer)
 	{
@@ -50,7 +50,7 @@ namespace Zeron
 	)
 		: ShaderProgram(shaderName, vertexLayout, resourceLayout)
 	{
-		ZE::ComPtr<ID3DBlob> buffer;
+		Gfx::ComPtr<ID3DBlob> buffer;
 		if (!vertexShader.empty()) {
 			ZE_D3D_ASSERT_RESULT(D3DCreateBlob(vertexShader.size(), buffer.GetAddressOf()));
 			std::memcpy(buffer->GetBufferPointer(), vertexShader.data(), vertexShader.size());

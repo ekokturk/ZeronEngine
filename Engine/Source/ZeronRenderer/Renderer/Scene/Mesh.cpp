@@ -8,9 +8,9 @@
 
 namespace Zeron
 {
-	Mesh::Mesh(Graphics& graphics, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const Mat4& transform)
+	Mesh::Mesh(Gfx::Graphics& graphics, const std::vector<Gfx::Vertex>& vertices, const std::vector<uint32_t>& indices, const Mat4& transform)
 	{
-		mVertexBuffer = graphics.CreateVertexBuffer<Vertex>(vertices);
+		mVertexBuffer = graphics.CreateVertexBuffer<Gfx::Vertex>(vertices);
 		mIndexBuffer = graphics.CreateIndexBuffer(indices);
 		mTransform = transform;
 	}
@@ -22,12 +22,12 @@ namespace Zeron
 		return mTransform;
 	}
 
-	Buffer* Mesh::GetVertexBuffer() const
+	Gfx::Buffer* Mesh::GetVertexBuffer() const
 	{
 		return mVertexBuffer.get();
 	}
 
-	Buffer* Mesh::GetIndexBuffer() const
+	Gfx::Buffer* Mesh::GetIndexBuffer() const
 	{
 		return mIndexBuffer.get();
 	}

@@ -4,7 +4,7 @@
 
 #include <Graphics/GraphicsTypes.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class CommandBuffer;
 	class RenderPass;

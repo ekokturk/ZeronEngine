@@ -8,7 +8,7 @@
 #	include <Graphics/GraphicsTypes.h>
 #	include <Graphics/SwapChain.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class TextureVulkan;
 	class RenderPass;

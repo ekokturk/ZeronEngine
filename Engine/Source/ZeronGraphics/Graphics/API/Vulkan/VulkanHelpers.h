@@ -7,7 +7,7 @@
 #	include <Graphics/API/Vulkan/VulkanCommon.h>
 #	include <Graphics/GraphicsTypes.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class VulkanHelpers {
 	  public:

@@ -10,7 +10,7 @@
 #	include <Graphics/API/Vulkan/SamplerVulkan.h>
 #	include <Graphics/API/Vulkan/TextureVulkan.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	PipelineBindingVulkan::PipelineBindingVulkan(GraphicsVulkan& graphics, PipelineVulkan& pipeline, const std::vector<BindingHandle>& bindings)
 	{

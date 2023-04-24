@@ -8,7 +8,7 @@
 #	include <Graphics/CommandBuffer.h>
 #	include <Graphics/GraphicsTypes.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class BufferVulkan;
 	class Texture;

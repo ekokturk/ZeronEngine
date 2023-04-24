@@ -22,7 +22,7 @@ namespace Zeron
 
 	ImGuiRenderer::~ImGuiRenderer() {}
 
-	bool ImGuiRenderer::Init(ImGuiContext& ctx, Graphics& graphics, GraphicsContext& graphicsContext)
+	bool ImGuiRenderer::Init(ImGuiContext& ctx, Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext)
 	{
 		mGraphics = &graphics;
 		mGraphicsContext = &graphicsContext;
@@ -34,38 +34,38 @@ namespace Zeron
 		unsigned char* fontData = nullptr;
 		int texWidth = 0, texHeight = 0;
 		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
-		mFontTexture = graphics.CreateTexture(TextureType::Undefined, reinterpret_cast<Color*>(fontData), texWidth, texHeight);
+		mFontTexture = graphics.CreateTexture(Gfx::TextureType::Undefined, reinterpret_cast<Color*>(fontData), texWidth, texHeight);
 
-		mSampler = graphics.CreateSampler(SamplerAddressMode::Clamp, false);
+		mSampler = graphics.CreateSampler(Gfx::SamplerAddressMode::Clamp, false);
 		mUniformBuffer = graphics.CreateUniformBuffer(Mat4{});
 		// TODO: Don't use filesystem here
-		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / graphics.GetCompiledShaderName("ImGui", ShaderType::Vertex));
-		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / graphics.GetCompiledShaderName("ImGui", ShaderType::Fragment));
+		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / graphics.GetCompiledShaderName("ImGui", Gfx::ShaderType::Vertex));
+		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / graphics.GetCompiledShaderName("ImGui", Gfx::ShaderType::Fragment));
 		mShader = graphics.CreateShaderProgram(
 			"ImGui",
 			{
-				{ "POSITION", VertexFormat::Float2 },
-				{ "TEXCOORD", VertexFormat::Float2 },
-				{ "COLOR", VertexFormat::Color },
+				{ "POSITION", Gfx::VertexFormat::Float2 },
+				{ "TEXCOORD", Gfx::VertexFormat::Float2 },
+				{ "COLOR", Gfx::VertexFormat::Color },
 			},
 			{ {
-				{ PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0 },
-				{ PipelineResourceType::Texture, ShaderType::Fragment, 1 },
-				{ PipelineResourceType::Sampler, ShaderType::Fragment, 2 },
+				{ Gfx::PipelineResourceType::UniformBuffer, Gfx::ShaderType::Vertex, 0 },
+				{ Gfx::PipelineResourceType::Texture, Gfx::ShaderType::Fragment, 1 },
+				{ Gfx::PipelineResourceType::Sampler, Gfx::ShaderType::Fragment, 2 },
 			} },
 			vertexShaderBuffer.Value(),
 			fragmentShaderBuffer.Value()
 		);
 		// TODO: We should use MSAA::Disabled for this
 		mPipeline = graphics.CreatePipeline(
-			mShader.get(), graphicsContext.GetSwapChainRenderPass(), graphics.GetMultiSamplingLevel(), PrimitiveTopology::TriangleList, true, FaceCullMode::None
+			mShader.get(), graphicsContext.GetSwapChainRenderPass(), graphics.GetMultiSamplingLevel(), Gfx::PrimitiveTopology::TriangleList, true, Gfx::FaceCullMode::None
 		);
 		mBinding = graphics.CreatePipelineBinding(
 			*mPipeline,
 			{ {
-				UniformBindingHandle{ mUniformBuffer.get() },
-				TextureBindingHandle{ mFontTexture.get() },
-				SamplerBindingHandle{ mSampler.get() },
+				Gfx::UniformBindingHandle{ mUniformBuffer.get() },
+				Gfx::TextureBindingHandle{ mFontTexture.get() },
+				Gfx::SamplerBindingHandle{ mSampler.get() },
 			} }
 		);
 
@@ -77,7 +77,7 @@ namespace Zeron
 		ImGui::SetCurrentContext(&ctx);
 	}
 
-	void ImGuiRenderer::Update(ImGuiContext& ctx, Graphics& graphics)
+	void ImGuiRenderer::Update(ImGuiContext& ctx, Gfx::Graphics& graphics)
 	{
 		ImGui::SetCurrentContext(&ctx);
 		ImDrawData* imDrawData = ImGui::GetDrawData();
@@ -91,14 +91,14 @@ namespace Zeron
 		}
 
 		if (!mVertexBuffer || mVertexBuffer->GetCount() != static_cast<uint32_t>(imDrawData->TotalVtxCount)) {
-			mVertexBuffer = mGraphics->CreateBuffer(BufferType::Vertex, imDrawData->TotalVtxCount, sizeof(ImDrawVert), nullptr, BufferUsageType::Dynamic);
+			mVertexBuffer = mGraphics->CreateBuffer(Gfx::BufferType::Vertex, imDrawData->TotalVtxCount, sizeof(ImDrawVert), nullptr, Gfx::BufferUsageType::Dynamic);
 		}
 		if (!mIndexBuffer || mIndexBuffer->GetCount() < static_cast<uint32_t>(imDrawData->TotalIdxCount)) {
-			mIndexBuffer = mGraphics->CreateBuffer(BufferType::Index, imDrawData->TotalIdxCount, sizeof(ImDrawIdx), nullptr, BufferUsageType::Dynamic);
+			mIndexBuffer = mGraphics->CreateBuffer(Gfx::BufferType::Index, imDrawData->TotalIdxCount, sizeof(ImDrawIdx), nullptr, Gfx::BufferUsageType::Dynamic);
 		}
 	}
 
-	void ImGuiRenderer::Draw(ImGuiContext& ctx, CommandBuffer& cmd)
+	void ImGuiRenderer::Draw(ImGuiContext& ctx, Gfx::CommandBuffer& cmd)
 	{
 		if (!mVertexBuffer || !mIndexBuffer) {
 			return;
@@ -130,7 +130,7 @@ namespace Zeron
 		int offsetIndex = 0;
 		for (int i = 0; i < imDrawData->CmdListsCount; ++i) {
 			const ImDrawList* cmdList = imDrawData->CmdLists[i];
-			const BufferUpdateRule updateRule = i + 1 == imDrawData->CmdListsCount ? BufferUpdateRule::KeepMappedMemoryIfAllowed : BufferUpdateRule::DoNothing;
+			const Gfx::BufferUpdateRule updateRule = i + 1 == imDrawData->CmdListsCount ? Gfx::BufferUpdateRule::KeepMappedMemoryIfAllowed : Gfx::BufferUpdateRule::DoNothing;
 			cmd.UpdateBuffer(*mVertexBuffer, &cmdList->VtxBuffer.Data[0], cmdList->VtxBuffer.Size * sizeof(ImDrawVert), offsetVertex, updateRule);
 			cmd.UpdateBuffer(*mIndexBuffer, &cmdList->IdxBuffer.Data[0], cmdList->IdxBuffer.Size * sizeof(ImDrawIdx), offsetIndex, updateRule);
 			offsetVertex += cmdList->VtxBuffer.Size;

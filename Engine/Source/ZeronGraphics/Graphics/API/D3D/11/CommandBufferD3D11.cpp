@@ -13,7 +13,7 @@
 #	include <Graphics/API/D3D/11/ShaderD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	CommandBufferD3D11::CommandBufferD3D11(GraphicsD3D11& graphics)
 		: mDeviceContext(graphics.GetDeviceContextD3D())

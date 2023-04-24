@@ -2,7 +2,7 @@
 
 #include <Graphics/Pipeline.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 
 }

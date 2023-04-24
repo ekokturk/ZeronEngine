@@ -9,11 +9,11 @@
 
 struct IDXGIAdapter;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsAdapterD3D11 final : public GraphicsAdapter {
 	  public:
-		GraphicsAdapterD3D11(ZE::ComPtr<IDXGIAdapter> adapter);
+		GraphicsAdapterD3D11(Gfx::ComPtr<IDXGIAdapter> adapter);
 
 		const char* GetName() const override;
 		bool HasSwapChainSupport() const override;
@@ -23,7 +23,7 @@ namespace Zeron
 		const DXGI_ADAPTER_DESC& GetDescriptionD3D() const { return mDesc; }
 
 	  private:
-		ZE::ComPtr<IDXGIAdapter> mAdapter;
+		Gfx::ComPtr<IDXGIAdapter> mAdapter;
 		DXGI_ADAPTER_DESC mDesc;
 		std::string mName;
 	};

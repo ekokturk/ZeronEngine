@@ -10,7 +10,7 @@
 enum D3D11_BIND_FLAG;
 enum D3D11_CULL_MODE;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsD3D11;
 

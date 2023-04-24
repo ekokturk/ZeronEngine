@@ -13,7 +13,7 @@ struct ID3D11DeviceContext;
 struct D3D11_MAPPED_SUBRESOURCE;
 enum D3D11_USAGE;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsD3D11;
 
@@ -31,7 +31,7 @@ namespace Zeron
 		D3D11_USAGE _getUsageFlagD3D() const;
 		UINT _getCpuAccessFlagD3D() const;
 
-		ZE::ComPtr<ID3D11Buffer> mBuffer;
+		Gfx::ComPtr<ID3D11Buffer> mBuffer;
 		void* mMappedMemory;
 	};
 }

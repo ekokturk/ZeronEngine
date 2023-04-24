@@ -15,13 +15,13 @@ struct ID3D11InputLayout;
 struct ID3D11PixelShader;
 struct ID3D11VertexShader;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsD3D11;
 
 	class ShaderD3D11 : public Shader {
 	  public:
-		ShaderD3D11(GraphicsD3D11& graphics, ShaderType type, const ZE::ComPtr<ID3D10Blob>& buffer);
+		ShaderD3D11(GraphicsD3D11& graphics, ShaderType type, const Gfx::ComPtr<ID3D10Blob>& buffer);
 		~ShaderD3D11();
 
 		// D3D11 API
@@ -29,8 +29,8 @@ namespace Zeron
 		ID3D10Blob* GetShaderBufferD3D() const;
 
 	  protected:
-		ZE::ComPtr<ID3D11DeviceChild> mShader;
-		ZE::ComPtr<ID3D10Blob> mShaderBuffer;
+		Gfx::ComPtr<ID3D11DeviceChild> mShader;
+		Gfx::ComPtr<ID3D10Blob> mShaderBuffer;
 	};
 
 	class ShaderProgramD3D11 : public ShaderProgram {
@@ -59,7 +59,7 @@ namespace Zeron
 	  private:
 		std::shared_ptr<ShaderD3D11> mVertexShader;
 		std::shared_ptr<ShaderD3D11> mFragmentShader;
-		ZE::ComPtr<ID3D11InputLayout> mInputLayout;
+		Gfx::ComPtr<ID3D11InputLayout> mInputLayout;
 	};
 }
 #endif

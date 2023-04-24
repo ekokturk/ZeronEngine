@@ -8,7 +8,7 @@
 #	include <Graphics/GraphicsTypes.h>
 #	include <Graphics/PipelineBinding.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class PipelineVulkan;
 	class Pipeline;

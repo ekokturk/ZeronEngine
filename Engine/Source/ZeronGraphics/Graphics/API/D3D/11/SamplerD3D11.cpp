@@ -8,7 +8,7 @@
 #	include <Graphics/API/D3D/11/GraphicsD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	SamplerD3D11::SamplerD3D11(GraphicsD3D11& graphics, SamplerAddressMode addressMode, bool hasAnisotropicFilter)
 	{
