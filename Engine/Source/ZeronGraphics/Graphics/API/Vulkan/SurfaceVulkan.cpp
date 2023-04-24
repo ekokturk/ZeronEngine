@@ -12,7 +12,7 @@
 
 #	include <Graphics/API/Vulkan/SurfaceVulkan.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	vk::UniqueSurfaceKHR SurfaceVulkan::CreateSurfaceVK(const vk::Instance& instance, SystemHandle systemHandle)
 	{

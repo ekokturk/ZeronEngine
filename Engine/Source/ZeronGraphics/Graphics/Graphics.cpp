@@ -6,7 +6,7 @@
 #include <Graphics/API/Vulkan/GraphicsVulkan.h>
 #include <Graphics/Buffer.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	std::unique_ptr<Graphics> Graphics::CreateGraphics(GraphicsType api)
 	{

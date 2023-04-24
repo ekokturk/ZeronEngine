@@ -6,7 +6,10 @@
 
 namespace Zeron
 {
-	class Graphics;
+	namespace Gfx
+	{
+		class Graphics;
+	}
 	class Window;
 }
 
@@ -16,7 +19,7 @@ namespace SampleVulkan
 
 	class SampleInstance : public Sandbox::ISampleInstance {
 	  public:
-		SampleInstance(Zeron::Graphics* graphics, Zeron::Window* window);
+		SampleInstance(Zeron::Gfx::Graphics* graphics, Zeron::Window* window);
 		~SampleInstance() override;
 		bool Run() override;
 

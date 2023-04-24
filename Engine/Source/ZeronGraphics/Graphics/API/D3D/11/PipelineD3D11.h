@@ -16,7 +16,7 @@ struct ID3D11SamplerState;
 struct ID3D11BlendState;
 enum D3D_PRIMITIVE_TOPOLOGY;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class RenderPass;
 	class ShaderProgramD3D11;
@@ -39,9 +39,9 @@ namespace Zeron
 
 		D3D_PRIMITIVE_TOPOLOGY mPrimitiveTopology;
 
-		ZE::ComPtr<ID3D11RasterizerState> mRasterizerState;
-		ZE::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
-		ZE::ComPtr<ID3D11BlendState> mBlendState;
+		Gfx::ComPtr<ID3D11RasterizerState> mRasterizerState;
+		Gfx::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
+		Gfx::ComPtr<ID3D11BlendState> mBlendState;
 	};
 }
 #endif

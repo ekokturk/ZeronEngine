@@ -10,7 +10,7 @@
 
 struct IDXGISwapChain;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsD3D11;
 	class FrameBufferD3D11;
@@ -34,7 +34,7 @@ namespace Zeron
 
 	  private:
 		std::unique_ptr<FrameBufferD3D11> mFrameBuffer;
-		ZE::ComPtr<IDXGISwapChain> mSwapChain;
+		Gfx::ComPtr<IDXGISwapChain> mSwapChain;
 		UINT mVSyncEnabled;
 		HWND mHWND;
 	};

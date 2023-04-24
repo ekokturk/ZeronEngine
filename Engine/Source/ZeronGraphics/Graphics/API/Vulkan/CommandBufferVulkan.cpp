@@ -12,7 +12,7 @@
 #	include <Graphics/API/Vulkan/RenderPassVulkan.h>
 #	include <Graphics/API/Vulkan/TextureVulkan.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	CommandBufferVulkan::CommandBufferVulkan(GraphicsVulkan& graphics, uint32_t count, bool isCompute)
 		: mDevice(graphics.GetDeviceVK())

@@ -6,7 +6,7 @@
 
 #	include <Graphics/API/Vulkan/VulkanCommon.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class SurfaceVulkan {
 	  public:

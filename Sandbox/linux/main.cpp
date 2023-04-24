@@ -11,7 +11,7 @@
 
 bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args)
 {
-	auto graphicsVulkan = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Vulkan);
+	auto graphicsVulkan = Zeron::Gfx::Graphics::CreateGraphics(Zeron::Gfx::GraphicsType::Vulkan);
 
 	graphicsVulkan->Init();
 

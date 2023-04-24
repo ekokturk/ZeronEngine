@@ -7,7 +7,7 @@
 #	include <Graphics/API/Vulkan/VulkanCommon.h>
 #	include <Graphics/FrameBuffer.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class RenderPassVulkan;
 	class TextureVulkan;

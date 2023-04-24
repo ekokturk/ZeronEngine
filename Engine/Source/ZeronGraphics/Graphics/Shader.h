@@ -6,7 +6,7 @@
 #include <Graphics/ResourceLayout.h>
 #include <Graphics/VertexLayout.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class ResourceLayout;
 	class VertexLayout;

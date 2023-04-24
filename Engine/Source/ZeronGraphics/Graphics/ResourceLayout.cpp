@@ -2,7 +2,7 @@
 
 #include <Graphics/ResourceLayout.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 
 }

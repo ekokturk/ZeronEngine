@@ -21,7 +21,7 @@ namespace Zeron
 		ImGui::DestroyContext(mContext);
 	}
 
-	bool ImGuiInstance::Init(Graphics& graphics, GraphicsContext& graphicsContext)
+	bool ImGuiInstance::Init(Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext)
 	{
 		ImGuiIO& io = mContext->IO;
 		io.BackendPlatformName = "Zeron Engine - ImGui";
@@ -65,7 +65,7 @@ namespace Zeron
 		ImGui::NewFrame();
 	}
 
-	void ImGuiInstance::Update(Graphics& graphics)
+	void ImGuiInstance::Update(Gfx::Graphics& graphics)
 	{
 		// Render all ImGui commands
 		ImGui::Render();
@@ -73,7 +73,7 @@ namespace Zeron
 		mImGuiRenderer->Update(*mContext, graphics);
 	}
 
-	void ImGuiInstance::Draw(CommandBuffer& cmd) const
+	void ImGuiInstance::Draw(Gfx::CommandBuffer& cmd) const
 	{
 		mImGuiRenderer->Draw(*mContext, cmd);
 	}

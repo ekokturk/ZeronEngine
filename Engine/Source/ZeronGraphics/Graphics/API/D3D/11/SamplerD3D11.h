@@ -12,7 +12,7 @@ struct ID3D11Buffer;
 struct ID3D11SamplerState;
 enum D3D11_TEXTURE_ADDRESS_MODE;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsD3D11;
 
@@ -25,7 +25,7 @@ namespace Zeron
 
 	  protected:
 		D3D11_TEXTURE_ADDRESS_MODE _getSamplerAddressMode(SamplerAddressMode addressMode);
-		ZE::ComPtr<ID3D11SamplerState> mSampler;
+		Gfx::ComPtr<ID3D11SamplerState> mSampler;
 	};
 }
 #endif

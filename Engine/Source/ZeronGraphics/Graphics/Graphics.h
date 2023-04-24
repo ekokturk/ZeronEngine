@@ -5,7 +5,7 @@
 #include <Graphics/GraphicsTypes.h>
 #include <Graphics/PipelineBinding.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class CommandBuffer;
 	class Sampler;

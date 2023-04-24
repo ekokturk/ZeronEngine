@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class RenderPass {
 	  public:

@@ -4,7 +4,7 @@
 
 #	include <Graphics/API/Vulkan/VulkanInstance.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	vk::Instance VulkanInstance::mInstance;
 	uint32_t VulkanInstance::mRefCount = 0;

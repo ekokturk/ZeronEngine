@@ -10,7 +10,7 @@
 #	include <Graphics/API/Vulkan/TextureVulkan.h>
 #	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	SwapChainVulkan::SwapChainVulkan(GraphicsVulkan& graphics, SystemHandle systemHandle, const Vec2i& size, vk::UniqueSurfaceKHR surface)
 		: SwapChain(size, 3)

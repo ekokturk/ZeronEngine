@@ -8,7 +8,7 @@
 #	include <Graphics/GraphicsTypes.h>
 #	include <Graphics/Sampler.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsVulkan;
 

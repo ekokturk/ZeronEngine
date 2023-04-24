@@ -10,7 +10,7 @@
 struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsD3D11;
 
@@ -24,8 +24,8 @@ namespace Zeron
 	  private:
 		void InitTexture_(GraphicsD3D11& graphics, const Color* data);
 
-		ZE::ComPtr<ID3D11Texture2D> mTexture;
-		ZE::ComPtr<ID3D11ShaderResourceView> mResourceView;
+		Gfx::ComPtr<ID3D11Texture2D> mTexture;
+		Gfx::ComPtr<ID3D11ShaderResourceView> mResourceView;
 		Vec2i mSize;
 	};
 }

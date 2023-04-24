@@ -7,9 +7,9 @@
 
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
-	GraphicsAdapterD3D11::GraphicsAdapterD3D11(ZE::ComPtr<IDXGIAdapter> adapter)
+	GraphicsAdapterD3D11::GraphicsAdapterD3D11(Gfx::ComPtr<IDXGIAdapter> adapter)
 		: mAdapter(std::move(adapter))
 	{
 		ZeroMemory(&mDesc, sizeof(DXGI_ADAPTER_DESC));

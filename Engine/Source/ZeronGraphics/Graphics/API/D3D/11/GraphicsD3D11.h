@@ -11,7 +11,7 @@
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsContext;
 	class GraphicsAdapterD3D11;
@@ -61,10 +61,10 @@ namespace Zeron
 		ID3D11DeviceContext* GetDeviceContextD3D() const;
 
 	  private:
-		ZE::ComPtr<IDXGIFactory> mFactory;
+		Gfx::ComPtr<IDXGIFactory> mFactory;
 		std::vector<GraphicsAdapterD3D11> mGraphicsAdapters;
-		ZE::ComPtr<ID3D11Device> mDevice;
-		ZE::ComPtr<ID3D11DeviceContext> mDeviceContext;
+		Gfx::ComPtr<ID3D11Device> mDevice;
+		Gfx::ComPtr<ID3D11DeviceContext> mDeviceContext;
 
 		std::shared_ptr<GraphicsContextD3D11> mImmediateContext;
 	};

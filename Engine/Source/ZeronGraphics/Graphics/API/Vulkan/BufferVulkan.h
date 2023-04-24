@@ -9,7 +9,7 @@
 #	include <Graphics/Buffer.h>
 #	include <Graphics/GraphicsTypes.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsVulkan;
 

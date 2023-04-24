@@ -9,7 +9,7 @@
 #	include <Graphics/Pipeline.h>
 #	include <Graphics/ResourceLayout.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class PipelineLayoutVulkan;
 	class PipelineLayout;

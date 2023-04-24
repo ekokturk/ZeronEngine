@@ -3,7 +3,7 @@
 #pragma once
 #include <Graphics/GraphicsTypes.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class Buffer;
 	class Pipeline;

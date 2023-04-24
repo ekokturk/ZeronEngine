@@ -2,7 +2,7 @@
 
 #include <Graphics/SwapChain.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	SwapChain::SwapChain(const Vec2i& size, uint32_t bufferCount)
 		: mSize(size)

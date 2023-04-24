@@ -14,7 +14,7 @@ struct ID3D11DeviceContext;
 struct ID3D11RasterizerState;
 struct ID3D11SamplerState;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class CommandBufferD3D11;
 	class SwapChainD3D11;
@@ -54,7 +54,7 @@ namespace Zeron
 
 		ID3D11Device* mDevice;
 		ID3D11DeviceContext* mDeviceContext;
-		ZE::ComPtr<ID3D11DeviceContext> mDefferedContext;
+		Gfx::ComPtr<ID3D11DeviceContext> mDefferedContext;
 	};
 }
 #endif

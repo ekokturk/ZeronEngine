@@ -43,9 +43,9 @@ namespace SampleVulkan
 	};
 
 	struct MeshResource {
-		std::unique_ptr<Buffer> mUniformBuffer;
-		std::unique_ptr<Buffer> mLightBuffer;
-		std::unique_ptr<PipelineBinding> mBinding;
+		std::unique_ptr<Gfx::Buffer> mUniformBuffer;
+		std::unique_ptr<Gfx::Buffer> mLightBuffer;
+		std::unique_ptr<Gfx::PipelineBinding> mBinding;
 	};
 
 	struct SampleContext {
@@ -53,15 +53,15 @@ namespace SampleVulkan
 
 		Window* mWindow;
 
-		Graphics* mGraphics;
-		std::unique_ptr<GraphicsContext> mGraphicsContext;
+		Gfx::Graphics* mGraphics;
+		std::unique_ptr<Gfx::GraphicsContext> mGraphicsContext;
 		std::unique_ptr<ImGuiInstance> mImGui;
 
-		std::unique_ptr<Sampler> mSampler;
-		std::unique_ptr<Buffer> mInstanceBuffer;
-		std::unique_ptr<ShaderProgram> mShader;
-		std::unique_ptr<Texture> mTexture;
-		std::unique_ptr<Pipeline> mPipeline;
+		std::unique_ptr<Gfx::Sampler> mSampler;
+		std::unique_ptr<Gfx::Buffer> mInstanceBuffer;
+		std::unique_ptr<Gfx::ShaderProgram> mShader;
+		std::unique_ptr<Gfx::Texture> mTexture;
+		std::unique_ptr<Gfx::Pipeline> mPipeline;
 
 		std::vector<MeshResource> mMeshResources;
 
@@ -72,16 +72,16 @@ namespace SampleVulkan
 		bool mIsSuspended = false;
 
 		// Compute
-		std::unique_ptr<CommandBuffer> mComputeCommandBuffer;
-		std::unique_ptr<ShaderProgram> mComputeShader;
-		std::unique_ptr<Pipeline> mComputePipeline;
+		std::unique_ptr<Gfx::CommandBuffer> mComputeCommandBuffer;
+		std::unique_ptr<Gfx::ShaderProgram> mComputeShader;
+		std::unique_ptr<Gfx::Pipeline> mComputePipeline;
 	};
 
 	float cameraSensitivity = 10.f;
 	int instanceM = 10;
 	int instanceN = 10;
 
-	SampleInstance::SampleInstance(Zeron::Graphics* graphics, Zeron::Window* window)
+	SampleInstance::SampleInstance(Gfx::Graphics* graphics, Zeron::Window* window)
 		: mCtx(std::make_unique<SampleContext>())
 	{
 		mCtx->mWindow = window;
@@ -92,49 +92,54 @@ namespace SampleVulkan
 		mCtx->mImGui = std::make_unique<ImGuiInstance>();
 		mCtx->mImGui->Init(*gfx, *mCtx->mGraphicsContext);
 
-		std::vector<VertexInstance> instanceData;
+		std::vector<Gfx::VertexInstance> instanceData;
 		for (int i = 0; i < instanceM; ++i) {
 			for (int j = 0; j < instanceN; ++j) {
-				instanceData.emplace_back(VertexInstance{ { i * 10.f, j * 10.f, 0 } });
+				instanceData.emplace_back(Gfx::VertexInstance{ { i * 10.f, j * 10.f, 0 } });
 			}
 		}
 
-		mCtx->mInstanceBuffer = gfx->CreateVertexBuffer<VertexInstance>(instanceData);
+		mCtx->mInstanceBuffer = gfx->CreateVertexBuffer<Gfx::VertexInstance>(instanceData);
 
 		// Compute
 		// mCtx->mComputeCommandBuffer = gfx->CreateCommandBuffer(1, true);
 		// mCtx->mComputeShader = gfx->CreateShaderProgram("ComputeTest", "Resources/Shaders", {}, {});
 		// mCtx->mComputePipeline = gfx->CreatePipeline(mCtx->mComputeShader.get());
 
-		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", ShaderType::Vertex));
-		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", ShaderType::Fragment));
+		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", Gfx::ShaderType::Vertex));
+		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / gfx->GetCompiledShaderName("Standard", Gfx::ShaderType::Fragment));
 		mCtx->mShader = gfx->CreateShaderProgram(
 			"Standard",
 			{
-				{ "POSITION", VertexFormat::Float3 },
-				{ "TEXTURE_COORD", VertexFormat::Float2 },
-				{ "NORMAL", VertexFormat::Float3 },
-				{ "INSTANCE_POS", VertexFormat::Float3, true, 1 },
+				{ "POSITION", Gfx::VertexFormat::Float3 },
+				{ "TEXTURE_COORD", Gfx::VertexFormat::Float2 },
+				{ "NORMAL", Gfx::VertexFormat::Float3 },
+				{ "INSTANCE_POS", Gfx::VertexFormat::Float3, true, 1 },
 			},
 			{
-				{ PipelineResourceType::UniformBuffer, ShaderType::Vertex, 0 },
-				{ PipelineResourceType::Texture, ShaderType::Fragment, 1 },
-				{ PipelineResourceType::Texture, ShaderType::Fragment, 2 },
-				{ PipelineResourceType::Sampler, ShaderType::Fragment, 3 },
-				{ PipelineResourceType::UniformBuffer, ShaderType::Fragment, 4 },
+				{ Gfx::PipelineResourceType::UniformBuffer, Gfx::ShaderType::Vertex, 0 },
+				{ Gfx::PipelineResourceType::Texture, Gfx::ShaderType::Fragment, 1 },
+				{ Gfx::PipelineResourceType::Texture, Gfx::ShaderType::Fragment, 2 },
+				{ Gfx::PipelineResourceType::Sampler, Gfx::ShaderType::Fragment, 3 },
+				{ Gfx::PipelineResourceType::UniformBuffer, Gfx::ShaderType::Fragment, 4 },
 			},
 			vertexShaderBuffer.Value(),
 			fragmentShaderBuffer.Value()
 		);
 
 		mCtx->mPipeline = gfx->CreatePipeline(
-			mCtx->mShader.get(), mCtx->mGraphicsContext->GetSwapChainRenderPass(), gfx->GetMultiSamplingLevel(), PrimitiveTopology::TriangleList, true, FaceCullMode::Back
+			mCtx->mShader.get(),
+			mCtx->mGraphicsContext->GetSwapChainRenderPass(),
+			gfx->GetMultiSamplingLevel(),
+			Gfx::PrimitiveTopology::TriangleList,
+			true,
+			Gfx::FaceCullMode::Back
 		);
 
 		mCtx->mImage = std::make_unique<Image>();
 		auto imageBuffer = FileSystem::ReadBinaryFile("Resources/Textures/TestHumanoid_CLR.png");
 		mCtx->mImage->Load(imageBuffer.Value());
-		mCtx->mTexture = gfx->CreateTexture(TextureType::Diffuse, mCtx->mImage->GetColorData().data(), mCtx->mImage->GetWidth(), mCtx->mImage->GetHeight());
+		mCtx->mTexture = gfx->CreateTexture(Gfx::TextureType::Diffuse, mCtx->mImage->GetColorData().data(), mCtx->mImage->GetWidth(), mCtx->mImage->GetHeight());
 
 		mCtx->mSampler = gfx->CreateSampler();
 
@@ -146,12 +151,12 @@ namespace SampleVulkan
 			res.mLightBuffer = gfx->CreateUniformBuffer<PixelShaderCBData>(PixelShaderCBData{});
 			res.mBinding = gfx->CreatePipelineBinding(
 				*mCtx->mPipeline,
-				std::vector<BindingHandle>{
-					UniformBindingHandle{ res.mUniformBuffer.get() },
-					TextureBindingHandle{ mCtx->mTexture.get() },
-					TextureBindingHandle{ mCtx->mTexture.get() },
-					SamplerBindingHandle{ mCtx->mSampler.get() },
-					UniformBindingHandle{ res.mLightBuffer.get() },
+				std::vector<Gfx::BindingHandle>{
+					Gfx::UniformBindingHandle{ res.mUniformBuffer.get() },
+					Gfx::TextureBindingHandle{ mCtx->mTexture.get() },
+					Gfx::TextureBindingHandle{ mCtx->mTexture.get() },
+					Gfx::SamplerBindingHandle{ mCtx->mSampler.get() },
+					Gfx::UniformBindingHandle{ res.mLightBuffer.get() },
 				}
 			);
 			mCtx->mMeshResources.push_back(std::move(res));
@@ -265,7 +270,7 @@ namespace SampleVulkan
 			// cmdCompute.Dispatch(16, 16, 1);
 			// cmdCompute.End();
 
-			CommandBuffer& cmd = mCtx->mGraphicsContext->BeginCommands();
+			Gfx::CommandBuffer& cmd = mCtx->mGraphicsContext->BeginCommands();
 			{
 				cmd.Clear(Color::DarkRed);
 				cmd.SetViewport(viewportSize);
@@ -279,7 +284,7 @@ namespace SampleVulkan
 					VertexShaderCBData ubo = { mCtx->mCamera.GetProjectionMatrix() * mCtx->mCamera.GetViewMatrix() * mesh.GetTransform(), mesh.GetTransform() };
 					cmd.UpdateBuffer(*mCtx->mMeshResources[i].mUniformBuffer, &ubo, sizeof(ubo));
 					cmd.SetPipelineBinding(*mCtx->mMeshResources[i].mBinding);
-					Buffer* vertexBuff[2] = { mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get() };
+					Gfx::Buffer* vertexBuff[2] = { mesh.GetVertexBuffer(), mCtx->mInstanceBuffer.get() };
 					cmd.SetVertexBuffers(vertexBuff, 2);
 					cmd.SetIndexBuffer(*mesh.GetIndexBuffer());
 					cmd.DrawInstancedIndexed(mesh.GetIndexBuffer()->GetCount(), instanceM * instanceN);

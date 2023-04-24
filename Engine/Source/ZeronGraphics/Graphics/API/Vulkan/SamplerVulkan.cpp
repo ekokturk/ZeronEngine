@@ -7,7 +7,7 @@
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 #	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	SamplerVulkan::SamplerVulkan(GraphicsVulkan& graphics, SamplerAddressMode addressMode, bool hasAnisotropicFilter)
 	{

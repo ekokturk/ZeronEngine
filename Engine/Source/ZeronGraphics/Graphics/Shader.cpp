@@ -2,7 +2,7 @@
 
 #include <Graphics/Shader.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	Shader::Shader(ShaderType type)
 		: mType(type)

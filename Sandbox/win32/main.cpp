@@ -13,8 +13,8 @@ bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args)
 {
 	ZE_LOG_FILE("debug.txt");
 
-	auto graphicsD3D11 = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Direct3D11);
-	auto graphicsVulkan = Zeron::Graphics::CreateGraphics(Zeron::GraphicsType::Vulkan);
+	auto graphicsD3D11 = Zeron::Gfx::Graphics::CreateGraphics(Zeron::Gfx::GraphicsType::Direct3D11);
+	auto graphicsVulkan = Zeron::Gfx::Graphics::CreateGraphics(Zeron::Gfx::GraphicsType::Vulkan);
 
 	graphicsD3D11->Init();
 	graphicsVulkan->Init();

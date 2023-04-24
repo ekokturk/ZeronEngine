@@ -7,7 +7,7 @@
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 #	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	BufferVulkan::BufferVulkan(GraphicsVulkan& graphics, BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage)
 		: Buffer(type, count, stride, usage)

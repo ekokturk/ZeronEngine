@@ -6,9 +6,12 @@
 
 namespace Zeron
 {
-	class GraphicsContext;
-	class Shader;
-	class Texture;
+	namespace Gfx
+	{
+		class GraphicsContext;
+		class Shader;
+		class Texture;
+	}
 
 	class Material {
 	  public:
@@ -16,13 +19,13 @@ namespace Zeron
 			bool mIsTransparent;
 		};
 
-		void Bind(GraphicsContext& context);
+		void Bind(Gfx::GraphicsContext& context);
 
 		// bool AddTexture(std::shared_ptr<Texture> texture);
 		// bool RemoveTexture(TextureType texture);
 
 	  private:
-		std::shared_ptr<Shader> mShader;
-		std::unordered_map<TextureType, std::shared_ptr<Texture>> mTextures;
+		std::shared_ptr<Gfx::Shader> mShader;
+		std::unordered_map<Gfx::TextureType, std::shared_ptr<Gfx::Texture>> mTextures;
 	};
 }

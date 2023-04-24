@@ -5,7 +5,7 @@
 #	include <Graphics/API/Vulkan/GraphicsAdapterVulkan.h>
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	GraphicsAdapterVulkan::GraphicsAdapterVulkan(vk::PhysicalDevice physicalDevice)
 		: mPhysicalDevice(physicalDevice)

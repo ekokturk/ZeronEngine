@@ -13,7 +13,7 @@ struct ID3D11DeviceContext;
 struct ID3D11SamplerState;
 struct ID3D11ShaderResourceView;
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class PipelineD3D11;
 	class GraphicsD3D11;

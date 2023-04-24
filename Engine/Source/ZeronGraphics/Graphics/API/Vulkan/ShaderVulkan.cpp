@@ -8,7 +8,7 @@
 #	include <Graphics/API/Vulkan/VulkanHelpers.h>
 #	include <Graphics/VertexLayout.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	ShaderVulkan::ShaderVulkan(GraphicsVulkan& graphics, ShaderType type, const ByteBuffer& buffer)
 		: Shader(type)

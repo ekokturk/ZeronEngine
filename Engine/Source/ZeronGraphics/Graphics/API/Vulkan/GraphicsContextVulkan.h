@@ -8,7 +8,7 @@
 #	include <Graphics/GraphicsContext.h>
 
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class RenderPass;
 	class CommandBufferVulkan;

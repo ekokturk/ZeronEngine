@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	struct Vertex {
 		Vec3 mPosition;

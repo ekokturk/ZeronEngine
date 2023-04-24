@@ -2,7 +2,7 @@
 
 #include <Graphics/VertexLayout.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	VertexLayout::VertexLayout(const std::initializer_list<Element>& elements)
 		: mElements(elements)

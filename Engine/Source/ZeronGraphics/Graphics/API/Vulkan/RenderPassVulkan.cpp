@@ -6,7 +6,7 @@
 
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	RenderPassVulkan::RenderPassVulkan(GraphicsVulkan& graphics, vk::Format colorFormat, vk::Format depthFormat, vk::SampleCountFlagBits sampling)
 	{

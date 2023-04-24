@@ -9,7 +9,7 @@
 #	include <Graphics/API/D3D/11/GraphicsD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	TextureD3D11::TextureD3D11(GraphicsD3D11& graphics, TextureType type, const Color* data, uint32_t width, uint32_t height)
 		: Texture(type)

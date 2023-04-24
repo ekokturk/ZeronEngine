@@ -19,7 +19,7 @@
 
 #	include <d3d11.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	GraphicsD3D11::GraphicsD3D11() = default;
 
@@ -141,9 +141,9 @@ namespace Zeron
 	const std::vector<GraphicsAdapterD3D11>& GraphicsD3D11::GetAdapters()
 	{
 		if (mGraphicsAdapters.empty()) {
-			ZE::ComPtr<IDXGIFactory> dxgiFactory;
+			Gfx::ComPtr<IDXGIFactory> dxgiFactory;
 			ZE_D3D_ASSERT_RESULT(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf())), mGraphicsAdapters);
-			ZE::ComPtr<IDXGIAdapter> dxgiAdapter;
+			Gfx::ComPtr<IDXGIAdapter> dxgiAdapter;
 			UINT index = 0;
 			while (SUCCEEDED(dxgiFactory->EnumAdapters(index, &dxgiAdapter))) {
 				mGraphicsAdapters.emplace_back(GraphicsAdapterD3D11(dxgiAdapter));

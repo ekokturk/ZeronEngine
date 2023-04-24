@@ -9,7 +9,7 @@
 #	include <Graphics/API/Vulkan/ShaderVulkan.h>
 #	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	PipelineVulkan::PipelineVulkan(
 		GraphicsVulkan& graphics, ShaderProgramVulkan* shader, RenderPassVulkan* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill,

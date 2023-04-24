@@ -7,7 +7,7 @@
 #	include <Graphics/API/Vulkan/VulkanCommon.h>
 #	include <Graphics/Texture.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	class GraphicsVulkan;
 

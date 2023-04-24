@@ -2,7 +2,7 @@
 
 #include <Graphics/Texture.h>
 
-namespace Zeron
+namespace Zeron::Gfx
 {
 	Texture::Texture(TextureType type)
 		: mType(type)

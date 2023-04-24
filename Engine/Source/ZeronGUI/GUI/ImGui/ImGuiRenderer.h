@@ -9,25 +9,28 @@ struct ImVec2;
 
 namespace Zeron
 {
-	class Buffer;
-	class ShaderProgram;
-	class PipelineBinding;
-	class Pipeline;
-	class Sampler;
-	class Texture;
-	class CommandBuffer;
-	class Graphics;
-	class GraphicsContext;
+	namespace Gfx
+	{
+		class Buffer;
+		class ShaderProgram;
+		class PipelineBinding;
+		class Pipeline;
+		class Sampler;
+		class Texture;
+		class CommandBuffer;
+		class Graphics;
+		class GraphicsContext;
+	}
 
 	class ImGuiRenderer final {
 	  public:
 		ImGuiRenderer();
 		~ImGuiRenderer();
 
-		bool Init(ImGuiContext& ctx, Graphics& graphics, GraphicsContext& graphicsContext);
+		bool Init(ImGuiContext& ctx, Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext);
 		void NewFrame(ImGuiContext& ctx);
-		void Update(ImGuiContext& ctx, Graphics& graphics);
-		void Draw(ImGuiContext& ctx, CommandBuffer& cmd);
+		void Update(ImGuiContext& ctx, Gfx::Graphics& graphics);
+		void Draw(ImGuiContext& ctx, Gfx::CommandBuffer& cmd);
 		void Destroy(ImGuiContext& ctx);
 
 		ImVec2 GetDisplaySize() const;
@@ -39,16 +42,16 @@ namespace Zeron
 		};
 
 		// TODO: This shouldn't be here maybe?
-		Graphics* mGraphics;
-		GraphicsContext* mGraphicsContext;
+		Gfx::Graphics* mGraphics;
+		Gfx::GraphicsContext* mGraphicsContext;
 
-		std::unique_ptr<Buffer> mVertexBuffer;
-		std::unique_ptr<Buffer> mIndexBuffer;
-		std::unique_ptr<Buffer> mUniformBuffer;
-		std::unique_ptr<Texture> mFontTexture;
-		std::unique_ptr<Sampler> mSampler;
-		std::unique_ptr<ShaderProgram> mShader;
-		std::unique_ptr<Pipeline> mPipeline;
-		std::unique_ptr<PipelineBinding> mBinding;
+		std::unique_ptr<Gfx::Buffer> mVertexBuffer;
+		std::unique_ptr<Gfx::Buffer> mIndexBuffer;
+		std::unique_ptr<Gfx::Buffer> mUniformBuffer;
+		std::unique_ptr<Gfx::Texture> mFontTexture;
+		std::unique_ptr<Gfx::Sampler> mSampler;
+		std::unique_ptr<Gfx::ShaderProgram> mShader;
+		std::unique_ptr<Gfx::Pipeline> mPipeline;
+		std::unique_ptr<Gfx::PipelineBinding> mBinding;
 	};
 }
