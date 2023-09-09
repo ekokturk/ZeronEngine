@@ -142,4 +142,21 @@ namespace Zeron
 		}
 	}
 
+	int KeyCode::GetNumericKeyNumberValue(Type key)
+	{
+		switch (key) {
+			case N0: return 0;
+			case N1: return 1;
+			case N2: return 2;
+			case N3: return 3;
+			case N4: return 4;
+			case N5: return 5;
+			case N6: return 6;
+			case N7: return 7;
+			case N8: return 8;
+			case N9: return 9;
+			default: return -1;
+		}
+	}
+
 }

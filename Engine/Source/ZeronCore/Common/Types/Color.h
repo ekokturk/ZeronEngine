@@ -41,9 +41,9 @@ namespace Zeron
 			DarkBlue = 0x00008B,
 		};
 
+		Color();
 		Color(Palette color);
 		Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
-		Color(float r, float g, float b, float a = 1.f);
 		Color(uint32_t hex, float a = 1.f);
 
 		Color& operator=(const Color&) = default;
@@ -74,6 +74,7 @@ namespace Zeron
 		float normG() const { return static_cast<float>(mGreen) / 255; }
 		float normB() const { return static_cast<float>(mBlue) / 255; }
 		float normA() const { return static_cast<float>(mAlpha) / 255; }
+		std::array<float, 4> norm() const { return { normR(), normG(), normB(), normA() }; }
 
 		uint32_t HexRGB() const { return HexFromRGB(mRed, mGreen, mBlue); }
 		uint32_t HexRGBA() const { return HexFromRGBA(mRed, mGreen, mBlue, mAlpha); }
@@ -84,6 +85,10 @@ namespace Zeron
 		std::string HexRGBAString() const;
 		std::string HexARGBString() const;
 
+		static Color FromNorm(float r, float g, float b, float a = 1.f)
+		{
+			return Color(static_cast<uint8_t>(r * 255), static_cast<uint8_t>(g * 255), static_cast<uint8_t>(b * 255), static_cast<uint8_t>(a * 255));
+		}
 
 		static uint32_t HexFromRGB(uint8_t r, uint8_t g, uint8_t b) { return r << 16 | g << 8 | b; }
 
@@ -106,7 +111,6 @@ namespace Zeron
 			return HexFromRGB(std::clamp(r, 0.f, 1.f), std::clamp(g, 0.f, 1.f), std::clamp(b, 0.f, 1.f)) << 8 | static_cast<uint8_t>(std::clamp(a, 0.f, 1.f) * 255);
 		}
 
-	  private:
 		uint8_t mRed;
 		uint8_t mGreen;
 		uint8_t mBlue;

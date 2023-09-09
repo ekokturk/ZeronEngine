@@ -10,6 +10,8 @@ configure_file(${SUBMODULE_DIR}/stb_image.h         ${STB_SOURCE_DIR}/stb/stb_im
 configure_file(${SUBMODULE_DIR}/stb_image_write.h   ${STB_SOURCE_DIR}/stb/stb_image_write.h    COPYONLY)
 configure_file(${SUBMODULE_DIR}/stb_easy_font.h     ${STB_SOURCE_DIR}/stb/stb_easy_font.h      COPYONLY)
 configure_file(${SUBMODULE_DIR}/stb_image_resize.h  ${STB_SOURCE_DIR}/stb/stb_image_resize.h   COPYONLY)
+configure_file(${SUBMODULE_DIR}/stb_truetype.h      ${STB_SOURCE_DIR}/stb/stb_truetype.h       COPYONLY)
+configure_file(${SUBMODULE_DIR}/stb_rect_pack.h      ${STB_SOURCE_DIR}/stb/stb_rect_pack.h     COPYONLY)
 
-add_library(stb-header-only INTERFACE)
-target_include_directories(stb-header-only INTERFACE ${STB_SOURCE_DIR})
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${STB_SOURCE_DIR})

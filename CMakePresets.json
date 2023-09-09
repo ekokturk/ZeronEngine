@@ -35,7 +35,7 @@
 			"cacheVariables": {
 				"CMAKE_C_COMPILER": "cl",
 				"CMAKE_CXX_COMPILER": "cl",
-				"UNIFY_OUTPUT_DIR": "TRUE"
+				"ZERON_UNIFY_OUTPUT_DIR": "TRUE"
 			},
 			"condition": {
 				"type": "equals",
@@ -121,11 +121,11 @@
 				"CMAKE_SYSTEM_NAME": "Android",
 				"CMAKE_SYSTEM_VERSION": "24",
 				"CMAKE_ANDROID_STL_TYPE": "c++_shared",
-				"UNIFY_OUTPUT_DIR": "ON",
+				"ZERON_UNIFY_OUTPUT_DIR": "ON",
 				"CMAKE_CXX_FLAGS": "-fPIC",
 				"CMAKE_C_FLAGS": "-fPIC"
 			},
-			"toolchainFile": "Engine/Tools/CMake/ZeronAndroidToolchain.cmake",
+			"toolchainFile": "${fileDir}/Engine/Tools/CMake/Toolchain/ZeronAndroidToolchain.cmake",
 			"condition": {
 				"type": "equals",
 				"lhs": "${hostSystemName}",

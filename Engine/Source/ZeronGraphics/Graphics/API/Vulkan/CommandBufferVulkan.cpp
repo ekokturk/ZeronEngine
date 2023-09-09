@@ -143,7 +143,7 @@ namespace Zeron::Gfx
 		_getCurrent().copyBuffer(sourceVk.GetBufferVK(), destinationVk.GetBufferVK(), copyRegion);
 	}
 
-	void CommandBufferVulkan::UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule)
+	void CommandBufferVulkan::UpdateBuffer(Buffer& buff, const void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule)
 	{
 		auto& bufferVk = static_cast<BufferVulkan&>(buff);
 		bufferVk.UpdateVK(mDevice, data, sizeBytes, offset, updateRule);

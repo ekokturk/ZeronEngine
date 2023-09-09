@@ -56,6 +56,9 @@ namespace Zeron::Gfx
 			case PrimitiveTopology::TriangleList: {
 				mPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			} break;
+			case PrimitiveTopology::LineList: {
+				mPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+			} break;
 			case PrimitiveTopology::PointList: {
 				mPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
 			} break;

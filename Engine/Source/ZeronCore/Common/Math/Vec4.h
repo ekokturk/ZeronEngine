@@ -102,10 +102,10 @@ namespace Zeron
 		TVec4& operator/=(T value)
 		{
 			if (value != 0) {
-				X += value;
-				Y += value;
-				Z += value;
-				W += value;
+				X /= value;
+				Y /= value;
+				Z /= value;
+				W /= value;
 			}
 			else {
 				X = 0, Y = 0, Z = 0, W = 0;
@@ -129,6 +129,13 @@ namespace Zeron
 		static T Distance(const TVec4& from, const TVec4& to) { return sqrt(pow(to.X - from.X, 2) + pow(to.Y - from.Y, 2) + pow(to.Z - from.Z, 2) + pow(to.W - from.W, 2)); }
 
 		static T Dot(const TVec4& v1, const TVec4& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z + v1.W * v2.W; }
+
+		static T Normalize(const TVec4& v)
+		{
+			TVec4 norm(v);
+			norm.Normalize();
+			return norm;
+		}
 	};
 
 	template <typename T>

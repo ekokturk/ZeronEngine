@@ -95,9 +95,9 @@ namespace Zeron
 		TVec3& operator/=(T value)
 		{
 			if (value != 0) {
-				X += value;
-				Y += value;
-				Z += value;
+				X /= value;
+				Y /= value;
+				Z /= value;
 			}
 			else {
 				X = 0, Y = 0, Z = 0;
@@ -123,6 +123,13 @@ namespace Zeron
 		static T Dot(const TVec3& v1, const TVec3& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z; }
 
 		static TVec3 Cross(const TVec3& v1, const TVec3& v2) { return { v1.Y * v2.Z - v1.Z * v2.Y, v1.Z * v2.X - v1.X * v2.Z, v1.X * v2.Y - v1.Y * v2.X }; }
+
+		static T Normalize(const TVec3& v)
+		{
+			TVec3 norm(v);
+			norm.Normalize();
+			return norm;
+		}
 	};
 
 	template <typename T>

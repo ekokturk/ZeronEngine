@@ -21,14 +21,17 @@ namespace Zeron::Gfx
 		, mColorFormat(vk::Format::eUndefined)
 		, mColorSpace(vk::ColorSpaceKHR::eSrgbNonlinear)
 		, mDepthFormat(vk::Format::eD32Sfloat)
-		, mPresentMode(vk::PresentModeKHR::eFifo)
+		, mPresentMode(vk::PresentModeKHR::eImmediate)
 	{
 		const vk::PhysicalDevice& physicalDevice = graphics.GetPrimaryAdapterVK();
 
 		_initSurfaceFormat(physicalDevice.getSurfaceFormatsKHR(*mSurface));
 
-		std::vector<vk::PresentModeKHR> availableModes = physicalDevice.getSurfacePresentModesKHR(*mSurface);
-		ZE_ASSERT(std::find(availableModes.begin(), availableModes.end(), mPresentMode) != availableModes.end(), "Vulkan swap chain presentation mode is not supported!");
+		const std::vector<vk::PresentModeKHR> availableModes = physicalDevice.getSurfacePresentModesKHR(*mSurface);
+		if (std::find(availableModes.begin(), availableModes.end(), mPresentMode) == availableModes.end()) {
+			mPresentMode = vk::PresentModeKHR::eFifo;
+			ZE_ASSERT(std::find(availableModes.begin(), availableModes.end(), mPresentMode) != availableModes.end(), "Vulkan swap chain presentation mode is not supported!");
+		}
 
 		const vk::SurfaceCapabilitiesKHR surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(*mSurface);
 		mSurfaceTransform = (surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity) ? vk::SurfaceTransformFlagBitsKHR::eIdentity :
