@@ -4,68 +4,68 @@
 Language: Cpp
 Standard: c++20
 BasedOnStyle: LLVM
-DisableFormat: false # Disables formatting completely.
+DisableFormat: false
 # LineEnding: CRLF
 
 # --- GENERAL
-AlignAfterOpenBracket: BlockIndent # BlockIndent: Always break after an open bracket, if the parameters don’t fit on a single line. Closing brackets will be placed on a new line. \ DontAlign: Don’t align, instead use ContinuationIndentWidth.
-AlignEscapedNewlines: Left # Options for aligning backslashes in escaped newlines.
-AlignOperands: false # If true, horizontally align operands of binary and ternary expressions. / If false, do not align operands of binary and ternary expressions. The wrapped lines are indented ContinuationIndentWidth spaces from the start of the line.
-AlignTrailingComments: true # Align trailing comments.
-AllowAllArgumentsOnNextLine: true # If a function call or braced initializer list doesn’t fit on a line, allow putting all arguments onto the next line.
-AllowAllParametersOfDeclarationOnNextLine: true # If the function declaration doesn’t fit on a line, allow putting all parameters of a function declaration onto the next line
-AllowShortBlocksOnASingleLine: false # Dependent on the value, while (true) { continue; } can be put on a single line.
-AllowShortCaseLabelsOnASingleLine: true # If true, short switch case labels will be contracted to a single line.
-AllowShortFunctionsOnASingleLine: Inline # Dependent on the value, int f() { return 0; } can be put on a single line. / Inline: Only merge functions defined inside a class. Implies “empty”.
-AllowShortIfStatementsOnASingleLine: false # Dependent on the value, if (a) return; can be put on a single line.
-AllowShortLambdasOnASingleLine: Empty # Dependent on the value, auto lambda []() { return 0; } can be put on a single line. / Empty: Only merge empty lambdas.
-AllowShortLoopsOnASingleLine: false # If true, while (true) continue; can be put on a single line.
-AlwaysBreakAfterReturnType: None # The function declaration return type line break style to use.
-AlwaysBreakBeforeMultilineStrings: false # If true, always break before multiline string literals. 
-AlwaysBreakTemplateDeclarations: Yes # The template declaration breaking style to use. / MultiLine: Force break after template declaration only when the following declaration spans multiple lines.
-BreakBeforeConceptDeclarations: Never # Keep the template declaration line together with concept.
-BreakBeforeTernaryOperators: false # If true, ternary operators (x ? y : z ) will be placed after line breaks.
-BreakConstructorInitializers: BeforeComma # Break constructor initializers before the colon and commas, and align the commas with the colon.
+AlignAfterOpenBracket: BlockIndent
+AlignEscapedNewlines: Left
+AlignOperands: false
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLambdasOnASingleLine: Empty
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false  
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeConceptDeclarations: Never
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializers: BeforeComma
 BreakStringLiterals: false
-ColumnLimit: 175 # A column limit of 0 means that there is no column limit. In this case, clang-format will respect the input’s line breaking decisions within statements unless they contradict other rules.
-CompactNamespaces: true # If true, consecutive namespace declarations will be on the same line. If false, each namespace is declared on a new line.
-ContinuationIndentWidth: 4 # Indent width for line continuations.
-FixNamespaceComments: false # f true, clang-format adds missing namespace end comments for namespaces and fixes invalid existing ones.
-IndentCaseBlocks: false # Indent switch case label blocks one level from the case label. When false, the block following the case label uses the same indentation level as for the case label, treating the case label the same as an if-statement. When true, the block gets indented as a scope block.
-IndentCaseLabels: true # Indent case labels one level from the switch statement.
-IndentExternBlock: Indent # IndentExternBlockStyle is the type of indenting of extern blocks.
-IndentWidth: 4 # The number of columns to use for indentation.
-LambdaBodyIndentation: Signature # Signature: Align lambda body relative to the lambda signature. This is the default. \ OuterScope: Align lambda body relative to the indentation level of the outer scope the lambda signature resides in.
+ColumnLimit: 175
+CompactNamespaces: true
+ContinuationIndentWidth: 4
+FixNamespaceComments: false
+IndentCaseBlocks: false
+IndentCaseLabels: true
+IndentExternBlock: Indent
+IndentWidth: 4
+LambdaBodyIndentation: Signature
 MaxEmptyLinesToKeep: 2
-NamespaceIndentation: All # The indentation used for namespaces.
-PenaltyBreakAssignment: 20000 # The penalty for breaking around an assignment operator.
-PenaltyReturnTypeOnItsOwnLine: 20000 # Penalty for putting the return type of a function onto its own line.
-PointerAlignment: Left # Pointer and reference alignment style.
-QualifierAlignment: Left # Different ways to arrange specifiers and qualifiers (e.g. const/volatile). 
-SortUsingDeclarations: true # Controls if and how clang-format will sort using declarations.
-SpaceAfterLogicalNot: false # If true, a space is inserted after the logical not operator (!).
-SpaceAfterTemplateKeyword: true # If true, a space will be inserted after the ‘template’ keyword.
-SpaceBeforeAssignmentOperators: true # If false, spaces will be removed before assignment operators.
-SpaceBeforeCaseColon: false # If false, spaces will be removed before switch case colon.
-SpaceBeforeInheritanceColon: true # If false, spaces will be removed before inheritance colon.
-SpaceBeforeParens: ControlStatements # Defines in which cases to put a space before opening parentheses.
-SpaceBeforeRangeBasedForLoopColon: true # If false, spaces will be removed before range-based for loop colon.
-SpaceBeforeSquareBrackets: false # If true, spaces will be before [. Lambdas will not be affected. Only the first [ will get a space added.
-SpaceInEmptyBlock: false # If true, spaces will be inserted into {}.
-SpaceInEmptyParentheses: false # If true, spaces may be inserted into ().
-SpacesBeforeTrailingComments: 2 # The number of spaces before trailing line comments (// - comments).
-SpacesInAngles: Never # The spaces for template argument lists.
-SpacesInConditionalStatement: false # If true, spaces will be inserted around if/for/switch/while conditions.
-TabWidth: 4 # The number of columns used for tab stops.
-UseTab: Always # Always: Use tabs whenever we need to fill whitespace that spans at least from one tab stop to the next one.
+NamespaceIndentation: All
+PenaltyBreakAssignment: 20000
+PenaltyReturnTypeOnItsOwnLine: 20000
+PointerAlignment: Left
+QualifierAlignment: Left 
+SortUsingDeclarations: true
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 2
+SpacesInAngles: Never
+SpacesInConditionalStatement: false
+TabWidth: 4
+UseTab: Always
 
 # --- CLASS
-AccessModifierOffset: -2 # The extra indent or outdent of access modifiers, e.g. public:
-EmptyLineAfterAccessModifier: Never # Never: Remove all empty lines after access modifiers.
-EmptyLineBeforeAccessModifier: LogicalBlock # LogicalBlock: Add empty line only when access modifier starts a new logical block. Logical block is a group of one or more member fields or functions.
+AccessModifierOffset: -2
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
 
 # --- BRACES
-BreakBeforeBraces: Custom # Custom: Configure each individual brace in BraceWrapping.
+BreakBeforeBraces: Custom
 BraceWrapping: 
   AfterCaseLabel: false
   AfterClass: false 
@@ -83,28 +83,28 @@ BraceWrapping:
   SplitEmptyFunction: false
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
-Cpp11BracedListStyle: false # if true, no spaces inside the braced list, no line break before the closing brace, indentation with the continuation indent, not with the block indent.
-InsertBraces: true # Insert braces after control statements (if, else, for, do, and while) in C++ unless the control statements are inside macro definitions or the braces would enclose preprocessor directives.
-SpaceBeforeCpp11BracedList : false # If true, a space will be inserted before a C++11 braced list used to initialize an object (after the preceding identifier or type).
+Cpp11BracedListStyle: false
+InsertBraces: true
+SpaceBeforeCpp11BracedList : false
 
 # Variable alignment
-AlignConsecutiveAssignments: false # Style of aligning consecutive assignments.
-AlignConsecutiveBitFields: false # Style of aligning consecutive bit fields.
-AlignConsecutiveDeclarations: false # Style of aligning consecutive declarations.
-BitFieldColonSpacing: Both # The BitFieldColonSpacingStyle to use for bitfields. / Both: Add one space on each side of the :
-BinPackArguments: false # If false, a function call’s arguments will either be all on the same line or will have one line each.
+AlignConsecutiveAssignments: false
+AlignConsecutiveBitFields: false
+AlignConsecutiveDeclarations: false
+BitFieldColonSpacing: Both
+BinPackArguments: false
 
 # Macros
-AlignConsecutiveMacros: true # Style of aligning consecutive macro definitions.
+AlignConsecutiveMacros: true
 MacroBlockBegin: ''
 MacroBlockEnd: ''
 
 # Preprocessor directives
-IndentPPDirectives: AfterHash # AfterHash: Indents directives after the hash. / None: Does not indent any directives.
+IndentPPDirectives: AfterHash
 PPIndentWidth: 4
-SortIncludes: CaseInsensitive # Sort include directives.
-IncludeBlocks: Preserve # Sort each include block separately.
-IncludeCategories: # Regular expressions denoting the different #include categories used for ordering #includes.
+SortIncludes: CaseInsensitive
+IncludeBlocks: Preserve
+IncludeCategories:
   - Regex: '^<.*'
     Priority: 1
   - Regex: '^".*'

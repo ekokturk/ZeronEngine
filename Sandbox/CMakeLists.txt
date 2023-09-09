@@ -3,42 +3,28 @@
 # =========== SETUP ===========
 message("ZERON - Generating: Sandbox Project")
 
-set(SANDBOX_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(SANDBOX_SHARED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shared")
-file(GLOB_RECURSE SANDBOX_SHARED_SOURCES "${SANDBOX_SHARED_DIR}/*.cpp" "${SANDBOX_SHARED_DIR}/*.h")
+include("${ZERON_CMAKE_UTILS}/ZeronProjectUtils.cmake")
+include("${ZERON_CMAKE_UTILS}/ZeronShaderUtils.cmake")
+include("${ZERON_CMAKE_UTILS}/ZeronAndroidUtils.cmake")
 
-if(UNIFY_OUTPUT_DIR)
-    zeron_set_output_directory("")
-else()
-    zeron_set_output_directory("Sandbox")
-endif()
+set(SANDBOX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+file(GLOB_RECURSE SANDBOX_SOURCES "${SANDBOX_DIR}/*.cpp" "${SANDBOX_DIR}/*.h")
+source_group(TREE "${SANDBOX_DIR}" PREFIX "Source Files/" FILES ${SANDBOX_SOURCES})
 
-if(WIN32)
-    add_subdirectory(win32)
-elseif(LINUX)
-    add_subdirectory(linux)
-elseif(ANDROID)
-    add_subdirectory(android)
-endif()
+zeron_create_project(Sandbox "${SANDBOX_SOURCES}")
 
-if(MSVC)
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
-    set_target_properties(Sandbox PROPERTIES 
-        VS_DPI_AWARE "PerMonitor" # enabled high dpi support
-        VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Sandbox>
-    )
+target_include_directories(Sandbox PUBLIC ${SANDBOX_DIR})
+target_link_libraries(Sandbox 
+    PUBLIC ZeronPlatform ZeronRender ZeronGUI
+)
+set_target_properties(Sandbox PROPERTIES FOLDER "Sandbox")
 
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    cmake_path(GET CMAKE_BINARY_DIR PARENT_PATH BUILD_DIR)
-    set(COMPILE_COMMANDS_FILE "${CMAKE_BINARY_DIR}/compile_commands.json")
-    set(COMPILE_COMMANDS_SYMLINK "${BUILD_DIR}/compile_commands.json")
+# Platfom specific setup
+set(ZERON_ANDROID_CONFIG_SCREEN_ORIENTATION "landscape")
+zeron_android_configure_package(Sandbox "com.zeron.sandbox" Sandbox ${SANDBOX_DIR})
 
-    if(NOT IS_SYMLINK ${COMPILE_COMMANDS_SYMLINK})
-        file(REMOVE ${COMPILE_COMMANDS_SYMLINK})
-    endif()
+# Asset setup
+zeron_compile_shaders(Sandbox "Resources/Shaders")
+zeron_copy_assets(Sandbox "Resources")
 
-    execute_process(COMMAND cmake -E create_symlink
-        ${COMPILE_COMMANDS_FILE}
-        ${COMPILE_COMMANDS_SYMLINK}
-    )
-endif()
+

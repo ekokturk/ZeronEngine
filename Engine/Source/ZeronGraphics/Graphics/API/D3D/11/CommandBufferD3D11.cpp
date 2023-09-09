@@ -114,7 +114,7 @@ namespace Zeron::Gfx
 		ZE_FAIL("Not Implemented!");
 	}
 
-	void CommandBufferD3D11::UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule)
+	void CommandBufferD3D11::UpdateBuffer(Buffer& buff, const void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule)
 	{
 		ZE_ASSERT(
 			(buff.GetCount() - offset) * buff.GetStride() >= sizeBytes, "D3D11 buffer size {} does not match for update data size {}!", buff.GetSizeInBytes(), sizeBytes

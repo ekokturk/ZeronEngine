@@ -27,6 +27,7 @@ set(IMGUI_SOURCE_FILES
     ${IMGUI_SOURCE_DIR}/imgui_widgets.cpp
 )
 
+include("${ZERON_CMAKE_UTILS}/ZeronShaderUtils.cmake")
 zeron_add_shader_directory("${CMAKE_CURRENT_SOURCE_DIR}/utils")
 
 add_library(imgui ${IMGUI_SOURCE_FILES})

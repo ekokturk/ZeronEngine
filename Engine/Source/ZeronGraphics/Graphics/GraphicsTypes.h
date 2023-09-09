@@ -17,6 +17,7 @@ namespace Zeron::Gfx
 	{
 		Invalid = 0,
 		PointList,
+		LineList,
 		TriangleList,
 	};
 

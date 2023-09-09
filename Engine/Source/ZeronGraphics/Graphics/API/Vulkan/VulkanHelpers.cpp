@@ -22,6 +22,7 @@ namespace Zeron::Gfx
 	{
 		switch (topology) {
 			case PrimitiveTopology::PointList: return vk::PrimitiveTopology::ePointList;
+			case PrimitiveTopology::LineList: return vk::PrimitiveTopology::eLineList;
 			case PrimitiveTopology::TriangleList: return vk::PrimitiveTopology::eTriangleList;
 			case PrimitiveTopology::Invalid:;
 			default: ZE_FAIL("Vulkan primitive topology is not supported");

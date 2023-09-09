@@ -20,11 +20,7 @@ namespace Zeron
 
 	void WindowAndroid::SetHidden() {}
 
-	void WindowAndroid::SetName(const std::string& name)
-	{
-		// mName = name;
-		// SetWindowText(mHwnd, mName.c_str());
-	}
+	void WindowAndroid::SetName(const std::string& name) {}
 
 	void WindowAndroid::SetAspectRatio(int numerator, int denominator) {}
 

@@ -59,9 +59,13 @@ namespace Zeron
 		struct MouseExit {};
 		struct MouseButtonDown {
 			const MouseCode mCode;
+			const int mPosX = 0;
+			const int mPosY = 0;
 		};
 		struct MouseButtonUp {
 			const MouseCode mCode;
+			const int mPosX = 0;
+			const int mPosY = 0;
 		};
 		struct MouseScroll {
 			const float mOffsetX = 0.f;

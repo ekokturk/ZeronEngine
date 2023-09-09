@@ -50,7 +50,7 @@ namespace Zeron::Gfx
 		void SetIndexBuffer(Buffer& ib) override;
 
 		void CopyBuffer(Buffer& source, Buffer& destination) override;
-		void UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule) override;
+		void UpdateBuffer(Buffer& buff, const void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule) override;
 
 		void Draw(uint32_t vertexCount, uint32_t vertexStart) override;
 		void DrawIndexed(uint32_t indexCount, uint32_t indexStart = 0, uint32_t vertexStart = 0) override;

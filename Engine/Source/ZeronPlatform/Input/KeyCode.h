@@ -155,6 +155,8 @@ namespace Zeron
 
 		const char* ToString() const;
 
+		static int GetNumericKeyNumberValue(Type key);
+
 	  private:
 		Type mType;
 	};

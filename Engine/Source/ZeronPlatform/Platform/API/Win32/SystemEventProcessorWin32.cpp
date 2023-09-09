@@ -125,28 +125,28 @@ namespace Zeron
 					}
 				} break;
 				case WM_LBUTTONDOWN: {
-					mDispatchCallback({ SystemEvent::MouseButtonDown{ MouseCode::LeftButton } }, ctx);
+					mDispatchCallback({ SystemEvent::MouseButtonDown{ MouseCode::LeftButton, LOWORD(lParam), HIWORD(lParam) } }, ctx);
 				} break;
 				case WM_LBUTTONUP: {
-					mDispatchCallback({ SystemEvent::MouseButtonUp{ MouseCode::LeftButton } }, ctx);
+					mDispatchCallback({ SystemEvent::MouseButtonUp{ MouseCode::LeftButton, LOWORD(lParam), HIWORD(lParam) } }, ctx);
 				} break;
 				case WM_RBUTTONDOWN: {
-					mDispatchCallback({ SystemEvent::MouseButtonDown{ MouseCode::RightButton } }, ctx);
+					mDispatchCallback({ SystemEvent::MouseButtonDown{ MouseCode::RightButton, LOWORD(lParam), HIWORD(lParam) } }, ctx);
 				} break;
 				case WM_RBUTTONUP: {
-					mDispatchCallback({ SystemEvent::MouseButtonUp{ MouseCode::RightButton } }, ctx);
+					mDispatchCallback({ SystemEvent::MouseButtonUp{ MouseCode::RightButton, LOWORD(lParam), HIWORD(lParam) } }, ctx);
 				} break;
 				case WM_MBUTTONDOWN: {
-					mDispatchCallback({ SystemEvent::MouseButtonDown{ MouseCode::MiddleButton } }, ctx);
+					mDispatchCallback({ SystemEvent::MouseButtonDown{ MouseCode::MiddleButton, LOWORD(lParam), HIWORD(lParam) } }, ctx);
 				} break;
 				case WM_MBUTTONUP: {
-					mDispatchCallback({ SystemEvent::MouseButtonUp{ MouseCode::MiddleButton } }, ctx);
+					mDispatchCallback({ SystemEvent::MouseButtonUp{ MouseCode::MiddleButton, LOWORD(lParam), HIWORD(lParam) } }, ctx);
 				} break;
 				case WM_XBUTTONDOWN: {
-					mDispatchCallback({ SystemEvent::MouseButtonDown{ PlatformWin32::GetMouseCode(wParam, lParam) } }, ctx);
+					mDispatchCallback({ SystemEvent::MouseButtonDown{ PlatformWin32::GetMouseCode(wParam, lParam), LOWORD(lParam), HIWORD(lParam) } }, ctx);
 				} break;
 				case WM_XBUTTONUP: {
-					mDispatchCallback({ SystemEvent::MouseButtonUp{ PlatformWin32::GetMouseCode(wParam, lParam) } }, ctx);
+					mDispatchCallback({ SystemEvent::MouseButtonUp{ PlatformWin32::GetMouseCode(wParam, lParam), LOWORD(lParam), HIWORD(lParam) } }, ctx);
 				} break;
 				case WM_MOUSEWHEEL: {
 					const float wheelDelta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;

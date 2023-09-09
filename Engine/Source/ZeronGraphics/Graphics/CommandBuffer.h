@@ -31,7 +31,12 @@ namespace Zeron::Gfx
 		virtual void SetIndexBuffer(Buffer& ib) = 0;
 
 		virtual void CopyBuffer(Buffer& source, Buffer& destination) = 0;
-		virtual void UpdateBuffer(Buffer& buff, void* data, uint32_t sizeBytes, uint32_t offset = 0, BufferUpdateRule updateRule = BufferUpdateRule::UnmapMemory) = 0;
+		virtual void UpdateBuffer(Buffer& buff, const void* data, uint32_t sizeBytes, uint32_t offset = 0, BufferUpdateRule updateRule = BufferUpdateRule::UnmapMemory) = 0;
+		template <typename T>
+		void UpdateBuffer(Buffer& buff, const T* data)
+		{
+			UpdateBuffer(buff, data, sizeof(T));
+		}
 
 		virtual void Draw(uint32_t vertexCount, uint32_t vertexStart = 0) = 0;
 		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexStart = 0, uint32_t vertexStart = 0) = 0;

@@ -9,7 +9,6 @@ if(DESKTOP)
 elseif(ANDROID)
     zeron_add_module_dependency(Android)
 endif()
-zeron_add_module_dependency(stb)
 
 # ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBS_PRIVATE "")

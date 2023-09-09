@@ -6,6 +6,13 @@
 
 namespace Zeron
 {
+	Color::Color()
+		: mRed(UINT8_MAX)
+		, mGreen(UINT8_MAX)
+		, mBlue(UINT8_MAX)
+		, mAlpha(UINT8_MAX)
+	{}
+
 	Color::Color(Palette color)
 		: mRed((static_cast<uint32_t>(color) >> 16) & 0xFF)
 		, mGreen((static_cast<uint32_t>(color) >> 8) & 0xFF)
@@ -18,13 +25,6 @@ namespace Zeron
 		, mGreen(g)
 		, mBlue(b)
 		, mAlpha(a)
-	{}
-
-	Color::Color(float r, float g, float b, float a)
-		: mRed(static_cast<uint8_t>(r * 255))
-		, mGreen(static_cast<uint8_t>(g * 255))
-		, mBlue(static_cast<uint8_t>(b * 255))
-		, mAlpha(static_cast<uint8_t>(a * 255))
 	{}
 
 	Color::Color(uint32_t hex, float a)

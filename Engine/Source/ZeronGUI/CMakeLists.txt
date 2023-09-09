@@ -19,7 +19,7 @@ target_include_directories(ZeronGUI
 
 target_link_libraries(ZeronGUI
 	PRIVATE
-        ZeronRenderer
+        ZeronRender
 		ZeronPlatform
 		${MODULE_LIBS_PRIVATE}
 )

@@ -94,12 +94,14 @@ namespace Zeron
 		glfwSetMouseButtonCallback(glfwWindow, [](GLFWwindow* windowGLFW, int buttonIndex, int actionType, int modifiers) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
 			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			double xPos, yPos;
+			glfwGetCursorPos(windowGLFW, &xPos, &yPos);
 			switch (actionType) {
 				case GLFW_PRESS: {
-					processor->Dispatch({ SystemEvent::MouseButtonDown{ GLFWHelpers::GetMouseCode(buttonIndex) } }, ctx);
+					processor->Dispatch({ SystemEvent::MouseButtonDown{ GLFWHelpers::GetMouseCode(buttonIndex), static_cast<int>(xPos), static_cast<int>(yPos) } }, ctx);
 				} break;
 				case GLFW_RELEASE: {
-					processor->Dispatch({ SystemEvent::MouseButtonUp{ GLFWHelpers::GetMouseCode(buttonIndex) } }, ctx);
+					processor->Dispatch({ SystemEvent::MouseButtonUp{ GLFWHelpers::GetMouseCode(buttonIndex), static_cast<int>(xPos), static_cast<int>(yPos) } }, ctx);
 				} break;
 				default:;
 			}

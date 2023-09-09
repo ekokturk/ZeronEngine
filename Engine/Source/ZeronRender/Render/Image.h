@@ -1,0 +1,31 @@
+﻿// Copyright (C) Eser Kokturk. All Rights Reserved.
+
+#pragma once
+
+namespace Zeron
+{
+	namespace Render
+	{
+		class Image {
+		  public:
+			Image();
+			~Image();
+
+			bool Load(const ByteBuffer& buffer, ColorChannel channel = ColorChannel::RGBA, bool storeRawData = false);
+			void Clear();
+
+			const std::vector<Color>& GetColorData() const;
+			const unsigned char* GetRawData() const;
+
+			int GetWidth() const;
+			int GetHeight() const;
+			int GetByteSize() const;
+
+		  private:
+			std::vector<Color> mData;
+			unsigned char* mRawData;
+			ColorChannel mColorChannel;
+			Vec2i mSize;
+		};
+	}
+}

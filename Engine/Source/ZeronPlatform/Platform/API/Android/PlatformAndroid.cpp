@@ -154,7 +154,7 @@ namespace Zeron
 						case AMOTION_EVENT_ACTION_DOWN:
 						case AMOTION_EVENT_ACTION_POINTER_DOWN: {
 							// ZE_LOG("Mouse Event Down: {} x{} y{}", action, x, y);
-							mWindow->OnSystemEvent({ SystemEvent::MouseButtonDown{ MouseCode::LeftButton } });
+							mWindow->OnSystemEvent({ SystemEvent::MouseButtonDown{ MouseCode::LeftButton, static_cast<int>(x), static_cast<int>(y) } });
 						} break;
 						case AMOTION_EVENT_ACTION_MOVE: {
 							// TODO: Maybe use mouse delta
@@ -164,7 +164,7 @@ namespace Zeron
 						case AMOTION_EVENT_ACTION_UP:
 						case AMOTION_EVENT_ACTION_POINTER_UP: {
 							// ZE_LOG("Mouse Event Up: {} x{} y{}", action, x, y);
-							mWindow->OnSystemEvent({ SystemEvent::MouseButtonUp{ MouseCode::LeftButton } });
+							mWindow->OnSystemEvent({ SystemEvent::MouseButtonUp{ MouseCode::LeftButton, static_cast<int>(x), static_cast<int>(y) } });
 						} break;
 						default: break;
 					}
