@@ -7,7 +7,7 @@ macro(zeron_android_configure_package target packageName appName appSourceDir)
     if(ANDROID)
         # Target
         if(NOT TARGET ${target})
-            message(FATAL_ERROR "ZERON - ERROR: Invalid target for Android!")
+            message(FATAL_ERROR "${ZERON_ERROR_MSG}  Invalid target for Android!")
         endif()
         set(ZERON_ANDROID_TARGET ${target})
         
@@ -28,7 +28,7 @@ macro(zeron_android_configure_package target packageName appName appSourceDir)
         # Get template Android project directory
         get_property(ZERON_ANDROID_PROJECT_DIR GLOBAL PROPERTY ZERON_ANDROID_PROJECT_DIR)
         if(NOT DEFINED ZERON_ANDROID_PROJECT_DIR)
-            message(FATAL_ERROR "ZERON - ERROR: Unable to locate template Zeron Android project directory!")
+            message(FATAL_ERROR "${ZERON_ERROR_MSG} Unable to locate template Zeron Android project directory!")
         endif()
 
         set(ZERON_ANDROID_PACKAGE_DIR               ${CMAKE_BINARY_DIR}/AndroidProject)

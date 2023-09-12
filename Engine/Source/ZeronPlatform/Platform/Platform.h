@@ -27,13 +27,15 @@ namespace Zeron
 
 		// Window
 		virtual Window* GetMainWindow() const;
-		virtual Window* CreatePlatformWindow(const WindowConfig& config) = 0;
+		virtual Window* CreatePlatformWindow(WindowConfig&& config) = 0;
 		WindowManager* GetWindowManager() const;
 
 	  protected:
 		Platform();
 
 		void _dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx);
+
+		ByteBuffer _readWindowIcon() const;
 
 		std::unique_ptr<WindowManager> mWindowManager;
 		std::unique_ptr<IFileSystemHandler> mFileSystem;

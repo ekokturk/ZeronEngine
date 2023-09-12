@@ -9,6 +9,8 @@ namespace Zeron
 		using BaseType::BaseType;
 
 	  public:
+		ByteBuffer Copy() const { return { begin(), end() }; }
+
 		template <typename T>
 		T* GetAs()
 		{

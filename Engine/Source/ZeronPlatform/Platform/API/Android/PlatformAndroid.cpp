@@ -204,7 +204,7 @@ namespace Zeron
 		return mWindow.get();
 	}
 
-	Window* PlatformAndroid::CreatePlatformWindow(const WindowConfig& config)
+	Window* PlatformAndroid::CreatePlatformWindow(WindowConfig&& config)
 	{
 		return mWindow.get();
 	}

@@ -21,7 +21,7 @@ namespace Zeron
 		bool Init() override;
 		void Update() override;
 		Window* GetMainWindow() const override;
-		Window* CreatePlatformWindow(const WindowConfig& config) override;
+		Window* CreatePlatformWindow(WindowConfig&& config) override;
 
 		// Android API
 		void onAppCmd(int cmd);

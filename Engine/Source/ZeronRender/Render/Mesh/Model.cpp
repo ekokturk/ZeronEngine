@@ -11,7 +11,6 @@
 #include <Graphics/Primitives.h>
 #include <Graphics/Texture.h>
 #include <Render/Camera/Camera.h>
-#include <Render/Image.h>
 #include <Render/Mesh/Mesh.h>
 
 

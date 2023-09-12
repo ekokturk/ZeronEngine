@@ -3,6 +3,7 @@
 #if ZE_PLATFORM_WIN32
 
 #	include <Platform/API/Win32/PlatformWin32.h>
+#	include <Platform/FileSystemHandler.h>
 
 #	include <Platform/WindowManager.h>
 
@@ -13,15 +14,23 @@
 namespace Zeron
 {
 
-	PlatformWin32::PlatformWin32()
-		: Platform()
-	{}
+	PlatformWin32::PlatformWin32() {}
 
 	PlatformWin32::~PlatformWin32() {}
 
-	Window* PlatformWin32::CreatePlatformWindow(const WindowConfig& config)
+	bool PlatformWin32::Init()
 	{
-		return mWindowManager->RegisterWindow(config, WindowAPI::Win32);
+		const bool result = Platform::Init();
+		return result;
+	}
+
+	Window* PlatformWin32::CreatePlatformWindow(WindowConfig&& config)
+	{
+		if (!config.HasValidIcon()) {
+			// Load default engine icon
+			config.mIcon = _readWindowIcon();
+		}
+		return mWindowManager->RegisterWindow(std::move(config), WindowAPI::Win32);
 	}
 
 	KeyCode PlatformWin32::GetKeyCode(WPARAM wParam, LPARAM lParam)

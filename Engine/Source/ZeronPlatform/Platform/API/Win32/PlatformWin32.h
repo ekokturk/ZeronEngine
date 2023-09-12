@@ -16,7 +16,8 @@ namespace Zeron
 		PlatformWin32();
 		~PlatformWin32();
 
-		Window* CreatePlatformWindow(const WindowConfig& config) override;
+		bool Init() override;
+		Window* CreatePlatformWindow(WindowConfig&& config) override;
 
 		static KeyCode GetKeyCode(WPARAM wParam, LPARAM lParam);
 		static MouseCode GetMouseCode(WPARAM wParam, LPARAM lParam);

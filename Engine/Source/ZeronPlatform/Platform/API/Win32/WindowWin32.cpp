@@ -19,7 +19,7 @@ namespace Zeron
 			ZE_FAIL("Could not find HINSTANCE of Win32 process!");
 		}
 
-		mWindowClassName = fmt::format("ZeronWin32_Window_{}", mWindowIdCounter);
+		mWindowClassName = Util::Format("ZeronWin32_Window_{}", mWindowIdCounter);
 
 		WNDCLASS wnd = {};
 		wnd.lpfnWndProc = wndProc;
@@ -27,6 +27,9 @@ namespace Zeron
 		wnd.style = CS_HREDRAW | CS_VREDRAW;
 		wnd.lpszClassName = mWindowClassName.c_str();
 		wnd.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		if (config.HasValidIcon()) {
+			wnd.hIcon = CreateIconFromResourceEx(reinterpret_cast<PBYTE>(config.mIcon.Copy().data()), config.mIcon.size(), TRUE, 0x30000, 32, 32, LR_DEFAULTCOLOR);
+		}
 
 		SetLastError(0);
 		RegisterClass(&wnd);

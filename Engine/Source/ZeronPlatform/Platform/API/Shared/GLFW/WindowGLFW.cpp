@@ -5,6 +5,7 @@
 #	include <Platform/API/Shared/GLFW/WindowGLFW.h>
 
 #	include <GLFW/glfw3.h>
+#	include <Platform/Asset/Image.h>
 #	include <Platform/API/Shared/GLFW/GLFWHelpers.h>
 
 namespace Zeron
@@ -42,6 +43,11 @@ namespace Zeron
 		}
 
 		glfwSetWindowUserPointer(mWindowGLFW, userData);
+		if (config.HasValidIcon()) {
+			const Asset::Image iconImage(config.mIcon);
+			const GLFWimage image{ iconImage.GetWidth(), iconImage.GetHeight(), iconImage.GetRawData() };
+			glfwSetWindowIcon(mWindowGLFW, 1, &image);
+		}
 
 		// We need to initialize cached postion
 		glfwGetWindowPos(mWindowGLFW, &mPos.X, &mPos.Y);

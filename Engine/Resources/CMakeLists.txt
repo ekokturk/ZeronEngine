@@ -12,4 +12,6 @@ zeron_add_shader_directory("${CMAKE_CURRENT_SOURCE_DIR}/Shaders")
 
 if(ANDROID)
     set_property(GLOBAL PROPERTY ZERON_ANDROID_PROJECT_DIR ${PLATFORM_DIR}/Android/project)
+elseif(DESKTOP)
+    set_property(GLOBAL PROPERTY ZERON_DESKTOP_WINDOW_ICON ${PLATFORM_DIR}/Desktop/window_icon.png)
 endif()

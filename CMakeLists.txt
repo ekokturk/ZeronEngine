@@ -14,6 +14,7 @@ option(BUILD_SHARED_LIBS        "Build shared libraries"                        
 
 # ============ GENERAL CONFIG =============
 
+set(ZERON_ERROR_MSG "ZERON - [ERROR]:" CACHE BOOL "Prefix for engine related errors" FORCE)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "PredefinedTargets")
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
@@ -24,7 +25,7 @@ find_package(Python3 COMPONENTS Interpreter REQUIRED)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(MSVC_MIN_REQUIRED_VERSION 1914)
     if(MSVC_VERSION LESS ${MSVC_MIN_REQUIRED_VERSION})
-        message(FATAL_ERROR "MSVC compiler version ${MSVC_VERSION} (<${MSVC_MIN_REQUIRED_VERSION}) is not supported!")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} MSVC compiler version ${MSVC_VERSION} (<${MSVC_MIN_REQUIRED_VERSION}) is not supported!")
     endif()
     set(COMPILER_FLAGS 
         "/MP"                   # Enable parallel builds
@@ -35,13 +36,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CLANG_MIN_REQUIRED_VERSION "14.0.0")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS ${CLANG_MIN_REQUIRED_VERSION})
-        message(FATAL_ERROR "Clang compiler version ${CMAKE_CXX_COMPILER_VERSION} (<${CLANG_MIN_REQUIRED_VERSION}) is not supported!")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Clang compiler version ${CMAKE_CXX_COMPILER_VERSION} (<${CLANG_MIN_REQUIRED_VERSION}) is not supported!")
     endif()
     set(COMPILER_FLAGS "-DZE_COMPILER_CLANG=1")
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Generate compile commands for code editors" FORCE)
     set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-error=unused-but-set-variable" CACHE STRING "" FORCE)
 else()
-    message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER_ID} is not supported!")
+    message(FATAL_ERROR "${ZERON_ERROR_MSG} Compiler ${CMAKE_CXX_COMPILER_ID} is not supported!")
 endif()
 
 set(ZERON_COMPILE_OPTIONS ${COMPILER_FLAGS} $<$<CONFIG:DEBUG>:-DZE_DEBUG=1> CACHE STRING "Compiler options used for Zeron Engine" FORCE)
@@ -61,7 +62,7 @@ elseif(UNIX AND NOT APPLE)
     set(COMPILE_DEFS "ZE_PLATFORM_LINUX=1")
     set(LINUX ON CACHE BOOL "" FORCE)
 else()
-    message(FATAL_ERROR "Platform is not supported!")
+    message(FATAL_ERROR "${ZERON_ERROR_MSG} Platform is not supported!")
 endif()
 
 if(WIN32 OR LINUX)

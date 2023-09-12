@@ -25,5 +25,9 @@ namespace Zeron
 		int mID = -1;
 		bool mIsFullScreen = false;
 		WindowAPI mPreferredAPI = WindowAPI::Null;
+
+		ByteBuffer mIcon;
+
+		bool HasValidIcon() const { return !mIcon.empty(); }
 	};
 }

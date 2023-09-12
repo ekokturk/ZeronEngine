@@ -2,7 +2,7 @@
 # `newShaderDir`: Shader directory path
 macro(zeron_add_shader_directory newShaderDir)
     if(NOT EXISTS ${newShaderDir})
-        message(FATAL_ERROR "Shader directory '${newShaderDir} was not found'!")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Shader directory '${newShaderDir} was not found'!")
     endif()
     get_property(_shaderDirs GLOBAL PROPERTY ZERON_SHADER_DIRECTORIES)
     set_property(GLOBAL PROPERTY ZERON_SHADER_DIRECTORIES ${_shaderDirs} ${newShaderDir})
@@ -15,7 +15,7 @@ function(zeron_compile_shaders target outputDir)
     get_property(_srcShaderDirs GLOBAL PROPERTY ZERON_SHADER_DIRECTORIES)
 
     if(NOT GLSLC_EXEC)
-        message(FATAL_ERROR "Vulkan SPIR-V compiler glslc was not found!")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Vulkan SPIR-V compiler glslc was not found!")
     endif()
 
     get_property(build_assets GLOBAL PROPERTY ZERON_BUILD_ASSETS_DIR)
@@ -91,7 +91,7 @@ function(zeron_compile_shaders target outputDir)
                 elseif(_shaderExtension STREQUAL ".comp")
                     set(_shaderType Compute)
                 else()
-                    message(FATAL_ERROR "Invalid HLSL shader extension '${_shaderExtension}'!")
+                    message(FATAL_ERROR "${ZERON_ERROR_MSG} Invalid HLSL shader extension '${_shaderExtension}'!")
                 endif()
                 set_source_files_properties(${_srcShader} 
                     PROPERTIES 
