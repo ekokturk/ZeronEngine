@@ -15,8 +15,18 @@ namespace Zeron
 
 	PlatformLinux::~PlatformLinux() {}
 
-	Window* PlatformLinux::CreatePlatformWindow(const WindowConfig& config)
+	bool PlatformLinux::Init()
 	{
+		const bool result = Platform::Init();
+		return result;
+	}
+
+	Window* PlatformLinux::CreatePlatformWindow(WindowConfig&& config)
+	{
+		if (!config.HasValidIcon()) {
+			// Load default engine icon
+			config.mIcon = _readWindowIcon();
+		}
 		return mWindowManager->RegisterWindow(config, WindowAPI::GLFW);
 	}
 }

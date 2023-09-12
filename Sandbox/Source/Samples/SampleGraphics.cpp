@@ -6,7 +6,6 @@
 #include <Platform/FileSystem.h>
 #include <Platform/Window.h>
 #include <Render/Camera/Camera.h>
-#include <Render/Image.h>
 #include <Render/Mesh/Model.h>
 
 #include <Graphics/Buffer.h>
@@ -19,6 +18,7 @@
 #include <Graphics/Shader.h>
 #include <Graphics/Texture.h>
 #include <Graphics/VertexLayout.h>
+#include <Platform/Asset/Image.h>
 #include <Render/Font/FontAtlas.h>
 #include <Render/Mesh/MeshInfo.h>
 
@@ -89,7 +89,7 @@ namespace SampleGraphics
 		std::vector<MeshResource> mMeshResources;
 
 		std::unique_ptr<Render::Model> mModel;
-		std::unique_ptr<Render::Image> mImage;
+		std::unique_ptr<Asset::Image> mImage;
 
 		int mInstanceM = 10;
 		int mInstanceN = 10;
@@ -138,10 +138,9 @@ namespace SampleGraphics
 
 			mInstanceBuffer = gfx->CreateVertexBuffer<Gfx::VertexInstance>(instanceData);
 
-			mImage = std::make_unique<Render::Image>();
 			auto imageBuffer = FileSystem::ReadBinaryFile("Resources/Textures/TestHumanoid_CLR.png");
-			mImage->Load(imageBuffer.Value());
-			mTexture = gfx->CreateTexture(Gfx::TextureType::Diffuse, mImage->GetColorData().data(), mImage->GetWidth(), mImage->GetHeight());
+			mImage = std::make_unique<Asset::Image>(imageBuffer.Value());
+			mTexture = gfx->CreateTexture(Gfx::TextureType::Diffuse, mImage->GetRawColor().data(), mImage->GetWidth(), mImage->GetHeight());
 
 			mSampler = gfx->CreateSampler();
 

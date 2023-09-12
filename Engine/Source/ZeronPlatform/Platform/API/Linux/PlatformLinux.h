@@ -13,7 +13,8 @@ namespace Zeron
 		PlatformLinux();
 		~PlatformLinux();
 
-		Window* CreatePlatformWindow(const WindowConfig& config) override;
+		bool Init() override;
+		Window* CreatePlatformWindow(WindowConfig&& config) override;
 	};
 }
 

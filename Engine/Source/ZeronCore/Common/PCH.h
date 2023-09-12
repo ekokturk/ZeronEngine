@@ -28,6 +28,7 @@
 #include <random>
 #include <regex>
 #include <set>
+#include <span>
 #include <sstream>
 #include <thread>
 #include <time.h>

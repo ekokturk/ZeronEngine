@@ -4,25 +4,25 @@
 
 namespace Zeron
 {
-	namespace Render
+	namespace Asset
 	{
 		class Image {
 		  public:
-			Image();
+			Image(const ByteBuffer& buffer, ColorChannel channel = ColorChannel::RGBA);
 			~Image();
 
-			bool Load(const ByteBuffer& buffer, ColorChannel channel = ColorChannel::RGBA, bool storeRawData = false);
-			void Clear();
-
-			const std::vector<Color>& GetColorData() const;
-			const unsigned char* GetRawData() const;
+			std::vector<Color> GetAsColor() const;
+			std::span<Color> GetRawColor() const;
+			unsigned char* GetRawData() const;
+			bool IsValid() const;
 
 			int GetWidth() const;
 			int GetHeight() const;
+			int GetSize() const;
 			int GetByteSize() const;
+			ColorChannel GetColorChannel() const;
 
 		  private:
-			std::vector<Color> mData;
 			unsigned char* mRawData;
 			ColorChannel mColorChannel;
 			Vec2i mSize;

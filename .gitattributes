@@ -1,3 +1,7 @@
-Engine/Resources/Assets/** filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.webp filter=lfs diff=lfs merge=lfs -text
+*.jar filter=lfs diff=lfs merge=lfs -text
 . !text !filter !merge !diff
 * !text !filter !merge !diff

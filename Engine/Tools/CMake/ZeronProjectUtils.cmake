@@ -45,10 +45,10 @@ endmacro()
 # `outDir`: The relative path in project build output
 function(zeron_add_project_asset_directory assetDir outDir)
     if(NOT IS_DIRECTORY ${assetDir})
-        message(FATAL_ERROR "Asset directory is not valid: '${assetDir}'")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Asset directory is not valid '${assetDir}'")
     endif()
     if(NOT EXISTS ${assetDir})
-        message(FATAL_ERROR "Asset directory is not found: '${assetDir}'")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Asset directory is not found '${assetDir}'")
     endif()
 
     get_property(_projectAssets GLOBAL PROPERTY ZERON_PROJECT_ASSETS)
@@ -60,7 +60,7 @@ endfunction()
 # `outputDir`: The relative directory in the build output folder the the assets will be copied into 
 function(zeron_copy_assets target outputDir)
     if(NOT TARGET ${target})
-        message(FATAL_ERROR "Target does not exist!")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Target does not exist!")
     endif()
 
     get_property(_buildAssets GLOBAL PROPERTY ZERON_BUILD_ASSETS_DIR)
@@ -69,10 +69,10 @@ function(zeron_copy_assets target outputDir)
         set(_buildAssets $<TARGET_FILE_DIR:${target}>)
     endif()
 
-    # Zeron Engine Assets
+    # ------------ Zeron Engine Assets ------------
     get_property(_engineAssetsdir GLOBAL PROPERTY ZERON_ASSETS_DIR)
     if(NOT EXISTS ${_engineAssetsdir})
-        message(FATAL_ERROR "Zeron assets directory does not exist!")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Zeron assets directory does not exist!")
     endif()
     add_custom_command(
         TARGET ${target} 
@@ -80,13 +80,30 @@ function(zeron_copy_assets target outputDir)
         COMMAND ${CMAKE_COMMAND} -E echo "ZERON - Copying engine assets to '${_buildAssets}/${outputDir}' directory..."
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${_engineAssetsdir}" "${_buildAssets}/${outputDir}"
     )
+    if(DESKTOP)
+        # Copy desktop icon
+        get_property(_desktopIcon GLOBAL PROPERTY ZERON_DESKTOP_WINDOW_ICON)
+        if(NOT EXISTS ${_desktopIcon})
+            message(FATAL_ERROR "${ZERON_ERROR_MSG} Unable to find desktop icon at ${_desktopIcon}")
+        else()
+            get_filename_component(_desktopIconExt ${_desktopIcon} LAST_EXT)
+            if(NOT ${_desktopIconExt} STREQUAL ".png")
+                message(FATAL_ERROR "${ZERON_ERROR_MSG} Expected desktop icon to be '.png' file instead of '${_desktopIconExt}'")
+            endif()
+        endif()
+        add_custom_command(
+            TARGET ${target} 
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_desktopIcon}" "${_buildAssets}/${outputDir}/window_icon.png"
+        )
+    endif()
 
-    # Zeron Project Assets
+    # ------------ Zeron Project Assets ------------
     get_property(_projectAssets GLOBAL PROPERTY ZERON_PROJECT_ASSETS)
     foreach(_projectAssetInfo ${_projectAssets})
         string(FIND "${_projectAssetInfo}" "=" _assetIndex)
         if (_projectAssetInfo LESS 1)
-            message(FATAL_ERROR "Invalid project asset directory information")
+            message(FATAL_ERROR "${ZERON_ERROR_MSG} Invalid project asset directory information")
         endif()
 
         string(SUBSTRING ${_projectAssetInfo} 0 ${_assetIndex} _projectAssetDir)
@@ -101,7 +118,7 @@ function(zeron_copy_assets target outputDir)
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${_projectAssetDir}" "${_buildAssets}/${_projectAssetOutDir}"
             )
         else()
-            message(FATAL_ERROR "Project asset directory doesn't exist: ${_projectAssetDir}")
+            message(FATAL_ERROR "${ZERON_ERROR_MSG} Project asset directory doesn't exist: ${_projectAssetDir}")
         endif()
     endforeach()
 
@@ -110,11 +127,11 @@ endfunction()
 # Configure the current directory with Zeron Engine compile options and definitions
 macro(zeron_configure_compiler)
     if(NOT DEFINED ZERON_COMPILE_DEFINITIONS)
-        message(FATAL_ERROR "Expected to find Zeron compile definitions!")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Expected to find Zeron compile definitions!")
     endif()
     add_compile_definitions(${ZERON_COMPILE_DEFINITIONS})
     if(NOT DEFINED ZERON_COMPILE_OPTIONS)
-        message(FATAL_ERROR "Expected to find Zeron compile options!")
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Expected to find Zeron compile options!")
     endif()
     add_compile_options(${ZERON_COMPILE_OPTIONS})
 endmacro()

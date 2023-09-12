@@ -20,8 +20,6 @@ namespace Zeron
 
 	Platform::~Platform() {}
 
-	void Platform::_dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx) {}
-
 	bool Platform::Init()
 	{
 		// TODO: Move this to implementation
@@ -57,5 +55,17 @@ namespace Zeron
 	WindowManager* Platform::GetWindowManager() const
 	{
 		return mWindowManager.get();
+	}
+
+	void Platform::_dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx) {}
+
+	ByteBuffer Platform::_readWindowIcon() const
+	{
+		ZE_ASSERT(mFileSystem, "Expected file system to be initialized!");
+		auto iconResult = mFileSystem->ReadBinaryFile("Resources/window_icon.png");
+		if (!iconResult.HasError()) {
+			return iconResult.Value();
+		}
+		return {};
 	}
 }
