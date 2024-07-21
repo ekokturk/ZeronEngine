@@ -1,3 +1,13 @@
+# Add a new Android Project library that will be copied over to the package
+# `lib`: Full path to library file
+function(zeron_android_add_external_lib lib)
+    if(NOT EXISTS ${lib})
+        message(FATAL_ERROR "${ZERON_ERROR_MSG} Library file is not found '${lib}'")
+    endif()
+    get_property(EXTRA_ANDROID_LIBS GLOBAL PROPERTY ZERON_ANDROID_EXTRA_LIBS)
+    set_property(GLOBAL PROPERTY ZERON_ANDROID_EXTRA_LIBS ${EXTRA_ANDROID_LIBS} ${lib})
+endfunction()
+
 # Create an Android Project in build directory using the Zeron Engine template
 # `target`: Target to create the project for
 # `packageName`: Name of the Android package (e.g. "com.zeron.sandbox")

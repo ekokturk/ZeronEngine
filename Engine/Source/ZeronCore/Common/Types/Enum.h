@@ -5,19 +5,19 @@
 #define ZE_ENUM_OPERATIONS(Enum)                                                       \
 	inline Enum operator|(Enum l, Enum r)                                              \
 	{                                                                                  \
-		return static_cast<Enum>(static_cast<uint32_t>(l) | static_cast<uint32_t>(r)); \
+		return static_cast<Enum>(static_cast<uint64_t>(l) | static_cast<uint64_t>(r)); \
 	}                                                                                  \
 	inline Enum operator&(Enum l, Enum r)                                              \
 	{                                                                                  \
-		return static_cast<Enum>(static_cast<uint32_t>(l) & static_cast<uint32_t>(r)); \
+		return static_cast<Enum>(static_cast<uint64_t>(l) & static_cast<uint64_t>(r)); \
 	}                                                                                  \
 	inline Enum operator^(Enum l, Enum r)                                              \
 	{                                                                                  \
-		return static_cast<Enum>(static_cast<uint32_t>(l) ^ static_cast<uint32_t>(r)); \
+		return static_cast<Enum>(static_cast<uint64_t>(l) ^ static_cast<uint64_t>(r)); \
 	}                                                                                  \
 	inline Enum operator~(Enum l)                                                      \
 	{                                                                                  \
-		return static_cast<Enum>(~static_cast<uint32_t>(l));                           \
+		return static_cast<Enum>(~static_cast<uint64_t>(l));                           \
 	}                                                                                  \
 	inline Enum& operator|=(Enum& l, Enum r)                                           \
 	{                                                                                  \
@@ -33,5 +33,5 @@
 	}                                                                                  \
 	inline bool operator!(Enum l)                                                      \
 	{                                                                                  \
-		return static_cast<uint32_t>(l) != 0;                                          \
+		return static_cast<uint64_t>(l) != 0;                                          \
 	}

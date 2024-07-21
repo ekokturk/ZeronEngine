@@ -8,6 +8,10 @@
 
 #include <Graphics/Graphics.h>
 
+#if ZE_SCRIPT
+#	include <Script/ScriptEngine.h>
+#endif
+
 bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args)
 {
 	ZE_LOG_FILE("debug.txt");
@@ -31,6 +35,10 @@ bool SandboxMain(Zeron::Platform& platform, const Zeron::CommandLineArgs& args)
 	int frameCount = 0;
 	Zeron::Time::Timer<float, Zeron::Time::Seconds> timer;
 	Zeron::Time::TickTimer ticker(Zeron::Time::Seconds(1.L / 60));
+
+#if ZE_SCRIPT
+	Zeron::Script::ScriptEngine scriptEngine;
+#endif
 
 	bool isRunning = true;
 	while (isRunning) {

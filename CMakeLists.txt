@@ -10,6 +10,8 @@ option(ZERON_SANDBOX            "Enable the Zeron Sandbox application"          
 option(ZERON_TESTS              "Enable the Zeron tests"                        ON)
 option(ZERON_UNIFY_OUTPUT_DIR   "Build binary outputs into the same directory"  OFF)
 
+option(ZERON_ENABLE_SCRIPT      "Enable ZeronScript library"                    ON)
+
 option(BUILD_SHARED_LIBS        "Build shared libraries"                        ON)
 
 # ============ GENERAL CONFIG =============

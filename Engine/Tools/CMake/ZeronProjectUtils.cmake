@@ -161,3 +161,28 @@ macro(zeron_copy_runtime_dependencies target)
         )
     endif()
 endmacro()
+
+# Copies debug symbols to executable folder for Windows builds
+# `target`: Target to copy symbols for
+# `libraries`: Libraries to copy symbols of
+function(zeron_copy_library_symbols target libraries)
+    if(NOT WIN32)
+        return()
+    endif()
+
+    if (NOT TARGET ${target})
+        message(FATAL_ERROR "Target '${target}' does not exist.")
+    endif()
+
+    get_target_property(_targetDir ${target} RUNTIME_OUTPUT_DIRECTORY)
+    if (NOT _targetDir)
+        set(_targetDir $<TARGET_FILE_DIR:${target}>)
+    endif()
+
+    foreach(_library ${libraries})
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:Debug>:$<TARGET_PDB_FILE:${_library}>>" "${_targetDir}"
+            VERBATIM
+        )
+    endforeach()
+endfunction()

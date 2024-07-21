@@ -32,6 +32,8 @@
 #include <sstream>
 #include <thread>
 #include <time.h>
+#include <typeindex>
+#include <typeinfo>
 #include <unordered_map>
 #include <variant>
 
@@ -39,6 +41,7 @@
 #include <Common/Assert.h>
 #include <Common/Logger.h>
 #include <Common/Math/Math.h>
+#include <Common/NotNull.h>
 #include <Common/Result.h>
 #include <Common/SystemHandle.h>
 #include <Common/Time.h>
