@@ -9,7 +9,7 @@
 namespace Zeron
 {
 
-	PlatformLinux::PlatformLinux()
+	PlatformLinux::PlatformLinux(const PlatformCreationProps&)
 		: Platform()
 	{}
 

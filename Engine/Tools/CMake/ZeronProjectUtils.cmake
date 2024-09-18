@@ -186,3 +186,33 @@ function(zeron_copy_library_symbols target libraries)
         )
     endforeach()
 endfunction()
+
+# Create install commands for an executable
+# `target`: Target executable
+# `installPath`: Path to install executable files
+# `resourcePath`: Resource directories separated with ;
+macro(zeron_install_executable target installPath resourcePathList)
+    set(_ZERON_INSTALL_TARGET ${target})
+    if(DESKTOP)
+        set(_ZERON_INSTALL_PATH "${installPath}")
+        string(REPLACE "\n" ";" _ZERON_RESOURCE_PATH_LIST ${resourcePathList})
+        set(_ZERON_INSTALL_SCRIPT_PATH "${CMAKE_BINARY_DIR}/${target}/zeron_install.cmake")
+
+        # Generate install script
+        configure_file(
+            "${ZERON_CMAKE_UTILS}/Internal/ZeronInstallScript.cmake"
+            "${_ZERON_INSTALL_SCRIPT_PATH}"
+            @ONLY
+        )
+
+        # Install dependencies and resources
+        install(CODE "
+            set(_ZERON_INSTALL_TARGET_FILE_${target} \$<TARGET_FILE:${target}>)
+            set(_ZERON_RESOURCE_PATH_LIST_${target} ${_ZERON_RESOURCE_PATH_LIST})
+        ")
+        install(SCRIPT "${_ZERON_INSTALL_SCRIPT_PATH}") 
+
+        # Install executable
+        install(TARGETS ${_ZERON_INSTALL_TARGET} RUNTIME DESTINATION ${_ZERON_INSTALL_PATH})
+    endif()
+endmacro()

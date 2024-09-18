@@ -13,7 +13,7 @@ set(MODULE_LIBS_PUBLIC "")
 set(MODULE_INCLUDES "")
 
 list(APPEND MODULE_LIBS_PRIVATE stb assimp)
-list(APPEND MODULE_LIBS_PUBLIC imgui)
+list(APPEND MODULE_LIBS_PUBLIC "")
 
 # ============ MODULE INIT ============
 target_include_directories(ZeronRender 

@@ -8,7 +8,7 @@ zeron_add_module_dependency(ImGui)
 
 # ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBS_PRIVATE "")
-set(MODULE_LIBS_PUBLIC "")
+set(MODULE_LIBS_PUBLIC imgui)
 set(MODULE_INCLUDES "")
 
 
@@ -18,6 +18,8 @@ target_include_directories(ZeronGUI
 )
 
 target_link_libraries(ZeronGUI
+	PUBLIC
+		${MODULE_LIBS_PUBLIC}
 	PRIVATE
         ZeronRender
 		ZeronPlatform

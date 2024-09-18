@@ -23,7 +23,7 @@ macro(zeron_add_module_dependency dep_name)
     if(NOT TARGET ${dep_name})
         message("ZERON ------ Dependency: ${dep_name}")
         file(RELATIVE_PATH rel_path ${CMAKE_CURRENT_SOURCE_DIR} ${ZERON_THIRDPARTY_DIR})
-        add_subdirectory("${rel_path}/${dep_name}" "${CMAKE_CURRENT_BINARY_DIR}/${dep_name}")
+        add_subdirectory("${rel_path}/${dep_name}" "${CMAKE_CURRENT_BINARY_DIR}/${dep_name}" EXCLUDE_FROM_ALL)
     endif()
 endmacro()
 

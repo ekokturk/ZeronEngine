@@ -4,6 +4,8 @@
 
 #if ZE_PLATFORM_ANDROID
 
+#	include <game-activity/native_app_glue/android_native_app_glue.h>
+
 #	include <Platform/Platform.h>
 
 struct android_app;
@@ -14,7 +16,7 @@ namespace Zeron
 
 	class PlatformAndroid : public Platform {
 	  public:
-		PlatformAndroid(android_app* app);
+		PlatformAndroid(const PlatformCreationProps& props);
 		~PlatformAndroid();
 
 		// Window API

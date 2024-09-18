@@ -36,7 +36,10 @@ endif()
 
 # ============ MODULE INIT ============
 target_include_directories(ZeronPlatform 
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC 
+        "${CMAKE_CURRENT_SOURCE_DIR}/Public/"
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/Private/"
 )
 
 target_link_libraries(ZeronPlatform

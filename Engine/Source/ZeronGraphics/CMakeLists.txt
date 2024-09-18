@@ -25,16 +25,17 @@ if(DEFINED GFX_VULKAN)
     zeron_add_module_dependency(Vulkan-Headers)
     zeron_add_module_dependency(glslc)
     target_compile_definitions(ZeronGraphics PUBLIC ${GFX_VULKAN})
-    list(APPEND MODULE_LIBS_PUBLIC Vulkan::Headers)
+    list(APPEND MODULE_LIBS_PRIVATE Vulkan::Headers)
 endif()
 
 # ============ MODULE INIT ============
 target_include_directories(ZeronGraphics 
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${MODULE_INCLUDES_PRIVATE}
+    PUBLIC 
+        "${CMAKE_CURRENT_SOURCE_DIR}/Public/"
     PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/Private/"
 )
+
 target_link_libraries(ZeronGraphics
     PUBLIC
         ZeronCore

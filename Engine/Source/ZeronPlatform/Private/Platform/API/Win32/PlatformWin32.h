@@ -13,7 +13,7 @@ namespace Zeron
 {
 	class PlatformWin32 : public Platform {
 	  public:
-		PlatformWin32();
+		PlatformWin32(const PlatformCreationProps& props);
 		~PlatformWin32();
 
 		bool Init() override;

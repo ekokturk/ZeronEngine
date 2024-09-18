@@ -9,14 +9,42 @@
 #include <Platform/Window.h>
 #include <Platform/WindowManager.h>
 
+#if ZE_PLATFORM_WIN32
+#	include <Platform/API/Win32/PlatformWin32.h>
+using EntryPlatform = ::Zeron::PlatformWin32;
+#elif ZE_PLATFORM_LINUX
+#	include <Platform/API/Linux/PlatformLinux.h>
+using EntryPlatform = ::Zeron::PlatformLinux;
+#elif ZE_PLATFORM_ANDROID
+#	include <game-activity/native_app_glue/android_native_app_glue.h>
+#	include <Platform/API/Android/PlatformAndroid.h>
+using EntryPlatform = ::Zeron::PlatformAndroid;
+#endif
+
+
 namespace Zeron
 {
+
+	std::unique_ptr<Platform> Platform::Create(const PlatformCreationProps& props)
+	{
+#if ZE_PLATFORM_WIN32
+		return std::make_unique<PlatformWin32>(props);
+#elif ZE_PLATFORM_LINUX
+		return std::make_unique<PlatformLinux>(props);
+#elif ZE_PLATFORM_ANDROID
+		return std::make_unique<PlatformAndroid>(props);
+#else
+		return nullptr;
+#endif
+	}
+
 	Platform::Platform()
 	{
 		mWindowManager = std::make_unique<WindowManager>([this](const auto& evt, const auto& ctx) {
 			_dispatchEvents(evt, ctx);
 		});
 	}
+
 
 	Platform::~Platform() {}
 

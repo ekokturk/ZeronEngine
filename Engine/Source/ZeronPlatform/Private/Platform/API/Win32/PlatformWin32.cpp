@@ -14,7 +14,7 @@
 namespace Zeron
 {
 
-	PlatformWin32::PlatformWin32() {}
+	PlatformWin32::PlatformWin32(const PlatformCreationProps&) {}
 
 	PlatformWin32::~PlatformWin32() {}
 

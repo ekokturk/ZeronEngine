@@ -13,8 +13,14 @@ namespace Zeron
 	class WindowManager;
 	class Window;
 
+	struct PlatformCreationProps {
+		void* mAppHandle = nullptr;
+	};
+
 	class Platform {
 	  public:
+		static std::unique_ptr<Platform> Create(const PlatformCreationProps& props = {});
+
 		virtual ~Platform();
 
 		virtual bool Init();

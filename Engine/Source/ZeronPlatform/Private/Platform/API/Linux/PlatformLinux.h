@@ -10,7 +10,7 @@ namespace Zeron
 {
 	class PlatformLinux : public Platform {
 	  public:
-		PlatformLinux();
+		PlatformLinux(const PlatformCreationProps& props);
 		~PlatformLinux();
 
 		bool Init() override;

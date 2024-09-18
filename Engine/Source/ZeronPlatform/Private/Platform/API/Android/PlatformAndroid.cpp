@@ -36,9 +36,9 @@ namespace Zeron
 		}
 	}
 
-	PlatformAndroid::PlatformAndroid(android_app* app)
+	PlatformAndroid::PlatformAndroid(const PlatformCreationProps& props)
 		: Platform()
-		, mApp(app)
+		, mApp(static_cast<android_app*>(props.mAppHandle))
 		, mDestroyRequested(false)
 	{}
 

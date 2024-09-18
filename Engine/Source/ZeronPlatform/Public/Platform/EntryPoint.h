@@ -4,18 +4,7 @@
 
 #include <Platform/CommandLineArgs.h>
 #include <Platform/FileSystem.h>
-
-#if ZE_PLATFORM_WIN32
-#	include <Platform/API/Win32/PlatformWin32.h>
-using EntryPlatform = ::Zeron::PlatformWin32;
-#elif ZE_PLATFORM_LINUX
-#	include <Platform/API/Linux/PlatformLinux.h>
-using EntryPlatform = ::Zeron::PlatformLinux;
-#elif ZE_PLATFORM_ANDROID
-#	include <game-activity/native_app_glue/android_native_app_glue.h>
-#	include <Platform/API/Android/PlatformAndroid.h>
-using EntryPlatform = ::Zeron::PlatformAndroid;
-#endif
+#include <Platform/Platform.h>
 
 namespace Zeron
 {
@@ -41,7 +30,7 @@ namespace Zeron
 	{                                                      \
 		::Zeron::CommandLineArgs cmdArgs;                  \
 		cmdArgs.Process(argc, argv);                       \
-		auto platform = std::make_unique<EntryPlatform>(); \
+		auto platform = ::Zeron::Platform::Create();       \
 		::Zeron::EntryPoint::Main(*platform, cmdArgs, fn); \
 	}
 
@@ -50,14 +39,16 @@ namespace Zeron
 	{                                                      \
 		::Zeron::CommandLineArgs cmdArgs;                  \
 		cmdArgs.Process(argc, argv);                       \
-		auto platform = std::make_unique<EntryPlatform>(); \
+		auto platform = ::Zeron::Platform::Create();       \
 		::Zeron::EntryPoint::Main(*platform, cmdArgs, fn); \
 	}
 
 #define ZERON_ANDROID_ENTRY_POINT(fn)                                         \
-	void android_main(android_app* app)                                       \
+	void android_main(struct android_app* app)                                \
 	{                                                                         \
-		auto platform = std::make_unique<EntryPlatform>(app);                 \
+		::Zeron::PlatformCreationProps props;                                 \
+		props.mAppHandle = app;                                               \
+		auto platform = ::Zeron::Platform::Create(props);                     \
 		::Zeron::EntryPoint::Main(*platform, ::Zeron::CommandLineArgs{}, fn); \
 	}
 
@@ -66,6 +57,7 @@ namespace Zeron
 #elif ZE_PLATFORM_LINUX
 #	define ZERON_DECLARE_ENTRY_POINT(fn) ZERON_LINUX_ENTRY_POINT(fn)
 #elif ZE_PLATFORM_ANDROID
+#	include <game-activity/native_app_glue/android_native_app_glue.h>
 #	define ZERON_DECLARE_ENTRY_POINT(fn) ZERON_ANDROID_ENTRY_POINT(fn)
 #else
 #	define ZERON_DECLARE_ENTRY_POINT(fn)

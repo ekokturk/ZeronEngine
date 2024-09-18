@@ -2,8 +2,6 @@
 
 message("ZERON - Generating: Zeron Engine")
 
-set(ZERON_ENGINE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Zeron Engine Directory")
-set(ZERON_CMAKE_UTILS "${CMAKE_CURRENT_SOURCE_DIR}/Tools/CMake" CACHE INTERNAL "Zeron CMake utilities")
 include("${ZERON_CMAKE_UTILS}/Internal/ZeronEngineHelpers.cmake")
 include("${ZERON_CMAKE_UTILS}/ZeronProjectUtils.cmake")
 

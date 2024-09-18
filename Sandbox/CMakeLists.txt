@@ -15,9 +15,11 @@ zeron_create_project(Sandbox "${SANDBOX_SOURCES}")
 
 target_include_directories(Sandbox PUBLIC ${SANDBOX_DIR})
 target_link_libraries(Sandbox 
-    PUBLIC ZeronPlatform ZeronRender ZeronGUI  $<$<BOOL:${ZERON_ENABLE_SCRIPT}>:ZeronScript>
+    PUBLIC ZeronPlatform ZeronRender ZeronGUI $<$<BOOL:${ZERON_ENABLE_SCRIPT}>:ZeronScript>
 )
-set_target_properties(Sandbox PROPERTIES FOLDER "Sandbox")
+set_target_properties(Sandbox PROPERTIES 
+    FOLDER "Sandbox"
+)
 
 # Platfom specific setup
 set(ZERON_ANDROID_CONFIG_SCREEN_ORIENTATION "landscape")
@@ -27,4 +29,10 @@ zeron_android_configure_package(Sandbox "com.zeron.sandbox" Sandbox ${SANDBOX_DI
 zeron_compile_shaders(Sandbox "Resources/Shaders")
 zeron_copy_assets(Sandbox "Resources")
 
+# Install
+zeron_install_executable(
+    Sandbox 
+    "${CMAKE_INSTALL_PREFIX}/Sandbox" 
+    "\$<TARGET_FILE_DIR:Sandbox>/Resources"
+)
 
