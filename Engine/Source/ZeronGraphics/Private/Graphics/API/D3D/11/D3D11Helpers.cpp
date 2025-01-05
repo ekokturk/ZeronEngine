@@ -15,6 +15,7 @@ namespace Zeron::Gfx
 			case BufferType::Vertex: return D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 			case BufferType::Index: return D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 			case BufferType::Uniform: return D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
+			case BufferType::Storage: return D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
 			case BufferType::Undefined: return static_cast<D3D11_BIND_FLAG>(0);
 			default: ZE_FAIL("D3D11 buffer type is not supported!");
 		}
@@ -42,6 +43,20 @@ namespace Zeron::Gfx
 			default: ZE_FAIL("D3D11 multi-sample anti aliasing level is not supported!");
 		}
 		return 0;
+	}
+	DXGI_FORMAT D3D11Helpers::GetTextureFormat(TextureFormat textureFormat)
+	{
+		switch (textureFormat) {
+
+			case TextureFormat::RGB_8U: return DXGI_FORMAT_B8G8R8X8_UNORM;
+			case TextureFormat::RGBA_8U: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case TextureFormat::BGRA_8U: return DXGI_FORMAT_B8G8R8A8_UNORM;
+			case TextureFormat::Depth_16U: return DXGI_FORMAT_R16_TYPELESS;
+			case TextureFormat::Depth_32F: return DXGI_FORMAT_R32_TYPELESS;
+			case TextureFormat::DepthStencil_32U: return DXGI_FORMAT_R24G8_TYPELESS;
+			default: ZE_FAIL("Texture format is not supported.");
+		}
+		return DXGI_FORMAT_UNKNOWN;
 	}
 }
 #endif

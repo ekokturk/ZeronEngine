@@ -1,0 +1,30 @@
+//  Copyright (C) Eser Kokturk. All Rights Reserved.
+
+//@begin_stage Compute
+
+struct CSInput
+{
+    uint3 groupID           : SV_GroupID;
+    uint3 groupThreadID     : SV_GroupThreadID;
+    uint3 dispatchThreadID  : SV_DispatchThreadID;
+    uint  groupIndex        : SV_GroupIndex;
+};
+
+//@register
+RWStructuredBuffer<float> rwBuffer;
+
+[numthreads( 16, 16, 1 )]
+void main( CSInput input )
+{
+    uint index = input.groupID.x * 16 + input.groupThreadID.x + 
+                 (input.groupID.y * 16 * 16); // Adjust based on your layout
+
+    // Ensure the index does not exceed buffer bounds
+    if (index < 100)  // Buffer size is 100
+    {
+        // Write a value to the buffer based on thread IDs
+        rwBuffer[index] = float(index)* 2;
+    }
+}
+
+//@end_stage

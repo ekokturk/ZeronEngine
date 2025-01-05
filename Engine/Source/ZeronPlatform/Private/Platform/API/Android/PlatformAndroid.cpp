@@ -97,6 +97,7 @@ namespace Zeron
 			} break;
 			case APP_CMD_INIT_WINDOW: {
 				if (!mWindow) {
+					_updateOrientation();
 					mWindow = std::make_unique<WindowAndroid>(WindowConfig{}, mApp->window);
 				}
 			} break;
@@ -118,6 +119,9 @@ namespace Zeron
 					mWindow->OnSystemEvent({ SystemEvent::WindowUnfocused{} });
 				}
 			} break;
+			case APP_CMD_CONFIG_CHANGED: {
+				_updateOrientation();
+			}
 			// --- CLEANUP
 			case APP_CMD_TERM_WINDOW: {
 				// TODO: Window cleanup
@@ -210,6 +214,31 @@ namespace Zeron
 	}
 
 	void PlatformAndroid::_initDirectories() {}
+
+	void PlatformAndroid::_updateOrientation()
+	{
+		AConfiguration* config = AConfiguration_new();
+		AConfiguration_fromAssetManager(config, mApp->activity->assetManager);
+		int orientation = AConfiguration_getOrientation(config);
+
+		Orientation newOrientation = Orientation::Undefined;
+		switch (orientation) {
+			case ACONFIGURATION_ORIENTATION_PORT: {
+				newOrientation = Orientation::Portrait;
+			} break;
+			case ACONFIGURATION_ORIENTATION_LAND: {
+				newOrientation = Orientation::Landscape;
+			} break;
+			default: {
+				ZE_FAIL("Orientation {} is not supported", orientation);
+			}
+		}
+
+		if (newOrientation != mLastOrientation) {
+			mLastOrientation = newOrientation;
+		}
+		AConfiguration_delete(config);
+	}
 
 	KeyCode PlatformAndroid::GetKeyCode(int keyCode)
 	{

@@ -1,0 +1,2 @@
+# Zeron Shader Language (ZSL) Parser
+Zeron Shader Language (SL) is a shading language based on HLSL syntax that adds support for reflection metadata through decorators. ZSL simplifies shader development by embedding reflection information directly in the code, enabling automatic extraction of data such as resource bindings, variable types, and usage details. This streamlines integration with graphics APIs like Direct3D11 and Vulkan, making it easier to manage rendering pipelines.

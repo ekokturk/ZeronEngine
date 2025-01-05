@@ -17,6 +17,8 @@ namespace Zeron::Gfx
 		uint32_t GetSizeInBytes() const { return mStride * mCount; }
 		BufferUsageType GetUsageType() const { return mUsage; }
 
+		virtual void SetDebugName(std::string_view label) = 0;
+
 	  private:
 		BufferType mType = BufferType::Vertex;
 		uint32_t mCount = 0;

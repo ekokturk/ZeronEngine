@@ -14,16 +14,20 @@ endmacro()
 function(zeron_compile_shaders target outputDir)
     get_property(_srcShaderDirs GLOBAL PROPERTY ZERON_SHADER_DIRECTORIES)
 
-    if(NOT GLSLC_EXEC)
+    if(NOT ZE_GLSLC_EXEC)
         message(FATAL_ERROR "${ZERON_ERROR_MSG} Vulkan SPIR-V compiler glslc was not found!")
+    endif()
+
+    if(WIN32)
+        if(NOT ZE_FXC_EXEC)
+            message(FATAL_ERROR "${ZERON_ERROR_MSG} Direct3D 11 compiler fxc was not found!")
+        endif()
     endif()
 
     get_property(build_assets GLOBAL PROPERTY ZERON_BUILD_ASSETS_DIR)
     if(NOT EXISTS ${build_assets})
-        set(build_assets ${CMAKE_CURRENT_BINARY_DIR})
+        set(build_assets "$<TARGET_FILE_DIR:${target}>")
     endif()
-
-    set(_outShaderDir ${build_assets}/${outputDir})
 
     # Find helper headers in the shader directories
     # We need to do this so they can be associated with source files
@@ -37,90 +41,48 @@ function(zeron_compile_shaders target outputDir)
         endif()
     endforeach()
 
-    # Find shader source files in specified directories
+    set(_zslGenShaderDir "${CMAKE_BINARY_DIR}/generated/shaders")
+    if(ANDROID AND EXISTS ${_zslGenShaderDir})
+        # We clean generated shaders on project config
+        file(REMOVE_RECURSE ${_zslGenShaderDir})
+    endif()
+
+    set(_zslOutDir "${build_assets}/${outputDir}")
+    set(_allZslMetaData "")
     foreach (_srcShaderDir IN LISTS _srcShaderDirs)
-        file(GLOB_RECURSE _srcShaderList 
-            "${_srcShaderDir}/*.vert.hlsl"
-            "${_srcShaderDir}/*.frag.hlsl"
-            "${_srcShaderDir}/*.comp.hlsl"
-        )
-        foreach (_srcShader IN LISTS _srcShaderList)
-            list(APPEND _allSrcShaders ${_srcShader})
-            cmake_path(ABSOLUTE_PATH _srcShader OUTPUT_VARIABLE _srcShaderAbs)
-            get_filename_component(_shaderName ${_srcShader} NAME_WLE)
-            get_filename_component(_shaderExtension ${_shaderName} EXT)
-
-            # ======================================================
-            # ================= Compile for Vulkan =================
-            set(_outShader "${_outShaderDir}/${_shaderName}.spv")
-            set(_outShaderDep "${_outShaderDir}/${_shaderName}.d")
+        file(GLOB_RECURSE _zslShaders "${_srcShaderDir}/*.zsl")
+        foreach (_zslShader IN LISTS _zslShaders)
+            list(APPEND _allZslShaders ${_zslShader})
+            cmake_path(ABSOLUTE_PATH _zslShader OUTPUT_VARIABLE _zslShaderAbs)
+            get_filename_component(_zslShaderName ${_zslShader} NAME_WLE)
+            set(_zslMetadata "${_zslGenShaderDir}/${_zslShaderName}.zsl.json")
             add_custom_command(
-                OUTPUT ${_outShader}
-                COMMAND ${CMAKE_COMMAND} -E make_directory ${_outShaderDir}
-                COMMAND ${CMAKE_COMMAND} -E echo "[ZERON] Compiling SPIRV for '${target}': ${_srcShader} -> ${_outShader}"
-                COMMAND ${GLSLC_EXEC}
-                            -MD -MF "${_outShaderDep}" 
-                            -O "${_srcShaderAbs}"
-                            -o "${_outShader}" 
-                            -I "${_shaderIncludeDirs}"
-                            -DZE_SHADER_SPIRV
-                            # --target-env=vulkan1.2 "${include_flags}"
-                DEPENDS "${_srcShaderAbs}"
-                BYPRODUCTS "${_outShaderDep}"
-                DEPFILE "${_outShaderDep}"
-                VERBATIM
+                OUTPUT ${_zslMetadata} 
+                COMMAND ${CMAKE_COMMAND} -E echo "[ZERON] Compiling ${_zslShaderName}.zsl"
+                COMMAND ${ZERON_PYTHON_EXE} -E zsl parse -shader "${_zslShaderAbs}" -outDir "${_zslGenShaderDir}"
+                COMMAND ${CMAKE_COMMAND} -E env ZE_GLSLC_EXEC=${ZE_GLSLC_EXEC} ZE_FXC_EXEC=${ZE_FXC_EXEC}
+                        ${ZERON_PYTHON_EXE} -E zsl compile -shaderName "${_zslShaderName}" -srcDir "${_zslGenShaderDir}" -outDir "${_zslOutDir}" 
+                WORKING_DIRECTORY "${ZERON_TOOLS_DIR}/Python/packages/zsl"
+                DEPENDS ${_zslShaderAbs}
                 COMMAND_EXPAND_LISTS
+                VERBATIM
             )
-
-            add_custom_command(
-                TARGET ${target} 
-                POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_outShader} "$<TARGET_FILE_DIR:${target}>/${outputDir}/${_shaderName}.spv"
-            )
-            list(APPEND _allCompiledShaders ${_outShader})
-            # =========================================================
-
-            # ========================================================
-            # ================= Compile for Direct3D =================
-            if(WIN32)
-                set(_shaderModelHLSL 5.0)
-                if(_shaderExtension STREQUAL ".vert")
-                    set(_shaderType Vertex)
-                elseif(_shaderExtension STREQUAL ".frag")
-                    set(_shaderType Pixel)
-                elseif(_shaderExtension STREQUAL ".comp")
-                    set(_shaderType Compute)
-                else()
-                    message(FATAL_ERROR "${ZERON_ERROR_MSG} Invalid HLSL shader extension '${_shaderExtension}'!")
-                endif()
-                set_source_files_properties(${_srcShader} 
-                    PROPERTIES 
-                        VS_SHADER_FLAGS /I"${_shaderIncludeDirs}"
-                        VS_SHADER_OBJECT_FILE_NAME $(OutDir)/${outputDir}/${_shaderName}.cso
-                        VS_SHADER_TYPE ${_shaderType} 
-                        VS_SHADER_MODEL ${_shaderModelHLSL}
-                        VS_SHADER_ENTRYPOINT main
-                        VS_SHADER_ENABLE_DEBUG 1
-                )
-            endif()
-            # =========================================================
+            list(APPEND _allZslMetaData ${_zslMetadata})
         endforeach ()
-        
-        list(LENGTH _srcShaderList _srcShaderListCount)
-        cmake_path(RELATIVE_PATH _srcShaderDir BASE_DIRECTORY ${PROJECT_SOURCE_DIR} OUTPUT_VARIABLE _relativeSrcShaderDir)
-        message("ZERON ---- Found (${_srcShaderListCount}) shaders to compile in '${_relativeSrcShaderDir}'")
-    endforeach()
+    endforeach ()
 
     # Create target to compile shaders
-    add_custom_target(ShaderCompiler DEPENDS ${_allCompiledShaders})
+    add_custom_target(ShaderCompiler ALL DEPENDS ${_allZslMetaData})
     get_target_property(_targetFolder ${target} FOLDER)
     if(_targetFolder)
         set_target_properties(ShaderCompiler PROPERTIES FOLDER ${_targetFolder})
     endif()
 
-    source_group("Shaders" FILES ${_allSrcShaders} ${_allSrcShaderHeaders})
+    source_group("Shaders" FILES ${_allZslShaders})
+    # source_group("Shaders" FILES ${_allSrcShaders} ${_allSrcShaderHeaders})
     # Visual Studio only detects HLSL Compiler for valid targetss
-    target_sources(${target} PUBLIC ${_allSrcShaders} ${_allSrcShaderHeaders})
+    # target_sources(${target} PUBLIC ${_allSrcShaders} ${_allSrcShaderHeaders})
+    target_sources(${target} PUBLIC ${_allZslShaders})
 
     add_dependencies(${target} ShaderCompiler)
 endfunction()

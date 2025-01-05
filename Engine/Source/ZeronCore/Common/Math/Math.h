@@ -116,6 +116,13 @@ namespace Zeron
 			const glm::tvec4<T> temp = m * glm::tvec4<T>(v.X, v.Y, v.Z, 1);
 			return { temp.x, temp.y, temp.z };
 		}
+
+		template <typename T>
+		static TVec4<T> Transform(const TVec4<T>& v, const TMat4<T>& m)
+		{
+			const glm::tvec4<T> temp = m * glm::tvec4<T>(v.X, v.Y, v.Z, v.W);
+			return { temp.x, temp.y, temp.z, temp.w };
+		}
 	};
 
 	template <class T>

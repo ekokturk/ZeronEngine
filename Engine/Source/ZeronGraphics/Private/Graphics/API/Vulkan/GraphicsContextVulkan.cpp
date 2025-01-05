@@ -5,10 +5,8 @@
 #	include <Graphics/API/Vulkan/GraphicsContextVulkan.h>
 
 #	include <Graphics/API/Vulkan/CommandBufferVulkan.h>
-#	include <Graphics/API/Vulkan/FrameBufferVulkan.h>
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 #	include <Graphics/API/Vulkan/SwapChainVulkan.h>
-#	include <Graphics/API/Vulkan/TextureVulkan.h>
 
 namespace Zeron::Gfx
 {
@@ -18,11 +16,14 @@ namespace Zeron::Gfx
 		, mCurrentFrameInFlight(0)
 	{}
 
-	GraphicsContextVulkan::~GraphicsContextVulkan() {}
+	GraphicsContextVulkan::~GraphicsContextVulkan()
+	{
+		mGraphics.GetGraphicsQueueVK().waitIdle();
+	}
 
 	void GraphicsContextVulkan::Init(SystemHandle systemHandle, const Vec2i& size)
 	{
-		ZE_ASSERT(!mSwapChain, "Vulkan graphics context swapchain was already initialized!");
+		ZE_ASSERT(!mSwapChain, "GraphicsContextVulkan: Vulkan graphics context swapchain was already initialized!");
 		mSwapChain = mGraphics.CreateSwapChainVK(systemHandle, size);
 
 		const vk::Device& device = mGraphics.GetDeviceVK();
@@ -49,7 +50,7 @@ namespace Zeron::Gfx
 
 	void GraphicsContextVulkan::BeginSwapChainRenderPass(CommandBuffer& cmd) const
 	{
-		cmd.BeginRenderPass(mSwapChain->GetFrameBuffer(), &mSwapChain->GetRenderPass());
+		cmd.BeginRenderPass(mSwapChain->GetFrameBuffer());
 	}
 
 	void GraphicsContextVulkan::EndSwapChainRenderPass(CommandBuffer& cmd) const
@@ -60,22 +61,21 @@ namespace Zeron::Gfx
 	void GraphicsContextVulkan::Submit(CommandBuffer& cmd)
 	{
 		const vk::Device& device = mGraphics.GetDeviceVK();
-		const vk::Fence& fence = _getCurrentGraphicsFence();
-
 		auto& vkCmdBuffer = static_cast<CommandBufferVulkan&>(cmd);
+
+
+		const vk::Fence& fence = _getCurrentGraphicsFence();
 		const vk::PipelineStageFlags pipelineStage{ vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
 		const vk::SubmitInfo submitInfo(
 			1, &_getCurrentPresentReadySemaphore(), &pipelineStage, 1, &vkCmdBuffer.GetCommandBufferVK(), 1, &_getCurrentRenderCompleteSemaphore()
 		);
 		ZE_VK_ASSERT(mGraphics.GetGraphicsQueueVK().submit(1, &submitInfo, fence), "Vulkan command buffer submission failed!");
-		ZE_VK_ASSERT(device.waitForFences(1, &fence, VK_TRUE, ZE_VK_TIMEOUT), "Vulkan failed to wait for fences!");
 	}
 
 	void GraphicsContextVulkan::Present()
 	{
 		mSwapChain->Present(mGraphics, _getCurrentRenderCompleteSemaphore());
-		mCurrentFrameInFlight = (mCurrentFrameInFlight + 1) % mMaxFramesInFlight;
 	}
 
 	void GraphicsContextVulkan::ResizeSwapChain(const Vec2i& size)
@@ -90,7 +90,7 @@ namespace Zeron::Gfx
 
 	RenderPass* GraphicsContextVulkan::GetSwapChainRenderPass() const
 	{
-		ZE_ASSERT(mSwapChain, "Swap chain doesn't exist to retrieve render pass!");
+		ZE_ASSERT(mSwapChain, "GraphicsContextVulkan: Swap chain doesn't exist to retrieve render pass!");
 		return &mSwapChain->GetRenderPass();
 	}
 
@@ -126,8 +126,9 @@ namespace Zeron::Gfx
 	{
 		const vk::Device& device = mGraphics.GetDeviceVK();
 		const vk::Fence& fence = _getCurrentGraphicsFence();
-		mSwapChain->AcquireNextFrame(device, _getCurrentPresentReadySemaphore());
+		ZE_VK_ASSERT(device.waitForFences(1, &fence, VK_TRUE, ZE_VK_TIMEOUT), "Vulkan failed to wait for fences!");
 		ZE_VK_ASSERT(device.resetFences(1, &fence), "Vulkan failed to reset fences!");
+		mSwapChain->AcquireNextFrame(device, _getCurrentPresentReadySemaphore());
 	}
 }
 #endif

@@ -12,6 +12,7 @@ struct ID3D11Buffer;
 struct ID3D11DeviceContext;
 struct ID3D11SamplerState;
 struct ID3D11ShaderResourceView;
+struct ID3D11UnorderedAccessView;
 
 namespace Zeron::Gfx
 {
@@ -24,7 +25,8 @@ namespace Zeron::Gfx
 			ShaderType mShaderStage;
 			std::vector<ID3D11Buffer*> mBuffer;
 			std::vector<ID3D11SamplerState*> mSampler;
-			std::vector<ID3D11ShaderResourceView*> mTexture;
+			std::vector<ID3D11ShaderResourceView*> mResourceView;
+			std::vector<ID3D11UnorderedAccessView*> mUnorderedAccessView;
 		};
 
 	  public:
@@ -32,10 +34,12 @@ namespace Zeron::Gfx
 
 		// D3D11 API
 		void Apply(ID3D11DeviceContext* deviceContext);
+		void Clear(ID3D11DeviceContext* deviceContext);
 
 	  private:
 		std::vector<BindingD3D> mConstantBuffers;
 		std::vector<BindingD3D> mTextures;
+		std::vector<BindingD3D> mStructuredBuffers;
 		std::vector<BindingD3D> mSamplers;
 	};
 }

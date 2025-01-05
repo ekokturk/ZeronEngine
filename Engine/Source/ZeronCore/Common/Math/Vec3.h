@@ -111,11 +111,12 @@ namespace Zeron
 
 		T Length() const { return sqrt((X * X) + (Y * Y) + (Z * Z)); }
 
-		void Normalize()
+		TVec3& Normalize()
 		{
 			if (const T len = Length(); len != 0) {
 				*this /= len;
 			}
+			return *this;
 		}
 
 		static T Distance(const TVec3& from, const TVec3& to) { return sqrt(pow(to.X - from.X, 2) + pow(to.Y - from.Y, 2) + pow(to.Z - from.Z, 2)); }
@@ -124,7 +125,7 @@ namespace Zeron
 
 		static TVec3 Cross(const TVec3& v1, const TVec3& v2) { return { v1.Y * v2.Z - v1.Z * v2.Y, v1.Z * v2.X - v1.X * v2.Z, v1.X * v2.Y - v1.Y * v2.X }; }
 
-		static T Normalize(const TVec3& v)
+		static TVec3 Normalize(const TVec3& v)
 		{
 			TVec3 norm(v);
 			norm.Normalize();

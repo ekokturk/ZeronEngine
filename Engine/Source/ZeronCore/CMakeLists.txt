@@ -6,6 +6,7 @@ zeron_add_module(ZeronCore ${CMAKE_CURRENT_SOURCE_DIR})
 # ============ THIRD PARTY ==============
 zeron_add_module_dependency(fmt)
 zeron_add_module_dependency(glm)
+zeron_add_module_dependency(cereal)
 
 # ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBS_PRIVATE "")
@@ -24,6 +25,7 @@ target_link_libraries(ZeronCore
 	PUBLIC 
 		fmt::fmt-header-only
 		glm-header-only
+		cereal
 	PRIVATE
 		${MODULE_LIBS_PRIVATE}
 )

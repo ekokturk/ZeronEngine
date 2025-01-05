@@ -31,10 +31,10 @@ namespace Zeron::Gfx
 	class CommandBufferVulkan final : public CommandBuffer {
 	  public:
 		CommandBufferVulkan(GraphicsVulkan& graphics, uint32_t count, bool isCompute);
-		~CommandBufferVulkan() = default;
+		~CommandBufferVulkan();
 
 		void Begin() override;
-		void BeginRenderPass(FrameBuffer* frameBuffer, RenderPass* renderPass = nullptr) override;
+		void BeginRenderPass(FrameBuffer* frameBuffer) override;
 		void EndRenderPass() override;
 		void End() override;
 
@@ -51,6 +51,7 @@ namespace Zeron::Gfx
 
 		void CopyBuffer(Buffer& source, Buffer& destination) override;
 		void UpdateBuffer(Buffer& buff, const void* data, uint32_t sizeBytes, uint32_t offset, BufferUpdateRule updateRule) override;
+		void SetPushConstant(const void* data, uint32_t stride, ShaderType shader) override;
 
 		void Draw(uint32_t vertexCount, uint32_t vertexStart) override;
 		void DrawIndexed(uint32_t indexCount, uint32_t indexStart = 0, uint32_t vertexStart = 0) override;
@@ -59,24 +60,28 @@ namespace Zeron::Gfx
 
 		void Dispatch(uint32_t countX, uint32_t countY, uint32_t countZ) override;
 
+		void AddBarrier(Texture& texture, TextureLayout oldLayout, TextureLayout newLayout) override;
+
 		uint32_t GetBufferCount() const override;
+
+		void BeginDebugGroup(std::string_view label) const override;
+		void EndDebugGroup() const override;
 
 		// Vulkan
 		vk::CommandBuffer& GetCommandBufferVK();
-		bool IsCompute() const;
-		void ApplyImageTransitionLayoutVK(TextureVulkan& texture, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+		void ApplyImageTransitionLayoutVK(TextureVulkan& texture, TextureLayout oldLayout, TextureLayout newLayout);
 		void CopyBufferToTextureVK(BufferVulkan& source, TextureVulkan& destination);
 
 	  private:
 		vk::Device& mDevice;
 
 		vk::CommandBuffer& _getCurrent();
+		const vk::CommandBuffer& _getCurrent() const;
 		void _acquireNextBuffer();
 
 		void _setImageMemoryBarrierVK(const vk::ImageMemoryBarrier& barrier, vk::PipelineStageFlagBits src, vk::PipelineStageFlagBits dst);
 
-		bool mIsCompute;
-
+	  private:
 		vk::UniqueCommandPool mCommandPool;
 		std::vector<vk::UniqueCommandBuffer> mCommandBufferList;
 		uint32_t mCurrentCommandBufferIndex;

@@ -4,7 +4,7 @@
 
 #include <Graphics/Graphics.h>
 #include <Graphics/Texture.h>
-#include <Render/Mesh/MeshInfo.h>
+#include <Render/Mesh/MeshData.h>
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb/stb_truetype.h>
@@ -63,14 +63,15 @@ namespace Zeron::Render
 		for (size_t i = 0; i < atlasData.size(); ++i) {
 			buffer[i] = Color(255, 255, 255, atlasData[i]);
 		}
-		mAtlasTexture = graphics.CreateTexture(Gfx::TextureType::Undefined, buffer.data(), mProps.mAtlasSize.X, mProps.mAtlasSize.Y);
+		mAtlasTexture = graphics.CreateTexture(mProps.mAtlasSize, Gfx::TextureFormat::RGBA_8U, buffer.data());
 
 		return true;
 	}
 
-	MeshInfo FontAtlas::GenerateText(const std::string& text, bool useBottomBaseline) const
+	MeshData FontAtlas::GenerateText(const std::string& text, bool useBottomBaseline) const
 	{
-		MeshInfo mesh;
+		struct Vertex {};
+		MeshData mesh;
 		if (!mCharInfoBuffer.empty()) {
 			uint32_t lastIndex = 0;
 			float offsetX = 0;
@@ -82,10 +83,10 @@ namespace Zeron::Render
 				offsetY = glyphInfo.mOffset.Y;
 				// Skip vertices for empty characters
 				if (c != ' ') {
-					mesh.AddAttributeData<MeshAttribute::Position>(glyphInfo.mPositions.data(), glyphInfo.mPositions.size());
-					mesh.AddAttributeData<MeshAttribute::UV>(glyphInfo.mUVs.data(), glyphInfo.mUVs.size());
+					mesh.AppendVertices<MeshAttribute::ScreenPos>({ glyphInfo.mPositions });
+					mesh.AppendVertices<MeshAttribute::UV>({ glyphInfo.mUVs });
 					const std::array indices = { lastIndex, lastIndex + 1, lastIndex + 2, lastIndex, lastIndex + 2, lastIndex + 3 };
-					mesh.AddAttributeData<MeshAttribute::Index>(indices.data(), indices.size());
+					mesh.AppendIndices(indices);
 					lastIndex += 4;
 				}
 			}

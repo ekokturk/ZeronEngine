@@ -30,26 +30,23 @@ namespace Zeron::Gfx
 		std::unique_ptr<GraphicsContext> CreateGraphicsContext() override;
 		std::unique_ptr<CommandBuffer> CreateCommandBuffer(uint32_t count, bool isCompute) override;
 
-		std::unique_ptr<Pipeline> CreatePipeline(ShaderProgram* shader) override;
-		std::unique_ptr<Pipeline> CreatePipeline(
-			ShaderProgram* shader, RenderPass* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode
-		) override;
+		std::unique_ptr<Pipeline> CreatePipelineGraphics(ShaderProgram* shader, RenderPass* renderPass, PipelineConfig config) override;
+		std::unique_ptr<Pipeline> CreatePipelineCompute(ShaderProgram& shader) override;
 		std::unique_ptr<PipelineBinding> CreatePipelineBinding(Pipeline& pipeline, const std::vector<BindingHandle>& bindingList) override;
 
-		std::unique_ptr<Buffer> CreateBuffer(BufferType type, uint32_t size, uint32_t stride, const void* data, BufferUsageType usage = BufferUsageType::Default) override;
+		std::unique_ptr<RenderPass> CreateRenderPass(
+			std::vector<RenderPassAttachment> colorAttachments, std::optional<RenderPassAttachment> depthAttachment, MSAALevel sampling
+		) override;
+		std::unique_ptr<FrameBuffer> CreateFrameBuffer(
+			RenderPass& renderPass, const Vec2i& extent, const std::span<Texture*>& colorTextures, Texture* depthTexture, const std::span<Texture*>& resolveTextures
+		) override;
 
-		std::unique_ptr<ShaderProgram> CreateShaderProgram(
-			const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout, const ByteBuffer& vertexShader = {},
-			const ByteBuffer& fragmentShader = {}, const ByteBuffer& computeShader = {}
-		) override;
-		std::unique_ptr<ShaderProgram> CreateShaderProgram(
-			const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout,
-			const ResourceLayout& resourceLayout
-		) override;
+		std::unique_ptr<Buffer> CreateBuffer(BufferType type, uint32_t size, uint32_t stride, const void* data, BufferUsageType usage) override;
+
+		std::unique_ptr<ShaderProgram> CreateShaderProgram(const ShaderProgramConfig& config, std::unordered_map<ShaderType, ByteBuffer> shaderData) override;
 		std::string GetCompiledShaderName(const std::string& shaderName, ShaderType type) const override;
 
-		std::unique_ptr<Texture> CreateTexture(TextureType type, const Color& data) override;
-		std::unique_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) override;
+		std::unique_ptr<Texture> CreateTexture(const Vec2i& size, TextureFormat format, const void* data, TextureType type, MSAALevel sampling) override;
 
 		std::unique_ptr<Sampler> CreateSampler(SamplerAddressMode addressMode = SamplerAddressMode::Repeat, bool hasAnisotropicFilter = true) override;
 
@@ -61,12 +58,16 @@ namespace Zeron::Gfx
 		ID3D11DeviceContext* GetDeviceContextD3D() const;
 
 	  private:
+		MSAALevel _getMaxMultiSampleLevel() const;
+
 		Gfx::ComPtr<IDXGIFactory> mFactory;
 		std::vector<GraphicsAdapterD3D11> mGraphicsAdapters;
 		Gfx::ComPtr<ID3D11Device> mDevice;
 		Gfx::ComPtr<ID3D11DeviceContext> mDeviceContext;
 
 		std::shared_ptr<GraphicsContextD3D11> mImmediateContext;
+
+		MSAALevel mMaxSupportedSampling;
 	};
 }
 #endif

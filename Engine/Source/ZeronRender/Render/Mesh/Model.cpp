@@ -2,9 +2,6 @@
 
 #include <Render/Mesh/Model.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
 #include <Graphics/Buffer.h>
 #include <Graphics/Graphics.h>
 #include <Graphics/GraphicsContext.h>
@@ -12,13 +9,127 @@
 #include <Graphics/Texture.h>
 #include <Render/Camera/Camera.h>
 #include <Render/Mesh/Mesh.h>
+#include <tiny_gltf.h>
 
 
 namespace Zeron::Render
 {
 	Model::Model(Gfx::Graphics& graphics, const ByteBuffer& modelData)
 	{
-		LoadModel(graphics, modelData);
+		tinygltf::Model gltfModel;
+		tinygltf::TinyGLTF loader;
+		std::string err;
+		std::string warn;
+
+		bool ret = loader.LoadASCIIFromString(&gltfModel, &err, &warn, reinterpret_cast<const char*>(modelData.data()), modelData.size(), "", true);
+		if (!warn.empty()) {
+			ZE_LOGW("Warning: {}", warn);
+		}
+
+		if (!err.empty()) {
+			ZE_LOGW("Error: {}", err);
+		}
+
+		if (!ret) {
+			ZE_LOGW("Failed to load glTF model");
+		}
+
+		// Loop through meshes
+		for (const tinygltf::Mesh& gltfMesh : gltfModel.meshes) {
+
+			MeshData meshData;
+
+			for (const tinygltf::Primitive& primitive : gltfMesh.primitives) {
+
+				if (primitive.attributes.find("POSITION") != primitive.attributes.end()) {
+					const tinygltf::Accessor& accessor = gltfModel.accessors[primitive.attributes.find("POSITION")->second];
+					const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+
+					auto pos = reinterpret_cast<const float*>(&(buffer.data[bufferView.byteOffset + accessor.byteOffset]));
+
+					for (size_t i = 0; i < accessor.count; ++i) {
+						meshData.AppendVertex<MeshAttribute::WorldPos>({ pos[i * 3 + 0], pos[i * 3 + 1], pos[i * 3 + 2] });
+					}
+				}
+
+				if (primitive.attributes.find("NORMAL") != primitive.attributes.end()) {
+					const tinygltf::Accessor& accessor = gltfModel.accessors[primitive.attributes.find("NORMAL")->second];
+					const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+
+					auto norm = reinterpret_cast<const float*>(&(buffer.data[bufferView.byteOffset + accessor.byteOffset]));
+
+					for (size_t i = 0; i < accessor.count; ++i) {
+						meshData.AppendVertex<MeshAttribute::Normal>({ norm[i * 3 + 0], norm[i * 3 + 1], norm[i * 3 + 2] });
+					}
+				}
+
+				if (primitive.attributes.find("TANGENT") != primitive.attributes.end()) {
+					const tinygltf::Accessor& accessor = gltfModel.accessors[primitive.attributes.find("TANGENT")->second];
+					const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+
+					auto tangent = reinterpret_cast<const float*>(&(buffer.data[bufferView.byteOffset + accessor.byteOffset]));
+
+					for (size_t i = 0; i < accessor.count; ++i) {
+						meshData.AppendVertex<MeshAttribute::Tangent>({ tangent[i * 4 + 0], tangent[i * 4 + 1], tangent[i * 4 + 2], tangent[i * 4 + 3] });
+					}
+				}
+
+				if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) {
+					const tinygltf::Accessor& accessor = gltfModel.accessors[primitive.attributes.find("TEXCOORD_0")->second];
+					const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+
+					auto uv = reinterpret_cast<const float*>(&(buffer.data[bufferView.byteOffset + accessor.byteOffset]));
+
+					const size_t attrSize = accessor.count;
+					for (size_t i = 0; i < accessor.count; ++i) {
+						meshData.AppendVertex<MeshAttribute::UV>({ uv[i * 2 + 0], uv[i * 2 + 1] });
+					}
+				}
+
+				if (primitive.indices >= 0) {
+					const tinygltf::Accessor& accessor = gltfModel.accessors[primitive.indices];
+					const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+
+					if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
+						auto indice = reinterpret_cast<const unsigned int*>(&(buffer.data[bufferView.byteOffset + accessor.byteOffset]));
+						for (size_t i = 0; i < accessor.count; ++i) {
+							meshData.AppendIndex(indice[i]);
+						}
+					}
+					else if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+						const size_t indexCount = accessor.count;
+						auto indice = reinterpret_cast<const unsigned short*>(&buffer.data[bufferView.byteOffset + accessor.byteOffset]);
+						for (size_t i = 0; i < indexCount; ++i) {
+							meshData.AppendIndex(static_cast<uint32_t>(indice[i]));
+						}
+					}
+				}
+			}
+
+			// Create empty data
+			const size_t positionCount = meshData.GetVertices<MeshAttribute::WorldPos>().size();
+			if (auto tangents = meshData.GetVertices<MeshAttribute::Tangent>(); tangents.empty()) {
+				std::vector<typename MeshAttributeInfo<MeshAttribute::Tangent>::Type> buffer(positionCount, 0);
+				meshData.AppendVertices<MeshAttribute::Tangent>({ buffer });
+			}
+			if (auto tangents = meshData.GetVertices<MeshAttribute::UV>(); tangents.empty()) {
+				std::vector<typename MeshAttributeInfo<MeshAttribute::UV>::Type> buffer(positionCount, 0);
+				meshData.AppendVertices<MeshAttribute::UV>({ buffer });
+			}
+
+			if (auto tangents = meshData.GetVertices<MeshAttribute::Normal>(); tangents.empty()) {
+				std::vector<typename MeshAttributeInfo<MeshAttribute::Normal>::Type> buffer(positionCount, 0);
+				meshData.AppendVertices<MeshAttribute::Normal>({ buffer });
+			}
+
+			mMeshTransforms.push_back(Mat4());
+			mMeshList.push_back(std::make_unique<Mesh>(graphics, meshData));
+		}
 	}
 
 	std::vector<std::unique_ptr<Mesh>>& Model::GetMeshes()
@@ -46,108 +157,5 @@ namespace Zeron::Render
 	size_t Model::GetMeshCount() const
 	{
 		return mMeshList.size();
-	}
-
-	bool Model::LoadModel(Gfx::Graphics& graphics, const ByteBuffer& modelData)
-	{
-		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFileFromMemory(modelData.data(), modelData.size(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
-		if (scene) {
-			ProcessNode(graphics, scene->mRootNode, scene, {});
-			return true;
-		}
-		ZE_FAIL("Unable to read model file!");
-		return false;
-	}
-
-	void Model::ProcessNode(Gfx::Graphics& graphics, aiNode* node, const aiScene* scene, const Mat4& parentTransform)
-	{
-		const aiMatrix4x4& m = node->mTransformation;
-		const Mat4 transformation = parentTransform * Mat4{ m.a1, m.b1, m.c1, m.d1, m.a2, m.b2, m.c2, m.d2, m.a3, m.b3, m.c3, m.d3, m.a4, m.b4, m.c4, m.d4 };
-
-		for (uint32_t i = 0; i < node->mNumMeshes; ++i) {
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			mMeshList.emplace_back(ProcessMesh(graphics, mesh, scene, transformation));
-		}
-
-		for (uint32_t i = 0; i < node->mNumChildren; ++i) {
-			ProcessNode(graphics, node->mChildren[i], scene, transformation);
-		}
-	}
-
-	std::unique_ptr<Mesh> Model::ProcessMesh(Gfx::Graphics& graphics, aiMesh* meshNode, const aiScene* scene, const Mat4& transform)
-	{
-		std::vector<Gfx::Vertex> vertices;
-		std::vector<uint32_t> indices;
-
-		for (unsigned i = 0; i < meshNode->mNumVertices; ++i) {
-			Gfx::Vertex vertex;
-			vertex.mPosition = { meshNode->mVertices[i].x, meshNode->mVertices[i].y, meshNode->mVertices[i].z };
-			vertex.mNormal = { meshNode->mNormals[i].x, meshNode->mNormals[i].y, meshNode->mNormals[i].z };
-
-			// Main texture at 0
-			if (meshNode->mTextureCoords[0]) {
-				vertex.mTextureCoord = { static_cast<float>(meshNode->mTextureCoords[0][i].x), static_cast<float>(meshNode->mTextureCoords[0][i].y) };
-			}
-
-			vertices.push_back(vertex);
-		}
-
-		for (unsigned i = 0; i < meshNode->mNumFaces; ++i) {
-			const aiFace face = meshNode->mFaces[i];
-			for (unsigned j = 0; j < face.mNumIndices; ++j) {
-				indices.push_back(face.mIndices[j]);
-			}
-		}
-
-		// std::vector<std::shared_ptr<Texture>> textures;
-		// aiMaterial* material = scene->mMaterials[meshNode->mMaterialIndex];
-		// std::vector<std::shared_ptr<Texture>> diffuseTexture = LoadMaterialTextures(graphics, scene, material, TextureType::Diffuse);
-		// textures.insert(textures.end(), diffuseTexture.begin(), diffuseTexture.end());
-
-		mMeshTransforms.emplace_back(transform);
-		return std::make_unique<Mesh>(graphics, vertices, indices);
-	}
-
-	std::vector<std::shared_ptr<Gfx::Texture>> Model::LoadMaterialTextures(Gfx::Graphics& graphics, const aiScene* scene, aiMaterial* material, Gfx::TextureType type)
-	{
-		std::vector<std::shared_ptr<Gfx::Texture>> materialTextures;
-		aiTextureType aiType = aiTextureType::aiTextureType_UNKNOWN;
-		switch (type) {
-			case Gfx::TextureType::Diffuse: aiType = aiTextureType_DIFFUSE; break;
-			case Gfx::TextureType::Normal: aiType = aiTextureType_NORMALS; break;
-		}
-		const uint32_t textureCount = material->GetTextureCount(aiType);
-		if (textureCount == 0) {
-			aiColor3D aiColor(0.f);
-			switch (type) {
-				case Gfx::TextureType::Diffuse: {
-					material->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
-					if (aiColor.IsBlack()) {
-						materialTextures.emplace_back(graphics.CreateTexture(type, Color::Pink));
-					}
-					else {
-						materialTextures.emplace_back(graphics.CreateTexture(type, Color(aiColor.r, aiColor.g, aiColor.b)));
-					}
-				} break;
-			}
-		}
-		else {
-			// Get texture paths from the asset
-			for (uint32_t i = 0; i < textureCount; ++i) {
-				aiString path;
-				material->GetTexture(aiType, i, &path);
-				std::filesystem::path filePath(path.C_Str());
-				// Image texture;
-				// texture.Load(filePath.string());
-				// materialTextures.emplace_back(graphics.CreateTexture(type, texture.GetColorData().data(), texture.GetWidth(), texture.GetHeight()));
-			}
-		}
-
-		if (materialTextures.empty()) {
-			materialTextures.emplace_back(graphics.CreateTexture(type, Color::Pink));
-		}
-
-		return materialTextures;
 	}
 }

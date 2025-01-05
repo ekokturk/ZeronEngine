@@ -4,40 +4,25 @@
 
 namespace Zeron
 {
-	namespace Gfx
-	{
-		class GraphicsContext;
-		class Graphics;
-	}
-
 	namespace Render
 	{
-		class Camera;
+		struct alignas(16) Light {
+			enum Type
+			{
+				Invalid = 0,
+				Directional = 1,
+				Point = 2,
+				Spot = 3
+			};
 
-		class Light {
-		  public:
-			Light();
-			Light(Gfx::Graphics& graphics);
-
-			void Draw(Gfx::GraphicsContext& ctx, Camera& camera, const Mat4& worldMatrix);
-
-			// TODO: These should go into light actor instead
-			void SetPosition(const Vec3& pos);
-			const Vec3& GetPosition() const { return mPosition; }
-
-			void SetColor(const Vec3& color);
-			void SetStrength(float strength);
-			void SetAttenuation(const Vec3& attenuation);
-
-			const Vec3& GetColor() const { return mColor; }
-			float GetStrength() const { return mStrength; }
-			const Vec3& GetAttenuation() const { return mAttenuation; }
-
-		  private:
-			Vec3 mPosition;
-			Vec3 mColor = Vec3::ONE;
-			float mStrength = 1.f;
-			Vec3 mAttenuation = Vec3{ 1.f, 0.1f, 0.1f };
+			Vec4 mColor = Vec4(1.f);
+			Vec4 mPosition;
+			Vec4 mDirection;
+			Vec4 mViewPosition;
+			Vec4 mViewDirection;
+			Vec2 mSpotAngle;
+			float mRange = 0.f;
+			Type mType = Type::Invalid;
 		};
 	}
 }

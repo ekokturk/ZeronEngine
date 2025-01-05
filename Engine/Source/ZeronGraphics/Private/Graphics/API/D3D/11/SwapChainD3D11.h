@@ -12,6 +12,8 @@ struct IDXGISwapChain;
 
 namespace Zeron::Gfx
 {
+	class RenderPassD3D11;
+	class TextureD3D11;
 	class GraphicsD3D11;
 	class FrameBufferD3D11;
 	class Window;
@@ -33,10 +35,18 @@ namespace Zeron::Gfx
 		void Resize(const Vec2i& size);
 
 	  private:
+		void _createFrameBuffer();
+		void _releaseFrameBuffer();
+
+		GraphicsD3D11& mGraphics;
+		std::unique_ptr<RenderPassD3D11> mSwapChainRenderPass;
 		std::unique_ptr<FrameBufferD3D11> mFrameBuffer;
 		Gfx::ComPtr<IDXGISwapChain> mSwapChain;
 		UINT mVSyncEnabled;
 		HWND mHWND;
+
+		std::unique_ptr<TextureD3D11> mDepthTexture;
+		std::unique_ptr<TextureD3D11> mColorTexture;
 	};
 }
 #endif

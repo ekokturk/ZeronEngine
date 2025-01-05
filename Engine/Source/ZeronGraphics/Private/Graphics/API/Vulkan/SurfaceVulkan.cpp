@@ -2,14 +2,6 @@
 
 #if ZE_GRAPHICS_VULKAN
 
-#	if ZE_PLATFORM_WIN32
-#		define VK_USE_PLATFORM_WIN32_KHR
-#	elif ZE_PLATFORM_LINUX
-#		define VK_USE_PLATFORM_XLIB_KHR
-#	elif ZE_PLATFORM_ANDROID
-#		define VK_USE_PLATFORM_ANDROID_KHR
-#	endif
-
 #	include <Graphics/API/Vulkan/SurfaceVulkan.h>
 
 namespace Zeron::Gfx

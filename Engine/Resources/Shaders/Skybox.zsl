@@ -1,0 +1,93 @@
+//  Copyright (C) Eser Kokturk. All Rights Reserved.
+
+//@begin_stage Vertex
+
+struct VSInput
+{
+	//@input 0
+	//@slot 0
+	float3 Pos : POSITION;
+};
+
+//@push_constant
+cbuffer MVP
+{
+    float4x4 _view;       
+    float4x4 _projection; 
+};
+
+struct VSOutput
+{
+	float4 Pos : SV_POSITION;
+	float3 worldDir : WORLD_DIR;
+};
+
+VSOutput main(VSInput input)
+{
+    VSOutput output;
+
+    // Remove translation from the view matrix
+    float4x4 viewNoTranslation = _view;
+    viewNoTranslation._41_42_43_44 = float4(0.0, 0.0, 0.0, 1.0);
+
+    // Transform position to clip space
+    output.Pos = mul(float4(input.Pos, 1.0), mul(viewNoTranslation, _projection));
+
+    // Pass the normalized direction for the fragment
+    output.worldDir = normalize(input.Pos);
+
+    return output;
+}
+
+//@end_stage
+
+//@begin_stage Fragment
+
+
+//@register
+cbuffer SkyboxSettings
+{
+    float4 sunDirection;      
+    float4 skyColor;          
+    float4 horizonColor;      
+    float4 groundColor;       
+    float atmosphereIntensity; 
+	int _padding[3];
+};
+
+struct FSInput
+{
+	float4 Pos : SV_POSITION;
+	float3 worldDir : WORLD_DIR;
+};
+
+float3 CalculateAtmosphericGradient(float3 dir)
+{
+    // Align the direction vector to the sun
+    float sunAlignment = saturate(dot(dir, sunDirection.xyz)); // 0 = perpendicular, 1 = aligned with sun
+
+    // Gradient blending based on the Y component of the direction (vertical angle)
+    float horizonFactor = saturate((dir.y + 0.2) / 0.4); // Blend near the horizon
+
+    // Blend between skyColor and horizonColor based on horizonFactor
+    float3 gradientColor = lerp(horizonColor, skyColor, horizonFactor);
+
+    // Add atmospheric scattering effect aligned with the sun's direction
+    gradientColor += sunAlignment * atmosphereIntensity * skyColor;
+
+    return gradientColor;
+}
+
+float4 main(FSInput input) : SV_TARGET
+{
+    // Calculate the gradient color for this fragment based on its direction
+    float3 gradientColor = CalculateAtmosphericGradient(normalize(input.worldDir));
+
+    // Add ground color below the horizon
+    float groundFactor = smoothstep(0, 0, input.worldDir.y); // Soft blend near ground
+    gradientColor = lerp(groundColor.xyz, gradientColor, groundFactor);
+
+    return float4(gradientColor, 1.0); // Final gradient color with full opacity
+}
+
+//@end_stage

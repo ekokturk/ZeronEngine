@@ -16,7 +16,8 @@ set(MODULE_INCLUDES_PRIVATE "")
 if(DEFINED GFX_D3D)
     message("ZERON ---- Graphics: Direct3D 11")
     target_compile_definitions(ZeronGraphics PUBLIC ${GFX_D3D})
-    list(APPEND MODULE_LIBS_PRIVATE dxgi d3d11 D3DCompiler)
+    list(APPEND MODULE_LIBS_PRIVATE dxgi dxguid d3d11 D3DCompiler)
+    find_program(ZE_FXC_EXEC NAMES fxc.exe)
 endif()
 
 # Vulkan

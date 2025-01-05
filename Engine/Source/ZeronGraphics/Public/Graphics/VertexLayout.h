@@ -7,8 +7,10 @@ namespace Zeron::Gfx
 	enum class VertexFormat
 	{
 		Unknown,
+		UInt,
 		Float2,
 		Float3,
+		Float4,
 		Color
 	};
 

@@ -30,12 +30,21 @@ namespace Zeron
 		static KeyCode GetKeyCode(int keyCode);
 
 	  private:
+		enum class Orientation
+		{
+			Undefined = 0,
+			Portrait,
+			Landscape,
+		};
+
 		void _processEvents();
 		void _handleInputEvents();
 		void _initDirectories();
+		void _updateOrientation();
 
 		android_app* mApp;
 		std::unique_ptr<WindowAndroid> mWindow;
+		Orientation mLastOrientation = Orientation::Undefined;
 		// TODO: Change these to a state enum
 		bool mDestroyRequested;
 	};

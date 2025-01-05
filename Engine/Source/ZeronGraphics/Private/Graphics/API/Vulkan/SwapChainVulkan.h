@@ -48,9 +48,9 @@ namespace Zeron::Gfx
 		vk::UniqueSurfaceKHR mSurface;
 		vk::UniqueSwapchainKHR mSwapChain;
 
-		std::vector<TextureVulkan> mColorTextures;
+		std::vector<std::unique_ptr<TextureVulkan>> mResolveTextures;
+		std::vector<std::unique_ptr<TextureVulkan>> mColorTextures;
 		std::unique_ptr<TextureVulkan> mDepthTexture;
-		std::unique_ptr<TextureVulkan> mSamplingTexture;
 
 		SystemHandle mSystemHandle;
 		uint32_t mPreferredFrameCount;
@@ -59,13 +59,7 @@ namespace Zeron::Gfx
 		std::vector<std::unique_ptr<FrameBufferVulkan>> mSwapChainFrameBuffers;
 		std::unique_ptr<RenderPassVulkan> mSwapChainRenderPass;
 
-		// Depth pre-pass resources
-		std::unique_ptr<FrameBufferVulkan> mPreDepthFrameBuffer;
-		std::unique_ptr<RenderPassVulkan> mPreDepthRenderPass;
-
-		vk::Format mColorFormat;
 		vk::ColorSpaceKHR mColorSpace;
-		vk::Format mDepthFormat;
 
 		vk::PresentModeKHR mPresentMode;
 		vk::CompositeAlphaFlagBitsKHR mCompositeAlpha;

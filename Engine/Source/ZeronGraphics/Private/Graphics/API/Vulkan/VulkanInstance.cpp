@@ -2,6 +2,7 @@
 
 #if ZE_GRAPHICS_VULKAN
 
+#	include <Graphics/API/Vulkan/VulkanDebug.h>
 #	include <Graphics/API/Vulkan/VulkanInstance.h>
 
 namespace Zeron::Gfx
@@ -15,26 +16,7 @@ namespace Zeron::Gfx
 
 #	if ZE_DEBUG
 	vk::DebugUtilsMessengerEXT VulkanInstance::mDebugMessenger;
-
-	namespace VulkanDebug
-	{
-#		define VULKAN_DEBUG_MESSAGE_NEGATIVE_HEIGHT 2698765901U
-		std::set<uint32_t> IgnoredMessages = { VULKAN_DEBUG_MESSAGE_NEGATIVE_HEIGHT };
-
-		VKAPI_ATTR VkBool32 VKAPI_CALL MessageCallback(
-			VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData
-		)
-		{
-			if (IgnoredMessages.count(callbackData->messageIdNumber)) {
-				return false;
-			}
-
-			ZE_LOG("Vulkan {}: {}", vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity)).c_str(), callbackData->pMessage);
-			return false;
-		}
-	}
 #	endif
-
 
 	void VulkanInstance::LoadProc()
 	{
@@ -56,15 +38,7 @@ namespace Zeron::Gfx
 #	endif
 
 #	if ZE_DEBUG
-			const vk::DebugUtilsMessengerCreateInfoEXT messengerCreateInfo(
-				vk::DebugUtilsMessengerCreateFlagsEXT{},
-				/*vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |*/
-				vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError,
-				vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance,
-				VulkanDebug::MessageCallback,
-				nullptr
-			);
-			mDebugMessenger = mInstance.createDebugUtilsMessengerEXT(messengerCreateInfo);
+			mDebugMessenger = CreateVulkanDebugUtilsMessenger(mInstance);
 #	endif
 		}
 		++mRefCount;

@@ -6,68 +6,62 @@ namespace Zeron::Render
 {
 	enum class MeshAttribute
 	{
-		Index,
-		Position,
-		Normal,
-		UV,
-		Color,
+		ScreenPos = 1 << 0,
+		WorldPos = 1 << 1,
+		UV = 1 << 2,
+		Normal = 1 << 3,
+		Tangent = 1 << 4,
+		Color = 1 << 5,
+		BoneIndices = 1 << 6,
+		BoneWeights = 1 << 7,
 	};
 
-	template <typename T>
-	struct MeshAttributeData {
-		MeshAttributeData() = default;
-
-		MeshAttributeData(std::vector<T>&& data, size_t packCount)
-			: mData(std::move(data))
-			, mPackCount(packCount)
-		{}
-
-		void Append(const T* data, size_t size)
-		{
-			mData.reserve(mData.size() + size);
-			std::copy(data, data + size, std::back_inserter(mData));
-		}
-
-		void Clear()
-		{
-			mData.clear();
-			mPackCount = 0;
-		}
-
-		size_t GetStride() const { return mPackCount * sizeof(T); }
-		size_t GetSize() const { return mPackCount == 0 ? 0 : mData.size() / mPackCount; }
-		const T* GetData() const { return mData.data(); }
-
-	  private:
-		std::vector<T> mData;
-		size_t mPackCount = 0;
-	};
 
 	template <MeshAttribute E>
-	struct MeshAttributeTypeInfo {};
+	struct MeshAttributeInfo {};
 
 	template <>
-	struct MeshAttributeTypeInfo<MeshAttribute::Position> {
-		using DataType = float;
+	struct MeshAttributeInfo<MeshAttribute::ScreenPos> {
+		using Type = Vec2;
 	};
 
 	template <>
-	struct MeshAttributeTypeInfo<MeshAttribute::Normal> {
-		using DataType = float;
+	struct MeshAttributeInfo<MeshAttribute::WorldPos> {
+		using Type = Vec3;
 	};
 
 	template <>
-	struct MeshAttributeTypeInfo<MeshAttribute::UV> {
-		using DataType = float;
+	struct MeshAttributeInfo<MeshAttribute::UV> {
+		using Type = Vec2;
 	};
 
 	template <>
-	struct MeshAttributeTypeInfo<MeshAttribute::Color> {
-		using DataType = float;
+	struct MeshAttributeInfo<MeshAttribute::Normal> {
+		using Type = Vec3;
 	};
 
 	template <>
-	struct MeshAttributeTypeInfo<MeshAttribute::Index> {
-		using DataType = uint32_t;
+	struct MeshAttributeInfo<MeshAttribute::Tangent> {
+		using Type = Vec4;
 	};
+
+
+	inline size_t GetMeshAttributeSize(MeshAttribute attribute)
+	{
+		switch (attribute) {
+			case MeshAttribute::WorldPos: return sizeof(typename MeshAttributeInfo<MeshAttribute::WorldPos>::Type);
+			case MeshAttribute::Normal: return sizeof(typename MeshAttributeInfo<MeshAttribute::Normal>::Type);
+			case MeshAttribute::UV: return sizeof(typename MeshAttributeInfo<MeshAttribute::UV>::Type);
+			case MeshAttribute::Tangent: return sizeof(typename MeshAttributeInfo<MeshAttribute::Tangent>::Type);
+			case MeshAttribute::ScreenPos: return sizeof(typename MeshAttributeInfo<MeshAttribute::ScreenPos>::Type);
+			case MeshAttribute::Color:
+			case MeshAttribute::BoneIndices:
+			case MeshAttribute::BoneWeights:
+			default: {
+				ZE_FAIL("Unsupported Mesh atttirbute");
+				return 0;
+			}
+		}
+	}
+
 }

@@ -13,7 +13,9 @@ namespace Zeron::Gfx
 
 	class RenderPassVulkan final : public RenderPass {
 	  public:
-		RenderPassVulkan(GraphicsVulkan& graphics, vk::Format colorFormat, vk::Format depthFormat, vk::SampleCountFlagBits sampling);
+		RenderPassVulkan(
+			GraphicsVulkan& graphics, std::vector<RenderPassAttachment> colorAttachments, std::optional<RenderPassAttachment> depthAttachment, MSAALevel sampling
+		);
 		~RenderPassVulkan();
 
 		// Vulkan

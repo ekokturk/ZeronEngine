@@ -6,6 +6,7 @@
 
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 #	include <Graphics/API/Vulkan/VulkanHelpers.h>
+#	include <Graphics/API/Vulkan/VulkanDebug.h>
 
 namespace Zeron::Gfx
 {
@@ -32,6 +33,18 @@ namespace Zeron::Gfx
 		if (data) {
 			UpdateVK(device, data, GetSizeInBytes(), 0, BufferUpdateRule::UnmapMemory);
 		}
+#	if ZE_DEBUG
+		mDebugInterface = graphics.getObjectDebugInterface();
+#	endif
+	}
+
+	void BufferVulkan::SetDebugName(std::string_view label)
+	{
+#	if ZE_DEBUG
+		if (mDebugInterface) {
+			mDebugInterface->SetDebugLabel(vk::ObjectType::eBuffer, reinterpret_cast<uint64_t>(static_cast<VkBuffer>(*mBuffer)), label);
+		}
+#	endif
 	}
 
 	void BufferVulkan::MapVK(const vk::Device& device)
@@ -53,7 +66,7 @@ namespace Zeron::Gfx
 			MapVK(device);
 		}
 		const uint32_t memOffset = GetStride() * offset;
-		auto offsetMemory = static_cast<unsigned char*>(mMappedMemory);
+		std::byte* offsetMemory = static_cast<std::byte*>(mMappedMemory);
 		if (mMappedMemory) {
 			std::memcpy(&offsetMemory[memOffset], data, sizeBytes);
 			if (updateRule == BufferUpdateRule::UnmapMemory) {

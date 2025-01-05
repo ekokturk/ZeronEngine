@@ -19,7 +19,7 @@ namespace Zeron::Gfx
 	class GraphicsVulkan final : public Graphics {
 	  public:
 		GraphicsVulkan();
-		~GraphicsVulkan();
+		~GraphicsVulkan() override;
 
 		bool Init() override;
 
@@ -29,37 +29,33 @@ namespace Zeron::Gfx
 		std::unique_ptr<GraphicsContext> CreateGraphicsContext() override;
 		std::unique_ptr<CommandBuffer> CreateCommandBuffer(uint32_t count, bool isCompute) override;
 
-		std::unique_ptr<Pipeline> CreatePipeline(ShaderProgram* shader) override;
-		std::unique_ptr<Pipeline> CreatePipeline(
-			ShaderProgram* shader, RenderPass* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode
-		) override;
+		std::unique_ptr<Pipeline> CreatePipelineGraphics(ShaderProgram* shader, RenderPass* renderPass, PipelineConfig config) override;
+		std::unique_ptr<Pipeline> CreatePipelineCompute(ShaderProgram& shader) override;
 		std::unique_ptr<PipelineBinding> CreatePipelineBinding(Pipeline& pipeline, const std::vector<BindingHandle>& bindingList) override;
 
-		std::unique_ptr<Buffer> CreateBuffer(BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage = BufferUsageType::Default) override;
+		std::unique_ptr<RenderPass> CreateRenderPass(
+			std::vector<RenderPassAttachment> colorAttachments, std::optional<RenderPassAttachment> depthAttachment, MSAALevel sampling
+		) override;
+		std::unique_ptr<FrameBuffer> CreateFrameBuffer(
+			RenderPass& renderPass, const Vec2i& extent, const std::span<Texture*>& colorTextures, Texture* depthTextures, const std::span<Texture*>& resolveTextures
+		) override;
 
-		std::unique_ptr<ShaderProgram> CreateShaderProgram(
-			const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout, const ByteBuffer& vertexShader = {},
-			const ByteBuffer& fragmentShader = {}, const ByteBuffer& computeShader = {}
-		) override;
-		std::unique_ptr<ShaderProgram> CreateShaderProgram(
-			const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout,
-			const ResourceLayout& resourceLayout
-		) override;
+		std::unique_ptr<Buffer> CreateBuffer(BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage) override;
+
+		std::unique_ptr<ShaderProgram> CreateShaderProgram(const ShaderProgramConfig& config, std::unordered_map<ShaderType, ByteBuffer> shaderData) override;
 		std::string GetCompiledShaderName(const std::string& shaderName, ShaderType type) const override;
 
-		std::unique_ptr<Texture> CreateTexture(TextureType type, const Color& data) override;
-		std::unique_ptr<Texture> CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height) override;
+		std::unique_ptr<Texture> CreateTexture(const Vec2i& size, TextureFormat format, const void* data, TextureType type, MSAALevel sampling) override;
 
 		std::unique_ptr<Sampler> CreateSampler(SamplerAddressMode addressMode = SamplerAddressMode::Repeat, bool hasAnisotropicFilter = true) override;
 
 	  public:
 		// ---- Vulkan API
 		std::unique_ptr<SwapChainVulkan> CreateSwapChainVK(SystemHandle systemHandle, const Vec2i& size);
-		vk::UniqueCommandPool CreateCommandPoolVK(bool useComputeQueue) const;
+		vk::UniqueCommandPool CreateCommandPoolVK() const;
 		vk::UniqueDescriptorPool CreateDescriptorPoolVK(const std::vector<vk::DescriptorPoolSize>& poolSizeList) const;
 		std::unique_ptr<TextureVulkan> CreateTextureVK(
-			const Vec2i& size, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::SampleCountFlagBits sampling, vk::ImageLayout oldLayout,
-			vk::ImageLayout newLayout, const Color* data = nullptr
+			const Vec2i& size, TextureType type, TextureFormat format, const void* data, MSAALevel sampling, TextureLayout layout, vk::ImageUsageFlags usage
 		);
 
 		void SubmitSingleUseCommandBufferVK(std::function<void(CommandBufferVulkan&)> commands);
@@ -70,11 +66,14 @@ namespace Zeron::Gfx
 
 		vk::Queue& GetGraphicsQueueVK();
 		vk::Queue& GetPresentQueueVK();
-		vk::Queue& GetComputeQueueVK();
 		uint32_t GetGraphicsQueueFamilyIndexVK() const;
 		uint32_t GetPresentQueueFamilyIndexVK() const;
 
 		uint32_t GetMemoryTypeIndexVK(uint32_t filter, vk::MemoryPropertyFlags flags);
+
+#	if ZE_DEBUG
+		class VulkanObjectDebugInterface* getObjectDebugInterface() const;
+#	endif
 
 	  private:
 		bool _initInstance();
@@ -99,13 +98,15 @@ namespace Zeron::Gfx
 
 		vk::Queue mGraphicsQueue;
 		vk::Queue mPresentQueue;
-		vk::Queue mComputeQueue;
 
 		uint32_t mGraphicsQueueFamilyIndex;
 		uint32_t mPresentQueueFamilyIndex;
-		uint32_t mComputeQueueFamilyIndex;
 
-		MSAALevel mSupportedMaxMSAA = MSAALevel::x8;
+		MSAALevel mMaxSupportedSampling = MSAALevel::Disabled;
+
+#	if ZE_DEBUG
+		std::unique_ptr<class VulkanObjectDebugInterface> mObjectDebugInterface;
+#	endif
 	};
 }
 #endif

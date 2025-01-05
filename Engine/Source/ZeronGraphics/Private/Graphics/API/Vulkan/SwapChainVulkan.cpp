@@ -18,9 +18,7 @@ namespace Zeron::Gfx
 		, mSystemHandle(systemHandle)
 		, mPreferredFrameCount(GetFrameCount())
 		, mCurrentFrameIndex(0)
-		, mColorFormat(vk::Format::eUndefined)
 		, mColorSpace(vk::ColorSpaceKHR::eSrgbNonlinear)
-		, mDepthFormat(vk::Format::eD32Sfloat)
 		, mPresentMode(vk::PresentModeKHR::eImmediate)
 	{
 		const vk::PhysicalDevice& physicalDevice = graphics.GetPrimaryAdapterVK();
@@ -53,10 +51,10 @@ namespace Zeron::Gfx
 		}
 
 		mSwapChainRenderPass = std::make_unique<RenderPassVulkan>(
-			graphics, mColorFormat, mDepthFormat, VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel())
-		);
-		mPreDepthRenderPass = std::make_unique<RenderPassVulkan>(
-			graphics, vk::Format::eUndefined, mDepthFormat, VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel())
+			graphics,
+			std::vector{ RenderPassAttachment{ mColorFormat, TextureLayout::Present } },
+			RenderPassAttachment{ mDepthFormat, TextureLayout::DepthStencilAttachment },
+			graphics.GetMultiSamplingLevel()
 		);
 
 		_createSwapChain(graphics, nullptr);
@@ -102,7 +100,7 @@ namespace Zeron::Gfx
 
 	vk::Format SwapChainVulkan::GetColorFormatVK() const
 	{
-		return mColorFormat;
+		return VulkanHelpers::GetTextureFormat(mColorFormat);
 	}
 
 	vk::Extent2D SwapChainVulkan::GetExtendVK() const
@@ -145,20 +143,29 @@ namespace Zeron::Gfx
 
 		const vk::SurfaceFormatKHR& defaultFormat = availableFormats[0];
 		if (availableFormats.size() == 1 && defaultFormat.format == vk::Format::eUndefined) {
-			mColorFormat = vk::Format::eR8G8B8Unorm;
+			mColorFormat = TextureFormat::RGB_8U;
 			mColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
 			return;
 		}
 		// Search for preferred format
 		for (const vk::SurfaceFormatKHR& availableFormat : availableFormats) {
+			if (availableFormat.format == vk::Format::eB8G8R8A8Unorm) {
+				mColorFormat = TextureFormat::BGRA_8U;
+				mColorSpace = availableFormat.colorSpace;
+				return;
+			}
 			if (availableFormat.format == vk::Format::eR8G8B8Unorm) {
-				mColorFormat = availableFormat.format;
+				mColorFormat = TextureFormat::RGB_8U;
+				mColorSpace = availableFormat.colorSpace;
+				return;
+			}
+			if (availableFormat.format == vk::Format::eR8G8B8A8Unorm) {
+				mColorFormat = TextureFormat::RGBA_8U;
 				mColorSpace = availableFormat.colorSpace;
 				return;
 			}
 		}
-		mColorFormat = defaultFormat.format;
-		mColorSpace = defaultFormat.colorSpace;
+		ZE_FAIL("Swapchain format is not supported!");
 	}
 
 	void SwapChainVulkan::_createSwapChain(GraphicsVulkan& graphics, vk::SwapchainKHR oldSwapChain)
@@ -167,10 +174,9 @@ namespace Zeron::Gfx
 
 		if (oldSwapChain) {
 			mColorTextures.clear();
+			mResolveTextures.clear();
 			mDepthTexture = nullptr;
-			mSamplingTexture = nullptr;
 			mSwapChainFrameBuffers.clear();
-			mPreDepthFrameBuffer = nullptr;
 		}
 
 		const vk::SurfaceCapabilitiesKHR surfaceCapabilities = graphics.GetPrimaryAdapterVK().getSurfaceCapabilitiesKHR(*mSurface);
@@ -181,13 +187,14 @@ namespace Zeron::Gfx
 			vk::SwapchainCreateFlagsKHR(),
 			*mSurface,
 			mPreferredFrameCount,
-			mColorFormat,
+			GetColorFormatVK(),
 			mColorSpace,
 			GetExtendVK(),
 			1,
 			vk::ImageUsageFlagBits::eColorAttachment,
 			vk::SharingMode::eExclusive,
-			{},
+			0,
+			nullptr,
 			mSurfaceTransform,
 			mCompositeAlpha,
 			mPresentMode,
@@ -209,46 +216,48 @@ namespace Zeron::Gfx
 
 		// ----- CREATE FRAME BUFFERS
 
-		const vk::SampleCountFlagBits sampling = VulkanHelpers::GetMultiSamplingLevel(graphics.GetMultiSamplingLevel());
+		const MSAALevel msaa = graphics.GetMultiSamplingLevel();
+		const bool hasSampling = msaa != MSAALevel::Disabled;
 		const std::vector<vk::Image> swapChainImages = graphics.GetDeviceVK().getSwapchainImagesKHR(*mSwapChain);
 		// We need to adjust frame buffer count if it's not the preferred amount
 		if (GetFrameCount() != swapChainImages.size()) {
 			_setBufferCount(static_cast<uint32_t>(swapChainImages.size()));
 		}
 		for (const vk::Image colorTexture : swapChainImages) {
-			mColorTextures.emplace_back(colorTexture, GetSize(), mColorFormat, sampling);
+			if (hasSampling) {
+				mResolveTextures.emplace_back(std::make_unique<TextureVulkan>(colorTexture, GetSize(), TextureType::RenderTarget, mColorFormat, MSAALevel::Disabled));
+				mColorTextures.push_back(graphics.CreateTextureVK(
+					GetSize(),
+					TextureType::RenderTarget,
+					mColorFormat,
+					nullptr,
+					msaa,
+					TextureLayout::ColorAttachment,
+					vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment
+				));
+			}
+			else {
+				mColorTextures.emplace_back(std::make_unique<TextureVulkan>(colorTexture, GetSize(), TextureType::RenderTarget, mColorFormat, MSAALevel::Disabled));
+			}
 		}
 
 		// Create shared image wrappers
 		mDepthTexture = graphics.CreateTextureVK(
-			GetSize(),
-			mDepthFormat,
-			vk::ImageTiling::eOptimal,
-			vk::ImageUsageFlagBits::eDepthStencilAttachment,
-			sampling,
-			vk::ImageLayout::eUndefined,
-			vk::ImageLayout::eDepthStencilAttachmentOptimal
+			GetSize(), TextureType::Depth, mDepthFormat, nullptr, msaa, TextureLayout::DepthStencilAttachment, vk::ImageUsageFlagBits::eDepthStencilAttachment
 		);
 
-		if (sampling != vk::SampleCountFlagBits::e1) {
-			mSamplingTexture = graphics.CreateTextureVK(
-				GetSize(),
-				mColorFormat,
-				vk::ImageTiling::eOptimal,
-				vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
-				sampling,
-				vk::ImageLayout::eUndefined,
-				vk::ImageLayout::eColorAttachmentOptimal
-			);
+		for (size_t i = 0; i < mColorTextures.size(); ++i) {
+			auto color = std::array<Texture*, 1>{ mColorTextures[i].get() };
+			if (hasSampling) {
+				auto resolve = std::array<Texture*, 1>{ mResolveTextures[i].get() };
+				mSwapChainFrameBuffers.emplace_back(std::make_unique<FrameBufferVulkan>(graphics, *mSwapChainRenderPass, GetSize(), color, mDepthTexture.get(), resolve));
+			}
+			else {
+				mSwapChainFrameBuffers.emplace_back(
+					std::make_unique<FrameBufferVulkan>(graphics, *mSwapChainRenderPass, GetSize(), color, mDepthTexture.get(), std::span<Texture*>{})
+				);
+			}
 		}
-
-		for (TextureVulkan& colorTexture : mColorTextures) {
-			mSwapChainFrameBuffers.emplace_back(
-				std::make_unique<FrameBufferVulkan>(graphics, GetExtendVK(), *mSwapChainRenderPass, &colorTexture, mDepthTexture.get(), mSamplingTexture.get())
-			);
-		}
-
-		mPreDepthFrameBuffer = std::make_unique<FrameBufferVulkan>(graphics, GetExtendVK(), *mPreDepthRenderPass, nullptr, mDepthTexture.get(), nullptr);
 	}
 }
 #endif

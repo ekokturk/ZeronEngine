@@ -9,6 +9,7 @@
 
 namespace Zeron::Gfx
 {
+	class Texture;
 	class RenderPassVulkan;
 	class TextureVulkan;
 	class GraphicsVulkan;
@@ -17,28 +18,23 @@ namespace Zeron::Gfx
 	class FrameBufferVulkan final : public FrameBuffer {
 	  public:
 		FrameBufferVulkan(
-			GraphicsVulkan& graphics, vk::Extent2D extent, RenderPassVulkan& renderPass, TextureVulkan* colorView, TextureVulkan* depthView, TextureVulkan* samplingView
+			GraphicsVulkan& graphics, RenderPassVulkan& renderPass, const Vec2i& extent, const std::span<Texture*>& colorTextures, Texture* depthTexture,
+			const std::span<Texture*>& resolveTextures
 		);
-		~FrameBufferVulkan();
+		~FrameBufferVulkan() override;
 
-		void CreateBuffers(vk::PhysicalDevice& adapter, vk::Device& device, SwapChainVulkan& swapChain);
-		void ReleaseBuffers();
+		RenderPassVulkan& GetRenderPass();
 
 		// Vulkan
 		vk::Framebuffer& GetFrameBufferVK();
-		const vk::Extent2D& GetExtentVK() const;
 
 	  private:
+		RenderPassVulkan& mRenderPass;
 		vk::UniqueFramebuffer mFrameBuffer;
 
-		// TODO: Remove this?
-		RenderPassVulkan& mRenderPass;
-
-		vk::UniqueImageView mColorImageView;
 		vk::UniqueImageView mDepthImageView;
-		vk::UniqueImageView mSamplingImageView;
-
-		vk::Extent2D mExtent;
+		std::vector<vk::UniqueImageView> mColorImageViews;
+		std::vector<vk::UniqueImageView> mResolveImageView;
 	};
 }
 #endif

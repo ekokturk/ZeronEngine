@@ -5,9 +5,11 @@
 
 #	include <Graphics/API/D3D/11/SwapChainD3D11.h>
 
+#	include <Graphics/API/D3D/11/TextureD3D11.h>
 #	include <d3d11.h>
 #	include <Graphics/API/D3D/11/D3D11Helpers.h>
 #	include <Graphics/API/D3D/11/FrameBufferD3D11.h>
+#	include <Graphics/API/D3D/11/RenderPassD3D11.h>
 #	include <Graphics/API/D3D/11/GraphicsD3D11.h>
 #	include <Graphics/API/D3D/DebugInfoD3D.h>
 
@@ -15,10 +17,10 @@ namespace Zeron::Gfx
 {
 	SwapChainD3D11::SwapChainD3D11(GraphicsD3D11& graphics, SystemHandle systemHandle, const Vec2i& size)
 		: SwapChain(size, 2)
+		, mGraphics(graphics)
 		, mVSyncEnabled(0)
 		, mHWND(nullptr)
 	{
-
 		mHWND = static_cast<HWND>(systemHandle.mWindow);
 		ZE_ASSERT(mHWND, "Win32 window handle returned null!");
 
@@ -28,17 +30,13 @@ namespace Zeron::Gfx
 		DXGI_SWAP_CHAIN_DESC desc;
 		desc.BufferDesc.Width = windowSize.X;
 		desc.BufferDesc.Height = windowSize.Y;
-		desc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;  // Pixel layout
-		desc.BufferDesc.RefreshRate.Numerator = 0;			  // Get refresh rate of the window
-		desc.BufferDesc.RefreshRate.Denominator = 0;		  // Get refresh rate of the window
+		desc.BufferDesc.Format = D3D11Helpers::GetTextureFormat(mColorFormat);
+		desc.BufferDesc.RefreshRate.Numerator = 0;	  // Get refresh rate of the window
+		desc.BufferDesc.RefreshRate.Denominator = 0;  // Get refresh rate of the window
 		desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 		desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 
-		// Anti-aliasing (Set to none)
 		const UINT sampleCount = D3D11Helpers::GetMultiSampleLevel(msaaLevel);
-		// TODO: Use sample quality for MSAA
-		// UINT sampleQuality = 0;
-		// graphics.GetDeviceD3D()->CheckMultisampleQualityLevels(DXGI_FORMAT_B8G8R8A8_UNORM, sampleCount, &sampleQuality);
 		desc.SampleDesc.Count = sampleCount;
 		desc.SampleDesc.Quality = 0;
 
@@ -50,10 +48,16 @@ namespace Zeron::Gfx
 		desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;  // TODO: Investigate behavior
 
-		ZE_D3D_ASSERT_RESULT(graphics.GetFactoryD3D()->CreateSwapChain(graphics.GetDeviceD3D(), &desc, &mSwapChain));
+		ZE_D3D_ASSERT_RESULT(mGraphics.GetFactoryD3D()->CreateSwapChain(mGraphics.GetDeviceD3D(), &desc, &mSwapChain));
 
-		mFrameBuffer = std::make_unique<FrameBufferD3D11>();
-		mFrameBuffer->CreateBuffers(graphics.GetDeviceD3D(), *this, msaaLevel);
+		mSwapChainRenderPass = std::make_unique<RenderPassD3D11>(
+			mGraphics,
+			std::vector{ RenderPassAttachment{ mColorFormat, TextureLayout::Present } },
+			RenderPassAttachment{ mDepthFormat, TextureLayout::DepthStencilAttachment },
+			mGraphics.GetMultiSamplingLevel()
+		);
+
+		_createFrameBuffer();
 	}
 
 	SwapChainD3D11::~SwapChainD3D11() {}
@@ -75,10 +79,27 @@ namespace Zeron::Gfx
 
 	void SwapChainD3D11::Resize(const Vec2i& size)
 	{
-		ZE_ASSERT(!mFrameBuffer->GetRenderTargetD3D(), "Render target needs to be released before we resize the swap chain!");
-		ZE_ASSERT(!mFrameBuffer->GetDepthStencilD3D(), "Depth Stencil needs to be released before we resize the swap chain!");
+		_releaseFrameBuffer();
 		_setSize(size);
 		ZE_D3D_ASSERT_RESULT(mSwapChain->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+		_createFrameBuffer();
+	}
+
+	void SwapChainD3D11::_createFrameBuffer()
+	{
+		Gfx::ComPtr<ID3D11Texture2D> backBuffer;
+		ZE_D3D_ASSERT_RESULT(GetSwapChainD3D()->GetBuffer(0, _uuidof(ID3D11Resource), &backBuffer));
+		mColorTexture = std::make_unique<TextureD3D11>(std::move(backBuffer), GetSize(), TextureType::RenderTarget, mColorFormat, mSwapChainRenderPass->GetSampling());
+		mDepthTexture = std::make_unique<TextureD3D11>(mGraphics, GetSize(), TextureType::Depth, mDepthFormat, nullptr, mSwapChainRenderPass->GetSampling());
+		auto color = std::array<Texture*, 1>{ mColorTexture.get() };
+		mFrameBuffer = std::make_unique<FrameBufferD3D11>(mGraphics, *mSwapChainRenderPass, GetSize(), color, mDepthTexture.get(), std::span<Texture*>{});
+	}
+
+	void SwapChainD3D11::_releaseFrameBuffer()
+	{
+		mFrameBuffer = nullptr;
+		mColorTexture = nullptr;
+		mDepthTexture = nullptr;
 	}
 
 	bool SwapChainD3D11::IsVSyncEnabled() const

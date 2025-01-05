@@ -51,7 +51,11 @@ if(ZERON_PYTHON_USE_VENV)
     if(SYSTEM_PYTHON_EXE_PATH STREQUAL Python3_EXECUTABLE)
         message(FATAL_ERROR "${ZERON_ERROR_MSG} Python executable for venv is not found.")
     endif()
-    execute_process(COMMAND "${Python3_EXECUTABLE}" -m pip install -r "${ZERON_TOOLS_DIR}/Python/requirements.txt" OUTPUT_QUIET ERROR_QUIET COMMAND_ERROR_IS_FATAL ANY)
+    execute_process(COMMAND 
+        "${Python3_EXECUTABLE}" -m pip install -r "${ZERON_TOOLS_DIR}/Python/requirements.txt" 
+        WORKING_DIRECTORY "${ZERON_TOOLS_DIR}/Python/"
+        OUTPUT_QUIET ERROR_QUIET 
+        COMMAND_ERROR_IS_FATAL ANY)
     unset(CMAKE_MESSAGE_LOG_LEVEL)
     message("ZERON --- Installed requirements")
 endif()

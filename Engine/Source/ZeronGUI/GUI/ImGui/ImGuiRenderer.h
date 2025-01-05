@@ -11,6 +11,7 @@ namespace Zeron
 {
 	namespace Gfx
 	{
+		struct ShaderProgramConfig;
 		class Buffer;
 		class ShaderProgram;
 		class PipelineBinding;
@@ -24,10 +25,9 @@ namespace Zeron
 
 	class ImGuiRenderer final {
 	  public:
-		ImGuiRenderer();
+		ImGuiRenderer(ImGuiContext& ctx, Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext, std::shared_ptr<Gfx::ShaderProgram>);
 		~ImGuiRenderer();
 
-		bool Init(ImGuiContext& ctx, Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext);
 		void NewFrame(ImGuiContext& ctx);
 		void Update(ImGuiContext& ctx, Gfx::Graphics& graphics);
 		void Draw(ImGuiContext& ctx, Gfx::CommandBuffer& cmd);
@@ -47,10 +47,9 @@ namespace Zeron
 
 		std::unique_ptr<Gfx::Buffer> mVertexBuffer;
 		std::unique_ptr<Gfx::Buffer> mIndexBuffer;
-		std::unique_ptr<Gfx::Buffer> mUniformBuffer;
 		std::unique_ptr<Gfx::Texture> mFontTexture;
 		std::unique_ptr<Gfx::Sampler> mSampler;
-		std::unique_ptr<Gfx::ShaderProgram> mShader;
+		std::shared_ptr<Gfx::ShaderProgram> mShader;
 		std::unique_ptr<Gfx::Pipeline> mPipeline;
 		std::unique_ptr<Gfx::PipelineBinding> mBinding;
 	};

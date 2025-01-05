@@ -9,24 +9,18 @@
 #include <Graphics/Pipeline.h>
 #include <Graphics/PipelineBinding.h>
 #include <Graphics/Sampler.h>
-#include <Graphics/Shader.h>
+#include <Graphics/ShaderProgram.h>
 #include <Graphics/Texture.h>
+#include <Graphics/VertexLayout.h>
 #include <imgui/imgui.h>
 #include <Platform/FileSystem.h>
 
 namespace Zeron
 {
-	ImGuiRenderer::ImGuiRenderer()
-		: mGraphics(nullptr)
-	{}
-
-	ImGuiRenderer::~ImGuiRenderer() {}
-
-	bool ImGuiRenderer::Init(ImGuiContext& ctx, Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext)
+	ImGuiRenderer::ImGuiRenderer(ImGuiContext& ctx, Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext, std::shared_ptr<Gfx::ShaderProgram> shaderProgram)
+		: mGraphics(&graphics)
+		, mGraphicsContext(&graphicsContext)
 	{
-		mGraphics = &graphics;
-		mGraphicsContext = &graphicsContext;
-
 		ImGui::SetCurrentContext(&ctx);
 
 		// Initialize Font Texture
@@ -34,43 +28,23 @@ namespace Zeron
 		unsigned char* fontData = nullptr;
 		int texWidth = 0, texHeight = 0;
 		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
-		mFontTexture = graphics.CreateTexture(Gfx::TextureType::Undefined, reinterpret_cast<Color*>(fontData), texWidth, texHeight);
-
+		mFontTexture = graphics.CreateTexture({ texWidth, texHeight }, Gfx::TextureFormat::RGBA_8U, fontData);
 		mSampler = graphics.CreateSampler(Gfx::SamplerAddressMode::Clamp, false);
-		mUniformBuffer = graphics.CreateUniformBuffer(Mat4{});
-		// TODO: Don't use filesystem here
-		auto vertexShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / graphics.GetCompiledShaderName("ImGui", Gfx::ShaderType::Vertex));
-		auto fragmentShaderBuffer = FileSystem::ReadBinaryFile(Path("Resources/Shaders") / graphics.GetCompiledShaderName("ImGui", Gfx::ShaderType::Fragment));
-		mShader = graphics.CreateShaderProgram(
-			"ImGui",
-			{
-				{ "POSITION", Gfx::VertexFormat::Float2 },
-				{ "TEXCOORD", Gfx::VertexFormat::Float2 },
-				{ "COLOR", Gfx::VertexFormat::Color },
-			},
-			{ {
-				{ Gfx::PipelineResourceType::UniformBuffer, Gfx::ShaderType::Vertex, 0 },
-				{ Gfx::PipelineResourceType::Texture, Gfx::ShaderType::Fragment, 1 },
-				{ Gfx::PipelineResourceType::Sampler, Gfx::ShaderType::Fragment, 2 },
-			} },
-			vertexShaderBuffer.Value(),
-			fragmentShaderBuffer.Value()
-		);
+		mShader = shaderProgram;
 		// TODO: We should use MSAA::Disabled for this
-		mPipeline = graphics.CreatePipeline(
-			mShader.get(), graphicsContext.GetSwapChainRenderPass(), graphics.GetMultiSamplingLevel(), Gfx::PrimitiveTopology::TriangleList, true, Gfx::FaceCullMode::None
+		mPipeline = graphics.CreatePipelineGraphics(
+			mShader.get(), graphicsContext.GetSwapChainRenderPass(), { graphics.GetMultiSamplingLevel(), Gfx::PrimitiveTopology::TriangleList, true, Gfx::FaceCullMode::None }
 		);
 		mBinding = graphics.CreatePipelineBinding(
 			*mPipeline,
 			{ {
-				Gfx::UniformBindingHandle{ mUniformBuffer.get() },
 				Gfx::TextureBindingHandle{ mFontTexture.get() },
 				Gfx::SamplerBindingHandle{ mSampler.get() },
 			} }
 		);
-
-		return true;
 	}
+
+	ImGuiRenderer::~ImGuiRenderer() {}
 
 	void ImGuiRenderer::NewFrame(ImGuiContext& ctx)
 	{
@@ -92,9 +66,11 @@ namespace Zeron
 
 		if (!mVertexBuffer || mVertexBuffer->GetCount() != static_cast<uint32_t>(imDrawData->TotalVtxCount)) {
 			mVertexBuffer = mGraphics->CreateBuffer(Gfx::BufferType::Vertex, imDrawData->TotalVtxCount, sizeof(ImDrawVert), nullptr, Gfx::BufferUsageType::Dynamic);
+			mVertexBuffer->SetDebugName("ImGui - Vertex Buffer");
 		}
 		if (!mIndexBuffer || mIndexBuffer->GetCount() < static_cast<uint32_t>(imDrawData->TotalIdxCount)) {
 			mIndexBuffer = mGraphics->CreateBuffer(Gfx::BufferType::Index, imDrawData->TotalIdxCount, sizeof(ImDrawIdx), nullptr, Gfx::BufferUsageType::Dynamic);
+			mIndexBuffer->SetDebugName("ImGui - Index Buffer");
 		}
 	}
 
@@ -112,52 +88,59 @@ namespace Zeron
 		ImGuiIO& io = ImGui::GetIO();
 		ImDrawData* imDrawData = ImGui::GetDrawData();
 
-		// ---- Draw
-		Mat4 proj = Math::Orthographic(
-			imDrawData->DisplayPos.x,
-			imDrawData->DisplayPos.x + imDrawData->DisplaySize.x,
-			imDrawData->DisplayPos.y + imDrawData->DisplaySize.y,
-			imDrawData->DisplayPos.y,
-			.0f,
-			1.f
-		);
-		cmd.UpdateBuffer(*mUniformBuffer, &proj, sizeof(proj));
 
-		cmd.SetPipeline(*mPipeline);
-		cmd.SetPipelineBinding(*mBinding);
-
-		int offsetVertex = 0;
-		int offsetIndex = 0;
-		for (int i = 0; i < imDrawData->CmdListsCount; ++i) {
-			const ImDrawList* cmdList = imDrawData->CmdLists[i];
-			const Gfx::BufferUpdateRule updateRule = i + 1 == imDrawData->CmdListsCount ? Gfx::BufferUpdateRule::KeepMappedMemoryIfAllowed : Gfx::BufferUpdateRule::DoNothing;
-			cmd.UpdateBuffer(*mVertexBuffer, &cmdList->VtxBuffer.Data[0], cmdList->VtxBuffer.Size * sizeof(ImDrawVert), offsetVertex, updateRule);
-			cmd.UpdateBuffer(*mIndexBuffer, &cmdList->IdxBuffer.Data[0], cmdList->IdxBuffer.Size * sizeof(ImDrawIdx), offsetIndex, updateRule);
-			offsetVertex += cmdList->VtxBuffer.Size;
-			offsetIndex += cmdList->IdxBuffer.Size;
-		}
-
-		if (imDrawData->CmdListsCount > 0) {
-			cmd.SetVertexBuffer(*mVertexBuffer);
-			cmd.SetIndexBuffer(*mIndexBuffer);
-
-			uint32_t vertexOffset = 0;
-			uint32_t indexOffset = 0;
-			for (int32_t i = 0; i < imDrawData->CmdListsCount; ++i) {
-				ImVec2 clipOff = imDrawData->DisplayPos;
-
+		cmd.BeginDebugGroup("Prepare Pipeline");
+		{
+			cmd.BeginDebugGroup("Update Buffers");
+			int offsetVertex = 0;
+			int offsetIndex = 0;
+			for (int i = 0; i < imDrawData->CmdListsCount; ++i) {
 				const ImDrawList* cmdList = imDrawData->CmdLists[i];
-				for (int32_t j = 0; j < cmdList->CmdBuffer.Size; ++j) {
-					const ImDrawCmd* imCmd = &cmdList->CmdBuffer[j];
-					cmd.SetScissor(
-						{ static_cast<int>(imCmd->ClipRect.z - clipOff.x), static_cast<int>(imCmd->ClipRect.w - clipOff.y) },
-						{ static_cast<int>(imCmd->ClipRect.x - clipOff.x), static_cast<int>(imCmd->ClipRect.y - clipOff.y) }
-					);
-					cmd.DrawIndexed(imCmd->ElemCount, indexOffset, vertexOffset);
-					indexOffset += imCmd->ElemCount;
-				}
-				vertexOffset += cmdList->VtxBuffer.Size;
+				const Gfx::BufferUpdateRule updateRule = i + 1 == imDrawData->CmdListsCount ? Gfx::BufferUpdateRule::KeepMappedMemoryIfAllowed :
+																							  Gfx::BufferUpdateRule::DoNothing;
+				cmd.UpdateBuffer(*mVertexBuffer, &cmdList->VtxBuffer.Data[0], cmdList->VtxBuffer.Size * sizeof(ImDrawVert), offsetVertex, updateRule);
+				cmd.UpdateBuffer(*mIndexBuffer, &cmdList->IdxBuffer.Data[0], cmdList->IdxBuffer.Size * sizeof(ImDrawIdx), offsetIndex, updateRule);
+				offsetVertex += cmdList->VtxBuffer.Size;
+				offsetIndex += cmdList->IdxBuffer.Size;
 			}
+			cmd.EndDebugGroup();
+
+			if (imDrawData->CmdListsCount > 0) {
+				cmd.SetPipeline(*mPipeline);
+				cmd.SetPipelineBinding(*mBinding);
+				cmd.SetVertexBuffer(*mVertexBuffer);
+				cmd.SetIndexBuffer(*mIndexBuffer);
+
+				Mat4 proj = Math::Orthographic(
+					imDrawData->DisplayPos.x,
+					imDrawData->DisplayPos.x + imDrawData->DisplaySize.x,
+					imDrawData->DisplayPos.y + imDrawData->DisplaySize.y,
+					imDrawData->DisplayPos.y,
+					.0f,
+					1.f
+				);
+				cmd.SetPushConstant<Mat4>(&proj, Gfx::ShaderType::Vertex);
+			}
+		}
+		cmd.EndDebugGroup();
+
+		uint32_t vertexOffset = 0;
+		uint32_t indexOffset = 0;
+		for (int32_t i = 0; i < imDrawData->CmdListsCount; ++i) {
+			ImVec2 clipOff = imDrawData->DisplayPos;
+			const ImDrawList* cmdList = imDrawData->CmdLists[i];
+			for (int32_t j = 0; j < cmdList->CmdBuffer.Size; ++j) {
+				cmd.BeginDebugGroup("Draw GUI Command");
+				const ImDrawCmd* imCmd = &cmdList->CmdBuffer[j];
+				cmd.SetScissor(
+					{ static_cast<int>(imCmd->ClipRect.z - clipOff.x), static_cast<int>(imCmd->ClipRect.w - clipOff.y) },
+					{ static_cast<int>(imCmd->ClipRect.x - clipOff.x), static_cast<int>(imCmd->ClipRect.y - clipOff.y) }
+				);
+				cmd.DrawIndexed(imCmd->ElemCount, indexOffset, vertexOffset);
+				indexOffset += imCmd->ElemCount;
+				cmd.EndDebugGroup();
+			}
+			vertexOffset += cmdList->VtxBuffer.Size;
 		}
 	}
 

@@ -6,7 +6,7 @@
 find_program(_glslc NAMES glslc HINTS Vulkan::glslc)
 
 if(_glslc AND EXISTS ${_glslc})
-    set(GLSLC_EXEC ${_glslc} CACHE INTERNAL "")
+    set(ZE_GLSLC_EXEC ${_glslc} CACHE INTERNAL "")
 else()
 
     if(WIN32 OR ANDROID)
@@ -23,5 +23,5 @@ else()
         set(GLSLC_EXEC_PATH ${GLSLC_LINUX_PATH})
     endif()
 
-    set(GLSLC_EXEC ${GLSLC_EXEC_PATH} CACHE INTERNAL "")
+    set(ZE_GLSLC_EXEC ${GLSLC_EXEC_PATH} CACHE INTERNAL "")
 endif()

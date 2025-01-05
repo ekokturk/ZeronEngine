@@ -32,6 +32,17 @@ namespace Zeron
 
 	Result<std::string, FileSystemError> FileSystemHandlerAndroid::ReadTextFile(const Path& file)
 	{
+        // Try finding file in android assets first if path is relative
+        if (file.IsRelative()) {
+            AAsset* androidAsset = AAssetManager_open(mAssetManager, file.ToString().c_str(), AASSET_MODE_BUFFER);
+            if (androidAsset) {
+                const size_t fileLength = AAsset_getLength(androidAsset);
+                std::string fileContent(fileLength, '\0');
+                int64_t readSize = AAsset_read(androidAsset, &fileContent[0], fileLength);
+                AAsset_close(androidAsset);
+                return fileContent;
+            }
+        }
 		return FileSystemHandlerStandard::ReadTextFile(file);
 	}
 

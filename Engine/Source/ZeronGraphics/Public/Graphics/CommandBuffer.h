@@ -5,6 +5,7 @@
 
 namespace Zeron::Gfx
 {
+	class Texture;
 	class Buffer;
 	class Pipeline;
 	class PipelineBinding;
@@ -16,7 +17,7 @@ namespace Zeron::Gfx
 		virtual ~CommandBuffer() = default;
 
 		virtual void Begin() = 0;
-		virtual void BeginRenderPass(FrameBuffer* frameBuffer, RenderPass* renderPass = nullptr) = 0;
+		virtual void BeginRenderPass(FrameBuffer* frameBuffer) = 0;
 		virtual void EndRenderPass() = 0;
 		virtual void End() = 0;
 
@@ -37,6 +38,12 @@ namespace Zeron::Gfx
 		{
 			UpdateBuffer(buff, data, sizeof(T));
 		}
+		virtual void SetPushConstant(const void* data, uint32_t stride, ShaderType shaderType) = 0;
+		template <typename T>
+		void SetPushConstant(const T* data, ShaderType shaderType)
+		{
+			SetPushConstant(data, sizeof(T), shaderType);
+		}
 
 		virtual void Draw(uint32_t vertexCount, uint32_t vertexStart = 0) = 0;
 		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexStart = 0, uint32_t vertexStart = 0) = 0;
@@ -47,7 +54,19 @@ namespace Zeron::Gfx
 
 		virtual void Dispatch(uint32_t countX, uint32_t countY, uint32_t countZ) = 0;
 
+		virtual void AddBarrier(Texture& texture, TextureLayout oldLayout, TextureLayout newLayout) = 0;
+
 		virtual uint32_t GetBufferCount() const = 0;
+
+		template <typename... Args> requires(sizeof...(Args) > 0)
+		void BeginDebugGroup(std::string_view label, Args&&... args)
+		{
+#if ZE_DEBUG
+			BeginDebugGroup(Util::Format(label, std::forward<Args>(args)...));
+#endif
+		}
+		virtual void BeginDebugGroup(std::string_view label) const = 0;
+		virtual void EndDebugGroup() const = 0;
 	};
 
 }

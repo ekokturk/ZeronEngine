@@ -2,30 +2,34 @@
 
 #pragma once
 
-#include <Graphics/Primitives.h>
+#include <Render/Mesh/MeshData.h>
 
 namespace Zeron
 {
 	namespace Gfx
 	{
-		class GraphicsContext;
+		class CommandBuffer;
 		class Graphics;
 		class Buffer;
 	}
 
-	class Texture;
+	namespace Render
+	{
+		class Mesh {
+		  public:
+			Mesh(Gfx::Graphics& graphics, const MeshData& data);
+			Mesh(const Mesh& mesh) = default;
+			~Mesh();
 
-	class Mesh {
-	  public:
-		Mesh(Gfx::Graphics& graphics, const std::vector<Gfx::Vertex>& vertices, const std::vector<uint32_t>& indices);
-		Mesh(const Mesh& mesh) = default;
-		~Mesh();
+			const MeshDescription& GetMeshDescription() const;
+			uint32_t GetIndexCount() const;
 
-		Gfx::Buffer* GetVertexBuffer() const;
-		Gfx::Buffer* GetIndexBuffer() const;
+			void Bind(Gfx::CommandBuffer& cmd, std::span<const MeshAttribute> attributes) const;
 
-	  private:
-		std::shared_ptr<Gfx::Buffer> mVertexBuffer;
-		std::shared_ptr<Gfx::Buffer> mIndexBuffer;
-	};
+		  private:
+			std::unordered_map<MeshAttribute, std::shared_ptr<Gfx::Buffer>> mVertexBuffers;
+			std::shared_ptr<Gfx::Buffer> mIndexBuffer;
+			std::shared_ptr<const MeshDescription> mDescription;
+		};
+	}
 }

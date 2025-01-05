@@ -16,25 +16,27 @@ struct ID3D11Texture2D;
 
 namespace Zeron::Gfx
 {
+	class Texture;
+	class RenderPassD3D11;
 	class GraphicsD3D11;
 	class SwapChainD3D11;
+	class TextureD3D11;
 
 	class FrameBufferD3D11 : public FrameBuffer {
 	  public:
-		FrameBufferD3D11();
+		FrameBufferD3D11(
+			GraphicsD3D11& graphics, RenderPassD3D11& renderPass, const Vec2i& extent, const std::span<Texture*>& colorTextures, Texture* depthTexture,
+			const std::span<Texture*>& resolveTextures
+		);
+		~FrameBufferD3D11();
 
-		void CreateBuffers(ID3D11Device* device, SwapChainD3D11& swapChain, MSAALevel msaaLevel);
-		void ReleaseBuffers();
-
-		ID3D11RenderTargetView* GetRenderTargetD3D() const;
-		ID3D11DepthStencilView* GetDepthStencilD3D() const;
+		void BindD3D(ID3D11DeviceContext* ctx, Color clearColor);
+		void UnbindD3D(ID3D11DeviceContext* ctx);
 
 	  private:
-		Gfx::ComPtr<ID3D11RenderTargetView> mRenderTargetView;
-		Gfx::ComPtr<ID3D11Texture2D> mBackBuffer;
-
-		Gfx::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
-		Gfx::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
+		std::vector<ID3D11RenderTargetView*> mRenderTargetViewBinding;
+		std::vector<Gfx::ComPtr<ID3D11RenderTargetView>> mRenderTargetViews;
+		Gfx::ComPtr<ID3D11DepthStencilView> mDepthView;
 	};
 }
 #endif

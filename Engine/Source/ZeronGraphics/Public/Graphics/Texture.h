@@ -8,12 +8,20 @@ namespace Zeron::Gfx
 {
 	class Texture {
 	  public:
-		Texture(TextureType type);
+		Texture(const Vec2i& extent, TextureType type, TextureFormat format, MSAALevel sampling);
 		virtual ~Texture() = default;
 
-		TextureType GetTextureType() const;
+		const Vec2i& GetExtent() const;
+		uint32_t GetCount() const;
+		TextureFormat GetFormat() const;
+		uint32_t GetStride() const;
+		TextureType GetType() const;
+		MSAALevel GetSampling() const;
 
 	  private:
-		TextureType mType = TextureType::Invalid;
+		TextureType mType;
+		TextureFormat mFormat;
+		Vec2i mExtent;
+		MSAALevel mSampling;
 	};
 }

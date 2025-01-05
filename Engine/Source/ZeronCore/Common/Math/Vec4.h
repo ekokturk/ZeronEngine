@@ -119,18 +119,19 @@ namespace Zeron
 
 		T Length() const { return sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W)); }
 
-		void Normalize()
+		TVec4& Normalize()
 		{
 			if (const T len = Length(); len != 0) {
 				*this /= len;
 			}
+			return *this;
 		}
 
 		static T Distance(const TVec4& from, const TVec4& to) { return sqrt(pow(to.X - from.X, 2) + pow(to.Y - from.Y, 2) + pow(to.Z - from.Z, 2) + pow(to.W - from.W, 2)); }
 
 		static T Dot(const TVec4& v1, const TVec4& v2) { return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z + v1.W * v2.W; }
 
-		static T Normalize(const TVec4& v)
+		static TVec4 Normalize(const TVec4& v)
 		{
 			TVec4 norm(v);
 			norm.Normalize();

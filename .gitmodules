@@ -1,6 +1,3 @@
-[submodule "assimp - Asset Import Library"]
-	path = Engine/ThirdParty/assimp/.submodule
-	url = https://github.com/assimp/assimp.git
 [submodule "fmt - Formatting Library"]
 	path = Engine/ThirdParty/fmt/.submodule
 	url = https://github.com/fmtlib/fmt.git
@@ -22,3 +19,9 @@
 [submodule "Vulkan-Headers - Vulkan CPP Headers"]
 	path = Engine/ThirdParty/Vulkan-Headers/.submodule
 	url = https://github.com/KhronosGroup/Vulkan-Headers.git
+[submodule "Engine/ThirdParty/tinygltf/.submodule"]
+	path = Engine/ThirdParty/tinygltf/.submodule
+	url = https://github.com/syoyo/tinygltf
+[submodule "Engine/ThirdParty/cereal/.submodule"]
+	path = Engine/ThirdParty/cereal/.submodule
+	url = https://github.com/USCiLab/cereal.git

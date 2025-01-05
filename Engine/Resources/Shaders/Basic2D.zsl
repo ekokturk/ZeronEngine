@@ -1,0 +1,64 @@
+//  Copyright (C) Eser Kokturk. All Rights Reserved.
+
+//@begin_stage Vertex
+
+//@push_constant
+cbuffer MVP {
+	float4x4 _projection;
+};
+
+struct VSInput
+{
+	//@input 0
+	//@slot 0
+	float2 Pos : POSITION;
+	//@input 1
+	//@slot 1
+	float2 UV : TEXCOORD;
+};
+
+struct VSOutput
+{
+	float4 Pos : SV_POSITION;
+	float2 UV : TEXCOORD;
+};
+
+VSOutput main(VSInput input)
+{
+	VSOutput output;
+	output.UV = input.UV;
+	output.Pos = mul(float4(input.Pos.xy, 0.f, 1.f), _projection);;
+	return output;
+}
+//@end_stage
+
+//@begin_stage Fragment
+
+struct Color {
+	float4 color;
+};
+
+//@register
+Texture2D mFontTexture;
+
+//@register
+SamplerState mFontSampler;
+
+//@register
+cbuffer ColorBuffer {
+	float4 color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+};
+
+struct FSInput
+{
+	float4 Position : SV_POSITION;
+	//@input 0
+	float2 UV: TEXCOORD;
+};
+
+float4 main(FSInput input) : SV_TARGET
+{
+	return color * mFontTexture.Sample(mFontSampler, input.UV);
+}
+
+//@end_stage

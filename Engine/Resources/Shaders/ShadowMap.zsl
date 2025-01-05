@@ -1,0 +1,49 @@
+//  Copyright (C) Eser Kokturk. All Rights Reserved.
+
+//@begin_stage Vertex
+
+//@push_constant
+cbuffer meshInfo {
+    uint _meshInstanceOffset;
+};
+
+struct DepthMVP {
+	float4x4 mViewProjection;
+};
+
+//@register
+cbuffer mvpBuffer {
+	DepthMVP _depthMVp;
+};
+
+struct MeshInstanceData {
+	float4x4 mLocalTransform;
+	float4x4 mParentTransform;
+};
+
+//@register
+StructuredBuffer<MeshInstanceData> _meshInstanceData;
+
+struct VSInput
+{
+	//@input 0
+	//@slot 0
+	float3 Pos : POSITION;
+};
+
+struct VSOutput
+{
+	float4 Pos : SV_POSITION;
+};
+
+VSOutput main(VSInput input, uint inInstanceId : SV_InstanceID)
+{
+	VSOutput output;
+	MeshInstanceData meshData = _meshInstanceData[_meshInstanceOffset + inInstanceId];
+	float4x4 meshTransform = mul(meshData.mLocalTransform, meshData.mParentTransform);
+	float4 worldPos = mul(float4(input.Pos, 1.f), meshTransform);
+	output.Pos = mul(worldPos, _depthMVp.mViewProjection);
+
+	return output;
+}
+//@end_stage

@@ -11,8 +11,9 @@ namespace Zeron::Gfx
 		struct Element {
 			PipelineResourceType mType;
 			ShaderType mShaderStage;
-			uint32_t mBinding;
+			uint32_t mBinding = 0;
 			uint32_t mSet = 0;
+			uint32_t mTypedBinding = 0;
 		};
 
 		ResourceLayout(const std::initializer_list<Element>& elements)

@@ -4,7 +4,7 @@
 
 #	include <Graphics/API/D3D/11/CommandBufferD3D11.h>
 
-#	include <d3d11.h>
+#	include <d3d11_1.h>
 #	include <Graphics/API/D3D/11/BufferD3D11.h>
 #	include <Graphics/API/D3D/11/FrameBufferD3D11.h>
 #	include <Graphics/API/D3D/11/GraphicsD3D11.h>
@@ -17,29 +17,36 @@ namespace Zeron::Gfx
 {
 	CommandBufferD3D11::CommandBufferD3D11(GraphicsD3D11& graphics)
 		: mDeviceContext(graphics.GetDeviceContextD3D())
-		, mClearColor({ 0.f, 0.f, 0.f, 1.f })
+		, mClearColor(Color::Black)
 		, mFrameBuffer(nullptr)
-	{}
+		, mPipeline(nullptr)
+		, mPipelineBinding(nullptr)
+	{
+#	if ZE_DEBUG
+		mDeviceContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), reinterpret_cast<void**>(mDebugAnnotation.GetAddressOf()));
+#	endif
+	}
 
 	void CommandBufferD3D11::Begin() {}
 
-	void CommandBufferD3D11::BeginRenderPass(FrameBuffer* frameBuffer, RenderPass* renderPass)
+	void CommandBufferD3D11::BeginRenderPass(FrameBuffer* frameBuffer)
 	{
 		ZE_ASSERT(frameBuffer, "Frame buffer is not available for D3D11 render pass!");
+		ZE_ASSERT(!mFrameBuffer && !mPipeline && !mPipelineBinding, "Expected render pass state to be empty");
 		mFrameBuffer = static_cast<FrameBufferD3D11*>(frameBuffer);
-		ID3D11RenderTargetView* renderView[] = { mFrameBuffer->GetRenderTargetD3D() };
-		ZE_D3D_ASSERT(mDeviceContext->OMSetRenderTargets(1, renderView, mFrameBuffer->GetDepthStencilD3D()));
-		ZE_D3D_ASSERT(mDeviceContext->ClearRenderTargetView(mFrameBuffer->GetRenderTargetD3D(), mClearColor.data()));
-		ZE_D3D_ASSERT(mDeviceContext->ClearDepthStencilView(mFrameBuffer->GetDepthStencilD3D(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0));
+		mFrameBuffer->BindD3D(mDeviceContext, mClearColor);
 	}
 
-	void CommandBufferD3D11::EndRenderPass() {}
+	void CommandBufferD3D11::EndRenderPass()
+	{
+		_clearResources();
+	}
 
 	void CommandBufferD3D11::End() {}
 
 	void CommandBufferD3D11::Clear(Color color)
 	{
-		mClearColor = { color.normR(), color.normG(), color.normB(), color.normA() };
+		mClearColor = color;
 	}
 
 	void CommandBufferD3D11::SetScissor(const Vec2i& extent, const Vec2i& offset)
@@ -64,15 +71,25 @@ namespace Zeron::Gfx
 
 	void CommandBufferD3D11::SetPipeline(Pipeline& pipeline)
 	{
-		auto& pipelineDx = static_cast<PipelineD3D11&>(pipeline);
-		pipelineDx.Apply(mDeviceContext);
+		if (mPipeline && mPipeline != &pipeline) {
+			_clearPipeline();
+		}
+		BeginDebugGroup("Pipeline Update");
+		mPipeline = static_cast<PipelineD3D11*>(&pipeline);
+		mPipeline->Apply(mDeviceContext);
+		EndDebugGroup();
 	}
 
 	void CommandBufferD3D11::SetPipelineBinding(PipelineBinding& binding, uint32_t index)
 	{
-		auto& bindingDx = static_cast<PipelineBindingD3D11&>(binding);
+		if (mPipelineBinding && mPipelineBinding != &binding) {
+			_clearPipelineBinding();
+		}
+		BeginDebugGroup("Pipeline Binding Update");
+		mPipelineBinding = static_cast<PipelineBindingD3D11*>(&binding);
 		// TODO: Support sets so index can be used
-		bindingDx.Apply(mDeviceContext);
+		mPipelineBinding->Apply(mDeviceContext);
+		EndDebugGroup();
 	}
 
 	void CommandBufferD3D11::SetVertexBuffer(Buffer& vb, uint32_t slot)
@@ -123,6 +140,12 @@ namespace Zeron::Gfx
 		buffDx.UpdateD3D(mDeviceContext, data, sizeBytes, offset, updateRule);
 	}
 
+	void CommandBufferD3D11::SetPushConstant(const void* data, uint32_t stride, ShaderType shaderType)
+	{
+		ZE_ASSERT(mPipeline, "CommandBufferD3D11: Expected Pipeline to be bound to update push constant");
+		mPipeline->SetPushConstantBuffer(mDeviceContext, data, stride, shaderType);
+	}
+
 	void CommandBufferD3D11::Draw(uint32_t vertexCount, uint32_t vertexStart)
 	{
 		ZE_D3D_ASSERT(mDeviceContext->Draw(vertexCount, vertexStart));
@@ -140,17 +163,71 @@ namespace Zeron::Gfx
 
 	void CommandBufferD3D11::DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t indexStart, uint32_t baseVertexLocation, uint32_t instanceStart)
 	{
+		// TODO: Add Debug assert here to warn if instanceStart is being used without instanced input
 		ZE_D3D_ASSERT(mDeviceContext->DrawIndexedInstanced(indexCount, instanceCount, indexStart, baseVertexLocation, instanceStart));
 	}
 
 	void CommandBufferD3D11::Dispatch(uint32_t countX, uint32_t countY, uint32_t countZ)
 	{
-		ZE_FAIL("Not yet implemented!");
+		ZE_D3D_ASSERT(mDeviceContext->Dispatch(countX, countY, countZ));
+		// TODO: Make this more explicit, maybe as a separate begin/end pass or as an argument
+		_clearResources();
+	}
+
+	void CommandBufferD3D11::AddBarrier(Texture& texture, TextureLayout oldLayout, TextureLayout newLayout) {}
+
+	void CommandBufferD3D11::BeginDebugGroup(std::string_view label) const
+	{
+#	if ZE_DEBUG
+		if (mDebugAnnotation) {
+			const std::wstring evtLabel(label.begin(), label.end());
+			mDebugAnnotation->BeginEvent(evtLabel.c_str());
+		}
+#	endif
+	}
+
+	void CommandBufferD3D11::EndDebugGroup() const
+	{
+#	if ZE_DEBUG
+		if (mDebugAnnotation) {
+			mDebugAnnotation->EndEvent();
+		}
+#	endif
 	}
 
 	uint32_t CommandBufferD3D11::GetBufferCount() const
 	{
 		return 1;
+	}
+
+	void CommandBufferD3D11::_clearResources()
+	{
+		if (mPipelineBinding) {
+			_clearPipelineBinding();
+		}
+		if (mPipeline) {
+			_clearPipeline();
+		}
+		if (mFrameBuffer) {
+			mFrameBuffer->UnbindD3D(mDeviceContext);
+			mFrameBuffer = nullptr;
+		}
+	}
+
+	void CommandBufferD3D11::_clearPipeline()
+	{
+		BeginDebugGroup("Pipeline Cleanup");
+		mPipeline->Clear(mDeviceContext);
+		mPipeline = nullptr;
+		EndDebugGroup();
+	}
+
+	void CommandBufferD3D11::_clearPipelineBinding()
+	{
+		BeginDebugGroup("Pipeline Binding Cleanup");
+		mPipelineBinding->Clear(mDeviceContext);
+		mPipelineBinding = nullptr;
+		EndDebugGroup();
 	}
 }
 #endif

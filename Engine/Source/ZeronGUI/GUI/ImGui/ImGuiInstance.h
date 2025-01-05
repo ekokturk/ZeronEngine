@@ -25,7 +25,7 @@ namespace Zeron
 		ImGuiInstance();
 		~ImGuiInstance();
 
-		bool Init(Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext);
+		bool Init(Gfx::Graphics& graphics, Gfx::GraphicsContext& graphicsContext, std::shared_ptr<Gfx::ShaderProgram> shaderProgram);
 		bool HandleEvent(const SystemEvent& evt) const;
 		void NewFrame();
 		void Update(Gfx::Graphics& graphics);
@@ -33,6 +33,7 @@ namespace Zeron
 
 	  private:
 		bool _onKey(KeyCode::Type code, bool isPressed) const;
+		void _applyStyle();
 
 		ImGuiContext* mContext;
 		std::unique_ptr<ImGuiRenderer> mImGuiRenderer;

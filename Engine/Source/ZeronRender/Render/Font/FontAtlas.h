@@ -1,6 +1,7 @@
 ﻿// Copyright (C) Eser Kokturk. All Rights Reserved.
 
 #pragma once
+#include <Render/Mesh/MeshData.h>
 
 namespace Zeron
 {
@@ -13,8 +14,6 @@ namespace Zeron
 
 	namespace Render
 	{
-		class MeshInfo;
-
 		struct FontGlyph {
 			std::array<Vec2, 4> mPositions;
 			std::array<Vec2, 4> mUVs;
@@ -36,7 +35,7 @@ namespace Zeron
 
 			bool Load(Gfx::Graphics& graphics, const ByteBuffer& fontData);
 
-			MeshInfo GenerateText(const std::string& text, bool useBottomBaseline = false) const;
+			MeshData GenerateText(const std::string& text, bool useBottomBaseline = false) const;
 			FontGlyph GenerateGlyph(char character, float offsetX, float offsetY) const;
 
 			Gfx::Texture* GetTexture() const;

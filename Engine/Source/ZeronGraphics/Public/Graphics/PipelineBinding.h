@@ -15,6 +15,11 @@ namespace Zeron::Gfx
 		Buffer* mBuffer;
 	};
 
+	class StorageBufferBindingHandle {
+	  public:
+		Buffer* mBuffer;
+	};
+
 	class SamplerBindingHandle {
 	  public:
 		Sampler* mSampler;
@@ -25,7 +30,7 @@ namespace Zeron::Gfx
 		Texture* mTexture;
 	};
 
-	using BindingHandle = std::variant<UniformBindingHandle, SamplerBindingHandle, TextureBindingHandle>;
+	using BindingHandle = std::variant<UniformBindingHandle, SamplerBindingHandle, TextureBindingHandle, StorageBufferBindingHandle>;
 
 	class PipelineBinding {
 	  public:

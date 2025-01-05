@@ -27,7 +27,7 @@ namespace Zeron::Gfx
 		const std::vector<vk::UniqueDescriptorSet>& GetDescriptorSets() const;
 
 	  private:
-		void _countBindings(const std::vector<BindingHandle>& bindings, uint32_t& uniformBuffer, uint32_t& sampler, uint32_t& texture) const;
+		void _countBindings(const std::vector<BindingHandle>& bindings, uint32_t& uniformBuffer, uint32_t& sampler, uint32_t& texture, uint32_t& structure) const;
 
 		vk::UniqueDescriptorPool mDescriptorPool;
 		std::vector<vk::UniqueDescriptorSet> mDescriptorSets;

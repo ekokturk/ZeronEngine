@@ -48,6 +48,7 @@ namespace Zeron::Gfx
 			case BufferType::Vertex: return vk::BufferUsageFlagBits::eVertexBuffer;
 			case BufferType::Index: return vk::BufferUsageFlagBits::eIndexBuffer;
 			case BufferType::Uniform: return vk::BufferUsageFlagBits::eUniformBuffer;
+			case BufferType::Storage: return vk::BufferUsageFlagBits::eStorageBuffer;
 			default: ZE_FAIL("Vulkan buffer type is not supported!");
 		}
 		return static_cast<vk::BufferUsageFlagBits>(0);
@@ -68,7 +69,7 @@ namespace Zeron::Gfx
 	{
 		switch (resourceType) {
 			case PipelineResourceType::UniformBuffer: return vk::DescriptorType::eUniformBuffer;
-			case PipelineResourceType::DynamicUniformBuffer: return vk::DescriptorType::eUniformBufferDynamic;
+			case PipelineResourceType::StorageBuffer: return vk::DescriptorType::eStorageBuffer;
 			case PipelineResourceType::Sampler: return vk::DescriptorType::eSampler;
 			case PipelineResourceType::Texture: return vk::DescriptorType::eSampledImage;
 			default: ZE_FAIL("Vulkan descriptor type is not supported!");
@@ -84,6 +85,35 @@ namespace Zeron::Gfx
 			default: ZE_FAIL("Vulkan sampler address mode is not supported!");
 		}
 		return vk::SamplerAddressMode::eRepeat;
+	}
+
+	vk::Format VulkanHelpers::GetTextureFormat(TextureFormat textureFormat)
+	{
+		switch (textureFormat) {
+			case TextureFormat::RGB_8U: return vk::Format::eR8G8B8Unorm;
+			case TextureFormat::RGBA_8U: return vk::Format::eR8G8B8A8Unorm;
+			case TextureFormat::BGRA_8U: return vk::Format::eB8G8R8A8Unorm;
+			case TextureFormat::Depth_16U: return vk::Format::eD16Unorm;
+			case TextureFormat::Depth_32F: return vk::Format::eD32Sfloat;
+			case TextureFormat::DepthStencil_32U: return vk::Format::eD24UnormS8Uint;
+			default: ZE_FAIL("Vulkan texture format is not supported!");
+		}
+		return vk::Format::eUndefined;
+	}
+
+	vk::ImageLayout VulkanHelpers::GetTextureLayout(TextureLayout textureLayout)
+	{
+		switch (textureLayout) {
+			case TextureLayout::Present: return vk::ImageLayout::ePresentSrcKHR;
+			case TextureLayout::ColorAttachment: return vk::ImageLayout::eColorAttachmentOptimal;
+			case TextureLayout::DepthStencilAttachment: return vk::ImageLayout::eDepthStencilAttachmentOptimal;
+			case TextureLayout::ShaderReadOnly: return vk::ImageLayout::eShaderReadOnlyOptimal;
+			case TextureLayout::TransferDst: return vk::ImageLayout::eTransferDstOptimal;
+			case TextureLayout::TransferSrc: return vk::ImageLayout::eTransferSrcOptimal;
+			case TextureLayout::Undefined: return vk::ImageLayout::eUndefined;
+			default: ZE_FAIL("Vulkan texture layout is not supported!");
+		}
+		return vk::ImageLayout::eUndefined;
 	}
 }
 #endif

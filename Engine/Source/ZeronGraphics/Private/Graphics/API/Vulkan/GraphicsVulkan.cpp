@@ -6,15 +6,18 @@
 
 #	include <Graphics/API/Vulkan/BufferVulkan.h>
 #	include <Graphics/API/Vulkan/CommandBufferVulkan.h>
+#	include <Graphics/API/Vulkan/FrameBufferVulkan.h>
 #	include <Graphics/API/Vulkan/GraphicsContextVulkan.h>
 #	include <Graphics/API/Vulkan/PipelineBindingVulkan.h>
 #	include <Graphics/API/Vulkan/PipelineVulkan.h>
 #	include <Graphics/API/Vulkan/RenderPassVulkan.h>
 #	include <Graphics/API/Vulkan/SamplerVulkan.h>
+#	include <Graphics/API/Vulkan/ShaderProgramVulkan.h>
 #	include <Graphics/API/Vulkan/ShaderVulkan.h>
 #	include <Graphics/API/Vulkan/SurfaceVulkan.h>
 #	include <Graphics/API/Vulkan/SwapChainVulkan.h>
 #	include <Graphics/API/Vulkan/TextureVulkan.h>
+#	include <Graphics/API/Vulkan/VulkanDebug.h>
 #	include <Graphics/API/Vulkan/VulkanInstance.h>
 #	include <Graphics/VertexLayout.h>
 
@@ -26,7 +29,6 @@ namespace Zeron::Gfx
 		: mDevice(nullptr)
 		, mGraphicsQueueFamilyIndex(UINT_MAX)
 		, mPresentQueueFamilyIndex(UINT_MAX)
-		, mComputeQueueFamilyIndex(UINT_MAX)
 	{
 		mAppInfo = vk::ApplicationInfo("AppName", 1, "Zeron Engine", 1, VK_API_VERSION_1_1);
 
@@ -58,12 +60,14 @@ namespace Zeron::Gfx
 
 	bool GraphicsVulkan::Init()
 	{
+		VulkanInstance::LoadProc();
+
 		if (!_initInstance()) {
-			ZE_LOGE("Vulkan: Couldn't create instance!");
+			ZE_LOGE("GraphicsVulkan: Couldn't create instance!");
 			return false;
 		}
 		if (!_initPrimaryAdapter()) {
-			ZE_LOGE("Vulkan: Couldn't create physical device!");
+			ZE_LOGE("GraphicsVulkan: Couldn't create physical device!");
 			return false;
 		}
 
@@ -77,7 +81,7 @@ namespace Zeron::Gfx
 
 	MSAALevel GraphicsVulkan::GetMultiSamplingLevel() const
 	{
-		return mSupportedMaxMSAA;
+		return mMaxSupportedSampling;
 	}
 
 	std::unique_ptr<GraphicsContext> GraphicsVulkan::CreateGraphicsContext()
@@ -90,29 +94,37 @@ namespace Zeron::Gfx
 		return std::make_unique<CommandBufferVulkan>(*this, count, isCompute);
 	}
 
-	std::unique_ptr<Pipeline> GraphicsVulkan::CreatePipeline(ShaderProgram* shader)
+	std::unique_ptr<Pipeline> GraphicsVulkan::CreatePipelineGraphics(ShaderProgram* shader, RenderPass* renderPass, PipelineConfig config)
 	{
-		ZE_ASSERT(shader, "Vulkan pipeline requires a valid shader program!");
-		return std::make_unique<PipelineVulkan>(*this, static_cast<ShaderProgramVulkan*>(shader));
+		ZE_ASSERT(shader, "GraphicsVulkan: Vulkan pipeline requires a valid shader program!");
+		ZE_ASSERT(renderPass, "GraphicsVulkan: Vulkan pipeline requires a valid render pass!");
+
+		config.mSamplingLevel = static_cast<int>(mMaxSupportedSampling) < static_cast<int>(config.mSamplingLevel) ? mMaxSupportedSampling : config.mSamplingLevel;
+
+		return std::make_unique<PipelineVulkan>(*this, static_cast<ShaderProgramVulkan*>(shader), static_cast<RenderPassVulkan*>(renderPass), std::move(config));
 	}
 
-	std::unique_ptr<Pipeline> GraphicsVulkan::CreatePipeline(
-		ShaderProgram* shader, RenderPass* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill, FaceCullMode cullMode
-	)
+	std::unique_ptr<Pipeline> GraphicsVulkan::CreatePipelineCompute(ShaderProgram& shader)
 	{
-		ZE_ASSERT(shader, "Vulkan pipeline requires a valid shader program!");
-		ZE_ASSERT(renderPass, "Vulkan pipeline requires a valid render pass!");
-
-		samplingLevel = static_cast<int>(mSupportedMaxMSAA) < static_cast<int>(samplingLevel) ? mSupportedMaxMSAA : samplingLevel;
-
-		return std::make_unique<PipelineVulkan>(
-			*this, static_cast<ShaderProgramVulkan*>(shader), static_cast<RenderPassVulkan*>(renderPass), samplingLevel, topology, isSolidFill, cullMode
-		);
+		return std::make_unique<PipelineVulkan>(*this, static_cast<ShaderProgramVulkan*>(&shader));
 	}
 
 	std::unique_ptr<PipelineBinding> GraphicsVulkan::CreatePipelineBinding(Pipeline& pipeline, const std::vector<BindingHandle>& bindingList)
 	{
 		return std::make_unique<PipelineBindingVulkan>(*this, static_cast<PipelineVulkan&>(pipeline), bindingList);
+	}
+	std::unique_ptr<RenderPass> GraphicsVulkan::CreateRenderPass(
+		std::vector<RenderPassAttachment> colorAttachments, std::optional<RenderPassAttachment> depthAttachment, MSAALevel sampling
+	)
+	{
+		return std::make_unique<RenderPassVulkan>(*this, std::move(colorAttachments), depthAttachment, sampling);
+	}
+
+	std::unique_ptr<FrameBuffer> GraphicsVulkan::CreateFrameBuffer(
+		RenderPass& renderPass, const Vec2i& extent, const std::span<Texture*>& colorAttachments, Texture* depthAttachment, const std::span<Texture*>& resolveAttachments
+	)
+	{
+		return std::make_unique<FrameBufferVulkan>(*this, static_cast<RenderPassVulkan&>(renderPass), extent, colorAttachments, depthAttachment, resolveAttachments);
 	}
 
 	std::unique_ptr<Sampler> GraphicsVulkan::CreateSampler(SamplerAddressMode addressMode, bool hasAnisotropicFilter)
@@ -135,20 +147,9 @@ namespace Zeron::Gfx
 		return deviceLocalBuffer;
 	}
 
-	std::unique_ptr<ShaderProgram> GraphicsVulkan::CreateShaderProgram(
-		const std::string& shaderName, const VertexLayout& vertexLayout, const ResourceLayout& resourceLayout, const ByteBuffer& vertexShader,
-		const ByteBuffer& fragmentShader, const ByteBuffer& computeShader
-	)
+	std::unique_ptr<ShaderProgram> GraphicsVulkan::CreateShaderProgram(const ShaderProgramConfig& config, std::unordered_map<ShaderType, ByteBuffer> shaderData)
 	{
-		return std::make_unique<ShaderProgramVulkan>(*this, shaderName, vertexLayout, resourceLayout, vertexShader, fragmentShader, computeShader);
-	}
-
-	std::unique_ptr<ShaderProgram> GraphicsVulkan::CreateShaderProgram(
-		const std::string& shaderName, const std::shared_ptr<Shader>& vertexShader, const std::shared_ptr<Shader>& fragmentShader, const VertexLayout& vertexLayout,
-		const ResourceLayout& resourceLayout
-	)
-	{
-		return std::make_unique<ShaderProgramVulkan>(*this, shaderName, vertexShader, fragmentShader, vertexLayout, resourceLayout);
+		return std::make_unique<ShaderProgramVulkan>(*this, config, std::move(shaderData));
 	}
 
 	std::string GraphicsVulkan::GetCompiledShaderName(const std::string& shaderName, ShaderType type) const
@@ -157,68 +158,61 @@ namespace Zeron::Gfx
 			case ShaderType::Vertex: return { shaderName + ".vert.spv" };
 			case ShaderType::Fragment: return { shaderName + ".frag.spv" };
 			case ShaderType::Compute: return { shaderName + ".comp.spv" };
-			default: ZE_FAIL("Vulkan compiled shader name is not implemented!");
+			default: ZE_FAIL("GraphicsVulkan: Compiled shader name is not implemented!");
 		}
 		return shaderName;
 	}
 
-	std::unique_ptr<Texture> GraphicsVulkan::CreateTexture(TextureType type, const Color& data)
+	std::unique_ptr<Texture> GraphicsVulkan::CreateTexture(const Vec2i& size, TextureFormat format, const void* data, TextureType type, MSAALevel sampling)
 	{
-		ZE_FAIL("Not Implemented");
-		return nullptr;
-	}
+		vk::ImageUsageFlags usageFlags = vk::ImageUsageFlagBits::eSampled;
+		if (type == TextureType::Depth) {
+			usageFlags |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+		}
+		if (data) {
+			usageFlags |= vk::ImageUsageFlagBits::eTransferDst;
+			usageFlags |= vk::ImageUsageFlagBits::eTransferSrc;
+		}
 
-	std::unique_ptr<Texture> GraphicsVulkan::CreateTexture(TextureType type, const Color* data, uint32_t width, uint32_t height)
-	{
 		return CreateTextureVK(
-			Vec2i(static_cast<int>(width), static_cast<int>(height)),
-			vk::Format::eR8G8B8A8Unorm,
-			vk::ImageTiling::eOptimal,
-			vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled,
-			vk::SampleCountFlagBits::e1,
-			vk::ImageLayout::eUndefined,
-			vk::ImageLayout::eShaderReadOnlyOptimal,
-			data
+			size, type, format, data, sampling, type == TextureType::Depth ? TextureLayout::DepthStencilAttachment : TextureLayout::ShaderReadOnly, usageFlags
 		);
 	}
 
 	std::unique_ptr<TextureVulkan> GraphicsVulkan::CreateTextureVK(
-		const Vec2i& size, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::SampleCountFlagBits sampling, vk::ImageLayout oldLayout,
-		vk::ImageLayout newLayout, const Color* data
+		const Vec2i& size, TextureType type, TextureFormat format, const void* data, MSAALevel sampling, TextureLayout layout, vk::ImageUsageFlags usage
 	)
 	{
-		auto texture = std::make_unique<TextureVulkan>(*this, size, format, tiling, usage, sampling);
+		auto texture = std::make_unique<TextureVulkan>(*this, size, type, format, sampling, usage);
 		const std::unique_ptr<BufferVulkan> stagingBuffer = data ?
-			std::make_unique<BufferVulkan>(
-				*this, BufferType::Undefined, static_cast<uint32_t>(size.X * size.Y), static_cast<uint32_t>(sizeof(Color)), data, BufferUsageType::Staging
-			) :
+			std::make_unique<BufferVulkan>(*this, BufferType::Undefined, texture->GetCount(), texture->GetStride(), data, BufferUsageType::Staging) :
 			nullptr;
-		const vk::ImageLayout oldLayoutModified = data ? vk::ImageLayout::eTransferDstOptimal : oldLayout;
+		const TextureLayout oldLayoutModified = data ? TextureLayout::TransferDst : TextureLayout::Undefined;
 		SubmitSingleUseCommandBufferVK([&](CommandBufferVulkan& cmd) {
 			if (data) {
-				cmd.ApplyImageTransitionLayoutVK(*texture, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+				cmd.ApplyImageTransitionLayoutVK(*texture, TextureLayout::Undefined, TextureLayout::TransferDst);
 				cmd.CopyBufferToTextureVK(*stagingBuffer, *texture);
 			}
-			cmd.ApplyImageTransitionLayoutVK(*texture, oldLayoutModified, newLayout);
+			cmd.ApplyImageTransitionLayoutVK(*texture, oldLayoutModified, layout);
 		});
 		return texture;
 	}
 
 	vk::Instance& GraphicsVulkan::GetInstanceVK()
 	{
-		ZE_ASSERT(mInstance, "Vulkan instance is not available!");
+		ZE_ASSERT(mInstance, "GraphicsVulkan: Vulkan instance is not available!");
 		return mInstance;
 	}
 
 	vk::Device& GraphicsVulkan::GetDeviceVK()
 	{
-		ZE_ASSERT(mDevice, "Vulkan device is not available!");
+		ZE_ASSERT(mDevice, "GraphicsVulkan: Vulkan device is not available!");
 		return mDevice;
 	}
 
 	vk::PhysicalDevice& GraphicsVulkan::GetPrimaryAdapterVK()
 	{
-		ZE_ASSERT(mAdapter, "Couldn't find Vulkan adapter!");
+		ZE_ASSERT(mAdapter, "GraphicsVulkan: Couldn't find Vulkan adapter!");
 		return mAdapter->GetPhysicalDeviceVK();
 	}
 
@@ -230,11 +224,6 @@ namespace Zeron::Gfx
 	vk::Queue& GraphicsVulkan::GetPresentQueueVK()
 	{
 		return mPresentQueue;
-	}
-
-	vk::Queue& GraphicsVulkan::GetComputeQueueVK()
-	{
-		return mComputeQueue;
 	}
 
 	uint32_t GraphicsVulkan::GetGraphicsQueueFamilyIndexVK() const
@@ -249,18 +238,16 @@ namespace Zeron::Gfx
 
 	bool GraphicsVulkan::_verifyExtensions() const
 	{
-		uint32_t extensionCount = 0;
 		// Get all supported extensions
-		ZE_VK_ASSERT(vk::enumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr), "", false);
-		std::vector<vk::ExtensionProperties> supportedExtensions(extensionCount);
-		ZE_VK_ASSERT(vk::enumerateInstanceExtensionProperties(nullptr, &extensionCount, supportedExtensions.data()), "", false);
+		auto supportedExtensions = vk::enumerateInstanceExtensionProperties(nullptr);
+		ZE_ASSERT(!supportedExtensions.empty(), "GraphicsVulkan: Expected to find supported extensions");
 
 		for (const auto& extensionName : mExtensions) {
 			auto result = std::find_if(supportedExtensions.begin(), supportedExtensions.end(), [&extensionName](const vk::ExtensionProperties& props) {
 				return extensionName == props.extensionName;
 			});
 			if (result == supportedExtensions.end()) {
-				ZE_LOGE("Vulkan was not able to find extension '{}'!", extensionName);
+				ZE_LOGE("GraphicsVulkan: Couldn't find extension '{}'!", extensionName);
 				return false;
 			}
 		}
@@ -271,11 +258,9 @@ namespace Zeron::Gfx
 	{
 #	if ZE_DEBUG
 		const char* expectedLayers[] = { "VK_LAYER_KHRONOS_validation" };
-		uint32_t layerCount = 0;
 		// Get all supported validation layers
-		ZE_VK_ASSERT(vk::enumerateInstanceLayerProperties(&layerCount, nullptr), "");
-		std::vector<vk::LayerProperties> supportedLayers(layerCount);
-		ZE_VK_ASSERT(vk::enumerateInstanceLayerProperties(&layerCount, supportedLayers.data()), "");
+		auto supportedLayers = vk::enumerateInstanceLayerProperties();
+		ZE_ASSERT(!supportedLayers.empty(), "GraphicsVulkan: Expected to find validation layers");
 
 		for (auto& expectedLayer : expectedLayers) {
 			auto result = std::find_if(supportedLayers.begin(), supportedLayers.end(), [&expectedLayer](const vk::LayerProperties& prop) {
@@ -285,7 +270,7 @@ namespace Zeron::Gfx
 				mValidationLayers.emplace_back(expectedLayer);
 			}
 			else {
-				ZE_LOGE("Vulkan was not able to find validation layer '{}'!", expectedLayer);
+				ZE_LOGE("GraphicsVulkan: Couldn't find validation layer '{}'!", expectedLayer);
 			}
 		}
 #	endif
@@ -316,7 +301,22 @@ namespace Zeron::Gfx
 
 	bool GraphicsVulkan::_initInstance()
 	{
-		VulkanInstance::LoadProc();
+		uint32_t instanceVersion = 0;
+		if (vk::enumerateInstanceVersion(&instanceVersion) != vk::Result::eSuccess) {
+			ZE_LOGE("GraphicsVulkan: Unable to retrieve version information!");
+			return false;
+		}
+
+		const uint32_t versionMajor = VK_VERSION_MAJOR(instanceVersion);
+		const uint32_t versionMinor = VK_VERSION_MINOR(instanceVersion);
+		const uint32_t versionPatch = VK_VERSION_PATCH(instanceVersion);
+		const bool hasValidVersion = versionMajor > 1 || versionMajor == 1 && versionMinor >= 1;
+		if (!hasValidVersion) {
+			ZE_LOGE("GraphicsVulkan: Minimum Vulkan version 1.1 required (Current supported version {}.{})", versionMajor, versionMinor);
+			return false;
+		}
+
+		ZE_LOG("Vulkan GFX: Found supported library version {}.{}.{}", versionMajor, versionMinor, versionPatch);
 
 		_initSupportedValidationLayers();
 		if (!_verifyExtensions()) {
@@ -367,21 +367,23 @@ namespace Zeron::Gfx
 			return false;
 		}
 
-		mSupportedMaxMSAA = _getMaxMultiSampleLevel();
+		mMaxSupportedSampling = _getMaxMultiSampleLevel();
 
-		ZE_LOG("Using '{}' device for Vulkan", mAdapter->GetName());
+		ZE_LOG("Vulkan GFX: Using '{}' device", mAdapter->GetName());
 		return mAdapter->GetPhysicalDeviceVK();
 	}
 
 	bool GraphicsVulkan::_initDevice(vk::SurfaceKHR surface)
 	{
-		ZE_ASSERT(!mDevice, "Vulkan logical device already exists");
+		ZE_ASSERT(!mDevice, "GraphicsVulkan: Vulkan logical device already exists");
 		const vk::PhysicalDevice& adapter = mAdapter->GetPhysicalDeviceVK();
 		std::vector<vk::QueueFamilyProperties> queueFamilies = adapter.getQueueFamilyProperties();
 		// Find graphics queue family that can present
 		for (uint32_t i = 0; i < queueFamilies.size(); ++i) {
 			vk::QueueFamilyProperties& props = queueFamilies[i];
-			if (props.queueCount > 0 && (props.queueFlags & vk::QueueFlagBits::eGraphics)) {
+			// We don't use dedicated compute queue
+			const auto graphicsQueueFlags = vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute;
+			if (props.queueCount > 0 && props.queueFlags & graphicsQueueFlags) {
 				if (mGraphicsQueueFamilyIndex == UINT_MAX) {
 					mGraphicsQueueFamilyIndex = i;
 				}
@@ -393,7 +395,7 @@ namespace Zeron::Gfx
 			}
 		}
 		if (mGraphicsQueueFamilyIndex == UINT_MAX) {
-			ZE_FAIL("Couldn't find Vulkan graphics queue family!");
+			ZE_FAIL("GraphicsVulkan: Couldn't find Vulkan graphics queue family!");
 			return false;
 		}
 		// Try to find present queue family again if it's not found as a graphics queue
@@ -406,20 +408,8 @@ namespace Zeron::Gfx
 			}
 		}
 		if (mPresentQueueFamilyIndex == UINT_MAX) {
-			ZE_FAIL("Couldn't find required Vulkan presentation queue family!");
+			ZE_FAIL("GraphicsVulkan: Couldn't find required Vulkan presentation queue family!");
 			return false;
-		}
-
-		// Find compute queue family
-		for (uint32_t i = 0; i < queueFamilies.size(); ++i) {
-			vk::QueueFamilyProperties& props = queueFamilies[i];
-			if (props.queueCount > 0 && (props.queueFlags & vk::QueueFlagBits::eCompute)) {
-				mComputeQueueFamilyIndex = i;
-				// Find a dedicated compute queue
-				if ((props.queueFlags & vk::QueueFlagBits::eGraphics) != vk::QueueFlagBits::eGraphics) {
-					break;
-				}
-			}
 		}
 
 		const float queuePriority = 1.f;
@@ -427,9 +417,7 @@ namespace Zeron::Gfx
 		if (mPresentQueueFamilyIndex != mGraphicsQueueFamilyIndex) {
 			queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), mPresentQueueFamilyIndex, 1, &queuePriority);
 		}
-		if (mComputeQueueFamilyIndex != mGraphicsQueueFamilyIndex) {
-			queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), mComputeQueueFamilyIndex, 1, &queuePriority);
-		}
+
 
 		vk::PhysicalDeviceFeatures features{};
 		// Shader based multi-sampling
@@ -456,8 +444,10 @@ namespace Zeron::Gfx
 		mDevice = adapter.createDevice(deviceCreateInfo);
 		mGraphicsQueue = mDevice.getQueue(mGraphicsQueueFamilyIndex, 0);
 		mPresentQueue = mDevice.getQueue(mPresentQueueFamilyIndex, 0);
-		mComputeQueue = mDevice.getQueue(mComputeQueueFamilyIndex, 0);
 
+#	if ZE_DEBUG && !ZE_PLATFORM_ANDROID
+		mObjectDebugInterface = std::make_unique<VulkanObjectDebugInterface>(mDevice);
+#	endif
 		return mDevice;
 	}
 
@@ -470,10 +460,9 @@ namespace Zeron::Gfx
 		return std::make_unique<SwapChainVulkan>(*this, systemHandle, size, std::move(surface));
 	}
 
-	vk::UniqueCommandPool GraphicsVulkan::CreateCommandPoolVK(bool useComputeQueue) const
+	vk::UniqueCommandPool GraphicsVulkan::CreateCommandPoolVK() const
 	{
-		return mDevice.createCommandPoolUnique(vk::CommandPoolCreateInfo{ vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-																		  useComputeQueue ? mComputeQueueFamilyIndex : mGraphicsQueueFamilyIndex });
+		return mDevice.createCommandPoolUnique(vk::CommandPoolCreateInfo{ vk::CommandPoolCreateFlagBits::eResetCommandBuffer, mGraphicsQueueFamilyIndex });
 	}
 
 	vk::UniqueDescriptorPool GraphicsVulkan::CreateDescriptorPoolVK(const std::vector<vk::DescriptorPoolSize>& poolSizeList) const
@@ -498,6 +487,13 @@ namespace Zeron::Gfx
 		}
 		ZE_FAIL("Vulkan memory type couldn't be found!");
 	}
+
+#	if ZE_DEBUG
+	VulkanObjectDebugInterface* GraphicsVulkan::getObjectDebugInterface() const
+	{
+		return mObjectDebugInterface.get();
+	}
+#	endif
 
 	MSAALevel GraphicsVulkan::_getMaxMultiSampleLevel()
 	{

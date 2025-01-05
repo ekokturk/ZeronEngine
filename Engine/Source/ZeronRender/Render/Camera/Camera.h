@@ -15,6 +15,7 @@ namespace Zeron::Render
 		Camera();
 		Camera(const Vec2& viewSize, float clipStart, float clipEnd);
 		Camera(float fovDegrees, const Vec2& viewSize, float clipStart, float clipEnd);
+		Camera(const Camera& camera);
 		virtual ~Camera();
 
 		void Move(const Vec3& posStep);

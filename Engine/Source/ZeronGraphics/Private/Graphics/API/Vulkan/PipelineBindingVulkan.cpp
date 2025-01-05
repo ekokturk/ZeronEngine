@@ -16,28 +16,41 @@ namespace Zeron::Gfx
 	{
 		const vk::Device& device = graphics.GetDeviceVK();
 
-		const auto& resources = pipeline.GetResourceLayout().GetResources();
+		const auto& resources = pipeline.GetResourceLayout();
 		ZE_ASSERT(bindings.size() == resources.size(), "Vulkan pipeline bindings should match resource layout!");
 
-		uint32_t uniformCount = 0, samplerCount = 0, textureCount = 0;
-		_countBindings(bindings, uniformCount, samplerCount, textureCount);
+		uint32_t uniformCount = 0, samplerCount = 0, textureCount = 0, structureCount = 0;
+		_countBindings(bindings, uniformCount, samplerCount, textureCount, structureCount);
 		std::vector<vk::DescriptorBufferInfo> bufferInfoList;
-		bufferInfoList.reserve(uniformCount);
 		std::vector<vk::DescriptorImageInfo> samplerInfoList;
-		samplerInfoList.reserve(samplerCount);
 		std::vector<vk::DescriptorImageInfo> textureInfoList;
-		textureInfoList.reserve(textureCount);
+		std::vector<vk::DescriptorBufferInfo> structureInfoList;
+
+		std::vector<vk::DescriptorPoolSize> poolSizes;
+		if (uniformCount > 0) {
+			bufferInfoList.reserve(uniformCount);
+			poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, uniformCount);
+		}
+		if (samplerCount > 0) {
+			samplerInfoList.reserve(samplerCount);
+			poolSizes.emplace_back(vk::DescriptorType::eSampler, samplerCount);
+		}
+		if (textureCount > 0) {
+			textureInfoList.reserve(textureCount);
+			poolSizes.emplace_back(vk::DescriptorType::eSampledImage, textureCount);
+		}
+		if (structureCount > 0) {
+			structureInfoList.reserve(structureCount);
+			poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, structureCount);
+		}
 
 		// WriteDescriptorSet takes info struct as a reference so we have to store them outside of the loop.
 		std::vector<vk::WriteDescriptorSet> writeSets;
 		writeSets.reserve(bindings.size());
 
 		const auto& descriptorSetLayouts = pipeline.GetDescriptorSetLayouts();
-		mDescriptorPool = graphics.CreateDescriptorPoolVK({
-			{ vk::DescriptorType::eUniformBuffer, uniformCount },
-			{ vk::DescriptorType::eSampler, samplerCount },
-			{ vk::DescriptorType::eSampledImage, textureCount },
-		});
+
+		mDescriptorPool = graphics.CreateDescriptorPoolVK(poolSizes);
 		mDescriptorSets = device.allocateDescriptorSetsUnique(
 			vk::DescriptorSetAllocateInfo(*mDescriptorPool, descriptorSetLayouts.size(), vk::uniqueToRaw(descriptorSetLayouts).data())
 		);
@@ -60,6 +73,19 @@ namespace Zeron::Gfx
 						ZE_FAIL("Vulkan pipeline resource binding was expected to be a uniform buffer!");
 					}
 				} break;
+				case PipelineResourceType::StorageBuffer: {
+					if (auto* handle = std::get_if<StorageBufferBindingHandle>(&binding)) {
+						ZE_ASSERT(handle->mBuffer->GetBufferType() == BufferType::Storage, "Invalid Vulkan structured buffer binding type!");
+						auto* bufferVk = static_cast<BufferVulkan*>(handle->mBuffer);
+						structureInfoList.emplace_back(bufferVk->GetBufferVK(), 0, bufferVk->GetSizeInBytes());
+						writeSets.emplace_back(
+							*mDescriptorSets[resource.mSet], resource.mBinding, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &structureInfoList.back(), nullptr
+						);
+					}
+					else {
+						ZE_FAIL("Vulkan pipeline resource binding was expected to be a uniform buffer!");
+					}
+				} break;
 				case PipelineResourceType::Sampler: {
 					if (auto* handle = std::get_if<SamplerBindingHandle>(&binding)) {
 						auto* samplerVk = static_cast<SamplerVulkan*>(handle->mSampler);
@@ -74,8 +100,8 @@ namespace Zeron::Gfx
 				} break;
 				case PipelineResourceType::Texture: {
 					if (auto* samplerHandle = std::get_if<TextureBindingHandle>(&binding)) {
-						const auto* textureVk = static_cast<TextureVulkan*>(samplerHandle->mTexture);
-						textureInfoList.emplace_back(nullptr, textureVk->GetImageViewVK(), vk::ImageLayout::eShaderReadOnlyOptimal);
+						auto* textureVk = static_cast<TextureVulkan*>(samplerHandle->mTexture);
+						textureInfoList.emplace_back(nullptr, textureVk->GetOrCreateImageViewVK(device), vk::ImageLayout::eShaderReadOnlyOptimal);
 						writeSets.emplace_back(
 							*mDescriptorSets[resource.mSet], resource.mBinding, 0, 1, vk::DescriptorType::eSampledImage, &textureInfoList.back(), nullptr, nullptr
 						);
@@ -84,7 +110,6 @@ namespace Zeron::Gfx
 						ZE_FAIL("Vulkan pipeline resource binding was expected to be a texture!");
 					}
 				} break;
-				case PipelineResourceType::DynamicUniformBuffer:
 				default: ZE_FAIL("Vulkan pipeline binding is not supported!");
 			}
 		}
@@ -102,11 +127,12 @@ namespace Zeron::Gfx
 		return mDescriptorSets;
 	}
 
-	void PipelineBindingVulkan::_countBindings(const std::vector<BindingHandle>& bindings, uint32_t& uniformBuffer, uint32_t& sampler, uint32_t& texture) const
+	void PipelineBindingVulkan::_countBindings(const std::vector<BindingHandle>& bindings, uint32_t& uniformBuffer, uint32_t& sampler, uint32_t& texture, uint32_t& structure)
+		const
 	{
 		for (const auto& binding : bindings) {
 			std::visit(
-				[&uniformBuffer, &sampler, &texture](auto&& arg) {
+				[&uniformBuffer, &sampler, &texture, &structure](auto&& arg) {
 					using T = std::decay_t<decltype(arg)>;
 					if constexpr (std::is_same_v<T, UniformBindingHandle>) {
 						++uniformBuffer;
@@ -116,6 +142,9 @@ namespace Zeron::Gfx
 					}
 					else if constexpr (std::is_same_v<T, TextureBindingHandle>) {
 						++texture;
+					}
+					else if constexpr (std::is_same_v<T, StorageBufferBindingHandle>) {
+						++structure;
 					}
 					else {
 						// static_assert(std::always_false_v<T>, "non-exhaustive visitor!");

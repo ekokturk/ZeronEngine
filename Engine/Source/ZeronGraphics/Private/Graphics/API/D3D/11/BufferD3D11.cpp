@@ -17,10 +17,10 @@ namespace Zeron::Gfx
 	{
 		D3D11_BUFFER_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-		desc.BindFlags = D3D11Helpers::GetBufferType(type);
+		desc.BindFlags = _getBindFlagD3D();
 		desc.Usage = _getUsageFlagD3D();
 		desc.CPUAccessFlags = _getCpuAccessFlagD3D();
-		desc.MiscFlags = 0;
+		desc.MiscFlags = GetBufferType() == BufferType::Storage ? D3D11_RESOURCE_MISC_BUFFER_STRUCTURED : 0;
 		if (GetBufferType() == BufferType::Uniform) {
 			// Constant buffer needs to be 16 byte aligned
 			desc.ByteWidth = GetStride() + (16 - GetStride() % 16);
@@ -28,6 +28,10 @@ namespace Zeron::Gfx
 		}
 		else {
 			desc.ByteWidth = GetSizeInBytes();
+			if (GetBufferType() == BufferType::Storage) {
+				ZE_ASSERT(GetSizeInBytes() % 16 == 0, "BufferD3D11: Expected structured buffer (bytes: {}) to be 16-byte aligned", GetSizeInBytes());
+				desc.StructureByteStride = GetStride();
+			}
 		}
 
 		D3D11_SUBRESOURCE_DATA bufferData;
@@ -35,11 +39,40 @@ namespace Zeron::Gfx
 		bufferData.pSysMem = data;
 
 		ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateBuffer(&desc, data ? &bufferData : nullptr, mBuffer.GetAddressOf()));
+
+		// We create views for structure buffers
+		// TODO: This should be managed by the pipeline binding object instead
+		if (GetBufferType() == BufferType::Storage) {
+			if (GetUsageType() == BufferUsageType::Default) {
+				D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+				uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+				uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+				uavDesc.Buffer.FirstElement = 0;
+				uavDesc.Buffer.NumElements = GetCount();
+				ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateUnorderedAccessView(mBuffer.Get(), &uavDesc, mUnorderedAccessView.GetAddressOf()));
+			}
+			else {
+				D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+				srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+				srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+				srvDesc.Buffer.FirstElement = 0;
+				srvDesc.Buffer.NumElements = GetCount();
+				ZE_D3D_ASSERT_RESULT(graphics.GetDeviceD3D()->CreateShaderResourceView(mBuffer.Get(), &srvDesc, mResourceView.GetAddressOf()));
+			}
+		}
+	}
+
+	void BufferD3D11::SetDebugName(std::string_view label)
+	{
+#	if ZE_DEBUG
+		D3D_SET_OBJECT_NAME_N_A(mBuffer.Get(), label.size(), label.data());
+#	endif
 	}
 
 	void BufferD3D11::MapD3D(ID3D11DeviceContext* device)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		// TODO: Support partial updates with D3D11_MAP_WRITE_NO_OVERWRITE but we have to ensure data is not being used by CPU
 		ZE_D3D_ASSERT_RESULT(device->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 		mMappedMemory = mappedResource.pData;
 	}
@@ -58,9 +91,9 @@ namespace Zeron::Gfx
 			MapD3D(device);
 		}
 		const uint32_t memOffset = GetStride() * offset;
-		auto offsetMemory = static_cast<unsigned char*>(mMappedMemory);
+		std::byte* offsetMemory = static_cast<std::byte*>(mMappedMemory);
 		if (mMappedMemory) {
-			CopyMemory(&offsetMemory[memOffset], data, sizeBytes);
+			std::memcpy(&offsetMemory[memOffset], data, sizeBytes);
 			if (updateRule == BufferUpdateRule::UnmapMemory || updateRule == BufferUpdateRule::KeepMappedMemoryIfAllowed) {
 				UnMapD3D(device);
 			}
@@ -70,6 +103,26 @@ namespace Zeron::Gfx
 	ID3D11Buffer* BufferD3D11::GetBufferD3D() const
 	{
 		return mBuffer.Get();
+	}
+
+	ID3D11ShaderResourceView* BufferD3D11::GetResourceViewD3D() const
+	{
+		return mResourceView.Get();
+	}
+
+	ID3D11UnorderedAccessView* BufferD3D11::GetUnorderedAccessViewD3D() const
+	{
+		return mUnorderedAccessView.Get();
+	}
+
+	UINT BufferD3D11::_getBindFlagD3D() const
+	{
+		UINT flag = D3D11Helpers::GetBufferType(GetBufferType());
+		// If we didn't define storage buffer explicitly, it is used as unordered access
+		if (GetBufferType() == BufferType::Storage && GetUsageType() == BufferUsageType::Default) {
+			flag |= D3D11_BIND_FLAG::D3D11_BIND_UNORDERED_ACCESS;
+		}
+		return flag;
 	}
 
 	D3D11_USAGE BufferD3D11::_getUsageFlagD3D() const

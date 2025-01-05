@@ -19,6 +19,8 @@ namespace Zeron::Gfx
 		static vk::ShaderStageFlagBits GetShaderStage(ShaderType shaderType);
 		static vk::DescriptorType GetDescriptorType(PipelineResourceType resourceType);
 		static vk::SamplerAddressMode GetSamplerAddressMode(SamplerAddressMode addressMode);
+		static vk::Format GetTextureFormat(TextureFormat textureFormat);
+		static vk::ImageLayout GetTextureLayout(TextureLayout textureLayout);
 	};
 }
 #endif

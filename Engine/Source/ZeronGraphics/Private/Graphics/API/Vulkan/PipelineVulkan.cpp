@@ -4,26 +4,24 @@
 
 #	include <Graphics/API/Vulkan/PipelineVulkan.h>
 
+#	include <Graphics/PipelineConfig.h>
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
 #	include <Graphics/API/Vulkan/RenderPassVulkan.h>
+#	include <Graphics/API/Vulkan/ShaderProgramVulkan.h>
 #	include <Graphics/API/Vulkan/ShaderVulkan.h>
 #	include <Graphics/API/Vulkan/VulkanHelpers.h>
+#	include <Graphics/PushConstant.h>
 
 namespace Zeron::Gfx
 {
-	PipelineVulkan::PipelineVulkan(
-		GraphicsVulkan& graphics, ShaderProgramVulkan* shader, RenderPassVulkan* renderPass, MSAALevel samplingLevel, PrimitiveTopology topology, bool isSolidFill,
-		FaceCullMode cullMode
-	)
-		: mShader(shader)
-		, mMultiSamplingLevel(samplingLevel)
-		, mPrimitiveTopology(topology)
-		, mIsSolidFill(isSolidFill)
-		, mCullMode(cullMode)
+	PipelineVulkan::PipelineVulkan(GraphicsVulkan& graphics, ShaderProgramVulkan* shader, RenderPassVulkan* renderPass, PipelineConfig&& pipelineConfig)
+		: Pipeline(std::move(pipelineConfig))
+		, mShader(shader)
 	{
 		ZE_ASSERT(mShader, "Vulkan pipeline requires a shader program!");
 
 		const vk::Device& device = graphics.GetDeviceVK();
+		const PipelineConfig& config = *GetConfig();
 
 		const std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = mShader->GetPipelineStageInfoVK();
 		const vk::PipelineVertexInputStateCreateInfo vertexInput = mShader->GetVertexInputDescriptionVK();
@@ -31,19 +29,24 @@ namespace Zeron::Gfx
 		_createPipelineLayout(device);
 
 		const vk::PipelineInputAssemblyStateCreateInfo inputAssemblyState(
-			vk::PipelineInputAssemblyStateCreateFlags(), VulkanHelpers::GetPrimitiveTopology(mPrimitiveTopology), 0
+			vk::PipelineInputAssemblyStateCreateFlags(), VulkanHelpers::GetPrimitiveTopology(config.mTopology), 0
 		);
 
-		const std::array<vk::DynamicState, 2> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
-		const vk::PipelineDynamicStateCreateInfo pipelineDynamicState(vk::PipelineDynamicStateCreateFlags(), dynamicStates);
+		std::vector<vk::DynamicState> dynamicStates = {
+			vk::DynamicState::eViewport,
+			vk::DynamicState::eScissor,
+		};
+
+		// Create the dynamic state create info structure
+		vk::PipelineDynamicStateCreateInfo pipelineDynamicState({}, static_cast<uint32_t>(dynamicStates.size()), dynamicStates.data());
 		const vk::PipelineViewportStateCreateInfo pipelineViewportState(vk::PipelineViewportStateCreateFlags(), 1, nullptr, 1, nullptr);
 
 		const vk::PipelineRasterizationStateCreateInfo rasterizationState(
 			vk::PipelineRasterizationStateCreateFlags(),
 			VK_FALSE,
 			VK_FALSE,
-			mIsSolidFill ? vk::PolygonMode::eFill : vk::PolygonMode::eLine,
-			VulkanHelpers::GetCullMode(mCullMode),
+			config.mSolidFill ? vk::PolygonMode::eFill : vk::PolygonMode::eLine,
+			VulkanHelpers::GetCullMode(config.mCullMode),
 			vk::FrontFace::eClockwise,
 			VK_FALSE,
 			0.0f,
@@ -54,9 +57,9 @@ namespace Zeron::Gfx
 
 		const vk::PipelineMultisampleStateCreateInfo multiSampleState(
 			vk::PipelineMultisampleStateCreateFlags(),
-			VulkanHelpers::GetMultiSamplingLevel(mMultiSamplingLevel),
-			mMultiSamplingLevel != MSAALevel::Disabled ? VK_TRUE : VK_FALSE,
-			mMultiSamplingLevel != MSAALevel::Disabled ? 0.2f : 0.0f,
+			VulkanHelpers::GetMultiSamplingLevel(config.mSamplingLevel),
+			config.mSamplingLevel != MSAALevel::Disabled ? VK_TRUE : VK_FALSE,
+			config.mSamplingLevel != MSAALevel::Disabled ? 0.2f : 0.0f,
 			nullptr,
 			VK_FALSE,
 			VK_FALSE
@@ -64,8 +67,8 @@ namespace Zeron::Gfx
 
 		const vk::PipelineDepthStencilStateCreateInfo depthStencilState(
 			vk::PipelineDepthStencilStateCreateFlags(),
-			VK_TRUE,
-			VK_TRUE,
+			config.mDepthMode == DepthMode::Disabled ? VK_FALSE : VK_TRUE,
+			config.mDepthMode == DepthMode::Default ? VK_TRUE : VK_FALSE,
 			vk::CompareOp::eLessOrEqual,
 			VK_FALSE,
 			VK_FALSE,
@@ -109,17 +112,14 @@ namespace Zeron::Gfx
 			*mPipelineLayout,
 			renderPass->GetRenderPassVK()
 		);
-		vk::ResultValue result = graphics.GetDeviceVK().createGraphicsPipelineUnique(nullptr, pipelineInfo);
-		ZE_ASSERT(result.result == vk::Result::eSuccess, "Vulkan graphics pipeline creation failed!");
-		mPipeline = std::move(result.value);
+		auto result = graphics.GetDeviceVK().createGraphicsPipelineUnique(nullptr, pipelineInfo);
+		ZE_ASSERT(result, "PipelineVulkan: Graphics pipeline creation failed!");
+		mPipeline = std::move(result);
 	}
 
 	PipelineVulkan::PipelineVulkan(GraphicsVulkan& graphics, ShaderProgramVulkan* shader)
-		: mShader(shader)
-		, mMultiSamplingLevel(MSAALevel::Disabled)
-		, mPrimitiveTopology(PrimitiveTopology::Invalid)
-		, mIsSolidFill(false)
-		, mCullMode(FaceCullMode::None)
+		: Pipeline()
+		, mShader(shader)
 	{
 		const vk::Device& device = graphics.GetDeviceVK();
 		const std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = mShader->GetPipelineStageInfoVK();
@@ -128,17 +128,22 @@ namespace Zeron::Gfx
 
 		const vk::ComputePipelineCreateInfo pipelineInfo(vk::PipelineCreateFlags(), shaderStages.front(), *mPipelineLayout);
 
-		vk::ResultValue result = graphics.GetDeviceVK().createComputePipelineUnique(nullptr, pipelineInfo);
-		ZE_ASSERT(result.result == vk::Result::eSuccess, "Vulkan compute pipeline creation failed!");
-		mPipeline = std::move(result.value);
+		auto result = graphics.GetDeviceVK().createComputePipelineUnique(nullptr, pipelineInfo);
+		ZE_ASSERT(result, "PipelineVulkan: Compute pipeline creation failed!");
+		mPipeline = std::move(result);
 	}
 
 	PipelineVulkan::~PipelineVulkan() {}
 
-	const ResourceLayout& PipelineVulkan::GetResourceLayout() const
+	const std::vector<ResourceLayout::Element>& PipelineVulkan::GetResourceLayout() const
 	{
 		ZE_ASSERT(mShader, "Vulkan pipeline needs to have a shader program!");
 		return mShader->GetResourceLayout();
+	}
+
+	const PushConstant::Element* PipelineVulkan::GetPushConstant(ShaderType shaderType) const
+	{
+		return mShader->GetPushConstant(shaderType);
 	}
 
 	vk::Pipeline& PipelineVulkan::GetPipelineVK()
@@ -160,24 +165,35 @@ namespace Zeron::Gfx
 	{
 		// Create binding list for each set
 		std::vector<std::vector<vk::DescriptorSetLayoutBinding>> setLayouts;
-		for (const auto& resource : mShader->GetResourceLayout().GetResources()) {
+		for (const auto& resource : mShader->GetResourceLayout()) {
 			ZE_ASSERT(resource.mSet < 4, "More than 4 Descriptor sets is not supported!");
 			if (setLayouts.size() < resource.mSet + 1) {
 				setLayouts.emplace_back(std::vector<vk::DescriptorSetLayoutBinding>{});
 			}
 			auto& bindings = setLayouts[resource.mSet];
-			bindings.emplace_back(
-				vk::DescriptorSetLayoutBinding(resource.mBinding, VulkanHelpers::GetDescriptorType(resource.mType), 1, VulkanHelpers::GetShaderStage(resource.mShaderStage))
-			);
+			bindings.emplace_back(resource.mBinding, VulkanHelpers::GetDescriptorType(resource.mType), 1, VulkanHelpers::GetShaderStage(resource.mShaderStage));
 		}
 
 		for (const auto& setLayout : setLayouts) {
-			mDescriptorSetLayouts.emplace_back(device.createDescriptorSetLayoutUnique(vk::DescriptorSetLayoutCreateInfo(vk::DescriptorSetLayoutCreateFlags(), setLayout)));
+			mDescriptorSetLayouts.emplace_back(
+				device.createDescriptorSetLayoutUnique(vk::DescriptorSetLayoutCreateInfo(vk::DescriptorSetLayoutCreateFlags(), setLayout.size(), setLayout.data()))
+			);
+		}
+
+		uint32_t pushConstantOffset = 0;
+		std::vector<vk::PushConstantRange> pushConstantRanges;
+		for (const auto& pushConstant : mShader->GetPushConstants()) {
+			pushConstantRanges.emplace_back(VulkanHelpers::GetShaderStage(pushConstant.mShaderStage), pushConstantOffset, pushConstant.mStride);
+			pushConstantOffset += pushConstant.mStride;
 		}
 
 		const auto rawLayouts = vk::uniqueToRaw(mDescriptorSetLayouts);
 		const vk::PipelineLayoutCreateInfo pipelineLayoutInfo(
-			vk::PipelineLayoutCreateFlags(), static_cast<uint32_t>(mDescriptorSetLayouts.size()), rawLayouts.data(), 0, nullptr
+			vk::PipelineLayoutCreateFlags(),
+			static_cast<uint32_t>(mDescriptorSetLayouts.size()),
+			rawLayouts.data(),
+			static_cast<uint32_t>(pushConstantRanges.size()),
+			pushConstantRanges.empty() ? nullptr : pushConstantRanges.data()
 		);
 		mPipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutInfo);
 	}

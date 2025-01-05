@@ -2,10 +2,14 @@
 
 #include <Graphics/SwapChain.h>
 
+#include <Graphics/GraphicsTypes.h>
+
 namespace Zeron::Gfx
 {
 	SwapChain::SwapChain(const Vec2i& size, uint32_t bufferCount)
-		: mSize(size)
+		: mColorFormat(TextureFormat::BGRA_8U)
+		, mDepthFormat(TextureFormat::DepthStencil_32U)
+		, mSize(size)
 		, mBufferCount(bufferCount)
 	{}
 

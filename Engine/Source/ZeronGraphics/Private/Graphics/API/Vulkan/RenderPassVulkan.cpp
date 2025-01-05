@@ -5,26 +5,29 @@
 #	include <Graphics/API/Vulkan/RenderPassVulkan.h>
 
 #	include <Graphics/API/Vulkan/GraphicsVulkan.h>
+#	include <Graphics/API/Vulkan/VulkanHelpers.h>
 
 namespace Zeron::Gfx
 {
-	RenderPassVulkan::RenderPassVulkan(GraphicsVulkan& graphics, vk::Format colorFormat, vk::Format depthFormat, vk::SampleCountFlagBits sampling)
+	RenderPassVulkan::RenderPassVulkan(
+		GraphicsVulkan& graphics, std::vector<RenderPassAttachment> colorAttachments, std::optional<RenderPassAttachment> depthAttachment, MSAALevel sampling
+	)
+		: RenderPass(std::move(colorAttachments), depthAttachment, sampling)
 	{
 		std::vector<vk::AttachmentDescription> attachmentDescriptions;
-		const bool hasMSAA = sampling != vk::SampleCountFlagBits::e1;
-		const bool hasColorAttachment = colorFormat != vk::Format::eUndefined;
-		const bool hasDepthAttachment = depthFormat != vk::Format::eUndefined;
+		const bool hasMSAA = sampling != MSAALevel::Disabled;
+		const bool hasDepthAttachment = mDepthAttachment.has_value() && mDepthAttachment->mFormat != TextureFormat::Undefined;
 
-		vk::AttachmentReference colorReference(0, vk::ImageLayout::eColorAttachmentOptimal);
-		vk::AttachmentReference resolveReference(0, vk::ImageLayout::eColorAttachmentOptimal);
 		vk::AttachmentReference depthReference(0, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+		std::vector<vk::AttachmentReference> colorReferences(mColorAttachments.size(), { 0, vk::ImageLayout::eColorAttachmentOptimal });
+		std::vector<vk::AttachmentReference> resolveReferences;
 
 		// Depth
 		if (hasDepthAttachment) {
 			attachmentDescriptions.emplace_back(
 				vk::AttachmentDescriptionFlags(),
-				depthFormat,
-				hasMSAA ? sampling : vk::SampleCountFlagBits::e1,
+				VulkanHelpers::GetTextureFormat(mDepthAttachment->mFormat),
+				VulkanHelpers::GetMultiSamplingLevel(mSampling),
 				vk::AttachmentLoadOp::eClear,
 				vk::AttachmentStoreOp::eDontCare,
 				vk::AttachmentLoadOp::eDontCare,
@@ -35,49 +38,49 @@ namespace Zeron::Gfx
 			depthReference.attachment = static_cast<uint32_t>(attachmentDescriptions.size() - 1);
 		}
 
-		if (hasColorAttachment) {
-			// Sampling
-			if (hasMSAA) {
-				attachmentDescriptions.emplace_back(
-					vk::AttachmentDescriptionFlags(),
-					colorFormat,
-					sampling,
-					vk::AttachmentLoadOp::eClear,
-					vk::AttachmentStoreOp::eDontCare,
-					vk::AttachmentLoadOp::eDontCare,
-					vk::AttachmentStoreOp::eDontCare,
-					vk::ImageLayout::eUndefined,
-					hasMSAA ? vk::ImageLayout::eColorAttachmentOptimal : vk::ImageLayout::ePresentSrcKHR
-				);
-				colorReference.attachment = static_cast<uint32_t>(attachmentDescriptions.size() - 1);
-				resolveReference.attachment = static_cast<uint32_t>(attachmentDescriptions.size());
-			}
-			else {
-				colorReference.attachment = static_cast<uint32_t>(attachmentDescriptions.size());
-			}
+		for (size_t i = 0; i < mColorAttachments.size(); ++i) {
+			const RenderPassAttachment& colorAttachment = mColorAttachments[i];
 
-			// Color
-			attachmentDescriptions.emplace_back(vk::AttachmentDescription(
+			vk::ImageLayout finalLayout = colorAttachment.mOutLayout == TextureLayout::Present && !hasMSAA ? vk::ImageLayout::ePresentSrcKHR :
+																											 vk::ImageLayout::eColorAttachmentOptimal;
+			attachmentDescriptions.emplace_back(
 				vk::AttachmentDescriptionFlags(),
-				colorFormat,
-				vk::SampleCountFlagBits::e1,
-				hasMSAA ? vk::AttachmentLoadOp::eDontCare : vk::AttachmentLoadOp::eClear,
-				vk::AttachmentStoreOp::eStore,
+				VulkanHelpers::GetTextureFormat(colorAttachment.mFormat),
+				VulkanHelpers::GetMultiSamplingLevel(mSampling),
+				vk::AttachmentLoadOp::eClear,
+				hasMSAA ? vk::AttachmentStoreOp::eDontCare : vk::AttachmentStoreOp::eStore,
 				vk::AttachmentLoadOp::eDontCare,
 				vk::AttachmentStoreOp::eDontCare,
 				vk::ImageLayout::eUndefined,
-				vk::ImageLayout::ePresentSrcKHR
-			));
+				finalLayout
+			);
+			colorReferences[i].attachment = static_cast<uint32_t>(attachmentDescriptions.size() - 1);
+
+			if (hasMSAA) {
+				attachmentDescriptions.emplace_back(
+					vk::AttachmentDescriptionFlags(),
+					VulkanHelpers::GetTextureFormat(colorAttachment.mFormat),
+					vk::SampleCountFlagBits::e1,
+					hasMSAA ? vk::AttachmentLoadOp::eDontCare : vk::AttachmentLoadOp::eClear,
+					vk::AttachmentStoreOp::eStore,
+					vk::AttachmentLoadOp::eDontCare,
+					vk::AttachmentStoreOp::eDontCare,
+					vk::ImageLayout::eUndefined,
+					colorAttachment.mOutLayout == TextureLayout::Present ? vk::ImageLayout::ePresentSrcKHR : vk::ImageLayout::eUndefined
+				);
+				resolveReferences.emplace_back(static_cast<uint32_t>(attachmentDescriptions.size() - 1), vk::ImageLayout::eColorAttachmentOptimal);
+			}
 		}
 
-		const vk::SubpassDescription subpass(
+		std::vector<vk::SubpassDescription> subPassDescriptions;
+		subPassDescriptions.emplace_back(
 			vk::SubpassDescriptionFlags(),
 			vk::PipelineBindPoint::eGraphics,
 			0,
 			nullptr,
-			hasColorAttachment ? 1 : 0,
-			hasColorAttachment ? &colorReference : nullptr,
-			hasMSAA ? &resolveReference : nullptr,
+			static_cast<uint32_t>(colorReferences.size()),
+			!colorReferences.empty() ? colorReferences.data() : nullptr,
+			!resolveReferences.empty() ? resolveReferences.data() : nullptr,
 			hasDepthAttachment ? &depthReference : nullptr,
 			0,
 			nullptr
@@ -93,7 +96,13 @@ namespace Zeron::Gfx
 		//	vk::DependencyFlags()
 		// };
 
-		const vk::RenderPassCreateInfo createInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass);
+		const vk::RenderPassCreateInfo createInfo(
+			vk::RenderPassCreateFlags(),
+			static_cast<uint32_t>(attachmentDescriptions.size()),
+			attachmentDescriptions.data(),
+			static_cast<uint32_t>(subPassDescriptions.size()),
+			subPassDescriptions.data()
+		);
 
 		mRenderPass = graphics.GetDeviceVK().createRenderPassUnique(createInfo);
 	}

@@ -46,7 +46,10 @@ namespace Zeron::Gfx
 		cmd.BeginRenderPass(mSwapChain->GetFrameBuffer());
 	}
 
-	void GraphicsContextD3D11::EndSwapChainRenderPass(CommandBuffer& cmd) const {}
+	void GraphicsContextD3D11::EndSwapChainRenderPass(CommandBuffer& cmd) const
+	{
+		cmd.EndRenderPass();
+	}
 
 	void GraphicsContextD3D11::Present()
 	{
@@ -55,11 +58,7 @@ namespace Zeron::Gfx
 
 	void GraphicsContextD3D11::ResizeSwapChain(const Vec2i& size)
 	{
-		if (auto* frameBuffer = static_cast<FrameBufferD3D11*>(mSwapChain->GetFrameBuffer())) {
-			frameBuffer->ReleaseBuffers();
-			mSwapChain->Resize(size);
-			ZE_D3D_ASSERT(frameBuffer->CreateBuffers(mDevice, *mSwapChain, mGraphics.GetMultiSamplingLevel()));
-		}
+		mSwapChain->Resize(size);
 	}
 
 	SwapChain* GraphicsContextD3D11::GetSwapChain() const

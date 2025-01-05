@@ -29,12 +29,20 @@ namespace Zeron::Gfx
 		FrontAndBack
 	};
 
+	enum class DepthMode
+	{
+		Default,
+		Disabled,
+		NoWrite,
+	};
+
 	enum class PipelineResourceType
 	{
-		UniformBuffer,
-		DynamicUniformBuffer,
 		Sampler,
-		Texture
+		Texture,
+		UniformBuffer,
+		StorageBuffer,
+		StorageTexture,
 	};
 
 	enum class BufferType
@@ -43,13 +51,20 @@ namespace Zeron::Gfx
 		Vertex,
 		Index,
 		Uniform,
+		Storage,
 	};
 
 	enum class BufferUsageType
 	{
+		// GPU Only Access
 		Default,
-		Staging,  // Only CPU Access
-		Dynamic,  // Shared Access
+
+		// CPU Only Access
+		Staging,
+
+		// Shared Access
+		Dynamic,
+
 		Immutable,
 	};
 
@@ -67,20 +82,42 @@ namespace Zeron::Gfx
 		Compute,
 	};
 
+	enum class TextureFormat
+	{
+		Undefined,
+		RGB_8U,
+		RGBA_8U,
+		BGRA_8U,
+		Depth_16U,
+		Depth_32F,
+		DepthStencil_32U
+	};
+
 	enum class TextureType
 	{
 		Undefined,
-		Invalid,
-		Diffuse,
-		Normal,
+		Sampling,
+		RenderTarget,
+		Depth,
+	};
+
+	enum class TextureLayout
+	{
+		Undefined,
+		ColorAttachment,
+		DepthStencilAttachment,
+		ShaderReadOnly,
+		TransferSrc,
+		TransferDst,
+		Present,
 	};
 
 	enum class MSAALevel
 	{
-		Disabled,
-		x2,
-		x4,
-		x8
+		Disabled = 1,
+		x2 = 2,
+		x4 = 4,
+		x8 = 8
 	};
 
 	enum class SamplerAddressMode

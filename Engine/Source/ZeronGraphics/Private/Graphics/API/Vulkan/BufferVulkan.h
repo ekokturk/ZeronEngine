@@ -17,6 +17,8 @@ namespace Zeron::Gfx
 	  public:
 		BufferVulkan(GraphicsVulkan& graphics, BufferType type, uint32_t count, uint32_t stride, const void* data, BufferUsageType usage);
 
+		void SetDebugName(std::string_view label) override;
+
 		// Vulkan API
 		void MapVK(const vk::Device& device);
 		void UnMapVK(const vk::Device& device);
@@ -30,6 +32,10 @@ namespace Zeron::Gfx
 		vk::UniqueBuffer mBuffer;
 		vk::UniqueDeviceMemory mBufferMemory;
 		void* mMappedMemory;
+
+#	if ZE_DEBUG
+		class VulkanObjectDebugInterface* mDebugInterface = nullptr;
+#	endif
 	};
 }
 #endif

@@ -8,6 +8,7 @@ namespace Zeron::Gfx
 		Vec3 mPosition;
 		Vec2 mTextureCoord;
 		Vec3 mNormal;
+		Vec4 mTangent;
 	};
 
 	struct VertexInstance {

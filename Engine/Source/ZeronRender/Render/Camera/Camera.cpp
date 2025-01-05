@@ -7,7 +7,7 @@ namespace Zeron::Render
 	Camera::Camera()
 		: mFOV(90.f)
 		, mViewSize{ 4.f, 3.f }
-		, mClip{ 0.01f, 10000.f }
+		, mClip{ 0.01f, 1000.f }
 		, mProjectionType(ProjectionType::Perspective)
 	{
 		_updateView();
@@ -32,6 +32,8 @@ namespace Zeron::Render
 		_updateView();
 		SetClipPositions(clipStart, clipEnd);  // Updates projection
 	}
+
+	Camera::Camera(const Camera& camera) = default;
 
 	Camera::~Camera() {}
 
@@ -162,7 +164,13 @@ namespace Zeron::Render
 	void Camera::_updateProjection()
 	{
 		if (mProjectionType == ProjectionType::Orthographic) {
-			mProjectionMatrix = Math::Orthographic(-mViewSize.X / 2, mViewSize.X / 2, -mViewSize.Y / 2, mViewSize.Y / 2, mClip.X, mClip.Y);
+			const float aspectRatio = mViewSize.X / mViewSize.Y;
+			const float fovYRad = mFOV * (Math::PI<float>() / 180.f);
+			const float zoomFactor = std::tan(fovYRad / 2) * mClip.X * aspectRatio;
+
+			mProjectionMatrix = Math::Orthographic(
+				-mViewSize.X * zoomFactor / 2, mViewSize.X * zoomFactor / 2, -mViewSize.Y * zoomFactor / 2, mViewSize.Y * zoomFactor / 2, mClip.X, mClip.Y
+			);
 		}
 		else {
 			mProjectionMatrix = Math::Perspective(Math::ToRadians(mFOV), mViewSize.X / mViewSize.Y, mClip.X, mClip.Y);
