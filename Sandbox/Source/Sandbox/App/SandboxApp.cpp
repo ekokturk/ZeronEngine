@@ -8,6 +8,7 @@
 #include <Platform/WindowConfig.h>
 #include <Sandbox/App/ISandboxInstance.h>
 #include <Sandbox/Samples/WindowInstance.h>
+
 #include <Script/ScriptEngine.h>
 
 Sandbox::Application::Application(Zeron::Platform& platform)

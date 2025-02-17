@@ -25,3 +25,6 @@
 [submodule "Engine/ThirdParty/cereal/.submodule"]
 	path = Engine/ThirdParty/cereal/.submodule
 	url = https://github.com/USCiLab/cereal.git
+[submodule "Engine/ThirdParty/PhysX/.submodule"]
+	path = Engine/ThirdParty/PhysX/.submodule
+	url = https://github.com/o3de/PhysX.git

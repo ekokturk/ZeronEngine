@@ -38,6 +38,7 @@ namespace Zeron::Render
 		const Vec2& GetClipPositions() const;
 		const Mat4& GetViewMatrix() const;
 		const Mat4& GetProjectionMatrix() const;
+		Mat4 GetViewProjectionMatrix() const;
 		ProjectionType GetProjectionType() const;
 
 

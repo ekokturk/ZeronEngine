@@ -14,7 +14,9 @@ namespace Zeron::Render
 		data.ForEachAttribute([&](MeshAttribute attr, const ByteBuffer& buff, size_t count, size_t stride) {
 			mVertexBuffers[attr] = graphics.CreateBuffer(Gfx::BufferType::Vertex, count, stride, buff.data());
 		});
-		mIndexBuffer = graphics.CreateIndexBuffer(data.GetIndices());
+		if (!data.GetIndices().empty()) {
+			mIndexBuffer = graphics.CreateIndexBuffer(data.GetIndices());
+		}
 	}
 
 	Mesh::~Mesh() {}
@@ -41,6 +43,8 @@ namespace Zeron::Render
 		}
 
 		cmd.SetVertexBuffers(buffers.data(), buffers.size());
-		cmd.SetIndexBuffer(*mIndexBuffer);
+		if (mIndexBuffer) {
+			cmd.SetIndexBuffer(*mIndexBuffer);
+		}
 	}
 }

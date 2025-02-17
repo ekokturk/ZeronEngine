@@ -18,6 +18,7 @@ set(ZERON_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronCore")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronPlatform")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronGraphics")
+add_subdirectory("${ZERON_SOURCE_DIR}/ZeronPhysics")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronRender")
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronScript")
 

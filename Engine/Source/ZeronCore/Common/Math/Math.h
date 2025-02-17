@@ -4,6 +4,7 @@
 
 #include <Common/Math/Mat3.h>
 #include <Common/Math/Mat4.h>
+#include <Common/Math/Quat.h>
 #include <Common/Math/Vec2.h>
 #include <Common/Math/Vec3.h>
 #include <Common/Math/Vec4.h>
@@ -33,21 +34,37 @@ namespace Zeron
 
 		// ----------------- GLM Wrappers -----------------
 		template <typename T>
-		static T PI()
+		static constexpr T PI()
 		{
 			return glm::pi<T>();
 		}
 
 		template <typename T>
+			requires std::is_arithmetic_v<T>
 		static T ToRadians(T degrees)
 		{
 			return glm::radians(degrees);
 		}
 
 		template <typename T>
+			requires std::is_arithmetic_v<T>
+		static TVec3<T> ToRadians(const TVec3<T>& degrees)
+		{
+			return TVec3<T>(ToRadians(degrees.X), ToRadians(degrees.Y), ToRadians(degrees.Z));
+		}
+
+		template <typename T>
+			requires std::is_arithmetic_v<T>
 		static T ToDegrees(T radians)
 		{
 			return glm::degrees(radians);
+		}
+
+		template <typename T>
+			requires std::is_arithmetic_v<T>
+		static TVec3<T> ToDegrees(const TVec3<T>& radians)
+		{
+			return TVec3<T>(ToDegrees(radians.X), ToDegrees(radians.Y), ToDegrees(radians.Z));
 		}
 
 		template <typename T>
@@ -66,6 +83,15 @@ namespace Zeron
 		static TMat4<T> Translate(const TMat4<T>& m, const TVec3<T>& v)
 		{
 			return glm::translate(m, reinterpret_cast<const glm::tvec3<T>&>(v));
+		}
+
+		template <typename T>
+		static TMat4<T>& TranslatePos(TMat4<T>& m, const TVec3<T>& v)
+		{
+			m[3].x += v.X;
+			m[3].y += v.Y;
+			m[3].z += v.Z;
+			return m;
 		}
 
 		template <typename T>
@@ -105,9 +131,23 @@ namespace Zeron
 		}
 
 		template <typename T>
-		static TMat4<T> RotationMatrixFromEuler(T pitch, T yaw, T roll)
+		static TMat4<T> RotationFromEuler(T pitch, T yaw, T roll)
 		{
-			return glm::eulerAngleYXZ(yaw, pitch, roll);
+			return glm::mat4_cast(TQuat<T>(glm::tvec3<T>(pitch, yaw, roll)));
+		}
+
+		template <typename T>
+		static TMat4<T> MakeTransform(const TVec3<T>& pos, const TVec3<T>& eulerRot)
+		{
+			return MakeTransform(pos, TQuat<T>(glm::tvec3<T>(eulerRot.X, eulerRot.Y, eulerRot.Z)));
+		}
+
+		template <typename T>
+		static TMat4<T> MakeTransform(const TVec3<T>& pos, const TQuat<T>& rot)
+		{
+			Mat4 mat = glm::mat4_cast(rot);
+			Math::TranslatePos(mat, pos);
+			return mat;
 		}
 
 		template <typename T>
@@ -122,6 +162,26 @@ namespace Zeron
 		{
 			const glm::tvec4<T> temp = m * glm::tvec4<T>(v.X, v.Y, v.Z, v.W);
 			return { temp.x, temp.y, temp.z, temp.w };
+		}
+
+		template <typename T>
+		static TVec3<T> GetPos(const TMat4<T>& m)
+		{
+			return { m[3].x, m[3].y, m[3].z };
+		}
+
+		template <typename T>
+		static TQuat<T> GetQuat(const TMat4<T>& m)
+		{
+			return TQuat<T>(m);
+		}
+
+		template <typename T>
+		static TVec3<T> GetEulerAngles(const TMat4<T>& m)
+		{
+			const auto q = GetQuat(m);
+			const glm::tvec3<T> euler = glm::eulerAngles(q);
+			return TVec3<T>(euler.x, euler.y, euler.z);
 		}
 	};
 

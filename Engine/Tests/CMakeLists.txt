@@ -20,6 +20,7 @@ if(TARGET gtest)
     add_subdirectory(TestModule_ZeronCore)
     add_subdirectory(TestModule_ZeronPlatform)
     add_subdirectory(TestModule_ZeronScript)
+    add_subdirectory(TestModule_ZeronPhysics)
     
 else()
     message(FATAL_ERROR "${ZERON_ERROR_MSG} Google Test library was not found!")

@@ -156,6 +156,11 @@ namespace Zeron::Render
 		return mProjectionMatrix;
 	}
 
+	Mat4 Camera::GetViewProjectionMatrix() const
+	{
+		return mProjectionMatrix * mViewMatrix;
+	}
+
 	Camera::ProjectionType Camera::GetProjectionType() const
 	{
 		return mProjectionType;
@@ -179,12 +184,12 @@ namespace Zeron::Render
 
 	void Camera::_updateView()
 	{
-		const Mat4 rotMatrix = Math::RotationMatrixFromEuler(mRot.X, mRot.Y, mRot.Z);
+		const Mat4 rotMatrix = Math::RotationFromEuler(mRot.X, mRot.Y, mRot.Z);
 		mUpDir = Math::Transform(Math::UP_DIR<float>, rotMatrix);
 		const Vec3 target = Math::Transform(Math::FORWARD_DIR<float>, rotMatrix) + mPos;
 		mViewMatrix = Math::LookAt(mPos, target, mUpDir);
 
-		const Mat4 yawRotMatrix = Math::RotationMatrixFromEuler(0.f, mRot.Y, 0.f);
+		const Mat4 yawRotMatrix = Math::RotationFromEuler(0.f, mRot.Y, 0.f);
 		mForwardDir = Math::Transform(Math::FORWARD_DIR<float>, yawRotMatrix);
 		mRightDir = Math::Transform(Math::RIGHT_DIR<float>, yawRotMatrix);
 	}

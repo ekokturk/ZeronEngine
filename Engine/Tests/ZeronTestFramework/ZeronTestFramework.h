@@ -36,3 +36,15 @@ namespace ZeronTestFramework
 		runner.Destroy();                        \
 		return runner.GetErrorCode();            \
 	}
+
+
+#define EXPECT_VEC3_NEAR(expected, actual, epsilon) \
+	EXPECT_NEAR(expected.X, actual.X, epsilon);     \
+	EXPECT_NEAR(expected.Y, actual.Y, epsilon);     \
+	EXPECT_NEAR(expected.Z, actual.Z, epsilon);
+
+#define EXPECT_QUAT_NEAR(expected, actual, epsilon) \
+	EXPECT_NEAR(expected.x, actual.x, epsilon);     \
+	EXPECT_NEAR(expected.y, actual.y, epsilon);     \
+	EXPECT_NEAR(expected.z, actual.z, epsilon);     \
+	EXPECT_NEAR(expected.w, actual.w, epsilon);

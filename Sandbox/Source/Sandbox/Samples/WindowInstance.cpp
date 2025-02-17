@@ -18,6 +18,7 @@
 #include <Sandbox/Samples/Graphics/InstancedRenderingSample.h>
 #include <Sandbox/Samples/Graphics/SkyboxRenderingSample.h>
 #include <Sandbox/Samples/Graphics/TextRenderingSample.h>
+#include <Sandbox/Samples/Graphics/WireframePhysicsSample.h>
 
 using namespace Zeron;
 
@@ -31,6 +32,7 @@ namespace Sandbox
 		std::unique_ptr<Gfx::Pipeline> mComputePipeline;
 		std::unique_ptr<Gfx::PipelineBinding> mComputePipelineBinding;
 		std::unique_ptr<Gfx::Buffer> mComputeStorageBuffer;
+
 
 		TestSampleContext(WindowInstance& instance)
 			: mInstance(instance)
@@ -86,6 +88,10 @@ namespace Sandbox
 		mSampleFactory.emplace(InstancedRenderingSample::NAME, [&]() {
 			return std::make_unique<InstancedRenderingSample>(*this);
 		});
+		mSampleFactory.emplace(WireframePhysicsSample::NAME, [&]() {
+			return std::make_unique<WireframePhysicsSample>(*this);
+		});
+
 
 		for (auto& [name, fn] : mSampleFactory) {
 			_toggleSample(name, true);

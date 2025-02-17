@@ -1,0 +1,46 @@
+//  Copyright (C) Eser Kokturk. All Rights Reserved.
+
+//@begin_stage Vertex
+
+//@push_constant
+cbuffer PushConstant {
+	float4x4 _viewProjection;
+	float4 _color;
+};
+
+struct VSInput
+{
+	//@input 0
+	//@slot 0
+	float3 Pos : POSITION;
+};
+
+struct VSOutput
+{
+	float4 Pos : SV_POSITION;
+	float4 Color: COLOR;
+};
+
+VSOutput main(VSInput input)
+{
+	VSOutput output;
+	output.Pos = mul(float4(input.Pos, 1.f), _viewProjection);
+	output.Color = _color;
+	return output;
+}
+//@end_stage
+
+//@begin_stage Fragment
+
+struct FSInput
+{
+	float4 Position : SV_POSITION;
+	float4 Color: COLOR;
+};
+
+float4 main(FSInput input) : SV_TARGET
+{
+	return input.Color;
+}
+
+//@end_stage

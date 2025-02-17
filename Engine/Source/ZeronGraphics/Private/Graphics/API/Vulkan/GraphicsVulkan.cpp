@@ -419,14 +419,19 @@ namespace Zeron::Gfx
 		}
 
 
-		vk::PhysicalDeviceFeatures features{};
+		const vk::PhysicalDeviceFeatures supportedFeatures = adapter.getFeatures();
+		vk::PhysicalDeviceFeatures enabledFeatures{};
 		// Shader based multi-sampling
-		if (adapter.getFeatures().sampleRateShading) {
-			features.sampleRateShading = true;
+		if (supportedFeatures.sampleRateShading) {
+			enabledFeatures.sampleRateShading = true;
 		}
 		// Anisotropic Filtering
-		if (adapter.getFeatures().samplerAnisotropy) {
-			features.samplerAnisotropy = true;
+		if (supportedFeatures.samplerAnisotropy) {
+			enabledFeatures.samplerAnisotropy = true;
+		}
+		// Non Solid fill
+		if (supportedFeatures.fillModeNonSolid) {
+			enabledFeatures.fillModeNonSolid = true;
 		}
 
 		std::vector<const char*> extensionNames{ VK_KHR_SWAPCHAIN_EXTENSION_NAME };
@@ -438,7 +443,7 @@ namespace Zeron::Gfx
 			nullptr,
 			static_cast<uint32_t>(extensionNames.size()),
 			extensionNames.data(),
-			&features
+			&enabledFeatures
 		);
 
 		mDevice = adapter.createDevice(deviceCreateInfo);
