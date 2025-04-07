@@ -2,10 +2,10 @@
 
 #include <GUI/ImGui/ImGuiInstance.h>
 
+#include <Core/SystemEvent.h>
 #include <Graphics/Graphics.h>
 #include <GUI/ImGui/ImGuiRenderer.h>
 #include <imgui/imgui_internal.h>
-#include <Platform/Window.h>
 
 namespace Zeron
 {

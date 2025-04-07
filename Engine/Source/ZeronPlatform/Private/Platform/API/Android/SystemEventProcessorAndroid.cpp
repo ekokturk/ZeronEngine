@@ -4,8 +4,8 @@
 
 #	include <Platform/API/Android/SystemEventProcessorAndroid.h>
 
-#	include <Common/SystemHandle.h>
-#	include <Platform/SystemEvent.h>
+#	include <Core/SystemHandle.h>
+#	include <Core/SystemEvent.h>
 #	include <Platform/Window.h>
 #	include <Platform/WindowManager.h>
 

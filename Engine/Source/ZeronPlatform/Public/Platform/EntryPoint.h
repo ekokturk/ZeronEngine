@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include <Core/FileSystem.h>
 #include <Platform/CommandLineArgs.h>
-#include <Platform/FileSystem.h>
 #include <Platform/Platform.h>
 
 namespace Zeron
@@ -16,7 +16,7 @@ namespace Zeron
 		{
 			if (platform.Init()) {
 				// Globals
-				FileSystem::Init(&platform.GetFileSystem());
+				Locator::Register<FileSystem>(&platform.GetFileSystem());
 
 				// App Entry
 				fn(platform, cmdArgs);

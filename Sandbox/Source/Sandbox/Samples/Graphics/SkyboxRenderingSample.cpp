@@ -2,7 +2,7 @@
 
 #include <Sandbox/Samples/Graphics/SkyboxRenderingSample.h>
 
-#include <Common/Types/Path.h>
+#include <Core/FileSystem.h>
 #include <Graphics/Buffer.h>
 #include <Graphics/CommandBuffer.h>
 #include <Graphics/Graphics.h>
@@ -13,7 +13,6 @@
 #include <Graphics/ShaderProgram.h>
 #include <Graphics/ShaderProgramConfig.h>
 #include <imgui/imgui.h>
-#include <Platform/FileSystem.h>
 #include <Render/Camera/Camera.h>
 #include <Render/Font/FontAtlas.h>
 #include <Render/Mesh/MeshData.h>

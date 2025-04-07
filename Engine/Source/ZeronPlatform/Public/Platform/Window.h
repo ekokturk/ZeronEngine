@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include <Common/SystemHandle.h>
-#include <Platform/SystemEvent.h>
+#include <Core/SystemEvent.h>
 #include <Platform/WindowConfig.h>
 
 namespace Zeron

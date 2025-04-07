@@ -2,6 +2,7 @@
 
 #include <Sandbox/Samples/WindowInstance.h>
 
+#include <Core/FileSystem.h>
 #include <Graphics/Buffer.h>
 #include <Graphics/CommandBuffer.h>
 #include <Graphics/Graphics.h>
@@ -11,7 +12,6 @@
 #include <Graphics/ShaderProgram.h>
 #include <Graphics/ShaderProgramConfig.h>
 #include <GUI/ImGui/ImGuiInstance.h>
-#include <Platform/FileSystem.h>
 #include <Platform/Window.h>
 #include <Render/Camera/Camera.h>
 
@@ -146,12 +146,12 @@ namespace Sandbox
 	{
 		const std::string infoFile = name + ".zsl.json";
 		const Path shaderDir = "Resources/Shaders";
-		auto standardMeta = FileSystem::ReadTextFile(shaderDir / infoFile);
+		auto standardMeta = Locator::Get<FileSystem>()->ReadTextFile(shaderDir / infoFile);
 		ZE_ASSERT(!standardMeta.HasError(), "Expected shader meta data to be found.");
 		std::unordered_map<Gfx::ShaderType, ByteBuffer> shaderData;
 		Gfx::ShaderProgramConfig shaderProgramConfig(standardMeta.Value());
 		for (Gfx::ShaderType type : shaderProgramConfig.mStages) {
-			auto file = FileSystem::ReadBinaryFile(shaderDir / GetGraphics().GetCompiledShaderName(name, type));
+			auto file = Locator::Get<FileSystem>()->ReadBinaryFile(shaderDir / GetGraphics().GetCompiledShaderName(name, type));
 			ZE_ASSERT(!file.HasError(), "Expected shader type to be found.");
 			shaderData.emplace(type, std::move(file.Value()));
 		}

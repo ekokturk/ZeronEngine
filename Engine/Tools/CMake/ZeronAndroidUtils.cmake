@@ -47,6 +47,8 @@ macro(zeron_android_configure_package target packageName appName appSourceDir)
         set(ZERON_ANDROID_PROJECT_MAIN_DIR          ${ZERON_ANDROID_PROJECT_DIR}/app/src/main/)
         set(ZERON_ANDROID_PROJECT_RESOURCE_DIR      ${ZERON_ANDROID_PROJECT_MAIN_DIR}/res)
 
+        message("ZERON - Generating: Android project at ${ZERON_ANDROID_PACKAGE_DIR}")
+
         # Cleanup when configuration changes
         file(REMOVE_RECURSE ${ZERON_ANDROID_PACKAGE_DIR})
 
@@ -101,9 +103,41 @@ macro(zeron_android_configure_package target packageName appName appSourceDir)
 
         file(COPY ${ZERON_ANDROID_PROJECT_MAIN_DIR}/java/com.zeron.engine/ DESTINATION ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/java/com.zeron.engine/)
 
+        # Find dependency directories
+        set(ANDROID_CPP_DEP_DIR ${ANDROID_NDK}/sources/cxx-stl/llvm-libc++)
+        if(EXISTS ${ANDROID_CPP_DEP_DIR})
+            set(ANDROID_CPP_LIB_DIR ${ANDROID_CPP_DEP_DIR}/libs/${CMAKE_ANDROID_ARCH_ABI})
+            set(ANDROID_CPP_INCLUDE_DIR ${ANDROID_NDK}/include)
+        else()
+            set(ANDROID_CPP_DEP_DIR ${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr)
+            if(NOT EXISTS ${ANDROID_CPP_DEP_DIR})
+                message(FATAL_ERROR "${ZERON_ERROR_MSG} Missing NDK C++ dependency directory: ${ANDROID_CPP_DEP_DIR}")
+            endif()
+
+            if(CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
+                set(_androidCppDepArch "x86_64-linux-android")
+            elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
+                set(_androidCppDepArch "aarch64-linux-android")
+            else()
+                message(FATAL_ERROR "${ZERON_ERROR_MSG} Unsupported Android arch: ${CMAKE_ANDROID_ARCH_ABI}")
+            endif()
+
+            set(ANDROID_CPP_LIB_DIR ${ANDROID_CPP_DEP_DIR}/lib/${_androidCppDepArch})
+            set(ANDROID_CPP_INCLUDE_DIR ${ANDROID_CPP_DEP_DIR}/include/c++/v1)
+        endif()
+        if(NOT EXISTS ${ANDROID_CPP_LIB_DIR})
+            message(FATAL_ERROR "${ZERON_ERROR_MSG} Missing C++ library directory: ${ANDROID_CPP_LIB_DIR}")
+        endif()
+        if(NOT EXISTS ${ANDROID_CPP_INCLUDE_DIR})
+            message(FATAL_ERROR "${ZERON_ERROR_MSG} Missing C++ include directory: ${ANDROID_CPP_INCLUDE_DIR}")
+        endif()
+
         # Copy libraries
         get_property(EXTRA_ANDROID_LIBS GLOBAL PROPERTY ZERON_ANDROID_EXTRA_LIBS)
-        file(GLOB_RECURSE ANDROID_STL_LIB ${ANDROID_STL_LIB_DIR}/lib${CMAKE_ANDROID_STL_TYPE}.*)
+        file(GLOB_RECURSE ANDROID_STL_LIB ${ANDROID_CPP_LIB_DIR}/lib${CMAKE_ANDROID_CPP_LIB_TYPE}.*)
+        if(NOT EXISTS ${ANDROID_STL_LIB})
+            message(FATAL_ERROR "${ZERON_ERROR_MSG} Unable to locate C++ library for Android!")
+        endif()
         file(COPY ${ANDROID_STL_LIB} DESTINATION ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/jniLibs/${CMAKE_ANDROID_ARCH_ABI})
         foreach(extraLib ${EXTRA_ANDROID_LIBS})
             file(COPY ${extraLib} DESTINATION ${ZERON_ANDROID_PACKAGE_MAIN_DIR}/jniLibs/${CMAKE_ANDROID_ARCH_ABI})

@@ -31,7 +31,7 @@ namespace Zeron
 		const WindowAPI windowType = config.mPreferredAPI == WindowAPI::Null ? defaultType : config.mPreferredAPI;
 
 		std::unique_ptr<Window> window = nullptr;
-		auto dispatchCallback = [this](const SystemEvent& evt, const SystemEvent::Context& context) {
+		auto dispatchCallback = [this](const SystemEvent& evt, const SystemEventContext& context) {
 			if (context.mWindow) {
 				context.mWindow->OnSystemEvent(evt);
 				if (std::get_if<SystemEvent::WindowClosed>(&evt.GetData())) {
@@ -41,7 +41,7 @@ namespace Zeron
 			mExternalDispatchCallback(evt, context);
 		};
 		auto contextCallback = [this](SystemHandle handle) {
-			return SystemEvent::Context{ GetWindowByHandle(handle) };
+			return SystemEventContext{ GetWindowByHandle(handle) };
 		};
 		switch (windowType) {
 #if ZE_WINDOW_WIN32

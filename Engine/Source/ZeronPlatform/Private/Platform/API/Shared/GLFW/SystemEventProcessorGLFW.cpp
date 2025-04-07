@@ -27,7 +27,7 @@ namespace Zeron
 		// WINDOW RESIZE
 		glfwSetWindowSizeCallback(glfwWindow, [](GLFWwindow* windowGLFW, int width, int height) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			const int canResize = glfwGetWindowAttrib(windowGLFW, GLFW_RESIZABLE);
 			// Size of the window is not changed on minimize
 			if (!ctx.mWindow->IsMinimized() && canResize == GLFW_TRUE) {
@@ -39,7 +39,7 @@ namespace Zeron
 		// WINDOW REPOSITION
 		glfwSetWindowPosCallback(glfwWindow, [](GLFWwindow* windowGLFW, int posX, int posY) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			// Here is ideal to handle Minimize/Maximize since this event is triggered before them
 			if (glfwGetWindowAttrib(windowGLFW, GLFW_ICONIFIED) == GLFW_TRUE) {
 				processor->Dispatch({ SystemEvent::WindowMinimized{} }, ctx);
@@ -66,14 +66,14 @@ namespace Zeron
 		// WINDOW CLOSED
 		glfwSetWindowCloseCallback(glfwWindow, [](GLFWwindow* windowGLFW) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			processor->Dispatch({ SystemEvent::WindowClosed{} }, ctx);
 		});
 
 		// WINDOW FOCUSED/UNFOCUSED
 		glfwSetWindowFocusCallback(glfwWindow, [](GLFWwindow* windowGLFW, int isFocused) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			switch (isFocused) {
 				case GLFW_TRUE: {
 					processor->Dispatch({ SystemEvent::WindowFocused{} }, ctx);
@@ -93,7 +93,7 @@ namespace Zeron
 		// MOUSE BUTTON PRESSED
 		glfwSetMouseButtonCallback(glfwWindow, [](GLFWwindow* windowGLFW, int buttonIndex, int actionType, int modifiers) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			double xPos, yPos;
 			glfwGetCursorPos(windowGLFW, &xPos, &yPos);
 			switch (actionType) {
@@ -110,7 +110,7 @@ namespace Zeron
 		// MOUSE MOVED
 		glfwSetCursorPosCallback(glfwWindow, [](GLFWwindow* windowGLFW, double posX, double posY) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			if (ctx.mWindow->IsHovered()) {
 				processor->Dispatch({ SystemEvent::MouseMoved{ static_cast<int>(posX), static_cast<int>(posY) } }, ctx);
 			}
@@ -119,14 +119,14 @@ namespace Zeron
 		// MOUSE SCROLLED
 		glfwSetScrollCallback(glfwWindow, [](GLFWwindow* windowGLFW, double offsetX, double offsetY) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			processor->Dispatch({ SystemEvent::MouseScroll{ static_cast<float>(offsetX), static_cast<float>(offsetY) } }, ctx);
 		});
 
 		// MOUSE ENTER/EXIT
 		glfwSetCursorEnterCallback(glfwWindow, [](GLFWwindow* windowGLFW, int isEntered) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			if (ctx.mWindow->IsFocused() && static_cast<WindowGLFW*>(ctx.mWindow)->IsCursorClipped()) {
 				return;
 			}
@@ -144,7 +144,7 @@ namespace Zeron
 		// --------------------------- KEY EVENTS --------------------------
 		glfwSetKeyCallback(glfwWindow, [](GLFWwindow* windowGLFW, int keyIndex, int scanCode, int actionType, int modifierMask) {
 			const SystemEventProcessorGLFW* processor = GetUserPointer(windowGLFW);
-			const SystemEvent::Context ctx = processor->GetEventContext(windowGLFW);
+			const SystemEventContext ctx = processor->GetEventContext(windowGLFW);
 			switch (actionType) {
 				case GLFW_PRESS: {
 					processor->Dispatch({ SystemEvent::KeyDown{ GLFWHelpers::GetKeyCode(keyIndex) } }, ctx);
@@ -167,12 +167,12 @@ namespace Zeron
 		return static_cast<SystemEventProcessorGLFW*>(glfwGetWindowUserPointer(glfwWindow));
 	}
 
-	SystemEvent::Context SystemEventProcessorGLFW::GetEventContext(GLFWwindow* glfwWindow) const
+	SystemEventContext SystemEventProcessorGLFW::GetEventContext(GLFWwindow* glfwWindow) const
 	{
 		return mContextCallback(GLFWHelpers::GetPlatformWindowHandle(glfwWindow));
 	}
 
-	void SystemEventProcessorGLFW::Dispatch(const SystemEvent& evt, const SystemEvent::Context& context) const
+	void SystemEventProcessorGLFW::Dispatch(const SystemEvent& evt, const SystemEventContext& context) const
 	{
 		mDispatchCallback(evt, context);
 	}

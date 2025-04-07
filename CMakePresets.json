@@ -120,7 +120,8 @@
 			"cacheVariables": {
 				"CMAKE_SYSTEM_NAME": "Android",
 				"CMAKE_SYSTEM_VERSION": "24",
-				"CMAKE_ANDROID_STL_TYPE": "c++_shared",
+				"ANDROID_NDK_VERSION": "27.0.12077973",
+				"CMAKE_ANDROID_CPP_LIB_TYPE": "c++_shared",
 				"ZERON_UNIFY_OUTPUT_DIR": "ON",
 				"CMAKE_CXX_FLAGS": "-fPIC",
 				"CMAKE_C_FLAGS": "-fPIC"

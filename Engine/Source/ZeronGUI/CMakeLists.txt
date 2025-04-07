@@ -22,6 +22,5 @@ target_link_libraries(ZeronGUI
 		${MODULE_LIBS_PUBLIC}
 	PRIVATE
         ZeronRender
-		ZeronPlatform
 		${MODULE_LIBS_PRIVATE}
 )

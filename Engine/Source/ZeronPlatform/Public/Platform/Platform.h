@@ -6,7 +6,7 @@
 
 namespace Zeron
 {
-	class IFileSystemHandler;
+	class FileSystem;
 	class SystemEvent;
 	class SystemEventProcessor;
 	struct WindowConfig;
@@ -28,8 +28,8 @@ namespace Zeron
 		bool IsExiting() const;
 
 		// Filesystem
-		IFileSystemHandler& GetFileSystem();
-		const IFileSystemHandler& GetFileSystem() const;
+		FileSystem& GetFileSystem();
+		const FileSystem& GetFileSystem() const;
 
 		// Window
 		virtual Window* GetMainWindow() const;
@@ -39,11 +39,11 @@ namespace Zeron
 	  protected:
 		Platform();
 
-		void _dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx);
+		void _dispatchEvents(const SystemEvent& evt, const SystemEventContext& ctx);
 
 		ByteBuffer _readWindowIcon() const;
 
 		std::unique_ptr<WindowManager> mWindowManager;
-		std::unique_ptr<IFileSystemHandler> mFileSystem;
+		std::unique_ptr<FileSystem> mFileSystem;
 	};
 }

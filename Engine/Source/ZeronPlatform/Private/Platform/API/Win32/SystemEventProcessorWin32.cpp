@@ -2,11 +2,10 @@
 
 #if ZE_PLATFORM_WIN32
 
-#	include <Common/SystemHandle.h>
 #	include <Platform/API/Win32/PlatformWin32.h>
 #	include <Platform/API/Win32/SystemEventProcessorWin32.h>
 #	include <Platform/API/Win32/WindowWin32.h>
-#	include <Platform/SystemEvent.h>
+#	include <Core/SystemEvent.h>
 #	include <Platform/Window.h>
 #	include <Platform/WindowManager.h>
 
@@ -25,7 +24,7 @@ namespace Zeron
 		MSG msg = {};
 		while (PeekMessage(&msg, nullptr, NULL, NULL, PM_REMOVE) == TRUE) {
 			if (msg.message == WM_QUIT) {
-				const SystemEvent::Context ctx = mContextCallback(SystemHandle{ msg.hwnd });
+				const SystemEventContext ctx = mContextCallback(SystemHandle{ msg.hwnd });
 				if (ctx.mWindow) {
 					// TODO: App Terminated event here
 					mDispatchCallback({ SystemEvent::WindowClosed{} }, ctx);
@@ -66,7 +65,7 @@ namespace Zeron
 
 	LRESULT SystemEventProcessorWin32::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		const SystemEvent::Context ctx = mContextCallback(SystemHandle{ hWnd });
+		const SystemEventContext ctx = mContextCallback(SystemHandle{ hWnd });
 		if (ctx.mWindow && ctx.mWindow->GetWindowType() == WindowAPI::Win32) {
 			const WindowWin32* window = static_cast<WindowWin32*>(ctx.mWindow);
 

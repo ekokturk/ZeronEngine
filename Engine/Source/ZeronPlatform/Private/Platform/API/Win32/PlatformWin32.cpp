@@ -3,7 +3,7 @@
 #if ZE_PLATFORM_WIN32
 
 #	include <Platform/API/Win32/PlatformWin32.h>
-#	include <Platform/FileSystemHandler.h>
+#	include <Core/FileSystem.h>
 
 #	include <Platform/WindowManager.h>
 

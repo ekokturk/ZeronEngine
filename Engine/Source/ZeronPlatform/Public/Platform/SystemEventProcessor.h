@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <Platform/SystemEvent.h>
+#include <Core/SystemEvent.h>
 
 namespace Zeron
 {
@@ -10,10 +10,14 @@ namespace Zeron
 	class Window;
 	class SystemEvent;
 
+	struct SystemEventContext {
+		Window* mWindow = nullptr;
+	};
+
 	class SystemEventProcessor {
 	  public:
-		using DispatchFn = std::function<void(const SystemEvent&, const SystemEvent::Context&)>;
-		using ContextFn = std::function<SystemEvent::Context(SystemHandle)>;
+		using DispatchFn = std::function<void(const SystemEvent&, const SystemEventContext&)>;
+		using ContextFn = std::function<SystemEventContext(SystemHandle)>;
 
 		SystemEventProcessor(DispatchFn dispatchFn, ContextFn contextFn)
 			: mDispatchCallback(std::move(dispatchFn))

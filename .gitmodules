@@ -28,3 +28,6 @@
 [submodule "Engine/ThirdParty/PhysX/.submodule"]
 	path = Engine/ThirdParty/PhysX/.submodule
 	url = https://github.com/o3de/PhysX.git
+[submodule "Engine/ThirdParty/lmdb/.submodule"]
+	path = Engine/ThirdParty/lmdb/.submodule
+	url = https://github.com/LMDB/lmdb.git

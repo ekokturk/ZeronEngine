@@ -4,10 +4,10 @@
 
 #	include <Platform/API/Android/PlatformAndroid.h>
 
-#	include <Input/KeyCode.h>
-#	include <Platform/API/Android/FileSystemHandlerAndroid.h>
+#	include <Core/Input/KeyCode.h>
+#	include <Core/SystemEvent.h>
+#	include <Platform/API/Android/FileSystemAndroid.h>
 #	include <Platform/API/Android/WindowAndroid.h>
-#	include <Platform/SystemEvent.h>
 #	include <Platform/WindowManager.h>
 
 #	include <android/asset_manager.h>
@@ -62,7 +62,7 @@ namespace Zeron
 			}
 		}
 
-		mFileSystem = std::make_unique<FileSystemHandlerAndroid>(mApp->activity->assetManager);
+		mFileSystem = std::make_unique<FileSystemAndroid>(mApp->activity->assetManager);
 
 		return true;
 	}
@@ -77,7 +77,7 @@ namespace Zeron
 		int ident = -1;
 		int events = -1;
 		android_poll_source* source = nullptr;
-		while ((ident = ALooper_pollAll(0, nullptr, &events, reinterpret_cast<void**>(&source))) >= 0) {
+		while ((ident = ALooper_pollOnce(0, nullptr, &events, reinterpret_cast<void**>(&source))) >= 0) {
 			if (source) {
 				source->process(mApp, source);
 			}

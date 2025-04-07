@@ -23,8 +23,8 @@ namespace Zeron
 
 		static SystemEventProcessorGLFW* GetUserPointer(GLFWwindow* glfwWindow);
 
-		SystemEvent::Context GetEventContext(GLFWwindow* glfwWindow) const;
-		void Dispatch(const SystemEvent& evt, const SystemEvent::Context& context) const;
+		SystemEventContext GetEventContext(GLFWwindow* glfwWindow) const;
+		void Dispatch(const SystemEvent& evt, const SystemEventContext& context) const;
 	};
 }
 

@@ -2,6 +2,7 @@
 
 #include <Sandbox/Samples/Graphics/InstancedRenderingSample.h>
 
+#include <Core/FileSystem.h>
 #include <Graphics/Buffer.h>
 #include <Graphics/CommandBuffer.h>
 #include <Graphics/FrameBuffer.h>
@@ -16,7 +17,6 @@
 #include <Graphics/Texture.h>
 #include <imgui/imgui.h>
 #include <Platform/Asset/Image.h>
-#include <Platform/FileSystem.h>
 #include <Render/Camera/Camera.h>
 #include <Render/Light/Light.h>
 #include <Render/Mesh/Mesh.h>
@@ -72,17 +72,17 @@ namespace Sandbox
 		mMeshInstanceDataBuffer->SetDebugName("Instanced Sample - Mesh Instance Buffer");
 
 
-		auto diffuseImageData = FileSystem::ReadBinaryFile("Resources/Textures/TestHumanoid_CLR.png");
+		auto diffuseImageData = Locator::Get<FileSystem>()->ReadBinaryFile("Resources/Textures/TestHumanoid_CLR.png");
 		mDiffuseImage = std::make_unique<Asset::Image>(diffuseImageData.Value());
 		mDiffuseTexture = gfx->CreateTexture({ mDiffuseImage->GetWidth(), mDiffuseImage->GetHeight() }, Gfx::TextureFormat::RGBA_8U, mDiffuseImage->GetRawColor().data());
 
-		auto normalImageData = FileSystem::ReadBinaryFile("Resources/Textures/TestHumanoid_NRM.png");
+		auto normalImageData = Locator::Get<FileSystem>()->ReadBinaryFile("Resources/Textures/TestHumanoid_NRM.png");
 		mNormalImage = std::make_unique<Asset::Image>(normalImageData.Value());
 		mNormalTexture = gfx->CreateTexture({ mNormalImage->GetWidth(), mNormalImage->GetHeight() }, Gfx::TextureFormat::RGBA_8U, mNormalImage->GetRawColor().data());
 
 		mSampler = gfx->CreateSampler();
 
-		auto modelBuffer = FileSystem::ReadBinaryFile("Resources/Models/TestHumanoid_Model.gltf");
+		auto modelBuffer = Locator::Get<FileSystem>()->ReadBinaryFile("Resources/Models/TestHumanoid_Model.gltf");
 		mModel = std::make_unique<Render::Model>(*gfx, modelBuffer.Value());
 
 		mShadowShader = mCtx.LoadShader("ShadowMap");

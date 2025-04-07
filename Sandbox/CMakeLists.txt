@@ -14,8 +14,13 @@ source_group(TREE "${SANDBOX_DIR}" PREFIX "Source Files/" FILES ${SANDBOX_SOURCE
 zeron_create_project(Sandbox "${SANDBOX_SOURCES}")
 
 target_include_directories(Sandbox PUBLIC ${SANDBOX_DIR})
-target_link_libraries(Sandbox 
-    PUBLIC ZeronPlatform ZeronRender ZeronGUI ZeronPhysics $<$<BOOL:${ZERON_ENABLE_SCRIPT}>:ZeronScript>
+target_link_libraries(Sandbox PUBLIC 
+    ZeronPlatform 
+    ZeronRender 
+    ZeronGUI 
+    ZeronPhysics 
+    ZeronDB 
+    $<$<BOOL:${ZERON_ENABLE_SCRIPT}>:ZeronScript>
 )
 set_target_properties(Sandbox PROPERTIES 
     FOLDER "Sandbox"

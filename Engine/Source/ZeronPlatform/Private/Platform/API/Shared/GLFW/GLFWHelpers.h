@@ -4,8 +4,8 @@
 
 #if ZE_WINDOW_GLFW
 
-#	include <Input/KeyCode.h>
-#	include <Input/MouseCode.h>
+#	include <Core/Input/KeyCode.h>
+#	include <Core/Input/MouseCode.h>
 
 struct GLFWwindow;
 

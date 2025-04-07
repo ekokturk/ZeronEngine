@@ -1,9 +1,8 @@
 // Copyright (C) Eser Kokturk. All Rights Reserved.
 
+#include <Core/FileSystem.h>
 #include <Sandbox/Samples/Graphics/TextRenderingSample.h>
 
-#include <Common/Types/Path.h>
-#include <Platform/FileSystem.h>
 #include <Render/Camera/Camera.h>
 #include <Render/Mesh/Model.h>
 
@@ -35,7 +34,7 @@ namespace Sandbox
 
 	void TextRenderingSample::Init()
 	{
-		auto font = FileSystem::ReadBinaryFile(Path("Resources/Fonts/NimbusSans.ttf"));
+		auto font = Locator::Get<FileSystem>()->ReadBinaryFile(Path("Resources/Fonts/NimbusSans.ttf"));
 		ZE_ASSERT(!font.HasError(), "");
 
 		mFont = std::make_unique<Render::FontAtlas>("Arial");

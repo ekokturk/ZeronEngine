@@ -6,15 +6,15 @@
 
 #	include <Platform/Platform.h>
 
-#	include <Input/KeyCode.h>
-#	include <Input/MouseCode.h>
+#	include <Core/Input/KeyCode.h>
+#	include <Core/Input/MouseCode.h>
 
 namespace Zeron
 {
 	class PlatformWin32 : public Platform {
 	  public:
 		PlatformWin32(const PlatformCreationProps& props);
-		~PlatformWin32();
+		~PlatformWin32() override;
 
 		bool Init() override;
 		Window* CreatePlatformWindow(WindowConfig&& config) override;

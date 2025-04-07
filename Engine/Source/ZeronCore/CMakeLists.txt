@@ -31,5 +31,5 @@ target_link_libraries(ZeronCore
 )
 
 target_precompile_headers(ZeronCore	
-	PUBLIC "<Common/PCH.h>"
+	PUBLIC "<PCH.h>"
 )

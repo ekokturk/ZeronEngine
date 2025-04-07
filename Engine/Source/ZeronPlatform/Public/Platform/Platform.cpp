@@ -2,9 +2,8 @@
 
 #include <Platform/Platform.h>
 
-#include <Platform/API/Shared/FileSystemHandlerStandard.h>
-#include <Platform/FileSystem.h>
-#include <Platform/SystemEvent.h>
+#include <Core/SystemEvent.h>
+#include <Platform/API/Shared/FileSystemStandard.h>
 #include <Platform/SystemEventProcessor.h>
 #include <Platform/Window.h>
 #include <Platform/WindowManager.h>
@@ -51,7 +50,7 @@ namespace Zeron
 	bool Platform::Init()
 	{
 		// TODO: Move this to implementation
-		mFileSystem = std::make_unique<FileSystemHandlerStandard>();
+		mFileSystem = std::make_unique<FileSystemStandard>();
 		return true;
 	}
 
@@ -65,12 +64,12 @@ namespace Zeron
 		return false;
 	}
 
-	IFileSystemHandler& Platform::GetFileSystem()
+	FileSystem& Platform::GetFileSystem()
 	{
 		return *mFileSystem;
 	}
 
-	const IFileSystemHandler& Platform::GetFileSystem() const
+	const FileSystem& Platform::GetFileSystem() const
 	{
 		return *mFileSystem;
 	}
@@ -85,7 +84,7 @@ namespace Zeron
 		return mWindowManager.get();
 	}
 
-	void Platform::_dispatchEvents(const SystemEvent& evt, const SystemEvent::Context& ctx) {}
+	void Platform::_dispatchEvents(const SystemEvent& evt, const SystemEventContext& ctx) {}
 
 	ByteBuffer Platform::_readWindowIcon() const
 	{

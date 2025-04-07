@@ -13,7 +13,6 @@
 #include <Graphics/Texture.h>
 #include <Graphics/VertexLayout.h>
 #include <imgui/imgui.h>
-#include <Platform/FileSystem.h>
 
 namespace Zeron
 {
