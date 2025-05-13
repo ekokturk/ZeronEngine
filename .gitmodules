@@ -31,3 +31,9 @@
 [submodule "Engine/ThirdParty/lmdb/.submodule"]
 	path = Engine/ThirdParty/lmdb/.submodule
 	url = https://github.com/LMDB/lmdb.git
+[submodule "Engine/ThirdParty/asio/.submodule"]
+	path = Engine/ThirdParty/asio/.submodule
+	url = https://github.com/chriskohlhoff/asio.git
+[submodule "Engine/ThirdParty/cryptopp/.submodule"]
+	path = Engine/ThirdParty/cryptopp/.submodule
+	url = https://github.com/weidai11/cryptopp.git

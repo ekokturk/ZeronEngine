@@ -8,6 +8,7 @@ if(NOT EXISTS ${GLM_SOURCE_DIR}/glm)
      file(COPY           ${CMAKE_CURRENT_SOURCE_DIR}/.submodule/glm/ 
           DESTINATION    ${GLM_SOURCE_DIR}/glm
      )
+     file(REMOVE ${GLM_SOURCE_DIR}/glm/CMakeLists.txt)
 endif()
 
 add_library(glm-header-only INTERFACE)

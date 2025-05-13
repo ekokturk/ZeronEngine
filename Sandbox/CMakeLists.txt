@@ -18,6 +18,7 @@ target_link_libraries(Sandbox PUBLIC
     ZeronPlatform 
     ZeronRender 
     ZeronGUI 
+    ZeronNet
     ZeronPhysics 
     ZeronDB 
     $<$<BOOL:${ZERON_ENABLE_SCRIPT}>:ZeronScript>

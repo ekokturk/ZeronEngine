@@ -5,6 +5,7 @@
 // Platform
 #if ZE_PLATFORM_WIN32
 #	define NOMINMAX
+#	include <winsock2.h>
 #	include <Windows.h>
 #endif
 
@@ -35,6 +36,7 @@
 #include <typeindex>
 #include <typeinfo>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 
 // Zeron Core
@@ -45,4 +47,3 @@
 #include <Core/Types/Types.h>
 #include <Core/Util.h>
 #include <Math/Math.h>
-

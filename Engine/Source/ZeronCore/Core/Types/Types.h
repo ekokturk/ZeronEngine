@@ -7,6 +7,7 @@
 #include <Core/Types/Enum.h>
 #include <Core/Types/NotNull.h>
 #include <Core/Types/Path.h>
+#include <Core/Types/Random.h>
 #include <Core/Types/Result.h>
 #include <Core/Types/SparseSet.h>
 #include <Core/Types/Time.h>

@@ -19,6 +19,7 @@
 #include <Sandbox/Samples/Graphics/SkyboxRenderingSample.h>
 #include <Sandbox/Samples/Graphics/TextRenderingSample.h>
 #include <Sandbox/Samples/Graphics/WireframePhysicsSample.h>
+#include <Sandbox/Samples/Networking/WebSocketSample.h>
 
 using namespace Zeron;
 
@@ -90,6 +91,9 @@ namespace Sandbox
 		});
 		mSampleFactory.emplace(WireframePhysicsSample::NAME, [&]() {
 			return std::make_unique<WireframePhysicsSample>(*this);
+		});
+		mSampleFactory.emplace(WebSocketSample::NAME, [&]() {
+			return std::make_unique<WebSocketSample>(*this);
 		});
 
 

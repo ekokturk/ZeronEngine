@@ -36,6 +36,10 @@ namespace Zeron::Util
 		static_assert(TypeTraits::false_v<T>, "ToString not defined for this type");
 		return "";
 	}
+
+	std::string EncodeBase64(std::string_view str);
+	std::string DecodeBase64(std::string_view str);
+	std::string GenerateSHA1(std::string_view str);
 }
 
 #define ZE_ENUM_STRING_FORMAT(EnumType)                                                       \

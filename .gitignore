@@ -2,9 +2,10 @@
 .vs/
 Build/
 out/
-Engine/ThirdParty/*/*
-!Engine/ThirdParty/*/update.py
-!Engine/ThirdParty/*/CMakeLists.txt
+Engine/ThirdParty/**
+!Engine/ThirdParty/**/
+!Engine/ThirdParty/**/update.py
+!Engine/ThirdParty/**/CMakeLists.txt
 !Engine/ThirdParty/*/utils/
 CMakeUserPresets.json
 

@@ -7,6 +7,7 @@ zeron_add_module(ZeronCore ${CMAKE_CURRENT_SOURCE_DIR})
 zeron_add_module_dependency(fmt)
 zeron_add_module_dependency(glm)
 zeron_add_module_dependency(cereal)
+zeron_add_module_dependency(cryptopp)
 
 # ========= MODULE DEPENDENCIES =========
 set(MODULE_LIBS_PRIVATE "")
@@ -28,6 +29,7 @@ target_link_libraries(ZeronCore
 		cereal
 	PRIVATE
 		${MODULE_LIBS_PRIVATE}
+		cryptopp
 )
 
 target_precompile_headers(ZeronCore	

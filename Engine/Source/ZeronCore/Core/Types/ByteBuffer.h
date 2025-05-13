@@ -9,6 +9,8 @@ namespace Zeron
 		using BaseType::BaseType;
 
 	  public:
+		using View = std::span<const std::byte>;
+
 		template <typename T>
 		static ByteBuffer Create(std::span<T> data)
 		{
@@ -18,6 +20,14 @@ namespace Zeron
 		}
 
 		ByteBuffer Copy() const { return { begin(), end() }; }
+
+		ByteBuffer::View GetView(size_t offset = 0) const
+		{
+			if (offset == 0 || offset >= size()) {
+				return View(*this);
+			}
+			return View(*this).subspan(offset);
+		}
 
 		template <typename T>
 		bool CopyTo(T& obj) const
@@ -56,6 +66,14 @@ namespace Zeron
 			resize(currentSize + dataSize);
 			std::memcpy(&front() + currentSize, reinterpret_cast<const std::byte*>(val.data()), dataSize);
 			return *this;
+		}
+
+		template <typename T>
+		bool IsEqual(const std::span<const T>& other) const
+		{
+			auto view = GetView();
+			auto otherView = std::span<const std::byte>(reinterpret_cast<const std::byte*>(other.data()), other.size_bytes());
+			return view.size() == otherView.size() && std::equal(view.begin(), view.end(), otherView.begin());
 		}
 
 		template <typename T>
