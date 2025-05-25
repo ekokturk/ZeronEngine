@@ -9,11 +9,11 @@
 using namespace ::Zeron;
 using namespace ::Zeron::Net;
 
-namespace TestModule_ZeronNet
+namespace ZeronNetTests
 {
 	class WebSocketMessageTests : public ::testing::Test {
 	  public:
-		static constexpr size_t SERVER_PORT = 11124;
+		static constexpr size_t SERVER_PORT = 11122;
 		static inline const std::string SERVER_IP = Util::Format("127.0.0.1:{}", SERVER_PORT);
 
 		void SetUp() override
@@ -24,9 +24,13 @@ namespace TestModule_ZeronNet
 
 		void TearDown() override {}
 
-		void Update(int update = 30)
+		void Update(std::function<bool()> condition, float timeout = 3.f)
 		{
-			for (int i = 0; i < update; ++i) {
+			Time::Timer<float, Time::Seconds> timer;
+			while (!condition()) {
+				if (timer.HasTimeElapsed(timeout)) {
+					FAIL();
+				}
 				mServer->Update();
 				mClient->Update();
 			}
@@ -69,9 +73,9 @@ namespace TestModule_ZeronNet
 			}
 		});
 
-		Update();
-
-		ASSERT_TRUE(handled);
+		Update([&handled]() {
+			return handled;
+		});
 	}
 
 
@@ -113,9 +117,9 @@ namespace TestModule_ZeronNet
 			}
 		});
 
-		Update();
-
-		ASSERT_TRUE(handled);
+		Update([&handled]() {
+			return handled;
+		});
 	}
 
 	TEST_F(WebSocketMessageTests, CreateClientServer_SendLongText_SentAndRecievedMessages)
@@ -155,9 +159,9 @@ namespace TestModule_ZeronNet
 			}
 		});
 
-		Update();
-
-		ASSERT_TRUE(handled);
+		Update([&handled]() {
+			return handled;
+		});
 	}
 
 	TEST_F(WebSocketMessageTests, CreateClientServer_EndClientConnection_ConnectionsClosed)
@@ -191,11 +195,9 @@ namespace TestModule_ZeronNet
 			}
 		});
 
-		Update();
-
-		ASSERT_TRUE(handled);
-		ASSERT_EQ(WebSocketConnectionState::Idle, mClient->GetConnectionState());
-		ASSERT_FALSE(mServer->HasSession(connId));
+		Update([&handled, client = mClient.get(), server = mServer.get(), &connId]() {
+			return handled && WebSocketConnectionState::Idle == client->GetConnectionState() && !server->HasSession(connId);
+		});
 	}
 
 	TEST_F(WebSocketMessageTests, CreateClientServer_EndServerConnection_ConnectionsClosed)
@@ -231,11 +233,8 @@ namespace TestModule_ZeronNet
 			}
 		});
 
-		Update();
-
-		ASSERT_TRUE(clientHandled);
-		ASSERT_TRUE(serverHandled);
-		ASSERT_EQ(WebSocketConnectionState::Idle, mClient->GetConnectionState());
-		ASSERT_FALSE(mServer->HasSession(connId));
+		Update([&clientHandled, &serverHandled, client = mClient.get(), server = mServer.get(), &connId]() {
+			return clientHandled && serverHandled && WebSocketConnectionState::Idle == client->GetConnectionState() && !server->HasSession(connId);
+		});
 	}
 }

@@ -7,23 +7,14 @@
 
 using namespace ::Zeron;
 
-namespace TestModule_ZeronPlatform
+namespace ZeronPlatformTests
 {
 	class FileSystemTest : public ::testing::Test {
 	  public:
-		void SetUp() override
-		{
-			mPlatform = Platform::Create({});
-			mPlatform->Init();
-		}
+		void SetUp() override { ASSERT_TRUE(Locator::Get<Platform>()); }
+		void TearDown() override {}
 
-		void TearDown() override { mPlatform = nullptr; }
-
-		FileSystem& GetFileSystem() { return mPlatform->GetFileSystem(); }
-
-
-	  protected:
-		std::unique_ptr<Platform> mPlatform;
+		FileSystem& GetFileSystem() { return Locator::Get<Platform>()->GetFileSystem(); }
 	};
 
 

@@ -41,7 +41,7 @@ macro(zeron_android_configure_package target packageName appName appSourceDir)
             message(FATAL_ERROR "${ZERON_ERROR_MSG} Unable to locate template Zeron Android project directory!")
         endif()
 
-        set(ZERON_ANDROID_PACKAGE_DIR               ${CMAKE_BINARY_DIR}/AndroidProject)
+        set(ZERON_ANDROID_PACKAGE_DIR               ${CMAKE_BINARY_DIR}/AndroidProject/${target})
         set(ZERON_ANDROID_PACKAGE_MAIN_DIR          ${ZERON_ANDROID_PACKAGE_DIR}/app/src/main)
 
         set(ZERON_ANDROID_PROJECT_MAIN_DIR          ${ZERON_ANDROID_PROJECT_DIR}/app/src/main/)

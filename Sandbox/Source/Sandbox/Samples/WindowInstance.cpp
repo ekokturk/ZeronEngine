@@ -149,7 +149,7 @@ namespace Sandbox
 	std::shared_ptr<Gfx::ShaderProgram> WindowInstance::LoadShader(const std::string& name)
 	{
 		const std::string infoFile = name + ".zsl.json";
-		const Path shaderDir = "Resources/Shaders";
+		const Path shaderDir{ "Resources/Shaders", PathType::Assets };
 		auto standardMeta = Locator::Get<FileSystem>()->ReadTextFile(shaderDir / infoFile);
 		ZE_ASSERT(!standardMeta.HasError(), "Expected shader meta data to be found.");
 		std::unordered_map<Gfx::ShaderType, ByteBuffer> shaderData;

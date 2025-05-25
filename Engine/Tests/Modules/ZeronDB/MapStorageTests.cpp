@@ -9,31 +9,26 @@
 using namespace ::Zeron;
 using namespace ::Zeron::DB;
 
-namespace TestModule_ZeronDB
+namespace ZeronDBTests
 {
-	constexpr const char TEST_FOLDER[] = "./testData/";
+	constexpr const char TEST_FOLDER[] = "testData/";
 
 	class MapStorageTests : public ::testing::Test {
 	  public:
 		void SetUp() override
 		{
-			mPlatform = Platform::Create({});
-			mPlatform->Init();
-			mPlatform->GetFileSystem().RemoveDir(TEST_FOLDER, true);
-			ASSERT_FALSE(mPlatform->GetFileSystem().CreateDir(TEST_FOLDER).HasError());
+			ASSERT_TRUE(Locator::Get<Platform>());
+			mPath = Locator::Get<Platform>()->GetFileSystem().ResolvePath(TEST_FOLDER);
+			ASSERT_FALSE(Locator::Get<Platform>()->GetFileSystem().RemoveDir(mPath, true).HasError());
+			ASSERT_FALSE(Locator::Get<Platform>()->GetFileSystem().CreateDir(mPath).HasError());
 		}
 
-		void TearDown() override
-		{
-			ASSERT_FALSE(mPlatform->GetFileSystem().RemoveDir(TEST_FOLDER, true).HasError());
-			mPlatform = nullptr;
-		}
+		void TearDown() override { ASSERT_FALSE(Locator::Get<Platform>()->GetFileSystem().RemoveDir(mPath, true).HasError()); }
 
-		std::unique_ptr<MapStorage> CreateDefaultStorage() { return MapStorage::Create({ .mPath = TEST_FOLDER, .mSize = 1L * 1024 * 1024 }); }
+		std::unique_ptr<MapStorage> CreateDefaultStorage() { return MapStorage::Create({ .mPath = mPath, .mSize = 1L * 1024 * 1024 }); }
 
-
-	  protected:
-		std::unique_ptr<Platform> mPlatform;
+	  private:
+		std::string mPath;
 	};
 
 

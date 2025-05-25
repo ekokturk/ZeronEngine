@@ -72,17 +72,17 @@ namespace Sandbox
 		mMeshInstanceDataBuffer->SetDebugName("Instanced Sample - Mesh Instance Buffer");
 
 
-		auto diffuseImageData = Locator::Get<FileSystem>()->ReadBinaryFile("Resources/Textures/TestHumanoid_CLR.png");
+		auto diffuseImageData = Locator::Get<FileSystem>()->ReadBinaryFile(Path{ "Resources/Textures/TestHumanoid_CLR.png", PathType::Assets });
 		mDiffuseImage = std::make_unique<Asset::Image>(diffuseImageData.Value());
 		mDiffuseTexture = gfx->CreateTexture({ mDiffuseImage->GetWidth(), mDiffuseImage->GetHeight() }, Gfx::TextureFormat::RGBA_8U, mDiffuseImage->GetRawColor().data());
 
-		auto normalImageData = Locator::Get<FileSystem>()->ReadBinaryFile("Resources/Textures/TestHumanoid_NRM.png");
+		auto normalImageData = Locator::Get<FileSystem>()->ReadBinaryFile(Path{ "Resources/Textures/TestHumanoid_NRM.png", PathType::Assets });
 		mNormalImage = std::make_unique<Asset::Image>(normalImageData.Value());
 		mNormalTexture = gfx->CreateTexture({ mNormalImage->GetWidth(), mNormalImage->GetHeight() }, Gfx::TextureFormat::RGBA_8U, mNormalImage->GetRawColor().data());
 
 		mSampler = gfx->CreateSampler();
 
-		auto modelBuffer = Locator::Get<FileSystem>()->ReadBinaryFile("Resources/Models/TestHumanoid_Model.gltf");
+		auto modelBuffer = Locator::Get<FileSystem>()->ReadBinaryFile(Path{ "Resources/Models/TestHumanoid_Model.gltf", PathType::Assets });
 		mModel = std::make_unique<Render::Model>(*gfx, modelBuffer.Value());
 
 		mShadowShader = mCtx.LoadShader("ShadowMap");

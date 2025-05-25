@@ -21,9 +21,9 @@ namespace Zeron::DB
 
 		// TODO: Investigate best env flags for use
 		const int envFlags = MDB_NOSYNC | MDB_WRITEMAP;
-		const int result = mdb_env_open(mEnvironment, config.mPath.ToString().c_str(), envFlags, 0664);
+		const int result = mdb_env_open(mEnvironment, config.mPath.c_str(), envFlags, 0664);
 		if (result != MDB_SUCCESS) {
-			ZE_FAIL("Failed to open LMDB environment in {}. {}", config.mPath.ToString().c_str(), mdb_strerror(result));
+			ZE_FAIL("Failed to open LMDB environment in {}. {}", config.mPath.c_str(), mdb_strerror(result));
 			throw std::runtime_error("Failed to open LMDB environment");
 		}
 	}
@@ -61,9 +61,9 @@ namespace Zeron::DB
 		t.Commit();
 	}
 
-	bool StorageLMDB::CopyStorage(const Path& path)
+	bool StorageLMDB::CopyStorage(const std::string& path)
 	{
-		if (mdb_env_copy(mEnvironment, path.ToString().c_str()) != MDB_SUCCESS) {
+		if (mdb_env_copy(mEnvironment, path.c_str()) != MDB_SUCCESS) {
 			return false;
 		}
 		return true;

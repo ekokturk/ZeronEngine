@@ -73,7 +73,7 @@ namespace Zeron::Time
 
 		T GetElapsedTime() const { return CalculateElapsedTime<T, Precision>(Now(), mTimePoint); }
 
-		bool hasTimeElapsed(T expectedTime) { return GetElapsedTime() > expectedTime; }
+		bool HasTimeElapsed(T expectedTime) { return GetElapsedTime() > expectedTime; }
 
 	  private:
 		TimePoint mTimePoint = Now();

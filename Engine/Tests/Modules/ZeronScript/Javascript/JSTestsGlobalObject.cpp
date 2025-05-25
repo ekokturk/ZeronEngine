@@ -9,7 +9,7 @@
 
 using namespace ::Zeron;
 
-namespace TestModule_ZeronScript::JSTests
+namespace ZeronScriptTests::JavascriptTests
 {
 	int mFunctionCallCount = 0;
 	int mFunctionWithReturnCallCount = 0;

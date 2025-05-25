@@ -7,7 +7,7 @@
 namespace Zeron::DB
 {
 	struct MapStorageConfig {
-		Path mPath;
+		std::string mPath;
 		size_t mSize = 0;
 	};
 
@@ -23,6 +23,6 @@ namespace Zeron::DB
 		virtual void PutValue(const std::string& key, const std::string& value, std::string_view db = "") = 0;
 		virtual std::string GetValue(const std::string& key, std::string_view db = "") = 0;
 		virtual void DeleteValue(const std::string& key, std::string_view db = "") = 0;
-		virtual bool CopyStorage(const Path& path) = 0;
+		virtual bool CopyStorage(const std::string& path) = 0;
 	};
 }

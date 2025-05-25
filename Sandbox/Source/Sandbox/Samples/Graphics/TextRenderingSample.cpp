@@ -34,7 +34,7 @@ namespace Sandbox
 
 	void TextRenderingSample::Init()
 	{
-		auto font = Locator::Get<FileSystem>()->ReadBinaryFile(Path("Resources/Fonts/NimbusSans.ttf"));
+		auto font = Locator::Get<FileSystem>()->ReadBinaryFile(Path("Resources/Fonts/NimbusSans.ttf", PathType::Assets));
 		ZE_ASSERT(!font.HasError(), "");
 
 		mFont = std::make_unique<Render::FontAtlas>("Arial");

@@ -6,6 +6,7 @@ namespace Zeron
 {
 	void CommandLineArgs::Process(int argc, char* argv[])
 	{
+		mRawArgs = std::make_pair(argc, argv);
 		for (int i = 1; i < argc; ++i) {
 			const std::string arg = argv[i];
 			const std::string::size_type pos = arg.find('=');
@@ -27,5 +28,10 @@ namespace Zeron
 		static const std::string emptyArg;
 		const auto itr = mArguments.find(arg);
 		return itr != mArguments.cend() ? itr->second : emptyArg;
+	}
+
+	const std::pair<int, char**>& CommandLineArgs::GetRawArgs() const
+	{
+		return mRawArgs;
 	}
 }

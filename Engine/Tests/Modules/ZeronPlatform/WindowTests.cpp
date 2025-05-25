@@ -7,7 +7,9 @@
 
 using namespace ::Zeron;
 
-namespace TestModule_ZeronPlatform
+#if ZE_WINDOW_GLFW || ZE_WINDOW_WIN32
+
+namespace ZeronPlatformTests
 {
 	class WindowTest : public ::testing::TestWithParam<WindowAPI> {
 	  public:
@@ -201,10 +203,11 @@ namespace TestModule_ZeronPlatform
 		EXPECT_FALSE(mWindow->IsHidden());
 	}
 
-#if ZE_WINDOW_GLFW
+#	if ZE_WINDOW_GLFW
 	INSTANTIATE_TEST_SUITE_P(WindowAPI_GLFW, WindowTest, ::testing::Values(WindowAPI::GLFW));
-#endif
-#if ZE_WINDOW_WIN32
+#	endif
+#	if ZE_WINDOW_WIN32
 	INSTANTIATE_TEST_SUITE_P(WindowAPI_Win32, WindowTest, ::testing::Values(WindowAPI::Win32));
-#endif
+#	endif
 }
+#endif

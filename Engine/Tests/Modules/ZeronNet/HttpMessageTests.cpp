@@ -12,7 +12,7 @@ using namespace ::Zeron;
 using namespace ::Zeron::Net;
 
 
-namespace TestModule_ZeronNet
+namespace ZeronNetTests
 {
 	// TODO: Timeout
 	// TODO: Multi Client
@@ -30,17 +30,22 @@ namespace TestModule_ZeronNet
 
 		void TearDown() override {}
 
-		void UpdateUntil(int reqCount, int resCount, int update = 10)
+		void UpdateUntil(int reqCount, int resCount)
 		{
-			for (int i = 0; i < update; ++i) {
+			Time::Timer<float, Time::Seconds> timer;
+			bool handled = false;
+			while (true) {
+				if (timer.HasTimeElapsed(3.f)) {
+					break;
+				}
 				mServer->Update();
 				mClient->Update();
 				if (mFixture.mReqCount == reqCount && mFixture.mResCount == resCount) {
-					mFixture.mHandled = true;
+					handled = true;
 					break;
 				}
 			}
-			ASSERT_TRUE(mFixture.mHandled);
+			ASSERT_TRUE(handled);
 		}
 
 	  protected:
@@ -290,9 +295,9 @@ namespace TestModule_ZeronNet
 
 		UpdateUntil(1, 1);
 		mServer->SendEvent(connId, HttpServerSentEvent{ .mId = "second", .mData = "\n\n\n\rtest" });
-		UpdateUntil(2, 2);
+		UpdateUntil(1, 2);
 		mServer->SendEvent(connId, HttpServerSentEvent{ .mData = "test\n\n\n" });
-		UpdateUntil(3, 3);
+		UpdateUntil(1, 3);
 
 		EXPECT_TRUE(mServer->HasSession(connId));
 	}
@@ -340,8 +345,8 @@ namespace TestModule_ZeronNet
 			ASSERT_TRUE(err);
 		});
 
-		auto initTime = Time::Now();
-		while (Time::CalculateElapsedTime<float, Time::Milliseconds>(Time::Now(), initTime) < 20) {
+		Time::Timer<float, Time::Milliseconds> timer;
+		while (!timer.HasTimeElapsed(100.f)) {
 			client->Update();
 		}
 

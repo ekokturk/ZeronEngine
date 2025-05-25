@@ -27,11 +27,13 @@ add_subdirectory("${ZERON_SOURCE_DIR}/ZeronScript")
 
 add_subdirectory("${ZERON_SOURCE_DIR}/ZeronGUI")
 
+# Resources
+set(ZERON_RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
+add_subdirectory("${ZERON_RESOURCE_DIR}")
+
 # Tests
 if(ZERON_TESTS)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/Tests")
 endif()
 
-# Resources
-set(ZERON_RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
-add_subdirectory("${ZERON_RESOURCE_DIR}")
+

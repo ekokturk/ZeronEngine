@@ -8,16 +8,17 @@
 
 namespace Zeron
 {
-	FileSystemAndroid::FileSystemAndroid(AAssetManager* assetManager)
+	FileSystemAndroid::FileSystemAndroid(AAssetManager* assetManager, const char* internalDataPath, const char* externalDataPath)
 		: mAssetManager(assetManager)
+		, mInternalDataPath(internalDataPath)
+		, mExternalDataPath(externalDataPath)
 	{}
 
 	FileSystemAndroid::~FileSystemAndroid() {}
 
 	Result<ByteBuffer, FileSystemError> FileSystemAndroid::ReadBinaryFile(const Path& file)
 	{
-		// Try finding file in android assets first if path is relative
-		if (file.IsRelative()) {
+		if (file.GetType() == PathType::Assets) {
 			AAsset* androidAsset = AAssetManager_open(mAssetManager, file.ToString().c_str(), AASSET_MODE_BUFFER);
 			if (androidAsset) {
 				const size_t fileLength = AAsset_getLength(androidAsset);
@@ -27,13 +28,12 @@ namespace Zeron
 				return std::move(data);
 			}
 		}
-		return FileSystemAndroid::ReadBinaryFile(file);
+		return FileSystemStandard::ReadBinaryFile(file);
 	}
 
 	Result<std::string, FileSystemError> FileSystemAndroid::ReadTextFile(const Path& file)
 	{
-		// Try finding file in android assets first if path is relative
-		if (file.IsRelative()) {
+		if (file.GetType() == PathType::Assets) {
 			AAsset* androidAsset = AAssetManager_open(mAssetManager, file.ToString().c_str(), AASSET_MODE_BUFFER);
 			if (androidAsset) {
 				const size_t fileLength = AAsset_getLength(androidAsset);
@@ -43,17 +43,27 @@ namespace Zeron
 				return fileContent;
 			}
 		}
-		return FileSystemAndroid::ReadTextFile(file);
+		return FileSystemStandard::ReadTextFile(file);
 	}
 
 	bool FileSystemAndroid::WriteBinaryFile(const Path& file, const ByteBuffer& data)
 	{
-		return FileSystemAndroid::WriteBinaryFile(file, data);
+		return FileSystemStandard::WriteBinaryFile(file, data);
 	}
 
 	bool FileSystemAndroid::WriteTextFile(const Path& file, const std::string& data)
 	{
-		return FileSystemAndroid::WriteTextFile(file, data);
+		return FileSystemStandard::WriteTextFile(file, data);
+	}
+
+	std::string FileSystemAndroid::ResolvePath(const Path& path) const
+	{
+		switch (path.GetType()) {
+			case PathType::WorkingDir: return (Path(mInternalDataPath) / path.ToString()).ToString();
+			case PathType::Cache: return (Path(mInternalDataPath) / "cache" / path.ToString()).ToString();
+			case PathType::UserFiles: return mExternalDataPath;
+		}
+		return FileSystemStandard::ResolvePath(path);
 	}
 }
 

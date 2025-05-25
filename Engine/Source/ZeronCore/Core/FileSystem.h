@@ -23,5 +23,6 @@ namespace Zeron
 
 		virtual bool FileExists(const Path& file) const = 0;
 		virtual bool DirExists(const Path& dir) const = 0;
+		virtual std::string ResolvePath(const Path& path) const = 0;
 	};
 }

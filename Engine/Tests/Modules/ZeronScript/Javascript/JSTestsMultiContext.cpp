@@ -9,7 +9,7 @@
 
 using namespace ::Zeron;
 
-namespace TestModule_ZeronScript::JSTests
+namespace ZeronScriptTests::JavascriptTests
 {
 	TEST(MultiContext, CreateTwoContexts_RunScriptForFirst_ReturnedValue)
 	{

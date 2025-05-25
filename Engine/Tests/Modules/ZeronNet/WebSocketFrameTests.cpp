@@ -7,7 +7,7 @@
 using namespace ::Zeron;
 using namespace ::Zeron::Net;
 
-namespace TestModule_ZeronNet
+namespace ZeronNetTests
 {
 	TEST(WebSocketFrameTests, DefaultTextFrame_SerializeThenDeserialize_HasSameFrame)
 	{

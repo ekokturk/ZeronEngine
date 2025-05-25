@@ -9,7 +9,7 @@
 
 using namespace ::Zeron;
 
-namespace TestModule_ZeronScript::JSTests
+namespace ZeronScriptTests::JavascriptTests
 {
 	TEST(Value, Null_RunWithUndefinedResult_CorrectValue)
 	{

@@ -10,7 +10,7 @@
 using namespace ::Zeron;
 using namespace ::Zeron::Physics;
 
-namespace TestModule_ZeronPhysics::EntityTests
+namespace ZeronPhysicsTests
 {
 
 	TEST(PhysicsTests, CreateDynamicBody_HasCorrectAttributes)

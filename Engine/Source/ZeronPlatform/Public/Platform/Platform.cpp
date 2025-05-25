@@ -89,7 +89,7 @@ namespace Zeron
 	ByteBuffer Platform::_readWindowIcon() const
 	{
 		ZE_ASSERT(mFileSystem, "Expected file system to be initialized!");
-		auto iconResult = mFileSystem->ReadBinaryFile("Resources/window_icon.png");
+		auto iconResult = mFileSystem->ReadBinaryFile(Path{ "Resources/window_icon.png", PathType::Assets });
 		if (!iconResult.HasError()) {
 			return iconResult.Value();
 		}

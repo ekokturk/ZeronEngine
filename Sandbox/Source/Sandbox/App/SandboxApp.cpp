@@ -45,7 +45,7 @@ void Sandbox::Application::Run()
 		}
 
 		++frameCount;
-		if (timer.hasTimeElapsed(1.f)) {
+		if (timer.HasTimeElapsed(1.f)) {
 			ZE_LOG("{} FPS", frameCount);
 			frameCount = 0;
 			timer.Reset();

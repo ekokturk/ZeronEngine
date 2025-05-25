@@ -62,7 +62,7 @@ namespace Zeron
 			}
 		}
 
-		mFileSystem = std::make_unique<FileSystemAndroid>(mApp->activity->assetManager);
+		mFileSystem = std::make_unique<FileSystemAndroid>(mApp->activity->assetManager, mApp->activity->internalDataPath, mApp->activity->externalDataPath);
 
 		return true;
 	}

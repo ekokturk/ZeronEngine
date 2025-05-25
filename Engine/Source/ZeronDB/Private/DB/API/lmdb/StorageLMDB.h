@@ -18,7 +18,7 @@ namespace Zeron::DB
 		std::string GetValue(const std::string& key, std::string_view db) override;
 		void DeleteValue(const std::string& key, std::string_view db) override;
 
-		bool CopyStorage(const Path& path) override;
+		bool CopyStorage(const std::string& path) override;
 
 		// LMDB
 		MDB_env* GetEnv() const;

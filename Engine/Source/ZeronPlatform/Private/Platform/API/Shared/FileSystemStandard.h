@@ -17,5 +17,6 @@ namespace Zeron
 		Result<void, FileSystemError> RemoveDir(const Path& dir, bool recursive) override;
 		bool FileExists(const Path& file) const override;
 		bool DirExists(const Path& dir) const override;
+		std::string ResolvePath(const Path& path) const override;
 	};
 }

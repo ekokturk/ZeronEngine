@@ -195,7 +195,9 @@ macro(zeron_install_executable target installPath resourcePathList)
     set(_ZERON_INSTALL_TARGET ${target})
     if(DESKTOP)
         set(_ZERON_INSTALL_PATH "${installPath}")
-        string(REPLACE "\n" ";" _ZERON_RESOURCE_PATH_LIST ${resourcePathList})
+        if(NOT ${resourcePathList} STREQUAL "")
+            string(REPLACE "\n" ";" _ZERON_RESOURCE_PATH_LIST ${resourcePathList})
+        endif()
         set(_ZERON_INSTALL_SCRIPT_PATH "${CMAKE_BINARY_DIR}/${target}/zeron_install.cmake")
 
         # Generate install script

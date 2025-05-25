@@ -6,7 +6,7 @@
 
 using namespace ::Zeron;
 
-namespace TestModule_ZeronCore::EntityTests
+namespace ZeronCoreTests::EntityTests
 {
 	struct Comp1 {
 		int prop = 0;
