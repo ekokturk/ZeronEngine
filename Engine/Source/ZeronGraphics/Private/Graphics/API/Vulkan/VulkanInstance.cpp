@@ -11,7 +11,8 @@ namespace Zeron::Gfx
 	uint32_t VulkanInstance::mRefCount = 0;
 
 #	if (VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1)
-	vk::DynamicLoader VulkanInstance::mDynamicLoader;
+
+	VulkanInstance::DynamicLoader VulkanInstance::mDynamicLoader;
 #	endif
 
 #	if ZE_DEBUG
@@ -21,8 +22,8 @@ namespace Zeron::Gfx
 	void VulkanInstance::LoadProc()
 	{
 #	if (VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1)
-		ZE_ASSERT(mDynamicLoader.success(), "Unable to find Vulkan library on this platform");
-		auto vkGetInstanceProcAddr = mDynamicLoader.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+		ZE_ASSERT(mDynamicLoader.IsSuccess(), "Unable to find Vulkan library on this platform");
+		auto vkGetInstanceProcAddr = mDynamicLoader.GetInstanceProcAddress();
 		VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
 #	endif
 	}
@@ -58,6 +59,41 @@ namespace Zeron::Gfx
 			mInstance.destroy();
 			mInstance = nullptr;
 		}
+	}
+
+	VulkanInstance::DynamicLoader::DynamicLoader()
+		: mSuccess(false)
+	{
+#	if ZE_PLATFORM_ANDROID || ZE_PLATFORM_LINUX
+		mLibrary = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+		if (mLibrary == 0) {
+			mLibrary = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
+		}
+#	elif ZE_PLATFORM_WIN32
+		mLibrary = LoadLibrary("vulkan-1.dll");
+#	endif
+
+		mSuccess = mLibrary != 0;
+	}
+
+	VulkanInstance::DynamicLoader::~DynamicLoader()
+	{
+		if (mLibrary) {
+#	if ZE_PLATFORM_ANDROID || ZE_PLATFORM_LINUX
+			dlclose(mLibrary);
+#	elif ZE_PLATFORM_WIN32
+			FreeLibrary(static_cast<HMODULE>(mLibrary));
+#	endif
+		}
+	}
+
+	PFN_vkGetInstanceProcAddr VulkanInstance::DynamicLoader::GetInstanceProcAddress() const
+	{
+#	if ZE_PLATFORM_ANDROID || ZE_PLATFORM_LINUX
+		return reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(mLibrary, "vkGetInstanceProcAddr"));
+#	elif ZE_PLATFORM_WIN32
+		return reinterpret_cast<PFN_vkGetInstanceProcAddr>(GetProcAddress(static_cast<HMODULE>(mLibrary), "vkGetInstanceProcAddr"));
+#	endif
 	}
 }
 #endif

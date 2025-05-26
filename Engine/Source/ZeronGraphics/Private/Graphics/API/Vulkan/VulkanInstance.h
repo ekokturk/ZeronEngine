@@ -17,13 +17,27 @@ namespace Zeron::Gfx
 	  private:
 		static vk::Instance mInstance;
 		static uint32_t mRefCount;
+
 #	if (VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1)
-		static vk::DynamicLoader mDynamicLoader;
+		// vk::DynamicLoader alternative to search for various vulkan libraries
+		class DynamicLoader {
+		  public:
+			DynamicLoader();
+			~DynamicLoader();
+
+			PFN_vkGetInstanceProcAddr GetInstanceProcAddress() const;
+			bool IsSuccess() const { return mSuccess; }
+
+		  private:
+			bool mSuccess;
+			void* mLibrary;
+		};
+		static DynamicLoader mDynamicLoader;
 #	endif
+
 #	if ZE_DEBUG
 		static vk::DebugUtilsMessengerEXT mDebugMessenger;
 #	endif
 	};
-
 }
 #endif
